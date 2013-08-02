@@ -322,76 +322,78 @@ module.exports = function(arr, fn){
   return ret;
 };
 });
-require.register("gorillatron-extend/index.js", function(exports, require, module){
-/*
- * @exports extend
-*/
-
-/**
-  Extends a set of objects. Merges them into one new object
-  @public
-  @type Function
-  @param {Boolean} deep Should it extend all child objects
-  @param []{Object} splat objects to merge
-*/
-function extend( deep ) {
-  var out, objs, i, obj, prop, val
-
-  out = {}
-
-  typeof deep === "boolean" ? ( objs = [].slice.call(arguments, 1), deep = deep ) :
-                              ( objs = [].slice.call(arguments, 0), deep = false )
-
-  for( i = 0; i < objs.length; i++ ) {
-
-    obj = objs[ i ]
-
-    for( prop in obj ) {
-      val = obj[ prop ]
-      if( deep && typeof val === "object" && typeof out[prop] === "object") {
-        out[ prop ] = extend( out[prop], val )
-      } else {
-        out[ prop ] = val
-      }
-      
-    }
-  }
-
-  return out
-}
-
-
-module.exports = extend;
- 
-
-});
-
 require.register("component-400/app.js", function(exports, require, module){
-var table, _;
+var BATCH_SIZE, RENDER_SIZE, row, table, _, _ref;
 
 _ = {
-  extend: require('extend'),
   map: require('map')
 };
 
-table = _.map(['./table'], function(tml) {
+_ref = _.map(['./table', './row'], function(tml) {
+  var fn;
+  fn = require(tml);
   return function(context, cb) {
-    var err;
+    var err, html;
     try {
-      return cb(null, require(tml)(context || {}));
+      html = fn.call(null, context || {});
     } catch (_error) {
       err = _error;
       return cb(err.message);
     }
+    return cb(null, html);
   };
-})[0];
+}), table = _ref[0], row = _ref[1];
 
-module.exports = function(data, target) {
-  return table(data, function(err, html) {
+BATCH_SIZE = 20;
+
+RENDER_SIZE = 100;
+
+module.exports = function(collection, target) {
+  target = document.querySelector(target);
+  return table({}, function(err, html) {
+    var batch, fragment, keys, length, process, rows, selected, tbody;
     if (err) {
       throw err;
     }
-    return console.log(html);
+    target.innerHTML = html;
+    selected = {};
+    tbody = target.querySelector('tbody');
+    keys = Object.keys(collection);
+    length = keys.length;
+    if (BATCH_SIZE > length) {
+      BATCH_SIZE = length;
+    }
+    if (RENDER_SIZE > length) {
+      RENDER_SIZE = length;
+    }
+    rows = 0;
+    fragment = document.createDocumentFragment();
+    process = function(obj) {
+      return row(obj, function(err, html) {
+        var tr;
+        if (err) {
+          throw err;
+        }
+        tr = document.createElement('tr');
+        tr.innerHTML = html;
+        fragment.appendChild(tr);
+        if (rows % RENDER_SIZE === 0 || rows + 1 === length) {
+          tbody.appendChild(fragment);
+          return fragment = document.createDocumentFragment();
+        }
+      });
+    };
+    batch = function() {
+      var i;
+      i = BATCH_SIZE;
+      while (i !== 0 && rows !== length) {
+        process(collection[keys[rows]]);
+        rows += 1;
+        i -= 1;
+      }
+      return setTimeout(batch, 0);
+    };
+    return batch.call(null);
   });
 };
 
@@ -436,7 +438,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('Hello world!');
+      __out.push('<table>\n    <thead>\n        <tr>\n            <th></th>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
     
     }).call(this);
     
@@ -445,15 +447,98 @@ module.exports = function(__obj) {
   return __out.join('');
 }
 });
-
-
-
+require.register("component-400/row.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      var input, key, reason, reasons, symbol, val, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    
+      __out.push('<td><input type="checkbox" /></td>\n<td class="list">\n    ');
+    
+      _ref = Object.keys(this.identifiers);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        input = _ref[_i];
+        __out.push('\n        <span>');
+        __out.push(input);
+        __out.push('</span>\n    ');
+      }
+    
+      __out.push('\n</td>\n<td class="list">\n    ');
+    
+      _ref1 = this.summary;
+      for (key in _ref1) {
+        val = _ref1[key];
+        __out.push('\n        <span title="');
+        __out.push(__sanitize(key));
+        __out.push('">');
+        __out.push(val);
+        __out.push('</span>\n    ');
+      }
+    
+      __out.push('\n</td>\n<td class="list">\n    ');
+    
+      _ref2 = this.identifiers;
+      for (symbol in _ref2) {
+        reasons = _ref2[symbol];
+        __out.push('\n        <span>\n            ');
+        __out.push(symbol);
+        __out.push(' is a\n            ');
+        for (_j = 0, _len1 = reasons.length; _j < _len1; _j++) {
+          reason = reasons[_j];
+          __out.push('\n                <span>');
+          __out.push(reason);
+          __out.push('</span>\n            ');
+        }
+        __out.push('\n        </span>\n    ');
+      }
+    
+      __out.push('\n</td>');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
 require.alias("component-map/index.js", "component-400/deps/map/index.js");
 require.alias("component-map/index.js", "map/index.js");
 require.alias("component-to-function/index.js", "component-map/deps/to-function/index.js");
-
-require.alias("gorillatron-extend/index.js", "component-400/deps/extend/index.js");
-require.alias("gorillatron-extend/index.js", "extend/index.js");
-
 
 require.alias("component-400/app.js", "component-400/index.js");

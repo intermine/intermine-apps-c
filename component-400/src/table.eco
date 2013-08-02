@@ -1,1 +1,13 @@
-Hello world!
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Provided</th>
+            <th>Matched</th>
+            <th>Why</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- row.eco -->
+    </tbody>
+</table>

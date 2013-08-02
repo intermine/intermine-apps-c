@@ -1,0 +1,21 @@
+<td><input type="checkbox" /></td>
+<td class="list">
+    <% for input in Object.keys @identifiers: %>
+        <span><%- input %></span>
+    <% end %>
+</td>
+<td class="list">
+    <% for key, val of @summary: %>
+        <span title="<%= key %>"><%- val %></span>
+    <% end %>
+</td>
+<td class="list">
+    <% for symbol, reasons of @identifiers: %>
+        <span>
+            <%- symbol %> is a
+            <% for reason in reasons: %>
+                <span><%- reason %></span>
+            <% end %>
+        </span>
+    <% end %>
+</td>

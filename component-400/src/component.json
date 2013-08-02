@@ -1,14 +1,14 @@
 {
     "name": "component-400",
     "main": "app.js",
+    "version": "0.0.1",
     "dependencies": {
-        "component/map": "*",
-        "gorillatron/extend": "*",
-        "necolas/normalize.css": "*"
+        "component/map": "*"
     },
     "scripts": [
         "app.coffee",
-        "table.eco"
+        "table.eco",
+        "row.eco"
     ],
     "styles": [
         "style.styl"
