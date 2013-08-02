@@ -1,0 +1,16 @@
+{
+    "name": "app",
+    "main": "app.js",
+    "dependencies": {
+        "component/map": "*",
+        "gorillatron/extend": "*",
+        "necolas/normalize.css": "*"
+    },
+    "scripts": [
+        "app.coffee",
+        "table.eco"
+    ],
+    "styles": [
+        "style.styl"
+    ]
+}
