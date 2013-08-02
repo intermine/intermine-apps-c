@@ -1,5 +1,5 @@
 {
-    "name": "app",
+    "name": "component-400",
     "main": "app.js",
     "dependencies": {
         "component/map": "*",
