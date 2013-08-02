@@ -18,18 +18,15 @@ Shows a table of matches of an InterMine ID Resolution Job.
 </html>
 ```
 
+You can see a running example like so:
+
+```bash
+$ apps-b serve ./example/
+```
+
 #Build
 
 ```bash
 $ npm install apps-b-builder
-$ apps-b-builder ./src/ ./build/
-```
-
-#Example
-
-Expose the `/example` dir on an HTTP server or use [Connect](http://www.senchalabs.org/connect/) for that:
-
-```bash
-$ npm install connect
-$ PORT=1234 node index.js
+$ apps-b build ./src/ ./build/
 ```
