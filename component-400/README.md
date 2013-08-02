@@ -14,6 +14,6 @@ $ apps-b-builder ./src/ ./build/
 Expose the `/example` dir on an HTTP server or use [Connect](http://www.senchalabs.org/connect/) for that:
 
 ```bash
-$ sudo npm install connect -g
-$ node index.js
+$ npm install connect
+$ PORT=1234 node index.js
 ```
