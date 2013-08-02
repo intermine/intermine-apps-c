@@ -1,5 +1,9 @@
-_ =
+extend = require 'extend'
+map    = require 'map'
+object = require 'object'
+_ = extend {}, object,
     map: require 'map'
+    extend: extend
 
 # Functionalize templates (sync).
 [ table, row ] = _.map [ './table', './row' ], (tml) ->
@@ -29,7 +33,7 @@ module.exports = (collection, target) ->
         tbody = target.querySelector 'tbody'
 
         # All the keys.
-        keys = Object.keys collection
+        keys = _.keys collection
         length = keys.length
 
         # Adjust ceilings.

@@ -322,12 +322,122 @@ module.exports = function(arr, fn){
   return ret;
 };
 });
-require.register("component-400/app.js", function(exports, require, module){
-var BATCH_SIZE, RENDER_SIZE, row, table, _, _ref;
+require.register("segmentio-extend/index.js", function(exports, require, module){
 
-_ = {
-  map: require('map')
+module.exports = function extend (object) {
+    // Takes an unlimited number of extenders.
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    // For each extender, copy their properties on our object.
+    for (var i = 0, source; source = args[i]; i++) {
+        if (!source) continue;
+        for (var property in source) {
+            object[property] = source[property];
+        }
+    }
+
+    return object;
 };
+});
+require.register("component-object/index.js", function(exports, require, module){
+
+/**
+ * HOP ref.
+ */
+
+var has = Object.prototype.hasOwnProperty;
+
+/**
+ * Return own keys in `obj`.
+ *
+ * @param {Object} obj
+ * @return {Array}
+ * @api public
+ */
+
+exports.keys = Object.keys || function(obj){
+  var keys = [];
+  for (var key in obj) {
+    if (has.call(obj, key)) {
+      keys.push(key);
+    }
+  }
+  return keys;
+};
+
+/**
+ * Return own values in `obj`.
+ *
+ * @param {Object} obj
+ * @return {Array}
+ * @api public
+ */
+
+exports.values = function(obj){
+  var vals = [];
+  for (var key in obj) {
+    if (has.call(obj, key)) {
+      vals.push(obj[key]);
+    }
+  }
+  return vals;
+};
+
+/**
+ * Merge `b` into `a`.
+ *
+ * @param {Object} a
+ * @param {Object} b
+ * @return {Object} a
+ * @api public
+ */
+
+exports.merge = function(a, b){
+  for (var key in b) {
+    if (has.call(b, key)) {
+      a[key] = b[key];
+    }
+  }
+  return a;
+};
+
+/**
+ * Return length of `obj`.
+ *
+ * @param {Object} obj
+ * @return {Number}
+ * @api public
+ */
+
+exports.length = function(obj){
+  return exports.keys(obj).length;
+};
+
+/**
+ * Check if `obj` is empty.
+ *
+ * @param {Object} obj
+ * @return {Boolean}
+ * @api public
+ */
+
+exports.isEmpty = function(obj){
+  return 0 == exports.length(obj);
+};
+});
+require.register("component-400/app.js", function(exports, require, module){
+var BATCH_SIZE, RENDER_SIZE, extend, map, object, row, table, _, _ref;
+
+extend = require('extend');
+
+map = require('map');
+
+object = require('object');
+
+_ = extend({}, object, {
+  map: require('map'),
+  extend: extend
+});
 
 _ref = _.map(['./table', './row'], function(tml) {
   var fn;
@@ -358,7 +468,7 @@ module.exports = function(collection, target) {
     target.innerHTML = html;
     selected = {};
     tbody = target.querySelector('tbody');
-    keys = Object.keys(collection);
+    keys = _.keys(collection);
     length = keys.length;
     if (BATCH_SIZE > length) {
       BATCH_SIZE = length;
@@ -537,8 +647,17 @@ module.exports = function(__obj) {
   return __out.join('');
 }
 });
+
+
+
 require.alias("component-map/index.js", "component-400/deps/map/index.js");
 require.alias("component-map/index.js", "map/index.js");
 require.alias("component-to-function/index.js", "component-map/deps/to-function/index.js");
+
+require.alias("segmentio-extend/index.js", "component-400/deps/extend/index.js");
+require.alias("segmentio-extend/index.js", "extend/index.js");
+
+require.alias("component-object/index.js", "component-400/deps/object/index.js");
+require.alias("component-object/index.js", "object/index.js");
 
 require.alias("component-400/app.js", "component-400/index.js");
