@@ -6,5 +6,5 @@ Shows a table of matches of an InterMine ID Resolution Job.
 
 ```bash
 $ npm install apps-b-builder
-$ apps-b-builder ./src ./build
+$ apps-b-builder ./src/ ./build/
 ```
