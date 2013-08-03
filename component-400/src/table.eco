@@ -1,3 +1,5 @@
+<button class="done" type='button'>Done</button>
+
 <div class="header">
     <!-- header.eco -->
 </div>

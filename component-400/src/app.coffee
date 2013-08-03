@@ -19,14 +19,26 @@ BATCH_SIZE = 20   # how many rows to process in sync
 RENDER_SIZE = 100 # how many rows to render in sync
 
 # We are passed an object/collection and a target to render to.
-module.exports = (collection, target) ->
+module.exports = (collection, target, cb) ->
+    # Specified callback?
+    cb ?= -> throw 'Provide your own callback function'
+
+    # DOMify.
     target = $ target
+
     # Render the wrapping table.
     table {}, (err, html) ->
-        throw err if err
+        return cb(err) if err
+        
+        # An object of selected internal IDs.
+        selected = {}
+
+        # Insert into DOM.
         target.html html
 
-        selected = {}
+        # Call back with ids event.
+        target.find('button.done').on 'click', ->
+            cb null, ( k for k, v of selected )
 
         # Do we have these reasons?
         stats =
@@ -81,7 +93,7 @@ module.exports = (collection, target) ->
 
             # Render row.
             row obj, (err, html) ->
-                throw err if err
+                return cb(err) if err
                 
                 # Add html fragment.
                 tr = document.createElement 'tr'
@@ -132,7 +144,7 @@ module.exports = (collection, target) ->
         renderHeader = ->
             # Render the "add all" buttons.
             header reasons: stats, (err, html) ->
-                throw err if err
+                return cb(err) if err
                 (sel = target.find('.header')).html html
 
                 # Onclick events.

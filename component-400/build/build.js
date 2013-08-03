@@ -1856,15 +1856,32 @@ BATCH_SIZE = 20;
 
 RENDER_SIZE = 100;
 
-module.exports = function(collection, target) {
+module.exports = function(collection, target, cb) {
+  if (cb == null) {
+    cb = function() {
+      throw 'Provide your own callback function';
+    };
+  }
   target = $(target);
   return table({}, function(err, html) {
     var batch, fragment, keys, length, megaMap, process, renderHeader, rows, selected, setAll, stats, tbody;
     if (err) {
-      throw err;
+      return cb(err);
     }
-    target.html(html);
     selected = {};
+    target.html(html);
+    target.find('button.done').on('click', function() {
+      var k, v;
+      return cb(null, (function() {
+        var _results;
+        _results = [];
+        for (k in selected) {
+          v = selected[k];
+          _results.push(k);
+        }
+        return _results;
+      })());
+    });
     stats = {
       MATCH: {
         total: 0,
@@ -1925,7 +1942,7 @@ module.exports = function(collection, target) {
       return row(obj, function(err, html) {
         var tr;
         if (err) {
-          throw err;
+          return cb(err);
         }
         tr = document.createElement('tr');
         tr.innerHTML = html;
@@ -1977,7 +1994,7 @@ module.exports = function(collection, target) {
       }, function(err, html) {
         var sel;
         if (err) {
-          throw err;
+          return cb(err);
         }
         (sel = target.find('.header')).html(html);
         return sel.find('button').each(function(el) {
@@ -2054,7 +2071,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table>\n    <thead>\n        <tr>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
+      __out.push('<button class="done" type=\'button\'>Done</button>\n\n<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table>\n    <thead>\n        <tr>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
     
     }).call(this);
     

@@ -13,7 +13,14 @@ Shows a table of matches of an InterMine ID Resolution Job.
 </head>
 <body>
     <div id="target"></div>
-    <script>require('component-400/app').call(null, data, '#target');</script>
+    <script>
+    require('component-400/app').call(null, data, '#target', function(err, selected) {
+        // An error callback.
+        if (err) throw err;
+        // A list of selected identifiers.
+        console.log(selected);
+    });
+    </script>
 </body>
 </html>
 ```
