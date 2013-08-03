@@ -1,0 +1,7 @@
+<% for reason, { total, selected } of @reasons: %>
+    <% if total is selected: %>
+        <button data-reason="<%= reason %>" type='button'>Remove <%= total %>x <%= reason %></button>
+    <% else: %>
+        <button data-reason="<%= reason %>" type='button'>Add <%= total %>x <%= reason %></button>
+    <% end %>
+<% end %>

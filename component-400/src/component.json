@@ -1,16 +1,19 @@
 {
     "name": "component-400",
     "main": "app.js",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "dependencies": {
         "component/map": "*",
         "segmentio/extend": "*",
-        "component/object": "*"
+        "component/object": "*",
+        "manuelstofer/foreach": "*",
+        "component/dom": "*"
     },
     "scripts": [
         "app.coffee",
         "table.eco",
-        "row.eco"
+        "row.eco",
+        "header.eco"
     ],
     "styles": [
         "style.styl"
