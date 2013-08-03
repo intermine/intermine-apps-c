@@ -15,3 +15,9 @@
 .list span:not(:last-child):after {
   content: ",";
 }
+table tbody tr {
+  cursor: pointer;
+}
+table tbody tr.selected {
+  background: #ffffd4;
+}

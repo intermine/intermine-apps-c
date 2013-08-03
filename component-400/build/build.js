@@ -1900,17 +1900,28 @@ module.exports = function(collection, target) {
     }
     rows = 0;
     fragment = document.createDocumentFragment();
-    process = function(obj, key, i) {
-      var reason, reasons, symbol, _i, _len, _ref1;
+    process = function(obj, id, i) {
+      var k, ourReasons, reason, reasons, symbol, v, _i, _len, _ref1;
+      ourReasons = {};
       _ref1 = obj.identifiers;
       for (symbol in _ref1) {
         reasons = _ref1[symbol];
         for (_i = 0, _len = reasons.length; _i < _len; _i++) {
           reason = reasons[_i];
           stats[reason].total += 1;
-          megaMap[reason][i] = key;
+          megaMap[reason][i] = id;
+          ourReasons[reason] = true;
         }
       }
+      ourReasons = (function() {
+        var _results;
+        _results = [];
+        for (k in ourReasons) {
+          v = ourReasons[k];
+          _results.push(k);
+        }
+        return _results;
+      })();
       return row(obj, function(err, html) {
         var tr;
         if (err) {
@@ -1919,6 +1930,25 @@ module.exports = function(collection, target) {
         tr = document.createElement('tr');
         tr.innerHTML = html;
         fragment.appendChild(tr);
+        (tr = $(tr)).on('click', function() {
+          var r, _j, _k, _len1, _len2;
+          if (!selected[id]) {
+            selected[id] = true;
+            for (_j = 0, _len1 = ourReasons.length; _j < _len1; _j++) {
+              r = ourReasons[_j];
+              stats[r].selected += 1;
+            }
+            tr.addClass('selected');
+          } else {
+            delete selected[id];
+            for (_k = 0, _len2 = ourReasons.length; _k < _len2; _k++) {
+              r = ourReasons[_k];
+              stats[r].selected -= 1;
+            }
+            tr.removeClass('selected');
+          }
+          return renderHeader.call(null);
+        });
         if (rows % RENDER_SIZE === 0 || rows + 1 === length) {
           tbody.append(fragment);
           return fragment = document.createDocumentFragment();
@@ -1927,11 +1957,18 @@ module.exports = function(collection, target) {
     };
     setAll = function(reason, set) {
       return _.each(megaMap[reason], function(id, n) {
+        var tr;
         if (!id) {
           return;
         }
-        selected[id] = true;
-        return tbody.find('tr').at(n).find('input[type="checkbox"]').attr('checked', set ? 'checked' : null);
+        tr = tbody.find('tr').at(n);
+        if (set) {
+          selected[id] = true;
+          return tr.addClass('selected');
+        } else {
+          delete selected[id];
+          return tr.removeClass('selected');
+        }
       });
     };
     renderHeader = function() {
@@ -2017,7 +2054,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table>\n    <thead>\n        <tr>\n            <th></th>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
+      __out.push('<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table>\n    <thead>\n        <tr>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
     
     }).call(this);
     
@@ -2068,7 +2105,7 @@ module.exports = function(__obj) {
     (function() {
       var input, key, reason, reasons, symbol, val, _i, _j, _len, _len1, _ref, _ref1, _ref2;
     
-      __out.push('<td><input type="checkbox" /></td>\n<td class="list">\n    ');
+      __out.push('<td class="list">\n    ');
     
       _ref = Object.keys(this.identifiers);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -2097,7 +2134,7 @@ module.exports = function(__obj) {
         reasons = _ref2[symbol];
         __out.push('\n        <span>\n            ');
         __out.push(symbol);
-        __out.push(' is a\n            ');
+        __out.push(' is\n            ');
         for (_j = 0, _len1 = reasons.length; _j < _len1; _j++) {
           reason = reasons[_j];
           __out.push('\n                <span>');

@@ -1,7 +1,7 @@
 {
     "name": "component-400",
     "main": "app.js",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "dependencies": {
         "component/map": "*",
         "segmentio/extend": "*",

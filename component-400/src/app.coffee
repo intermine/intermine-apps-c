@@ -64,21 +64,49 @@ module.exports = (collection, target) ->
         # Process items in a batch.
         rows = 0
         fragment = document.createDocumentFragment()
-        process = (obj, key, i) ->
+        process = (obj, id, i) ->
+            ourReasons = {}
+            
             # Get some stats on this.
             for symbol, reasons of obj.identifiers
                 for reason in reasons
                     stats[reason].total += 1
                     # Add to the map.
-                    megaMap[reason][i] = key
+                    megaMap[reason][i] = id
+                    # Add to quick-access reasons of ours.
+                    ourReasons[reason] = yes
+
+            # Arrayize our reasons.
+            ourReasons = ( k for k, v of ourReasons )
 
             # Render row.
             row obj, (err, html) ->
                 throw err if err
+                
                 # Add html fragment.
                 tr = document.createElement 'tr'
                 tr.innerHTML = html
                 fragment.appendChild tr
+                
+                # Single row click event.
+                (tr = $(tr)).on 'click', ->
+                    # Invert the status in the selected map object.
+                    unless selected[id]
+                        selected[id] = yes
+                        # Adjust the selected count(s) in stats object.
+                        ( stats[r].selected += 1 for r in ourReasons )
+                        # Change the class too...
+                        tr.addClass('selected')
+                    else
+                        delete selected[id]
+                        # Adjust the selected count(s) in stats object.
+                        ( stats[r].selected -= 1 for r in ourReasons )
+                        # Change the class too...
+                        tr.removeClass('selected')
+                    
+                    # Re-render the stats object, it may have changed.
+                    renderHeader.call null
+                
                 # Render?
                 if rows % RENDER_SIZE is 0 or rows + 1 is length
                     tbody.append fragment
@@ -88,10 +116,17 @@ module.exports = (collection, target) ->
         setAll = (reason, set) ->
             _.each megaMap[reason], (id, n) ->
                 return unless id
-                # Efficient single add.
-                selected[id] = yes
-                # Check the row in DOM.
-                tbody.find('tr').at(n).find('input[type="checkbox"]').attr('checked', if set then 'checked' else null)
+                # Find the row.
+                tr = tbody.find('tr').at(n)
+                # Efficient add/remove (compared to an array).
+                if set
+                    selected[id] = yes
+                    # Select the row in DOM.
+                    tr.addClass('selected')
+                else
+                    delete selected[id]
+                    # Unselect the row in DOM.
+                    tr.removeClass('selected')
 
         # When we are done...
         renderHeader = ->
