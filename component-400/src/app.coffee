@@ -117,7 +117,7 @@ module.exports = (collection, target, cb) ->
                         tr.removeClass('selected')
                     
                     # Re-render the stats object, it may have changed.
-                    renderHeader.call null
+                    do renderHeader
                 
                 # Render?
                 if rows % RENDER_SIZE is 0 or rows + 1 is length
@@ -162,7 +162,7 @@ module.exports = (collection, target, cb) ->
                             setAll reason, no
 
                         # Re-render either way.
-                        renderHeader.call null
+                        do renderHeader
 
         # Init the processing.
         do batch = ->
@@ -176,4 +176,4 @@ module.exports = (collection, target, cb) ->
             if rows isnt length
                 setTimeout batch, 0
             else
-                renderHeader.call null
+                do renderHeader

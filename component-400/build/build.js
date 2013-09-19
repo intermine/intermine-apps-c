@@ -26,10 +26,14 @@ function require(path, parent, orig) {
   // perform real require()
   // by invoking the module's
   // registered function
-  if (!module.exports) {
-    module.exports = {};
-    module.client = module.component = true;
-    module.call(this, module.exports, require.relative(resolved), module);
+  if (!module._resolving && !module.exports) {
+    var mod = {};
+    mod.exports = {};
+    mod.client = mod.component = true;
+    module._resolving = true;
+    module.call(this, mod.exports, require.relative(resolved), mod);
+    delete module._resolving;
+    module.exports = mod.exports;
   }
 
   return module.exports;
@@ -1964,7 +1968,7 @@ module.exports = function(collection, target, cb) {
             }
             tr.removeClass('selected');
           }
-          return renderHeader.call(null);
+          return renderHeader();
         });
         if (rows % RENDER_SIZE === 0 || rows + 1 === length) {
           tbody.append(fragment);
@@ -2008,7 +2012,7 @@ module.exports = function(collection, target, cb) {
               stats[reason].selected = 0;
               setAll(reason, false);
             }
-            return renderHeader.call(null);
+            return renderHeader();
           });
         });
       });
@@ -2024,7 +2028,7 @@ module.exports = function(collection, target, cb) {
       if (rows !== length) {
         return setTimeout(batch, 0);
       } else {
-        return renderHeader.call(null);
+        return renderHeader();
       }
     })();
   });
