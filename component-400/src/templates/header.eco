@@ -23,16 +23,16 @@
                 
                 <!-- add -->
                 <% if total is selected: %>
-                    <td><a class="small secondary disabled button">Add all</a></td>
+                    <td></td>
                 <% else: %>
-                    <td><a class="small secondary button" data-action="add" data-reason="<%= reason %>">Add all</a></td>
+                    <td><a class="small secondary button" data-action="add" data-reason="<%= reason %>">Add <%= total - selected %> more</a></td>
                 <% end %>
                 
                 <!-- remove -->
                 <% if selected is 0: %>
-                    <td><a class="small secondary disabled button">Remove all</a></td>
+                    <td></td>
                 <% else: %>
-                    <td><a class="small secondary button" data-action="remove" data-reason="<%= reason %>">Remove all</a></td>
+                    <td><a class="small secondary button" data-action="remove" data-reason="<%= reason %>">Remove all <%= selected %></a></td>
                 <% end %>
             </tr>
         <% end %>

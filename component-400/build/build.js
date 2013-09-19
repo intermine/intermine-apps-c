@@ -2437,19 +2437,23 @@ module.exports = function(__obj) {
         }
         __out.push('\n                \n                <!-- add -->\n                ');
         if (total === selected) {
-          __out.push('\n                    <td><a class="small secondary disabled button">Add all</a></td>\n                ');
+          __out.push('\n                    <td></td>\n                ');
         } else {
           __out.push('\n                    <td><a class="small secondary button" data-action="add" data-reason="');
           __out.push(__sanitize(reason));
-          __out.push('">Add all</a></td>\n                ');
+          __out.push('">Add ');
+          __out.push(__sanitize(total - selected));
+          __out.push(' more</a></td>\n                ');
         }
         __out.push('\n                \n                <!-- remove -->\n                ');
         if (selected === 0) {
-          __out.push('\n                    <td><a class="small secondary disabled button">Remove all</a></td>\n                ');
+          __out.push('\n                    <td></td>\n                ');
         } else {
           __out.push('\n                    <td><a class="small secondary button" data-action="remove" data-reason="');
           __out.push(__sanitize(reason));
-          __out.push('">Remove all</a></td>\n                ');
+          __out.push('">Remove all ');
+          __out.push(__sanitize(selected));
+          __out.push('</a></td>\n                ');
         }
         __out.push('\n            </tr>\n        ');
       }
