@@ -11,11 +11,12 @@
     },
     "scripts": [
         "app.coffee",
-        "table.eco",
-        "row.eco",
-        "header.eco"
+        "templates/table.eco",
+        "templates/row.eco",
+        "templates/header.eco"
     ],
     "styles": [
-        "style.styl"
+        "styles/foundation.css",
+        "styles/style.styl"
     ]
 }

@@ -6,8 +6,8 @@ _ = extend {}, require('object'),
 $ = require 'dom'
 
 # Functionalize templates (sync).
-[ table, row, header ] = _.map [ './table', './row', './header' ], (tml) ->
-    fn = require tml
+[ table, row, header ] = _.map [ 'table', 'row', 'header' ], (tml) ->
+    fn = require "./templates/#{tml}"
     (context, cb) ->
         try
             html = fn.call null, context or {}
@@ -24,7 +24,7 @@ module.exports = (collection, target, cb) ->
     cb ?= -> throw 'Provide your own callback function'
 
     # DOMify.
-    target = $ target
+    target = $(target).addClass('foundation')
 
     # Render the wrapping table.
     table {}, (err, html) ->

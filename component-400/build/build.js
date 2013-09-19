@@ -1841,9 +1841,9 @@ _ = extend({}, require('object'), {
 
 $ = require('dom');
 
-_ref = _.map(['./table', './row', './header'], function(tml) {
+_ref = _.map(['table', 'row', 'header'], function(tml) {
   var fn;
-  fn = require(tml);
+  fn = require("./templates/" + tml);
   return function(context, cb) {
     var err, html;
     try {
@@ -1866,7 +1866,7 @@ module.exports = function(collection, target, cb) {
       throw 'Provide your own callback function';
     };
   }
-  target = $(target);
+  target = $(target).addClass('foundation');
   return table({}, function(err, html) {
     var batch, fragment, keys, length, megaMap, process, renderHeader, rows, selected, setAll, stats, tbody;
     if (err) {
@@ -2035,7 +2035,7 @@ module.exports = function(collection, target, cb) {
 };
 
 });
-require.register("component-400/table.js", function(exports, require, module){
+require.register("component-400/templates/table.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
@@ -2084,7 +2084,7 @@ module.exports = function(__obj) {
   return __out.join('');
 }
 });
-require.register("component-400/row.js", function(exports, require, module){
+require.register("component-400/templates/row.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
@@ -2174,7 +2174,7 @@ module.exports = function(__obj) {
   return __out.join('');
 }
 });
-require.register("component-400/header.js", function(exports, require, module){
+require.register("component-400/templates/header.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {

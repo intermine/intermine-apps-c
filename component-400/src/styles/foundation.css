@@ -1,17 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Requires: normalize.css */
 /* Global Reset & Standards ---------------------- */
 .foundation * { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
@@ -615,17 +601,17 @@ that IE7/8 do not support :nth-child.
 /* Timer ---------------------- */
 .foundation div.orbit-wrapper div.timer { width: 40px; height: 40px; overflow: hidden; position: absolute; top: 10px; right: 10px; opacity: .6; cursor: pointer; z-index: 31; }
 
-.foundation div.orbit-wrapper span.rotator { display: block; width: 40px; height: 40px; position: absolute; top: 0; left: -20px; background: url("component-400/styles/../images/foundation/orbit/rotator-black.png") no-repeat; z-index: 3; }
+.foundation div.orbit-wrapper span.rotator { display: block; width: 40px; height: 40px; position: absolute; top: 0; left: -20px; background: url('../images/foundation/orbit/rotator-black.png') no-repeat; z-index: 3; }
 
 .foundation div.orbit-wrapper span.mask { display: block; width: 20px; height: 40px; position: absolute; top: 0; right: 0; z-index: 2; overflow: hidden; }
 
 .foundation div.orbit-wrapper span.rotator.move { left: 0; }
 
-.foundation div.orbit-wrapper span.mask.move { width: 40px; left: 0; background: url("component-400/styles/../images/foundation/orbit/timer-black.png") repeat 0 0; }
+.foundation div.orbit-wrapper span.mask.move { width: 40px; left: 0; background: url('../images/foundation/orbit/timer-black.png') repeat 0 0; }
 
-.foundation div.orbit-wrapper span.pause { display: block; width: 40px; height: 40px; position: absolute; top: 0; left: 0; background: url("component-400/styles/../images/foundation/orbit/pause-black.png") no-repeat; z-index: 4; opacity: 0; }
+.foundation div.orbit-wrapper span.pause { display: block; width: 40px; height: 40px; position: absolute; top: 0; left: 0; background: url('../images/foundation/orbit/pause-black.png') no-repeat; z-index: 4; opacity: 0; }
 
-.foundation div.orbit-wrapper span.pause.active { background: url("component-400/styles/../images/foundation/orbit/pause-black.png") no-repeat 0 -40px; }
+.foundation div.orbit-wrapper span.pause.active { background: url('../images/foundation/orbit/pause-black.png') no-repeat 0 -40px; }
 
 .foundation div.orbit-wrapper div.timer:hover span.pause, .foundation div.orbit-wrapper span.pause.active { opacity: 1; }
 
@@ -639,17 +625,17 @@ that IE7/8 do not support :nth-child.
 
 .foundation div.orbit-wrapper div.slider-nav span { width: 39px; height: 50px; text-indent: -9999px; position: absolute; z-index: 30; top: 50%; margin-top: -25px; cursor: pointer; }
 
-.foundation div.orbit-wrapper div.slider-nav span.right { background: url("component-400/styles/../images/foundation/orbit/right-arrow.png"); background-size: 100%; right: 0; }
+.foundation div.orbit-wrapper div.slider-nav span.right { background: url('../images/foundation/orbit/right-arrow.png'); background-size: 100%; right: 0; }
 
-.foundation div.orbit-wrapper div.slider-nav span.left { background: url("component-400/styles/../images/foundation/orbit/left-arrow.png"); background-size: 100%; left: 0; }
+.foundation div.orbit-wrapper div.slider-nav span.left { background: url('../images/foundation/orbit/left-arrow.png'); background-size: 100%; left: 0; }
 
-.foundation .lt-ie9 div.orbit-wrapper div.slider-nav span.right { background: url("component-400/styles/../images/foundation/orbit/right-arrow-small.png"); }
-.foundation .lt-ie9 div.orbit-wrapper div.slider-nav span.left { background: url("component-400/styles/../images/foundation/orbit/left-arrow-small.png"); }
+.foundation .lt-ie9 div.orbit-wrapper div.slider-nav span.right { background: url('../images/foundation/orbit/right-arrow-small.png'); }
+.foundation .lt-ie9 div.orbit-wrapper div.slider-nav span.left { background: url('../images/foundation/orbit/left-arrow-small.png'); }
 
 /* Bullet Nav ---------------------- */
 .foundation ul.orbit-bullets { position: absolute; z-index: 30; list-style: none; bottom: -40px; left: 50%; margin-left: -50px; padding: 0; }
 
-.foundation ul.orbit-bullets li { float: left; margin-left: 5px; cursor: pointer; color: #999; text-indent: -9999px; background: url("component-400/styles/../images/foundation/orbit/bullets.jpg") no-repeat 4px 0; width: 13px; height: 12px; overflow: hidden; }
+.foundation ul.orbit-bullets li { float: left; margin-left: 5px; cursor: pointer; color: #999; text-indent: -9999px; background: url('../images/foundation/orbit/bullets.jpg') no-repeat 4px 0; width: 13px; height: 12px; overflow: hidden; }
 
 .foundation ul.orbit-bullets li.active { color: #222; background-position: -8px 0; }
 
@@ -664,7 +650,7 @@ that IE7/8 do not support :nth-child.
 
 .foundation ul.orbit-bullets { position: absolute; z-index: 30; list-style: none; bottom: -50px; left: 50%; margin-left: -50px; padding: 0; }
 
-.foundation ul.orbit-bullets li { float: left; margin-left: 5px; cursor: pointer; color: #999; text-indent: -9999px; background: url("component-400/styles/../images/foundation/orbit/bullets.jpg") no-repeat 4px 0; width: 13px; height: 12px; overflow: hidden; }
+.foundation ul.orbit-bullets li { float: left; margin-left: 5px; cursor: pointer; color: #999; text-indent: -9999px; background: url('../images/foundation/orbit/bullets.jpg') no-repeat 4px 0; width: 13px; height: 12px; overflow: hidden; }
 
 .foundation ul.orbit-bullets li.has-thumb { background: none; width: 100px; height: 75px; }
 
@@ -1085,13 +1071,3 @@ that IE7/8 do not support :nth-child.
   .foundation .top-bar.expanded ul li.toggle-topbar a { content: ""; display: block; width: 0; height: 0; border: solid 8px; border-color: transparent transparent rgba(255, 255, 255, 0.5) transparent; top: auto; bottom: 50%; margin-bottom: -4px; }
   .foundation .top-bar ul li.has-button { padding: 0 20px 5px; }
   .foundation .top-bar ul li .button.small { margin: 0 !important; display: inline-block; width: 100%; } }
-
-.list span:not(:last-child):after {
-  content: ",";
-}
-table tbody tr {
-  cursor: pointer;
-}
-table tbody tr.selected {
-  background: #ffffd4;
-}
