@@ -1874,18 +1874,6 @@ module.exports = function(collection, target, cb) {
     }
     selected = {};
     target.html(html);
-    target.find('button.done').on('click', function() {
-      var k, v;
-      return cb(null, (function() {
-        var _results;
-        _results = [];
-        for (k in selected) {
-          v = selected[k];
-          _results.push(k);
-        }
-        return _results;
-      })());
-    });
     stats = {
       MATCH: {
         total: 0,
@@ -2001,6 +1989,18 @@ module.exports = function(collection, target, cb) {
           return cb(err);
         }
         (sel = target.find('.header')).html(html);
+        target.find('.done').on('click', function() {
+          var k, v;
+          return cb(null, (function() {
+            var _results;
+            _results = [];
+            for (k in selected) {
+              v = selected[k];
+              _results.push(k);
+            }
+            return _results;
+          })());
+        });
         return sel.find('button').each(function(el) {
           return el.on('click', function() {
             var reason;
@@ -2075,7 +2075,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<button class="done" type=\'button\'>Done</button>\n\n<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table>\n    <thead>\n        <tr>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
+      __out.push('<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table class="listing">\n    <thead>\n        <tr>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
     
     }).call(this);
     
@@ -2215,6 +2215,8 @@ module.exports = function(__obj) {
   (function() {
     (function() {
       var reason, selected, total, _ref, _ref1;
+    
+      __out.push('<table class="header">\n    <thead>\n        <tr>\n            <th colspan="3">\n                <a class="success button done">Done</a>\n                25 genes in your list\n            </th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td><strong>5</strong> matches in list</td>\n            <td><a class="small disabled success button">Add all</a></td>\n            <td><a class="small secondary button">Remove all</a></td>\n        </tr>\n        <tr>\n            <td><strong>2</strong> duplicates in list</td>\n            <td><a class="small secondary button">Add all</a></td>\n            <td><a class="small secondary button">Remove all</a></td>\n        </tr>\n    </tbody>\n</table>\n\n');
     
       _ref = this.reasons;
       for (reason in _ref) {

@@ -36,10 +36,6 @@ module.exports = (collection, target, cb) ->
         # Insert into DOM.
         target.html html
 
-        # Call back with ids event.
-        target.find('button.done').on 'click', ->
-            cb null, ( k for k, v of selected )
-
         # Do we have these reasons?
         stats =
             MATCH:
@@ -146,6 +142,10 @@ module.exports = (collection, target, cb) ->
             header reasons: stats, (err, html) ->
                 return cb(err) if err
                 (sel = target.find('.header')).html html
+
+                # Call back with ids event.
+                target.find('.done').on 'click', ->
+                    cb null, ( k for k, v of selected )
 
                 # Onclick events.
                 sel.find('button').each (el) ->

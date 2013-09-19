@@ -1,3 +1,26 @@
+<table class="header">
+    <thead>
+        <tr>
+            <th colspan="3">
+                <a class="success button done">Done</a>
+                25 genes in your list
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>5</strong> matches in list</td>
+            <td><a class="small disabled success button">Add all</a></td>
+            <td><a class="small secondary button">Remove all</a></td>
+        </tr>
+        <tr>
+            <td><strong>2</strong> duplicates in list</td>
+            <td><a class="small secondary button">Add all</a></td>
+            <td><a class="small secondary button">Remove all</a></td>
+        </tr>
+    </tbody>
+</table>
+
 <% for reason, { total, selected } of @reasons: %>
     <% if total is selected: %>
         <button data-reason="<%= reason %>" type='button'>Remove <%= total %>x <%= reason %></button>

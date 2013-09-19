@@ -1089,9 +1089,18 @@ that IE7/8 do not support :nth-child.
 .list span:not(:last-child):after {
   content: ",";
 }
-table tbody tr {
+.done {
+  float: right;
+}
+table.listing tbody tr {
   cursor: pointer;
 }
-table tbody tr.selected {
-  background: #ffffd4;
+table.listing tbody tr.selected {
+  background: #ffffd4 !important;
+}
+table.header tr td {
+  vertical-align: middle !important;
+}
+table.header tr th {
+  line-height: 37px !important;
 }
