@@ -4,6 +4,7 @@ _ = extend {}, require('object'),
     extend: extend
     each: require 'foreach'
     reduce: require 'reduce'
+    flatten: require 'flatten'
 $ = require 'dom'
 
 # A dictionary of English terms for computer speak.
@@ -84,20 +85,15 @@ module.exports = (collection, target, cb) ->
         rows = 0
         fragment = document.createDocumentFragment()
         process = (obj, id, i) ->
-            ourReasons = {}
-            # Get some stats on this.
-            for symbol, reasons of obj.identifiers
-                for reason in reasons
-                    stats[reason].total += 1
-                    # Add to the map.
-                    megaMap[reason][i] = id
-                    # Add to quick-access reasons of ours.
-                    ourReasons[reason] = yes
-                    # Auto add?
-                    autoAdd = yes if reason is 'MATCH'
-
-            # Arrayize our reasons.
-            ourReasons = ( k for k, v of ourReasons )
+            reason = null
+            # Save this object under a particular reason.
+            reasons = _.flatten ( reasons for symbol, reasons of obj.identifiers )
+            # Pick the first reason, ideally a match.
+            reason = if 'MATCH' in reasons then 'MATCH' else reasons[0]
+            # Increase the counts.
+            stats[reason].total += 1
+            # Add to the map.
+            megaMap[reason][i] = id
 
             # Render row.
             row obj, (err, html) ->
@@ -115,12 +111,12 @@ module.exports = (collection, target, cb) ->
                 select = ->
                     selected[id] = yes
                     # Adjust the selected count(s) in stats object.
-                    ( stats[r].selected += 1 for r in ourReasons )
+                    stats[reason].selected += 1
                     # Change the class too...
                     tr.addClass('selected')
 
                 # Auto add?
-                do select if 'MATCH' in ourReasons
+                do select if 'MATCH' is reason
 
                 # Single row click event.
                 tr.on 'click', ->
@@ -130,7 +126,7 @@ module.exports = (collection, target, cb) ->
                     else
                         delete selected[id]
                         # Adjust the selected count(s) in stats object.
-                        ( stats[r].selected -= 1 for r in ourReasons )
+                        stats[reason].selected -= 1
                         # Change the class too...
                         tr.removeClass('selected')
                     

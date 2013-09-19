@@ -596,6 +596,73 @@ module.exports = function reduce (obj, memo, iterator) {
   return memo;
 };
 });
+require.register("yields-isArray/index.js", function(exports, require, module){
+
+/**
+ * isArray
+ */
+
+var isArray = Array.isArray;
+
+/**
+ * toString
+ */
+
+var str = Object.prototype.toString;
+
+/**
+ * Whether or not the given `val`
+ * is an array.
+ *
+ * example:
+ *
+ *        isArray([]);
+ *        // > true
+ *        isArray(arguments);
+ *        // > false
+ *        isArray('');
+ *        // > false
+ *
+ * @param {mixed} val
+ * @return {bool}
+ */
+
+module.exports = isArray || function (val) {
+  return !! val && '[object Array]' == str.call(val);
+};
+
+});
+require.register("esundahl-flatten/index.js", function(exports, require, module){
+/**
+ * Dependencies
+ */
+
+var isArray = require('isArray');
+
+
+function flatten (array, isShallow) {
+  var index = -1,
+      length = array ? array.length : 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+
+    if (isArray(value)) {
+      Array.prototype.push.apply(result, isShallow ? value : flatten(value));
+    }
+
+    else {
+      result.push(value);
+    }
+  }
+
+  return result;
+}
+
+module.exports = flatten;
+
+});
 require.register("component-event/index.js", function(exports, require, module){
 
 /**
@@ -1946,7 +2013,8 @@ _ = extend({}, require('object'), {
   map: require('map'),
   extend: extend,
   each: require('foreach'),
-  reduce: require('reduce')
+  reduce: require('reduce'),
+  flatten: require('flatten')
 });
 
 $ = require('dom');
@@ -2031,30 +2099,21 @@ module.exports = function(collection, target, cb) {
     rows = 0;
     fragment = document.createDocumentFragment();
     process = function(obj, id, i) {
-      var autoAdd, k, ourReasons, reason, reasons, symbol, v, _i, _len, _ref1;
-      ourReasons = {};
-      _ref1 = obj.identifiers;
-      for (symbol in _ref1) {
-        reasons = _ref1[symbol];
-        for (_i = 0, _len = reasons.length; _i < _len; _i++) {
-          reason = reasons[_i];
-          stats[reason].total += 1;
-          megaMap[reason][i] = id;
-          ourReasons[reason] = true;
-          if (reason === 'MATCH') {
-            autoAdd = true;
-          }
-        }
-      }
-      ourReasons = (function() {
-        var _results;
+      var reason, reasons, symbol;
+      reason = null;
+      reasons = _.flatten((function() {
+        var _ref1, _results;
+        _ref1 = obj.identifiers;
         _results = [];
-        for (k in ourReasons) {
-          v = ourReasons[k];
-          _results.push(k);
+        for (symbol in _ref1) {
+          reasons = _ref1[symbol];
+          _results.push(reasons);
         }
         return _results;
-      })();
+      })());
+      reason = __indexOf.call(reasons, 'MATCH') >= 0 ? 'MATCH' : reasons[0];
+      stats[reason].total += 1;
+      megaMap[reason][i] = id;
       return row(obj, function(err, html) {
         var select, tr;
         if (err) {
@@ -2065,27 +2124,19 @@ module.exports = function(collection, target, cb) {
         fragment.appendChild(tr);
         tr = $(tr);
         select = function() {
-          var r, _j, _len1;
           selected[id] = true;
-          for (_j = 0, _len1 = ourReasons.length; _j < _len1; _j++) {
-            r = ourReasons[_j];
-            stats[r].selected += 1;
-          }
+          stats[reason].selected += 1;
           return tr.addClass('selected');
         };
-        if (__indexOf.call(ourReasons, 'MATCH') >= 0) {
+        if ('MATCH' === reason) {
           select();
         }
         tr.on('click', function() {
-          var r, _j, _len1;
           if (!selected[id]) {
             select();
           } else {
             delete selected[id];
-            for (_j = 0, _len1 = ourReasons.length; _j < _len1; _j++) {
-              r = ourReasons[_j];
-              stats[r].selected -= 1;
-            }
+            stats[reason].selected -= 1;
             tr.removeClass('selected');
           }
           return renderHeader();
@@ -2426,6 +2477,7 @@ module.exports = function(__obj) {
 
 
 
+
 require.alias("component-map/index.js", "component-400/deps/map/index.js");
 require.alias("component-map/index.js", "map/index.js");
 require.alias("component-to-function/index.js", "component-map/deps/to-function/index.js");
@@ -2446,6 +2498,12 @@ require.alias("component-to-function/index.js", "component-each/deps/to-function
 
 require.alias("component-type/index.js", "component-each/deps/type/index.js");
 
+require.alias("esundahl-flatten/index.js", "component-400/deps/flatten/index.js");
+require.alias("esundahl-flatten/index.js", "component-400/deps/flatten/index.js");
+require.alias("esundahl-flatten/index.js", "flatten/index.js");
+require.alias("yields-isArray/index.js", "esundahl-flatten/deps/isArray/index.js");
+
+require.alias("esundahl-flatten/index.js", "esundahl-flatten/index.js");
 require.alias("component-dom/index.js", "component-400/deps/dom/index.js");
 require.alias("component-dom/index.js", "dom/index.js");
 require.alias("component-type/index.js", "component-dom/deps/type/index.js");

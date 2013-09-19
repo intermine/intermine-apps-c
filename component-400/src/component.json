@@ -1,13 +1,14 @@
 {
     "name": "component-400",
     "main": "app.js",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "dependencies": {
         "component/map": "*",
         "segmentio/extend": "*",
         "component/object": "*",
         "manuelstofer/foreach": "*",
         "ianstormtaylor/reduce": "*",
+        "esundahl/flatten": "*",
         "component/dom": "*"
     },
     "scripts": [
