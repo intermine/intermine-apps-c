@@ -2347,11 +2347,11 @@ module.exports = function(__obj) {
         reasons = _ref2[symbol];
         __out.push('\n        <span>\n            ');
         __out.push(symbol);
-        __out.push(' is\n            ');
+        __out.push(' is a\n            ');
         for (_j = 0, _len1 = reasons.length; _j < _len1; _j++) {
           reason = reasons[_j];
           __out.push('\n                <span>');
-          __out.push(reason);
+          __out.push(this.dict[reason][0]);
           __out.push('</span>\n            ');
         }
         __out.push('\n        </span>\n    ');

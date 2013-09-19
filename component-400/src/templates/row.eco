@@ -11,9 +11,9 @@
 <td class="list">
     <% for symbol, reasons of @identifiers: %>
         <span>
-            <%- symbol %> is
+            <%- symbol %> is a
             <% for reason in reasons: %>
-                <span><%- reason %></span>
+                <span><%- @dict[reason][0] %></span>
             <% end %>
         </span>
     <% end %>
