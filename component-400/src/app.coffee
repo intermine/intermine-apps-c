@@ -3,6 +3,7 @@ _ = extend {}, require('object'),
     map: require 'map'
     extend: extend
     each: require 'foreach'
+    reduce: require 'reduce'
 $ = require 'dom'
 
 # A dictionary of English terms for computer speak.
@@ -148,8 +149,12 @@ module.exports = (collection, target, cb) ->
 
         # When we are done...
         renderHeader = ->
+            # How many are selected in total?
+            total = _.reduce stats, 0, (curr, key, obj) ->
+                curr + obj.selected
+
             # Render the "add all" buttons.
-            header reasons: stats, (err, html) ->
+            header { reasons: stats, total }, (err, html) ->
                 return cb(err) if err
                 (sel = target.find('.header')).html html
 

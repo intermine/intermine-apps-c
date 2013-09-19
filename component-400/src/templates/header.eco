@@ -3,7 +3,11 @@
         <tr>
             <th colspan="3">
                 <a class="success button done">Done</a>
-                25 genes in your list
+                <% if @total is 1: %>
+                    1 item in your list
+                <% else: %>
+                    <%= @total %> items in your list
+                <% end %>
             </th>
         </tr>
     </thead>

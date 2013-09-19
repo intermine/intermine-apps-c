@@ -488,6 +488,114 @@ module.exports = function(val){
 };
 
 });
+require.register("component-each/index.js", function(exports, require, module){
+
+/**
+ * Module dependencies.
+ */
+
+var toFunction = require('to-function');
+var type;
+
+try {
+  type = require('type-component');
+} catch (e) {
+  type = require('type');
+}
+
+/**
+ * HOP reference.
+ */
+
+var has = Object.prototype.hasOwnProperty;
+
+/**
+ * Iterate the given `obj` and invoke `fn(val, i)`.
+ *
+ * @param {String|Array|Object} obj
+ * @param {Function} fn
+ * @api public
+ */
+
+module.exports = function(obj, fn){
+  fn = toFunction(fn);
+  switch (type(obj)) {
+    case 'array':
+      return array(obj, fn);
+    case 'object':
+      if ('number' == typeof obj.length) return array(obj, fn);
+      return object(obj, fn);
+    case 'string':
+      return string(obj, fn);
+  }
+};
+
+/**
+ * Iterate string chars.
+ *
+ * @param {String} obj
+ * @param {Function} fn
+ * @api private
+ */
+
+function string(obj, fn) {
+  for (var i = 0; i < obj.length; ++i) {
+    fn(obj.charAt(i), i);
+  }
+}
+
+/**
+ * Iterate object keys.
+ *
+ * @param {Object} obj
+ * @param {Function} fn
+ * @api private
+ */
+
+function object(obj, fn) {
+  for (var key in obj) {
+    if (has.call(obj, key)) {
+      fn(key, obj[key]);
+    }
+  }
+}
+
+/**
+ * Iterate array-ish.
+ *
+ * @param {Array|Object} obj
+ * @param {Function} fn
+ * @api private
+ */
+
+function array(obj, fn) {
+  for (var i = 0; i < obj.length; ++i) {
+    fn(obj[i], i);
+  }
+}
+
+});
+require.register("ianstormtaylor-reduce/index.js", function(exports, require, module){
+
+var each = require('each');
+
+
+/**
+ * Reduce an array or object.
+ *
+ * @param {Array|Object} obj
+ * @param {Mixed} memo
+ * @param {Function} iterator
+ * @return {Mixed}
+ */
+
+module.exports = function reduce (obj, memo, iterator) {
+  each(obj, function (a, b) {
+    memo = iterator.call(null, memo, a, b, obj);
+  });
+  return memo;
+};
+});
 require.register("component-event/index.js", function(exports, require, module){
 
 /**
@@ -1836,7 +1944,8 @@ extend = require('extend');
 _ = extend({}, require('object'), {
   map: require('map'),
   extend: extend,
-  each: require('foreach')
+  each: require('foreach'),
+  reduce: require('reduce')
 });
 
 $ = require('dom');
@@ -1992,8 +2101,13 @@ module.exports = function(collection, target, cb) {
       });
     };
     renderHeader = function() {
+      var total;
+      total = _.reduce(stats, 0, function(curr, key, obj) {
+        return curr + obj.selected;
+      });
       return header({
-        reasons: stats
+        reasons: stats,
+        total: total
       }, function(err, html) {
         var sel;
         if (err) {
@@ -2231,7 +2345,17 @@ module.exports = function(__obj) {
     (function() {
       var reason, selected, total, _ref, _ref1;
     
-      __out.push('<table class="header">\n    <thead>\n        <tr>\n            <th colspan="3">\n                <a class="success button done">Done</a>\n                25 genes in your list\n            </th>\n        </tr>\n    </thead>\n    <tbody>\n        ');
+      __out.push('<table class="header">\n    <thead>\n        <tr>\n            <th colspan="3">\n                <a class="success button done">Done</a>\n                ');
+    
+      if (this.total === 1) {
+        __out.push('\n                    1 item in your list\n                ');
+      } else {
+        __out.push('\n                    ');
+        __out.push(__sanitize(this.total));
+        __out.push(' items in your list\n                ');
+      }
+    
+      __out.push('\n            </th>\n        </tr>\n    </thead>\n    <tbody>\n        ');
     
       _ref = this.reasons;
       for (reason in _ref) {
@@ -2302,6 +2426,13 @@ require.alias("component-object/index.js", "object/index.js");
 
 require.alias("manuelstofer-foreach/index.js", "component-400/deps/foreach/index.js");
 require.alias("manuelstofer-foreach/index.js", "foreach/index.js");
+
+require.alias("ianstormtaylor-reduce/index.js", "component-400/deps/reduce/index.js");
+require.alias("ianstormtaylor-reduce/index.js", "reduce/index.js");
+require.alias("component-each/index.js", "ianstormtaylor-reduce/deps/each/index.js");
+require.alias("component-to-function/index.js", "component-each/deps/to-function/index.js");
+
+require.alias("component-type/index.js", "component-each/deps/type/index.js");
 
 require.alias("component-dom/index.js", "component-400/deps/dom/index.js");
 require.alias("component-dom/index.js", "dom/index.js");
