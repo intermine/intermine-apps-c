@@ -85,7 +85,6 @@ module.exports = (collection, target, cb) ->
         fragment = document.createDocumentFragment()
         process = (obj, id, i) ->
             ourReasons = {}
-            
             # Get some stats on this.
             for symbol, reasons of obj.identifiers
                 for reason in reasons
@@ -94,6 +93,8 @@ module.exports = (collection, target, cb) ->
                     megaMap[reason][i] = id
                     # Add to quick-access reasons of ours.
                     ourReasons[reason] = yes
+                    # Auto add?
+                    autoAdd = yes if reason is 'MATCH'
 
             # Arrayize our reasons.
             ourReasons = ( k for k, v of ourReasons )
@@ -107,15 +108,25 @@ module.exports = (collection, target, cb) ->
                 tr.innerHTML = html
                 fragment.appendChild tr
                 
+                # Domify.
+                tr = $ tr
+
+                # Select one row (event or rule based).
+                select = ->
+                    selected[id] = yes
+                    # Adjust the selected count(s) in stats object.
+                    ( stats[r].selected += 1 for r in ourReasons )
+                    # Change the class too...
+                    tr.addClass('selected')
+
+                # Auto add?
+                do select if 'MATCH' in ourReasons
+
                 # Single row click event.
-                (tr = $(tr)).on 'click', ->
+                tr.on 'click', ->
                     # Invert the status in the selected map object.
                     unless selected[id]
-                        selected[id] = yes
-                        # Adjust the selected count(s) in stats object.
-                        ( stats[r].selected += 1 for r in ourReasons )
-                        # Change the class too...
-                        tr.addClass('selected')
+                        do select
                     else
                         delete selected[id]
                         # Adjust the selected count(s) in stats object.

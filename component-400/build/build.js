@@ -1937,7 +1937,8 @@ attrs.forEach(function(name){
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, BATCH_SIZE, RENDER_SIZE, dict, extend, header, row, table, _, _ref;
+var $, BATCH_SIZE, RENDER_SIZE, dict, extend, header, row, table, _, _ref,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 extend = require('extend');
 
@@ -2030,7 +2031,7 @@ module.exports = function(collection, target, cb) {
     rows = 0;
     fragment = document.createDocumentFragment();
     process = function(obj, id, i) {
-      var k, ourReasons, reason, reasons, symbol, v, _i, _len, _ref1;
+      var autoAdd, k, ourReasons, reason, reasons, symbol, v, _i, _len, _ref1;
       ourReasons = {};
       _ref1 = obj.identifiers;
       for (symbol in _ref1) {
@@ -2040,6 +2041,9 @@ module.exports = function(collection, target, cb) {
           stats[reason].total += 1;
           megaMap[reason][i] = id;
           ourReasons[reason] = true;
+          if (reason === 'MATCH') {
+            autoAdd = true;
+          }
         }
       }
       ourReasons = (function() {
@@ -2052,26 +2056,34 @@ module.exports = function(collection, target, cb) {
         return _results;
       })();
       return row(obj, function(err, html) {
-        var tr;
+        var select, tr;
         if (err) {
           return cb(err);
         }
         tr = document.createElement('tr');
         tr.innerHTML = html;
         fragment.appendChild(tr);
-        (tr = $(tr)).on('click', function() {
-          var r, _j, _k, _len1, _len2;
+        tr = $(tr);
+        select = function() {
+          var r, _j, _len1;
+          selected[id] = true;
+          for (_j = 0, _len1 = ourReasons.length; _j < _len1; _j++) {
+            r = ourReasons[_j];
+            stats[r].selected += 1;
+          }
+          return tr.addClass('selected');
+        };
+        if (__indexOf.call(ourReasons, 'MATCH') >= 0) {
+          select();
+        }
+        tr.on('click', function() {
+          var r, _j, _len1;
           if (!selected[id]) {
-            selected[id] = true;
-            for (_j = 0, _len1 = ourReasons.length; _j < _len1; _j++) {
-              r = ourReasons[_j];
-              stats[r].selected += 1;
-            }
-            tr.addClass('selected');
+            select();
           } else {
             delete selected[id];
-            for (_k = 0, _len2 = ourReasons.length; _k < _len2; _k++) {
-              r = ourReasons[_k];
+            for (_j = 0, _len1 = ourReasons.length; _j < _len1; _j++) {
+              r = ourReasons[_j];
               stats[r].selected -= 1;
             }
             tr.removeClass('selected');
