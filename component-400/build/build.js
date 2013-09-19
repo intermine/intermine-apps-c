@@ -1829,7 +1829,7 @@ attrs.forEach(function(name){
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, BATCH_SIZE, RENDER_SIZE, extend, header, row, table, _, _ref;
+var $, BATCH_SIZE, RENDER_SIZE, dict, extend, header, row, table, _, _ref;
 
 extend = require('extend');
 
@@ -1841,13 +1841,24 @@ _ = extend({}, require('object'), {
 
 $ = require('dom');
 
+dict = {
+  MATCH: ['match', 'matches'],
+  DUPLICATE: ['duplicate', 'duplicates'],
+  OTHER: ['other thing', 'other things'],
+  TYPE_CONVERTED: ['converted type', 'converted types']
+};
+
 _ref = _.map(['table', 'row', 'header'], function(tml) {
   var fn;
   fn = require("./templates/" + tml);
   return function(context, cb) {
     var err, html;
+    if (context == null) {
+      context = {};
+    }
+    context.dict = dict;
     try {
-      html = fn.call(null, context || {});
+      html = fn(context);
     } catch (_error) {
       err = _error;
       return cb(err.message);
@@ -2001,16 +2012,20 @@ module.exports = function(collection, target, cb) {
             return _results;
           })());
         });
-        return sel.find('button').each(function(el) {
+        return sel.find('a.button').each(function(el) {
           return el.on('click', function() {
-            var reason;
+            var action, reason;
             reason = el.attr('data-reason');
-            if (stats[reason].total !== stats[reason].selected) {
-              stats[reason].selected = stats[reason].total;
-              setAll(reason, true);
-            } else {
-              stats[reason].selected = 0;
-              setAll(reason, false);
+            action = el.attr('data-action');
+            switch (action) {
+              case 'add':
+                stats[reason].selected = stats[reason].total;
+                setAll(reason, true);
+                break;
+              case 'remove':
+                stats[reason].selected = 0;
+                setAll(reason, false);
+                break;
             }
             return renderHeader();
           });
@@ -2216,31 +2231,43 @@ module.exports = function(__obj) {
     (function() {
       var reason, selected, total, _ref, _ref1;
     
-      __out.push('<table class="header">\n    <thead>\n        <tr>\n            <th colspan="3">\n                <a class="success button done">Done</a>\n                25 genes in your list\n            </th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td><strong>5</strong> matches in list</td>\n            <td><a class="small disabled success button">Add all</a></td>\n            <td><a class="small secondary button">Remove all</a></td>\n        </tr>\n        <tr>\n            <td><strong>2</strong> duplicates in list</td>\n            <td><a class="small secondary button">Add all</a></td>\n            <td><a class="small secondary button">Remove all</a></td>\n        </tr>\n    </tbody>\n</table>\n\n');
+      __out.push('<table class="header">\n    <thead>\n        <tr>\n            <th colspan="3">\n                <a class="success button done">Done</a>\n                25 genes in your list\n            </th>\n        </tr>\n    </thead>\n    <tbody>\n        ');
     
       _ref = this.reasons;
       for (reason in _ref) {
         _ref1 = _ref[reason], total = _ref1.total, selected = _ref1.selected;
-        __out.push('\n    ');
-        if (total === selected) {
-          __out.push('\n        <button data-reason="');
-          __out.push(__sanitize(reason));
-          __out.push('" type=\'button\'>Remove ');
-          __out.push(__sanitize(total));
-          __out.push('x ');
-          __out.push(__sanitize(reason));
-          __out.push('</button>\n    ');
+        __out.push('\n            <tr>\n                <!-- total -->\n                ');
+        if (selected === 1) {
+          __out.push('\n                    <td><strong>1</strong> ');
+          __out.push(__sanitize(this.dict[reason][0]));
+          __out.push(' in list</td>\n                ');
         } else {
-          __out.push('\n        <button data-reason="');
-          __out.push(__sanitize(reason));
-          __out.push('" type=\'button\'>Add ');
-          __out.push(__sanitize(total));
-          __out.push('x ');
-          __out.push(__sanitize(reason));
-          __out.push('</button>\n    ');
+          __out.push('\n                    <td><strong>');
+          __out.push(__sanitize(selected));
+          __out.push('</strong> ');
+          __out.push(__sanitize(this.dict[reason][1]));
+          __out.push(' in list</td>\n                ');
         }
-        __out.push('\n');
+        __out.push('\n                \n                <!-- add -->\n                ');
+        if (total === selected) {
+          __out.push('\n                    <td><a class="small secondary disabled button">Add all</a></td>\n                ');
+        } else {
+          __out.push('\n                    <td><a class="small secondary button" data-action="add" data-reason="');
+          __out.push(__sanitize(reason));
+          __out.push('">Add all</a></td>\n                ');
+        }
+        __out.push('\n                \n                <!-- remove -->\n                ');
+        if (selected === 0) {
+          __out.push('\n                    <td><a class="small secondary disabled button">Remove all</a></td>\n                ');
+        } else {
+          __out.push('\n                    <td><a class="small secondary button" data-action="remove" data-reason="');
+          __out.push(__sanitize(reason));
+          __out.push('">Remove all</a></td>\n                ');
+        }
+        __out.push('\n            </tr>\n        ');
       }
+    
+      __out.push('\n    </tbody>\n</table>');
     
     }).call(this);
     

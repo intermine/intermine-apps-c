@@ -8,23 +8,29 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><strong>5</strong> matches in list</td>
-            <td><a class="small disabled success button">Add all</a></td>
-            <td><a class="small secondary button">Remove all</a></td>
-        </tr>
-        <tr>
-            <td><strong>2</strong> duplicates in list</td>
-            <td><a class="small secondary button">Add all</a></td>
-            <td><a class="small secondary button">Remove all</a></td>
-        </tr>
+        <% for reason, { total, selected } of @reasons: %>
+            <tr>
+                <!-- total -->
+                <% if selected is 1: %>
+                    <td><strong>1</strong> <%= @dict[reason][0] %> in list</td>
+                <% else: %>
+                    <td><strong><%= selected %></strong> <%= @dict[reason][1] %> in list</td>
+                <% end %>
+                
+                <!-- add -->
+                <% if total is selected: %>
+                    <td><a class="small secondary disabled button">Add all</a></td>
+                <% else: %>
+                    <td><a class="small secondary button" data-action="add" data-reason="<%= reason %>">Add all</a></td>
+                <% end %>
+                
+                <!-- remove -->
+                <% if selected is 0: %>
+                    <td><a class="small secondary disabled button">Remove all</a></td>
+                <% else: %>
+                    <td><a class="small secondary button" data-action="remove" data-reason="<%= reason %>">Remove all</a></td>
+                <% end %>
+            </tr>
+        <% end %>
     </tbody>
 </table>
-
-<% for reason, { total, selected } of @reasons: %>
-    <% if total is selected: %>
-        <button data-reason="<%= reason %>" type='button'>Remove <%= total %>x <%= reason %></button>
-    <% else: %>
-        <button data-reason="<%= reason %>" type='button'>Add <%= total %>x <%= reason %></button>
-    <% end %>
-<% end %>

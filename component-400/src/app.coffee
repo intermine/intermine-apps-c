@@ -5,12 +5,22 @@ _ = extend {}, require('object'),
     each: require 'foreach'
 $ = require 'dom'
 
+# A dictionary of English terms for computer speak.
+dict =
+    MATCH: [ 'match', 'matches' ]
+    DUPLICATE: [ 'duplicate', 'duplicates' ]
+    OTHER: [ 'other thing', 'other things' ]
+    TYPE_CONVERTED: [ 'converted type', 'converted types' ]
+
 # Functionalize templates (sync).
 [ table, row, header ] = _.map [ 'table', 'row', 'header' ], (tml) ->
     fn = require "./templates/#{tml}"
-    (context, cb) ->
+    (context={}, cb) ->
+        # Always have the dict available.
+        context.dict = dict
+        # Try it.
         try
-            html = fn.call null, context or {}
+            html = fn context
         catch err
             return cb err.message
         cb null, html
@@ -143,23 +153,28 @@ module.exports = (collection, target, cb) ->
                 return cb(err) if err
                 (sel = target.find('.header')).html html
 
-                # Call back with ids event.
+                # Call back with ids event (the master event).
                 target.find('.done').on 'click', ->
                     cb null, ( k for k, v of selected )
 
-                # Onclick events.
-                sel.find('button').each (el) ->
+                # Onclick button events.
+                sel.find('a.button').each (el) ->
                     el.on 'click', ->
                         # The reason.
                         reason = el.attr 'data-reason'
+                        # The action.
+                        action = el.attr 'data-action'
                         
                         # Adding/removing all?
-                        if stats[reason].total isnt stats[reason].selected
-                            stats[reason].selected = stats[reason].total
-                            setAll reason, yes
-                        else
-                            stats[reason].selected = 0
-                            setAll reason, no
+                        switch action
+                            when 'add'
+                                stats[reason].selected = stats[reason].total
+                                setAll reason, yes
+                            when 'remove'
+                                stats[reason].selected = 0
+                                setAll reason, no
+                            else
+                                # Oopsy daisy...
 
                         # Re-render either way.
                         do renderHeader
