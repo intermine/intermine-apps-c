@@ -5,7 +5,7 @@ _ = extend {}, require('object'), # keys, values, length, isEmpty, merge
     each:    require 'foreach'
     reduce:  require 'reduce'
     flatten: require 'flatten'
-$ = require 'dom'
+$ = require 'jquery'
 
 HeaderView     = require './views/header'
 DuplicatesView = require './views/duplicates'

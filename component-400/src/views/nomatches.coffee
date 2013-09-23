@@ -1,11 +1,14 @@
-$ = require 'dom'
+$ = require 'jquery'
 
-class NoMatchesView
+View = require '../modules/view'
+
+class NoMatchesView extends View
 
     template: require '../templates/nomatches'
 
-    constructor: ({ @collection }) ->
-        @el = $('<div></div>').addClass 'nomatches'
+    constructor: ->
+        super
+        @el.addClass 'nomatches'
 
     render: ->
         @el.html @template 'items': @collection

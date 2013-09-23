@@ -1,18 +1,21 @@
-$ = require 'dom'
+$ = require 'jquery'
 
-class HeaderView
+View = require '../modules/view'
+
+class HeaderView extends View
 
     template: require '../templates/header'
 
     constructor: ->
-        @el = $('<div></div>').addClass 'header'
+        super
+        @el.addClass 'header'
 
     render: ->
         @el.html @template
             'type': 'gene'
-            'selected': 15
             'total': 22
             'input': 25
+            'selected': 15
 
         @
 

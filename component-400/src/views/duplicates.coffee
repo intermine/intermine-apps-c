@@ -1,12 +1,14 @@
-$ = require 'dom'
+$ = require 'jquery'
 
-class DuplicatesView
+View = require '../modules/view'
+
+class DuplicatesView extends View
 
     template: require '../templates/duplicates/table'
 
-    constructor: ({ @collection }) ->
-        @el = $('<div></div>').addClass 'duplicates'
-        @views = []
+    constructor: ->
+        super
+        @el.addClass 'duplicates'
 
     render: ->
         @el.html do @template
@@ -18,12 +20,10 @@ class DuplicatesView
 
         @
 
-class DuplicatesRowView
+class DuplicatesRowView extends View
 
     template: require '../templates/duplicates/row'
-
-    constructor: ({ @model }) ->
-        @el = $ '<tr></tr>'    
+    tag: 'tr'
 
     render: ->
         @el.html @template @model

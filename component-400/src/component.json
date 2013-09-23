@@ -9,10 +9,13 @@
         "manuelstofer/foreach": "*",
         "ianstormtaylor/reduce": "*",
         "esundahl/flatten": "*",
-        "component/dom": "*"
+        "component/jquery": "*",
+        "timoxley/backbone-events": "*"
     },
     "scripts": [
         "app.coffee",
+        "modules/mediator.coffee",
+        "modules/view.coffee",
         "views/header.coffee",
         "views/duplicates.coffee",
         "views/nomatches.coffee",
@@ -20,6 +23,7 @@
         "templates/duplicates/table.eco",
         "templates/duplicates/row.eco",
         "templates/summary/tabs.eco",
+        "templates/summary/tab.eco",
         "templates/summary/table.eco",
         "templates/summary/list.eco",
         "templates/header.eco",
