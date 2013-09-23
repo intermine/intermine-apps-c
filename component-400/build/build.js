@@ -2004,14 +2004,13 @@ attrs.forEach(function(name){
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, BATCH_SIZE, RENDER_SIZE, dict, extend, header, row, table, _, _ref,
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var $, DuplicatesView, HeaderView, NoMatchesView, SummaryView, extend, _;
 
 extend = require('extend');
 
 _ = extend({}, require('object'), {
-  map: require('map'),
   extend: extend,
+  map: require('map'),
   each: require('foreach'),
   reduce: require('reduce'),
   flatten: require('flatten')
@@ -2019,35 +2018,13 @@ _ = extend({}, require('object'), {
 
 $ = require('dom');
 
-dict = {
-  MATCH: ['match', 'matches'],
-  DUPLICATE: ['duplicate', 'duplicates'],
-  OTHER: ['other thing', 'other things'],
-  TYPE_CONVERTED: ['converted type', 'converted types']
-};
+HeaderView = require('./views/header');
 
-_ref = _.map(['table', 'row', 'header'], function(tml) {
-  var fn;
-  fn = require("./templates/" + tml);
-  return function(context, cb) {
-    var err, html;
-    if (context == null) {
-      context = {};
-    }
-    context.dict = dict;
-    try {
-      html = fn(context);
-    } catch (_error) {
-      err = _error;
-      return cb(err.message);
-    }
-    return cb(null, html);
-  };
-}), table = _ref[0], row = _ref[1], header = _ref[2];
+DuplicatesView = require('./views/duplicates');
 
-BATCH_SIZE = 20;
+NoMatchesView = require('./views/nomatches');
 
-RENDER_SIZE = 100;
+SummaryView = require('./views/summary');
 
 module.exports = function(collection, target, cb) {
   if (cb == null) {
@@ -2056,178 +2033,210 @@ module.exports = function(collection, target, cb) {
     };
   }
   target = $(target).addClass('foundation');
-  return table({}, function(err, html) {
-    var batch, fragment, keys, length, megaMap, process, renderHeader, rows, selected, setAll, stats, tbody;
-    if (err) {
-      return cb(err);
-    }
-    selected = {};
-    target.html(html);
-    stats = {
-      MATCH: {
-        total: 0,
-        selected: 0
-      },
-      DUPLICATE: {
-        total: 0,
-        selected: 0
-      },
-      OTHER: {
-        total: 0,
-        selected: 0
-      },
-      TYPE_CONVERTED: {
-        total: 0,
-        selected: 0
-      }
-    };
-    megaMap = {
-      MATCH: [],
-      DUPLICATE: [],
-      OTHER: [],
-      TYPE_CONVERTED: []
-    };
-    tbody = target.find('tbody');
-    keys = _.keys(collection);
-    length = keys.length;
-    if (BATCH_SIZE > length) {
-      BATCH_SIZE = length;
-    }
-    if (RENDER_SIZE > length) {
-      RENDER_SIZE = length;
-    }
-    rows = 0;
-    fragment = document.createDocumentFragment();
-    process = function(obj, id, i) {
-      var reason, reasons, symbol;
-      reason = null;
-      reasons = _.flatten((function() {
-        var _ref1, _results;
-        _ref1 = obj.identifiers;
-        _results = [];
-        for (symbol in _ref1) {
-          reasons = _ref1[symbol];
-          _results.push(reasons);
-        }
-        return _results;
-      })());
-      reason = __indexOf.call(reasons, 'MATCH') >= 0 ? 'MATCH' : reasons[0];
-      stats[reason].total += 1;
-      megaMap[reason][i] = id;
-      return row(obj, function(err, html) {
-        var select, tr;
-        if (err) {
-          return cb(err);
-        }
-        tr = document.createElement('tr');
-        tr.innerHTML = html;
-        fragment.appendChild(tr);
-        tr = $(tr);
-        select = function() {
-          selected[id] = true;
-          stats[reason].selected += 1;
-          return tr.addClass('selected');
-        };
-        if ('MATCH' === reason) {
-          select();
-        }
-        tr.on('click', function() {
-          if (!selected[id]) {
-            select();
-          } else {
-            delete selected[id];
-            stats[reason].selected -= 1;
-            tr.removeClass('selected');
-          }
-          return renderHeader();
-        });
-        if (rows % RENDER_SIZE === 0 || rows + 1 === length) {
-          tbody.append(fragment);
-          return fragment = document.createDocumentFragment();
-        }
-      });
-    };
-    setAll = function(reason, set) {
-      return _.each(megaMap[reason], function(id, n) {
-        var tr;
-        if (!id) {
-          return;
-        }
-        tr = tbody.find('tr').at(n);
-        if (set) {
-          selected[id] = true;
-          return tr.addClass('selected');
-        } else {
-          delete selected[id];
-          return tr.removeClass('selected');
-        }
-      });
-    };
-    renderHeader = function() {
-      var total;
-      total = _.reduce(stats, 0, function(curr, key, obj) {
-        return curr + obj.selected;
-      });
-      return header({
-        reasons: stats,
-        total: total
-      }, function(err, html) {
-        var sel;
-        if (err) {
-          return cb(err);
-        }
-        (sel = target.find('.header')).html(html);
-        target.find('.done').on('click', function() {
-          var k, v;
-          return cb(null, (function() {
-            var _results;
-            _results = [];
-            for (k in selected) {
-              v = selected[k];
-              _results.push(k);
-            }
-            return _results;
-          })());
-        });
-        return sel.find('a.button').each(function(el) {
-          return el.on('click', function() {
-            var action, reason;
-            reason = el.attr('data-reason');
-            action = el.attr('data-action');
-            switch (action) {
-              case 'add':
-                stats[reason].selected = stats[reason].total;
-                setAll(reason, true);
-                break;
-              case 'remove':
-                stats[reason].selected = 0;
-                setAll(reason, false);
-                break;
-            }
-            return renderHeader();
-          });
-        });
-      });
-    };
-    return (batch = function() {
-      var i, key;
-      i = BATCH_SIZE;
-      while (i !== 0 && rows !== length) {
-        process(collection[key = keys[rows]], key, rows);
-        rows += 1;
-        i -= 1;
-      }
-      if (rows !== length) {
-        return setTimeout(batch, 0);
-      } else {
-        return renderHeader();
-      }
-    })();
-  });
+  target.append((new HeaderView()).render().el);
+  collection = [{}, {}];
+  target.append((new DuplicatesView({
+    'collection': collection
+  })).render().el);
+  collection = [{}, {}];
+  target.append((new NoMatchesView({
+    'collection': collection
+  })).render().el);
+  collection = [{}, {}, {}];
+  return target.append((new SummaryView({
+    'collection': collection
+  })).render().el);
 };
 
 });
-require.register("component-400/templates/table.js", function(exports, require, module){
+require.register("component-400/views/header.js", function(exports, require, module){
+var $, HeaderView;
+
+$ = require('dom');
+
+HeaderView = (function() {
+  HeaderView.prototype.template = require('../templates/header');
+
+  function HeaderView() {
+    this.el = $('<div></div>').addClass('header');
+  }
+
+  HeaderView.prototype.render = function() {
+    this.el.html(this.template({
+      'type': 'gene',
+      'selected': 15,
+      'total': 22,
+      'input': 25
+    }));
+    return this;
+  };
+
+  return HeaderView;
+
+})();
+
+module.exports = HeaderView;
+
+});
+require.register("component-400/views/duplicates.js", function(exports, require, module){
+var $, DuplicatesRowView, DuplicatesView;
+
+$ = require('dom');
+
+DuplicatesView = (function() {
+  DuplicatesView.prototype.template = require('../templates/duplicates/table');
+
+  function DuplicatesView(_arg) {
+    this.collection = _arg.collection;
+    this.el = $('<div></div>').addClass('duplicates');
+    this.views = [];
+  }
+
+  DuplicatesView.prototype.render = function() {
+    var model, tbody, view, _i, _len, _ref;
+    this.el.html(this.template());
+    tbody = this.el.find('tbody');
+    _ref = this.collection;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      model = _ref[_i];
+      this.views.push(view = new DuplicatesRowView({
+        'model': model
+      }));
+      tbody.append(view.render().el);
+    }
+    return this;
+  };
+
+  return DuplicatesView;
+
+})();
+
+DuplicatesRowView = (function() {
+  DuplicatesRowView.prototype.template = require('../templates/duplicates/row');
+
+  function DuplicatesRowView(_arg) {
+    this.model = _arg.model;
+    this.el = $('<tr></tr>');
+  }
+
+  DuplicatesRowView.prototype.render = function() {
+    this.el.html(this.template(this.model));
+    return this;
+  };
+
+  return DuplicatesRowView;
+
+})();
+
+module.exports = DuplicatesView;
+
+});
+require.register("component-400/views/nomatches.js", function(exports, require, module){
+var $, NoMatchesView;
+
+$ = require('dom');
+
+NoMatchesView = (function() {
+  NoMatchesView.prototype.template = require('../templates/nomatches');
+
+  function NoMatchesView(_arg) {
+    this.collection = _arg.collection;
+    this.el = $('<div></div>').addClass('nomatches');
+  }
+
+  NoMatchesView.prototype.render = function() {
+    this.el.html(this.template({
+      'items': this.collection
+    }));
+    return this;
+  };
+
+  return NoMatchesView;
+
+})();
+
+module.exports = NoMatchesView;
+
+});
+require.register("component-400/views/summary.js", function(exports, require, module){
+var $, ListView, SummaryView, TableView;
+
+$ = require('dom');
+
+SummaryView = (function() {
+  SummaryView.prototype.template = require('../templates/summary/tabs');
+
+  function SummaryView(_arg) {
+    this.collection = _arg.collection;
+    this.el = $('<div></div>').addClass('summary');
+    this.views = [];
+  }
+
+  SummaryView.prototype.render = function() {
+    var i, tab, view, _ref;
+    this.el.html(this.template());
+    _ref = this.collection;
+    for (i in _ref) {
+      tab = _ref[i];
+      this.views.push(view = new TableView({
+        'model': tab,
+        'active': i === '1'
+      }));
+      this.el.find('.tabs-content').append(view.render().el);
+    }
+    return this;
+  };
+
+  return SummaryView;
+
+})();
+
+TableView = (function() {
+  TableView.prototype.template = require('../templates/summary/table');
+
+  function TableView(_arg) {
+    var active;
+    this.model = _arg.model, active = _arg.active;
+    this.el = $('<li></li>');
+    if (active) {
+      this.el.addClass('active');
+    }
+  }
+
+  TableView.prototype.render = function() {
+    this.el.html(this.template());
+    return this;
+  };
+
+  return TableView;
+
+})();
+
+ListView = (function() {
+  ListView.prototype.template = require('../templates/summary/list');
+
+  function ListView(_arg) {
+    var active;
+    this.model = _arg.model, active = _arg.active;
+    this.el = $('<li></li>');
+    if (active) {
+      this.el.addClass('active');
+    }
+  }
+
+  ListView.prototype.render = function() {
+    this.el.html(this.template());
+    return this;
+  };
+
+  return ListView;
+
+})();
+
+module.exports = SummaryView;
+
+});
+require.register("component-400/templates/duplicates/table.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
@@ -2267,7 +2276,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<div class="header">\n    <!-- header.eco -->\n</div>\n\n<table class="listing">\n    <thead>\n        <tr>\n            <th>Provided</th>\n            <th>Matched</th>\n            <th>Why</th>\n        </tr>\n    </thead>\n    <tbody>\n        <!-- row.eco -->\n    </tbody>\n</table>');
+      __out.push('<header>\n    <h2>Which one do you want?</h2>\n    <span class="has-tip tip-top noradius">Explain</span>\n</header>\n\n<span class="small success button">Add all</span>\n<span class="small secondary button">Remove all</span>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -2276,7 +2285,7 @@ module.exports = function(__obj) {
   return __out.join('');
 }
 });
-require.register("component-400/templates/row.js", function(exports, require, module){
+require.register("component-400/templates/duplicates/row.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
@@ -2316,48 +2325,154 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      var input, key, reason, reasons, symbol, val, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      __out.push('<td>lola</td>\n<td>lola1</td>\n<td><span class="tiny secondary button">Add</span></td>');
     
-      __out.push('<td class="list">\n    ');
+    }).call(this);
     
-      _ref = Object.keys(this.identifiers);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        input = _ref[_i];
-        __out.push('\n        <span>');
-        __out.push(input);
-        __out.push('</span>\n    ');
-      }
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/summary/tabs.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push('<span class="small button">Download summary</span>\n\n<dl class="tabs contained">\n    <dd class="active"><a>Direct Hits</a></dd>\n    <dd><a>Equivalents</a></dd>\n    <dd><a>Conversion from Other Types</a></dd>\n</dl>\n\n<ul class="tabs-content contained"></ul>');
     
-      __out.push('\n</td>\n<td class="list">\n    ');
+    }).call(this);
     
-      _ref1 = this.summary;
-      for (key in _ref1) {
-        val = _ref1[key];
-        __out.push('\n        <span title="');
-        __out.push(__sanitize(key));
-        __out.push('">');
-        __out.push(val);
-        __out.push('</span>\n    ');
-      }
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/summary/table.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>TWIST_DROME</td>\n            <td>twist</td>\n        </tr>\n        <tr>\n            <td>fkh</td>\n            <td>twist</td>\n        </tr>\n    </tbody>\n</table>');
     
-      __out.push('\n</td>\n<td class="list">\n    ');
+    }).call(this);
     
-      _ref2 = this.identifiers;
-      for (symbol in _ref2) {
-        reasons = _ref2[symbol];
-        __out.push('\n        <span>\n            ');
-        __out.push(symbol);
-        __out.push(' is a\n            ');
-        for (_j = 0, _len1 = reasons.length; _j < _len1; _j++) {
-          reason = reasons[_j];
-          __out.push('\n                <span>');
-          __out.push(this.dict[reason][0]);
-          __out.push('</span>\n            ');
-        }
-        __out.push('\n        </span>\n    ');
-      }
-    
-      __out.push('\n</td>');
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/summary/list.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push('<ul>\n    <li>fkh</li>\n    <li>pan</li>\n</ul>');
     
     }).call(this);
     
@@ -2406,59 +2521,102 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      var reason, selected, total, _ref, _ref1;
+      if (this.selected === 1) {
+        __out.push('\n    <a class="success button done">Save a list of 1 ');
+        __out.push(__sanitize(this.type));
+        __out.push('</a>\n');
+      } else {
+        __out.push('\n    <a class="success button done">Save a list of ');
+        __out.push(__sanitize(this.selected));
+        __out.push(' ');
+        __out.push(__sanitize(this.type));
+        __out.push('s</a>\n');
+      }
     
-      __out.push('<table class="header">\n    <thead>\n        <tr>\n            <th colspan="3">\n                <a class="success button done">Done</a>\n                ');
+      __out.push('\n\n');
     
       if (this.total === 1) {
-        __out.push('\n                    1 item in your list\n                ');
+        __out.push('\n    ');
+        if (this.input === 1) {
+          __out.push('\n        <p>We have found a matching <strong>');
+          __out.push(__sanitize(this.type));
+          __out.push('</strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+        } else {
+          __out.push('\n        <p>We have found a matching <strong>');
+          __out.push(__sanitize(this.type));
+          __out.push('</strong> from ');
+          __out.push(__sanitize(this.input));
+          __out.push(' identifiers. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+        }
+        __out.push('\n');
       } else {
-        __out.push('\n                    ');
-        __out.push(__sanitize(this.total));
-        __out.push(' items in your list\n                ');
+        __out.push('\n    ');
+        if (this.input === 1) {
+          __out.push('\n        <p>We have found <strong>');
+          __out.push(__sanitize(this.total));
+          __out.push(' ');
+          __out.push(__sanitize(this.type));
+          __out.push('s</strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+        } else {
+          __out.push('\n        <p>We have found <strong>');
+          __out.push(__sanitize(this.total));
+          __out.push(' ');
+          __out.push(__sanitize(this.type));
+          __out.push('s</strong> from ');
+          __out.push(__sanitize(this.input));
+          __out.push(' identifiers. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+        }
+        __out.push('\n');
       }
     
-      __out.push('\n            </th>\n        </tr>\n    </thead>\n    <tbody>\n        ');
+    }).call(this);
     
-      _ref = this.reasons;
-      for (reason in _ref) {
-        _ref1 = _ref[reason], total = _ref1.total, selected = _ref1.selected;
-        __out.push('\n            <tr>\n                <!-- total -->\n                ');
-        if (selected === 1) {
-          __out.push('\n                    <td><strong>1</strong> ');
-          __out.push(__sanitize(this.dict[reason][0]));
-          __out.push(' in list</td>\n                ');
-        } else {
-          __out.push('\n                    <td><strong>');
-          __out.push(__sanitize(selected));
-          __out.push('</strong> ');
-          __out.push(__sanitize(this.dict[reason][1]));
-          __out.push(' in list</td>\n                ');
-        }
-        __out.push('\n                \n                <!-- add -->\n                ');
-        if (total === selected) {
-          __out.push('\n                    <td></td>\n                ');
-        } else {
-          __out.push('\n                    <td><a class="small secondary button" data-action="add" data-reason="');
-          __out.push(__sanitize(reason));
-          __out.push('">Add ');
-          __out.push(__sanitize(total - selected));
-          __out.push(' more</a></td>\n                ');
-        }
-        __out.push('\n                \n                <!-- remove -->\n                ');
-        if (selected === 0) {
-          __out.push('\n                    <td></td>\n                ');
-        } else {
-          __out.push('\n                    <td><a class="small secondary button" data-action="remove" data-reason="');
-          __out.push(__sanitize(reason));
-          __out.push('">Remove all ');
-          __out.push(__sanitize(selected));
-          __out.push('</a></td>\n                ');
-        }
-        __out.push('\n            </tr>\n        ');
-      }
-    
-      __out.push('\n    </tbody>\n</table>');
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/nomatches.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push('<ul>\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
     
     }).call(this);
     

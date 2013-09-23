@@ -1,40 +1,19 @@
-<table class="header">
-    <thead>
-        <tr>
-            <th colspan="3">
-                <a class="success button done">Done</a>
-                <% if @total is 1: %>
-                    1 item in your list
-                <% else: %>
-                    <%= @total %> items in your list
-                <% end %>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <% for reason, { total, selected } of @reasons: %>
-            <tr>
-                <!-- total -->
-                <% if selected is 1: %>
-                    <td><strong>1</strong> <%= @dict[reason][0] %> in list</td>
-                <% else: %>
-                    <td><strong><%= selected %></strong> <%= @dict[reason][1] %> in list</td>
-                <% end %>
-                
-                <!-- add -->
-                <% if total is selected: %>
-                    <td></td>
-                <% else: %>
-                    <td><a class="small secondary button" data-action="add" data-reason="<%= reason %>">Add <%= total - selected %> more</a></td>
-                <% end %>
-                
-                <!-- remove -->
-                <% if selected is 0: %>
-                    <td></td>
-                <% else: %>
-                    <td><a class="small secondary button" data-action="remove" data-reason="<%= reason %>">Remove all <%= selected %></a></td>
-                <% end %>
-            </tr>
-        <% end %>
-    </tbody>
-</table>
+<% if @selected is 1: %>
+    <a class="success button done">Save a list of 1 <%= @type %></a>
+<% else: %>
+    <a class="success button done">Save a list of <%= @selected %> <%= @type %>s</a>
+<% end %>
+
+<% if @total is 1: %>
+    <% if @input is 1: %>
+        <p>We have found a matching <strong><%= @type %></strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>
+    <% else: %>
+        <p>We have found a matching <strong><%= @type %></strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">Why?</span></p>
+    <% end %>
+<% else: %>
+    <% if @input is 1: %>
+        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>
+    <% else: %>
+        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">Why?</span></p>
+    <% end %>
+<% end %>

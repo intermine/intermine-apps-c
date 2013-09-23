@@ -1,7 +1,7 @@
 {
     "name": "component-400",
     "main": "app.js",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "dependencies": {
         "component/map": "*",
         "segmentio/extend": "*",
@@ -13,9 +13,17 @@
     },
     "scripts": [
         "app.coffee",
-        "templates/table.eco",
-        "templates/row.eco",
-        "templates/header.eco"
+        "views/header.coffee",
+        "views/duplicates.coffee",
+        "views/nomatches.coffee",
+        "views/summary.coffee",
+        "templates/duplicates/table.eco",
+        "templates/duplicates/row.eco",
+        "templates/summary/tabs.eco",
+        "templates/summary/table.eco",
+        "templates/summary/list.eco",
+        "templates/header.eco",
+        "templates/nomatches.eco"
     ],
     "styles": [
         "styles/foundation.css",

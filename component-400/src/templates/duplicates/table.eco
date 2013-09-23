@@ -1,0 +1,18 @@
+<header>
+    <h2>Which one do you want?</h2>
+    <span class="has-tip tip-top noradius">Explain</span>
+</header>
+
+<span class="small success button">Add all</span>
+<span class="small secondary button">Remove all</span>
+
+<table>
+    <thead>
+        <tr>
+            <th>Identifier you provided</th>
+            <th>Matches</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>

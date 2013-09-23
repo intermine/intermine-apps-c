@@ -1087,21 +1087,7 @@ that IE7/8 do not support :nth-child.
   .foundation .top-bar ul li.has-button { padding: 0 20px 5px; }
   .foundation .top-bar ul li .button.small { margin: 0 !important; display: inline-block; width: 100%; } }
 
-.list span:not(:last-child):after {
-  content: ",";
-}
-.done {
-  float: right;
-}
-table.listing tbody tr {
-  cursor: pointer;
-}
-table.listing tbody tr.selected {
-  background: #ffffd4 !important;
-}
-table.header tr td {
-  vertical-align: middle !important;
-}
-table.header tr th {
-  line-height: 37px !important;
+.foundation h2 {
+  font-size: 20px;
+  display: inline-block;
 }

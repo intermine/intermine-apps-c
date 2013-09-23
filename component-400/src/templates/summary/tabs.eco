@@ -1,0 +1,9 @@
+<span class="small button">Download summary</span>
+
+<dl class="tabs contained">
+    <dd class="active"><a>Direct Hits</a></dd>
+    <dd><a>Equivalents</a></dd>
+    <dd><a>Conversion from Other Types</a></dd>
+</dl>
+
+<ul class="tabs-content contained"></ul>
