@@ -10483,7 +10483,7 @@ View = (function() {
       var ev, selector, _ref1;
       _ref1 = event.match(_this.splitter).slice(1), ev = _ref1[0], selector = _ref1[1];
       return _this.el.on(ev, selector, function() {
-        return _this[fn].call(_this);
+        return _this[fn].apply(_this, arguments);
       });
     };
     for (event in _ref) {
@@ -10749,6 +10749,78 @@ DuplicatesRowView = (function(_super) {
 module.exports = DuplicatesView;
 
 });
+require.register("component-400/views/paginator.js", function(exports, require, module){
+var $, Paginator, View,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+$ = require('jquery');
+
+View = require('../modules/view');
+
+Paginator = (function(_super) {
+  __extends(Paginator, _super);
+
+  Paginator.prototype.template = require('../templates/paginator');
+
+  Paginator.prototype.events = {
+    'click a': 'onclick'
+  };
+
+  function Paginator() {
+    var _base, _base1, _base2;
+    Paginator.__super__.constructor.apply(this, arguments);
+    if ((_base = this.options).total == null) {
+      _base.total = 0;
+    }
+    if ((_base1 = this.options).perPage == null) {
+      _base1.perPage = 5;
+    }
+    if ((_base2 = this.options).current == null) {
+      _base2.current = 0;
+    }
+    this.options.pages = Math.ceil(this.options.total / this.options.perPage);
+  }
+
+  Paginator.prototype.prev = function() {
+    return this.select(Math.max(0, this.options.current - 1));
+  };
+
+  Paginator.prototype.next = function() {
+    return this.select(Math.min(this.options.pages - 1, this.options.current + 1));
+  };
+
+  Paginator.prototype.select = function(current) {
+    return this.options.current = current;
+  };
+
+  Paginator.prototype.render = function() {
+    this.el.html(this.template(this.options));
+    return this;
+  };
+
+  Paginator.prototype.onclick = function(evt) {
+    var li;
+    switch ((li = $(evt.target).closest('li')).data('action')) {
+      case 'prev':
+        this.prev();
+        break;
+      case 'next':
+        this.next();
+        break;
+      case 'switch':
+        this.select(parseInt(li.data('page')));
+    }
+    return this.render();
+  };
+
+  return Paginator;
+
+})(View);
+
+module.exports = Paginator;
+
+});
 require.register("component-400/views/nomatches.js", function(exports, require, module){
 var $, NoMatchesView, View,
   __hasProp = {}.hasOwnProperty,
@@ -10783,7 +10855,7 @@ module.exports = NoMatchesView;
 
 });
 require.register("component-400/views/summary.js", function(exports, require, module){
-var $, ListView, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, mediator, _ref, _ref1, _ref2,
+var $, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, mediator, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -10792,6 +10864,8 @@ $ = require('jquery');
 mediator = require('../modules/mediator');
 
 View = require('../modules/view');
+
+Paginator = require('./paginator');
 
 SummaryView = (function(_super) {
   __extends(SummaryView, _super);
@@ -10888,20 +10962,23 @@ TabContentView = (function(_super) {
 TableView = (function(_super) {
   __extends(TableView, _super);
 
-  function TableView() {
-    _ref = TableView.__super__.constructor.apply(this, arguments);
-    return _ref;
-  }
-
   TableView.prototype.template = require('../templates/summary/table');
 
+  function TableView() {
+    TableView.__super__.constructor.apply(this, arguments);
+    this.pagin = new Paginator({
+      'total': this.collection.length
+    });
+  }
+
   TableView.prototype.render = function() {
-    var model, tbody, view, _i, _len, _ref1;
+    var model, tbody, view, _i, _len, _ref;
     this.el.html(this.template());
+    this.el.find('.paginator').html(this.pagin.render().el);
     tbody = this.el.find('tbody');
-    _ref1 = this.collection;
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      model = _ref1[_i];
+    _ref = this.collection;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      model = _ref[_i];
       this.views.push(view = new TableRowView({
         model: model
       }));
@@ -10918,8 +10995,8 @@ TableRowView = (function(_super) {
   __extends(TableRowView, _super);
 
   function TableRowView() {
-    _ref1 = TableRowView.__super__.constructor.apply(this, arguments);
-    return _ref1;
+    _ref = TableRowView.__super__.constructor.apply(this, arguments);
+    return _ref;
   }
 
   TableRowView.prototype.template = require('../templates/summary/row');
@@ -10944,8 +11021,8 @@ ListView = (function(_super) {
   __extends(ListView, _super);
 
   function ListView() {
-    _ref2 = ListView.__super__.constructor.apply(this, arguments);
-    return _ref2;
+    _ref1 = ListView.__super__.constructor.apply(this, arguments);
+    return _ref1;
   }
 
   ListView.prototype.template = require('../templates/summary/list');
@@ -11209,7 +11286,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+      __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>\n\n<div class="paginator"></div>');
     
     }).call(this);
     
@@ -11464,6 +11541,89 @@ module.exports = function(__obj) {
   (function() {
     (function() {
       __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/paginator.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      var page, _i, _ref;
+    
+      if (this.pages > 1) {
+        __out.push('\n    <ul class="pagination">\n        ');
+        if (this.current === 0) {
+          __out.push('\n            <li class="unavailable arrow"><a>&laquo;</a></li>\n        ');
+        } else {
+          __out.push('\n            <li class="arrow" data-action="prev"><a>&laquo;</a></li>\n        ');
+        }
+        __out.push('\n\n        ');
+        for (page = _i = 1, _ref = this.pages + 1; 1 <= _ref ? _i < _ref : _i > _ref; page = 1 <= _ref ? ++_i : --_i) {
+          __out.push('\n            ');
+          if (page === this.current + 1) {
+            __out.push('\n                <li data-action="switch" data-page="');
+            __out.push(__sanitize(page - 1));
+            __out.push('" class="current"><a>');
+            __out.push(__sanitize(page));
+            __out.push('</a></li>\n            ');
+          } else {
+            __out.push('\n                <li data-action="switch" data-page="');
+            __out.push(__sanitize(page - 1));
+            __out.push('"><a>');
+            __out.push(__sanitize(page));
+            __out.push('</a></li>\n            ');
+          }
+          __out.push('\n        ');
+        }
+        __out.push('\n\n        ');
+        if (this.current + 1 === this.pages) {
+          __out.push('\n            <li class="unavailable arrow"><a>&raquo;</a></li>\n        ');
+        } else {
+          __out.push('\n            <li class="arrow" data-action="next"><a>&raquo;</a></li>\n        ');
+        }
+        __out.push('\n    </ul>\n');
+      }
     
     }).call(this);
     

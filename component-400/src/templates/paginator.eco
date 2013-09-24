@@ -1,0 +1,23 @@
+<% if @pages > 1: %>
+    <ul class="pagination">
+        <% if @current is 0: %>
+            <li class="unavailable arrow"><a>&laquo;</a></li>
+        <% else: %>
+            <li class="arrow" data-action="prev"><a>&laquo;</a></li>
+        <% end %>
+
+        <% for page in [1...@pages + 1]: %>
+            <% if page is @current + 1: %>
+                <li data-action="switch" data-page="<%= page - 1 %>" class="current"><a><%= page %></a></li>
+            <% else: %>
+                <li data-action="switch" data-page="<%= page - 1 %>"><a><%= page %></a></li>
+            <% end %>
+        <% end %>
+
+        <% if @current + 1 is @pages: %>
+            <li class="unavailable arrow"><a>&raquo;</a></li>
+        <% else: %>
+            <li class="arrow" data-action="next"><a>&raquo;</a></li>
+        <% end %>
+    </ul>
+<% end %>

@@ -1,7 +1,8 @@
 $ = require 'jquery'
 
-mediator = require '../modules/mediator'
-View     = require '../modules/view'
+mediator  = require '../modules/mediator'
+View      = require '../modules/view'
+Paginator = require './paginator'
 
 class SummaryView extends View
 
@@ -74,8 +75,16 @@ class TableView extends TabContentView
 
     template: require '../templates/summary/table'
 
+    constructor: ->
+        super
+
+        @pagin = new Paginator({ 'total': @collection.length })
+
     render: ->
         @el.html do @template
+
+        # Pagin.
+        @el.find('.paginator').html @pagin.render().el
 
         tbody = @el.find('tbody')
 

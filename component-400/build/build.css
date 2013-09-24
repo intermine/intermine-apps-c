@@ -1088,6 +1088,9 @@ that IE7/8 do not support :nth-child.
 .foundation table {
   width: 100%;
 }
+.foundation a {
+  cursor: pointer;
+}
 .foundation .section {
   padding: 10px;
 }
@@ -1106,7 +1109,13 @@ that IE7/8 do not support :nth-child.
 }
 .foundation .summary dl.tabs dd a {
   text-transform: capitalize;
-  cursor: pointer;
+}
+.foundation .summary ul.pagination {
+  text-align: center;
+}
+.foundation .summary ul.pagination li {
+  display: inline-block;
+  float: none;
 }
 .foundation ul.inline {
   list-style: none;

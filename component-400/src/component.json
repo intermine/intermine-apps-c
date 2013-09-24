@@ -19,6 +19,7 @@
         "models/collection.coffee",
         "views/header.coffee",
         "views/duplicates.coffee",
+        "views/paginator.coffee",
         "views/nomatches.coffee",
         "views/summary.coffee",
         "templates/duplicates/table.eco",
@@ -29,7 +30,8 @@
         "templates/summary/list.eco",
         "templates/summary/row.eco",
         "templates/header.eco",
-        "templates/nomatches.eco"
+        "templates/nomatches.eco",
+        "templates/paginator.eco"
     ],
     "styles": [
         "styles/foundation.css",
