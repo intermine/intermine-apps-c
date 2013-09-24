@@ -10465,7 +10465,7 @@ View = (function() {
   };
 
   function View(opts) {
-    var ev, event, fn, k, selector, v, _ref, _ref1,
+    var event, fn, k, v, _fn, _ref,
       _this = this;
     for (k in opts) {
       v = opts[k];
@@ -10483,12 +10483,16 @@ View = (function() {
     }
     this.el = $("<" + this.tag + "/>");
     _ref = this.events;
-    for (event in _ref) {
-      fn = _ref[event];
-      _ref1 = event.match(this.splitter).slice(1), ev = _ref1[0], selector = _ref1[1];
-      this.el.on(ev, selector, function() {
+    _fn = function(event, fn) {
+      var ev, selector, _ref1;
+      _ref1 = event.match(_this.splitter).slice(1), ev = _ref1[0], selector = _ref1[1];
+      return _this.el.on(ev, selector, function() {
         return _this[fn].call(_this);
       });
+    };
+    for (event in _ref) {
+      fn = _ref[event];
+      _fn(event, fn);
     }
     this.views = [];
   }
@@ -10559,6 +10563,11 @@ DuplicatesView = (function(_super) {
 
   DuplicatesView.prototype.template = require('../templates/duplicates/table');
 
+  DuplicatesView.prototype.events = {
+    'click .button.add-all': 'addAll',
+    'click .button.remove-all': 'removeAll'
+  };
+
   function DuplicatesView() {
     DuplicatesView.__super__.constructor.apply(this, arguments);
     this.el.addClass('duplicates');
@@ -10577,6 +10586,14 @@ DuplicatesView = (function(_super) {
       tbody.append(view.render().el);
     }
     return this;
+  };
+
+  DuplicatesView.prototype.addAll = function() {
+    return console.log('Add all');
+  };
+
+  DuplicatesView.prototype.removeAll = function() {
+    return console.log('Remove all');
   };
 
   return DuplicatesView;
@@ -10656,6 +10673,10 @@ SummaryView = (function(_super) {
 
   SummaryView.prototype.template = require('../templates/summary/tabs');
 
+  SummaryView.prototype.events = {
+    'click .button.download': 'download'
+  };
+
   function SummaryView() {
     SummaryView.__super__.constructor.apply(this, arguments);
     this.el.addClass('summary');
@@ -10682,6 +10703,10 @@ SummaryView = (function(_super) {
       }
     }
     return this;
+  };
+
+  SummaryView.prototype.download = function() {
+    return console.log('Download summary');
   };
 
   return SummaryView;
@@ -10801,7 +10826,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <h2>Which one do you want?</h2>\n    <span class="has-tip tip-top noradius">Explain</span>\n</header>\n\n<span class="small success button">Add all</span>\n<span class="small secondary button">Remove all</span>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+      __out.push('<header>\n    <h2>Choose from duplicates</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<span class="small success add-all button">Add all</span>\n<span class="small secondary remove-all button">Remove all</span>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -10899,7 +10924,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<span class="small button">Download summary</span>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+      __out.push('<span class="small download button">Download summary</span>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
     
     }).call(this);
     
@@ -10948,7 +10973,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<a>Tabitha</a>');
+      __out.push('<a>Tabitha <span class="has-tip tip-top noradius">?</span></a>');
     
     }).call(this);
     
@@ -11046,7 +11071,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<ul>\n    <li>fkh</li>\n    <li>pan</li>\n</ul>');
+      __out.push('<ul class="inline">\n    <li>fkh</li>\n    <li>pan</li>\n</ul>');
     
     }).call(this);
     
@@ -11114,13 +11139,13 @@ module.exports = function(__obj) {
         if (this.input === 1) {
           __out.push('\n        <p>We have found a matching <strong>');
           __out.push(__sanitize(this.type));
-          __out.push('</strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+          __out.push('</strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>\n    ');
         } else {
           __out.push('\n        <p>We have found a matching <strong>');
           __out.push(__sanitize(this.type));
           __out.push('</strong> from ');
           __out.push(__sanitize(this.input));
-          __out.push(' identifiers. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+          __out.push(' identifiers. <span class="has-tip tip-top noradius">?</span></p>\n    ');
         }
         __out.push('\n');
       } else {
@@ -11130,7 +11155,7 @@ module.exports = function(__obj) {
           __out.push(__sanitize(this.total));
           __out.push(' ');
           __out.push(__sanitize(this.type));
-          __out.push('s</strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+          __out.push('s</strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>\n    ');
         } else {
           __out.push('\n        <p>We have found <strong>');
           __out.push(__sanitize(this.total));
@@ -11138,7 +11163,7 @@ module.exports = function(__obj) {
           __out.push(__sanitize(this.type));
           __out.push('s</strong> from ');
           __out.push(__sanitize(this.input));
-          __out.push(' identifiers. <span class="has-tip tip-top noradius">Why?</span></p>\n    ');
+          __out.push(' identifiers. <span class="has-tip tip-top noradius">?</span></p>\n    ');
         }
         __out.push('\n');
       }
@@ -11190,7 +11215,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<ul>\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
+      __out.push('<h2>No matches found</h2>\n<span class="has-tip tip-top noradius">?</span>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
     
     }).call(this);
     

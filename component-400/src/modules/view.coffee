@@ -20,7 +20,7 @@ class View
         @el = $ "<#{@tag}/>"
 
         # Delegate events.
-        for event, fn of @events
+        for event, fn of @events then do (event, fn) =>
             [ ev, selector] = event.match(@splitter)[1...]
             @el.on ev, selector, =>
                 @[fn].call @

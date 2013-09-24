@@ -6,14 +6,14 @@
 
 <% if @total is 1: %>
     <% if @input is 1: %>
-        <p>We have found a matching <strong><%= @type %></strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>
+        <p>We have found a matching <strong><%= @type %></strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>
     <% else: %>
-        <p>We have found a matching <strong><%= @type %></strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">Why?</span></p>
+        <p>We have found a matching <strong><%= @type %></strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">?</span></p>
     <% end %>
 <% else: %>
     <% if @input is 1: %>
-        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from your identifier. <span class="has-tip tip-top noradius">Why?</span></p>
+        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>
     <% else: %>
-        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">Why?</span></p>
+        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">?</span></p>
     <% end %>
 <% end %>

@@ -7,6 +7,9 @@ class SummaryView extends View
 
     template: require '../templates/summary/tabs'
 
+    events:
+        'click .button.download': 'download'
+
     constructor: ->
         super
         @el.addClass 'summary'
@@ -30,6 +33,9 @@ class SummaryView extends View
             mediator.trigger('tab:switch', model.cid) if i is '0'
 
         @
+
+    download: ->
+        console.log 'Download summary'
 
 class TabSwitcherView extends View
 

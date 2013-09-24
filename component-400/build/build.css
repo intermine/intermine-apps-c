@@ -1087,3 +1087,13 @@ that IE7/8 do not support :nth-child.
 .foundation .summary dl.tabs dd a {
   cursor: pointer;
 }
+.foundation ul.inline {
+  list-style: none;
+  padding: 0;
+}
+.foundation ul.inline li {
+  display: inline-block;
+}
+.foundation ul.inline li:not(:last-child):after {
+  content: ", ";
+}
