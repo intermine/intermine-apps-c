@@ -18,9 +18,19 @@ class DuplicatesView extends View
         @el.html do @template
 
         tbody = @el.find('tbody')
-        for model in @collection
-            @views.push view = new DuplicatesRowView({ 'model': model })
-            tbody.append view.render().el
+
+        for provided, matched of @collection
+            for i, match of matched
+                if i is '0'
+                    @views.push view = new DuplicatesRowView {
+                        'model': match
+                        'rowspan': matched.length
+                        provided
+                    }
+                else
+                    @views.push view = new DuplicatesRowView({ 'model': match })
+                
+                tbody.append view.render().el
 
         @
 
@@ -35,9 +45,17 @@ class DuplicatesRowView extends View
     template: require '../templates/duplicates/row'
     tag: 'tr'
 
+    events:
+        'click .button.add': 'add'
+
     render: ->
-        @el.html @template @model
+        { provided, rowspan } = @options
+        matched = @model.object.summary.primaryIdentifier
+        @el.html @template { provided, matched, rowspan }
 
         @
+
+    add: ->
+        console.log 'Add row'
 
 module.exports = DuplicatesView

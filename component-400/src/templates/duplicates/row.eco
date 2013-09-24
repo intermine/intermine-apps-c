@@ -1,3 +1,5 @@
-<td>lola</td>
-<td>lola1</td>
-<td><span class="tiny secondary button">Add</span></td>
+<% if @provided: %>
+    <td rowspan="<%= @rowspan %>"><%= @provided %></td>
+<% end %>
+<td><a href="#"><%= @matched %></a></td>
+<td><span class="tiny secondary add button">Add</span></td>

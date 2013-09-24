@@ -10412,7 +10412,7 @@ SummaryView = require('./views/summary');
 Collection = require('./models/collection');
 
 module.exports = function(data, target, cb) {
-  var collection;
+  var collection, d;
   if (cb == null) {
     cb = function() {
       throw 'Provide your own callback function';
@@ -10423,10 +10423,11 @@ module.exports = function(data, target, cb) {
   target.append((new HeaderView({
     collection: collection
   })).render().el);
-  collection = [{}, {}];
-  target.append((new DuplicatesView({
-    'collection': collection
-  })).render().el);
+  if (d = collection.dupes) {
+    target.append((new DuplicatesView({
+      'collection': d
+    })).render().el);
+  }
   collection = [
     {
       'cid': 'c0'
@@ -10469,6 +10470,7 @@ View = (function() {
   function View(opts) {
     var event, fn, k, v, _fn, _ref,
       _this = this;
+    this.options = {};
     for (k in opts) {
       v = opts[k];
       switch (k) {
@@ -10477,9 +10479,6 @@ View = (function() {
           this[k] = v;
           break;
         default:
-          if (this.options == null) {
-            this.options = {};
-          }
           this.options[k] = v;
       }
     }
@@ -10673,16 +10672,27 @@ DuplicatesView = (function(_super) {
   }
 
   DuplicatesView.prototype.render = function() {
-    var model, tbody, view, _i, _len, _ref;
+    var i, match, matched, provided, tbody, view, _ref;
     this.el.html(this.template());
     tbody = this.el.find('tbody');
     _ref = this.collection;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      model = _ref[_i];
-      this.views.push(view = new DuplicatesRowView({
-        'model': model
-      }));
-      tbody.append(view.render().el);
+    for (provided in _ref) {
+      matched = _ref[provided];
+      for (i in matched) {
+        match = matched[i];
+        if (i === '0') {
+          this.views.push(view = new DuplicatesRowView({
+            'model': match,
+            'rowspan': matched.length,
+            provided: provided
+          }));
+        } else {
+          this.views.push(view = new DuplicatesRowView({
+            'model': match
+          }));
+        }
+        tbody.append(view.render().el);
+      }
     }
     return this;
   };
@@ -10711,9 +10721,24 @@ DuplicatesRowView = (function(_super) {
 
   DuplicatesRowView.prototype.tag = 'tr';
 
+  DuplicatesRowView.prototype.events = {
+    'click .button.add': 'add'
+  };
+
   DuplicatesRowView.prototype.render = function() {
-    this.el.html(this.template(this.model));
+    var matched, provided, rowspan, _ref1;
+    _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan;
+    matched = this.model.object.summary.primaryIdentifier;
+    this.el.html(this.template({
+      provided: provided,
+      matched: matched,
+      rowspan: rowspan
+    }));
     return this;
+  };
+
+  DuplicatesRowView.prototype.add = function() {
+    return console.log('Add row');
   };
 
   return DuplicatesRowView;
@@ -10974,7 +10999,19 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<td>lola</td>\n<td>lola1</td>\n<td><span class="tiny secondary button">Add</span></td>');
+      if (this.provided) {
+        __out.push('\n    <td rowspan="');
+        __out.push(__sanitize(this.rowspan));
+        __out.push('">');
+        __out.push(__sanitize(this.provided));
+        __out.push('</td>\n');
+      }
+    
+      __out.push('\n<td><a href="#">');
+    
+      __out.push(__sanitize(this.matched));
+    
+      __out.push('</a></td>\n<td><span class="tiny secondary add button">Add</span></td>');
     
     }).call(this);
     

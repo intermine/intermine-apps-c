@@ -28,8 +28,7 @@ module.exports = (data, target, cb) ->
     target.append (new HeaderView({ collection })).render().el
 
     # Render the duplicates?
-    collection = [ {}, {} ]
-    target.append (new DuplicatesView({ 'collection': collection })).render().el
+    target.append((new DuplicatesView({ 'collection': d })).render().el) if d = collection.dupes
 
     # Summary overview.
     collection = [ { 'cid': 'c0' }, { 'cid': 'c1' }, { 'cid': 'c2' } ]

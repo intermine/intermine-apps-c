@@ -8,12 +8,12 @@ class View
 
     constructor: (opts) ->
         # Expand on us.
+        @options = {}
         for k, v of opts
             switch k
                 when 'model', 'collection'
                     @[k] = v
                 else
-                    @options ?= {}
                     @options[k] = v
 
         # Render to here.
