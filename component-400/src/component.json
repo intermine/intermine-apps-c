@@ -27,6 +27,7 @@
         "templates/summary/tab.eco",
         "templates/summary/table.eco",
         "templates/summary/list.eco",
+        "templates/summary/row.eco",
         "templates/header.eco",
         "templates/nomatches.eco"
     ],

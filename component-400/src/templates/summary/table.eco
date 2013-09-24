@@ -5,14 +5,5 @@
             <th>Match</th>
         </tr>
     </thead>
-    <tbody>
-        <tr>
-            <td>TWIST_DROME</td>
-            <td>twist</td>
-        </tr>
-        <tr>
-            <td>fkh</td>
-            <td>twist</td>
-        </tr>
-    </tbody>
+    <tbody></tbody>
 </table>

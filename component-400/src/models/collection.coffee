@@ -2,6 +2,12 @@
 
 class Collection
 
+    # Translations.
+    dict:
+        'MATCH': 'direct hit'
+        'TYPE_CONVERTED': 'converted type'
+        'OTHER': 'other thing'
+
     constructor: (data) ->
         # Number of input identifiers provided.
         @input = {}

@@ -1,1 +1,1 @@
-<a>Tabitha <span class="has-tip tip-top noradius">?</span></a>
+<a><%= @name %>s <span class="has-tip tip-top noradius">?</span></a>

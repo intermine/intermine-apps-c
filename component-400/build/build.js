@@ -10412,7 +10412,7 @@ SummaryView = require('./views/summary');
 Collection = require('./models/collection');
 
 module.exports = function(data, target, cb) {
-  var collection, d;
+  var collection, dict, dupes, summary;
   if (cb == null) {
     cb = function() {
       throw 'Provide your own callback function';
@@ -10423,23 +10423,18 @@ module.exports = function(data, target, cb) {
   target.append((new HeaderView({
     collection: collection
   })).render().el);
-  if (d = collection.dupes) {
+  dupes = collection.dupes, summary = collection.summary, dict = collection.dict;
+  if (dupes) {
     target.append((new DuplicatesView({
-      'collection': d
+      'collection': dupes
     })).render().el);
   }
-  collection = [
-    {
-      'cid': 'c0'
-    }, {
-      'cid': 'c1'
-    }, {
-      'cid': 'c2'
-    }
-  ];
-  return target.append((new SummaryView({
-    'collection': collection
-  })).render().el);
+  if (summary) {
+    return target.append((new SummaryView({
+      'collection': summary,
+      dict: dict
+    })).render().el);
+  }
 };
 
 });
@@ -10520,6 +10515,12 @@ var Collection, length;
 length = require('object').length;
 
 Collection = (function() {
+  Collection.prototype.dict = {
+    'MATCH': 'direct hit',
+    'TYPE_CONVERTED': 'converted type',
+    'OTHER': 'other thing'
+  };
+
   function Collection(data) {
     var id, object, provided, reason, reasons, _i, _len, _ref;
     this.input = {};
@@ -10782,7 +10783,7 @@ module.exports = NoMatchesView;
 
 });
 require.register("component-400/views/summary.js", function(exports, require, module){
-var $, ListView, SummaryView, TabContentView, TabSwitcherView, TableView, View, mediator, _ref, _ref1,
+var $, ListView, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, mediator, _ref, _ref1, _ref2,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -10807,23 +10808,28 @@ SummaryView = (function(_super) {
   }
 
   SummaryView.prototype.render = function() {
-    var content, i, model, tabs, view, _ref;
+    var collection, content, isFirst, reason, tabs, view, _ref;
     this.el.html(this.template());
     tabs = this.el.find('.tabs');
     content = this.el.find('.tabs-content');
+    isFirst = true;
     _ref = this.collection;
-    for (i in _ref) {
-      model = _ref[i];
+    for (reason in _ref) {
+      collection = _ref[reason];
       this.views.push(view = new TabSwitcherView({
-        model: model
+        'model': {
+          'name': this.options.dict[reason]
+        },
+        reason: reason
       }));
       tabs.append(view.render().el);
       this.views.push(view = new TableView({
-        model: model
+        collection: collection,
+        reason: reason
       }));
       content.append(view.render().el);
-      if (i === '0') {
-        mediator.trigger('tab:switch', model.cid);
+      if (isFirst) {
+        mediator.trigger('tab:switch', reason) && (isFirst = false);
       }
     }
     return this;
@@ -10850,13 +10856,13 @@ TabSwitcherView = (function(_super) {
 
   function TabSwitcherView() {
     TabSwitcherView.__super__.constructor.apply(this, arguments);
-    mediator.on('tab:switch', function(cid) {
-      return this.el.toggleClass('active', this.model.cid === cid);
+    mediator.on('tab:switch', function(reason) {
+      return this.el.toggleClass('active', this.options.reason === reason);
     }, this);
   }
 
   TabSwitcherView.prototype.onclick = function() {
-    return mediator.trigger('tab:switch', this.model.cid);
+    return mediator.trigger('tab:switch', this.options.reason);
   };
 
   return TabSwitcherView;
@@ -10870,8 +10876,8 @@ TabContentView = (function(_super) {
 
   function TabContentView() {
     TabContentView.__super__.constructor.apply(this, arguments);
-    mediator.on('tab:switch', function(cid) {
-      return this.el.toggleClass('active', this.model.cid === cid);
+    mediator.on('tab:switch', function(reason) {
+      return this.el.toggleClass('active', this.options.reason === reason);
     }, this);
   }
 
@@ -10889,16 +10895,57 @@ TableView = (function(_super) {
 
   TableView.prototype.template = require('../templates/summary/table');
 
+  TableView.prototype.render = function() {
+    var model, tbody, view, _i, _len, _ref1;
+    this.el.html(this.template());
+    tbody = this.el.find('tbody');
+    _ref1 = this.collection;
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      model = _ref1[_i];
+      this.views.push(view = new TableRowView({
+        model: model
+      }));
+      tbody.append(view.render().el);
+    }
+    return this;
+  };
+
   return TableView;
 
 })(TabContentView);
+
+TableRowView = (function(_super) {
+  __extends(TableRowView, _super);
+
+  function TableRowView() {
+    _ref1 = TableRowView.__super__.constructor.apply(this, arguments);
+    return _ref1;
+  }
+
+  TableRowView.prototype.template = require('../templates/summary/row');
+
+  TableRowView.prototype.tag = 'tr';
+
+  TableRowView.prototype.render = function() {
+    var matched;
+    matched = this.model.object.summary.primaryIdentifier;
+    this.el.html(this.template({
+      'provided': this.model.provided,
+      matched: matched
+    }));
+    return this;
+  };
+
+  return TableRowView;
+
+})(View);
 
 ListView = (function(_super) {
   __extends(ListView, _super);
 
   function ListView() {
-    _ref1 = ListView.__super__.constructor.apply(this, arguments);
-    return _ref1;
+    _ref2 = ListView.__super__.constructor.apply(this, arguments);
+    return _ref2;
   }
 
   ListView.prototype.template = require('../templates/summary/list');
@@ -11109,7 +11156,11 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<a>Tabitha <span class="has-tip tip-top noradius">?</span></a>');
+      __out.push('<a>');
+    
+      __out.push(__sanitize(this.name));
+    
+      __out.push('s <span class="has-tip tip-top noradius">?</span></a>');
     
     }).call(this);
     
@@ -11158,7 +11209,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>TWIST_DROME</td>\n            <td>twist</td>\n        </tr>\n        <tr>\n            <td>fkh</td>\n            <td>twist</td>\n        </tr>\n    </tbody>\n</table>');
+      __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -11208,6 +11259,63 @@ module.exports = function(__obj) {
   (function() {
     (function() {
       __out.push('<ul class="inline">\n    <li>fkh</li>\n    <li>pan</li>\n</ul>');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/summary/row.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push('<td>');
+    
+      __out.push(__sanitize(this.provided));
+    
+      __out.push('</td>\n<td><a href="#">');
+    
+      __out.push(__sanitize(this.matched));
+    
+      __out.push('</a></td>');
     
     }).call(this);
     

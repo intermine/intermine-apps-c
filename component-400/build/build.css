@@ -1105,6 +1105,7 @@ that IE7/8 do not support :nth-child.
   float: right;
 }
 .foundation .summary dl.tabs dd a {
+  text-transform: capitalize;
   cursor: pointer;
 }
 .foundation ul.inline {

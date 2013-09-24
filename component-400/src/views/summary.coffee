@@ -20,17 +20,20 @@ class SummaryView extends View
         tabs = @el.find('.tabs')
         content = @el.find('.tabs-content')
 
-        for i, model of @collection
+        isFirst = yes
+        for reason, collection of @collection
             # Switcher.
-            @views.push view = new TabSwitcherView({ model })
+            @views.push view = new TabSwitcherView {
+                'model': { 'name': @options.dict[reason] }, reason
+            }
             tabs.append view.render().el
             
             # Content.
-            @views.push view = new TableView({ model })
+            @views.push view = new TableView({ collection, reason })
             content.append view.render().el
 
             # Show the first one by default.
-            mediator.trigger('tab:switch', model.cid) if i is '0'
+            mediator.trigger('tab:switch', reason) and isFirst = false if isFirst
 
         @
 
@@ -49,12 +52,12 @@ class TabSwitcherView extends View
     constructor: ->
         super
         # Toggle tab?
-        mediator.on 'tab:switch', (cid) ->
-            @el.toggleClass 'active', @model.cid is cid
+        mediator.on 'tab:switch', (reason) ->
+            @el.toggleClass 'active', @options.reason is reason
         , @
 
     onclick: ->
-        mediator.trigger 'tab:switch', @model.cid
+        mediator.trigger 'tab:switch', @options.reason
 
 class TabContentView extends View
 
@@ -63,13 +66,35 @@ class TabContentView extends View
     constructor: ->
         super
         # Toggle content?
-        mediator.on 'tab:switch', (cid) ->
-            @el.toggleClass 'active', @model.cid is cid
+        mediator.on 'tab:switch', (reason) ->
+            @el.toggleClass 'active', @options.reason is reason
         , @
 
 class TableView extends TabContentView
 
     template: require '../templates/summary/table'
+
+    render: ->
+        @el.html do @template
+
+        tbody = @el.find('tbody')
+
+        for model in @collection
+            @views.push view = new TableRowView({ model })
+            tbody.append view.render().el
+
+        @
+
+class TableRowView extends View
+
+    template: require '../templates/summary/row'
+    tag: 'tr'
+
+    render: ->
+        matched = @model.object.summary.primaryIdentifier
+        @el.html @template { 'provided': @model.provided, matched }
+
+        @
 
 class ListView extends TabContentView
 
