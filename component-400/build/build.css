@@ -1084,3 +1084,6 @@ that IE7/8 do not support :nth-child.
   font-size: 20px;
   display: inline-block;
 }
+.foundation .summary dl.tabs dd a {
+  cursor: pointer;
+}

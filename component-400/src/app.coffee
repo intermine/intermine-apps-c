@@ -32,5 +32,5 @@ module.exports = (collection, target, cb) ->
     target.append (new NoMatchesView({ 'collection': collection })).render().el
 
     # Summary overview.
-    collection = [ {}, {}, {} ]
+    collection = [ { 'cid': 'c0' }, { 'cid': 'c1' }, { 'cid': 'c2' } ]
     target.append (new SummaryView({ 'collection': collection })).render().el

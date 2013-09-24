@@ -1,10 +1,15 @@
 $ = require 'jquery'
 
-View = require '../modules/view'
+mediator = require '../modules/mediator'
+View     = require '../modules/view'
 
 class SummaryView extends View
 
     template: require '../templates/summary/tabs'
+
+    constructor: ->
+        super
+        @el.addClass 'summary'
 
     render: ->
         @el.html do @template
@@ -12,16 +17,17 @@ class SummaryView extends View
         tabs = @el.find('.tabs')
         content = @el.find('.tabs-content')
 
-        for i, tab of @collection
-            active = i is '0'
-            
+        for i, model of @collection
             # Switcher.
-            @views.push view = new TabSwitcherView({ 'model': { 'cid': 'c'+i }, active })
+            @views.push view = new TabSwitcherView({ model })
             tabs.append view.render().el
             
             # Content.
-            @views.push view = new TableView({ 'model': tab, active })
+            @views.push view = new TableView({ model })
             content.append view.render().el
+
+            # Show the first one by default.
+            mediator.trigger('tab:switch', model.cid) if i is '0'
 
         @
 
@@ -34,20 +40,26 @@ class TabSwitcherView extends View
     events:
         'click *': 'onclick'
 
-    constructor: ({ active }) ->
+    constructor: ->
         super
-        @el.addClass 'active' if active
+        # Toggle tab?
+        mediator.on 'tab:switch', (cid) ->
+            @el.toggleClass 'active', @model.cid is cid
+        , @
 
     onclick: ->
-        console.log @model
+        mediator.trigger 'tab:switch', @model.cid
 
 class TabContentView extends View
 
     tag: 'li'
 
-    constructor: ({ @model, active }) ->
+    constructor: ->
         super
-        @el.addClass 'active' if active
+        # Toggle content?
+        mediator.on 'tab:switch', (cid) ->
+            @el.toggleClass 'active', @model.cid is cid
+        , @
 
 class TableView extends TabContentView
 

@@ -1,3 +1,4 @@
 #!/usr/bin/env coffee
-extend = require 'extend'
-module.exports = extend {}, Backbone.Events
+extend         = require 'extend'
+BackboneEvents = require 'backbone-events'
+module.exports = extend {}, BackboneEvents

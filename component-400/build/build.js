@@ -10425,7 +10425,15 @@ module.exports = function(collection, target, cb) {
   target.append((new NoMatchesView({
     'collection': collection
   })).render().el);
-  collection = [{}, {}, {}];
+  collection = [
+    {
+      'cid': 'c0'
+    }, {
+      'cid': 'c1'
+    }, {
+      'cid': 'c2'
+    }
+  ];
   return target.append((new SummaryView({
     'collection': collection
   })).render().el);
@@ -10433,11 +10441,13 @@ module.exports = function(collection, target, cb) {
 
 });
 require.register("component-400/modules/mediator.js", function(exports, require, module){
-var extend;
+var BackboneEvents, extend;
 
 extend = require('extend');
 
-module.exports = extend({}, Backbone.Events);
+BackboneEvents = require('backbone-events');
+
+module.exports = extend({}, BackboneEvents);
 
 });
 require.register("component-400/modules/view.js", function(exports, require, module){
@@ -10631,45 +10641,45 @@ module.exports = NoMatchesView;
 
 });
 require.register("component-400/views/summary.js", function(exports, require, module){
-var $, ListView, SummaryView, TabContentView, TabSwitcherView, TableView, View, _ref, _ref1, _ref2,
+var $, ListView, SummaryView, TabContentView, TabSwitcherView, TableView, View, mediator, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
+
+mediator = require('../modules/mediator');
 
 View = require('../modules/view');
 
 SummaryView = (function(_super) {
   __extends(SummaryView, _super);
 
-  function SummaryView() {
-    _ref = SummaryView.__super__.constructor.apply(this, arguments);
-    return _ref;
-  }
-
   SummaryView.prototype.template = require('../templates/summary/tabs');
 
+  function SummaryView() {
+    SummaryView.__super__.constructor.apply(this, arguments);
+    this.el.addClass('summary');
+  }
+
   SummaryView.prototype.render = function() {
-    var active, content, i, tab, tabs, view, _ref1;
+    var content, i, model, tabs, view, _ref;
     this.el.html(this.template());
     tabs = this.el.find('.tabs');
     content = this.el.find('.tabs-content');
-    _ref1 = this.collection;
-    for (i in _ref1) {
-      tab = _ref1[i];
-      active = i === '0';
+    _ref = this.collection;
+    for (i in _ref) {
+      model = _ref[i];
       this.views.push(view = new TabSwitcherView({
-        'model': {
-          'cid': 'c' + i
-        },
-        active: active
+        model: model
       }));
       tabs.append(view.render().el);
       this.views.push(view = new TableView({
-        'model': tab,
-        active: active
+        model: model
       }));
       content.append(view.render().el);
+      if (i === '0') {
+        mediator.trigger('tab:switch', model.cid);
+      }
     }
     return this;
   };
@@ -10689,17 +10699,15 @@ TabSwitcherView = (function(_super) {
     'click *': 'onclick'
   };
 
-  function TabSwitcherView(_arg) {
-    var active;
-    active = _arg.active;
+  function TabSwitcherView() {
     TabSwitcherView.__super__.constructor.apply(this, arguments);
-    if (active) {
-      this.el.addClass('active');
-    }
+    mediator.on('tab:switch', function(cid) {
+      return this.el.toggleClass('active', this.model.cid === cid);
+    }, this);
   }
 
   TabSwitcherView.prototype.onclick = function() {
-    return console.log(this.model);
+    return mediator.trigger('tab:switch', this.model.cid);
   };
 
   return TabSwitcherView;
@@ -10711,13 +10719,11 @@ TabContentView = (function(_super) {
 
   TabContentView.prototype.tag = 'li';
 
-  function TabContentView(_arg) {
-    var active;
-    this.model = _arg.model, active = _arg.active;
+  function TabContentView() {
     TabContentView.__super__.constructor.apply(this, arguments);
-    if (active) {
-      this.el.addClass('active');
-    }
+    mediator.on('tab:switch', function(cid) {
+      return this.el.toggleClass('active', this.model.cid === cid);
+    }, this);
   }
 
   return TabContentView;
@@ -10728,8 +10734,8 @@ TableView = (function(_super) {
   __extends(TableView, _super);
 
   function TableView() {
-    _ref1 = TableView.__super__.constructor.apply(this, arguments);
-    return _ref1;
+    _ref = TableView.__super__.constructor.apply(this, arguments);
+    return _ref;
   }
 
   TableView.prototype.template = require('../templates/summary/table');
@@ -10742,8 +10748,8 @@ ListView = (function(_super) {
   __extends(ListView, _super);
 
   function ListView() {
-    _ref2 = ListView.__super__.constructor.apply(this, arguments);
-    return _ref2;
+    _ref1 = ListView.__super__.constructor.apply(this, arguments);
+    return _ref1;
   }
 
   ListView.prototype.template = require('../templates/summary/list');
