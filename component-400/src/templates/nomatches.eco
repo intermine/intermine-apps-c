@@ -1,5 +1,7 @@
-<h2>No matches found</h2>
-<span class="has-tip tip-top noradius">?</span>
+<header>
+    <h2>No matches found</h2>
+    <span class="has-tip tip-top noradius">?</span>
+</header>
 
 <ul class="inline">
     <li>monkey</li>

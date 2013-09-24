@@ -1,19 +1,21 @@
-<% if @selected is 1: %>
-    <a class="success button done">Save a list of 1 <%= @type %></a>
-<% else: %>
-    <a class="success button done">Save a list of <%= @selected %> <%= @type %>s</a>
-<% end %>
+<header>
+    <% if @selected is 1: %>
+        <a class="success button save">Save a list of 1 <%= @type %></a>
+    <% else: %>
+        <a class="success button save">Save a list of <%= @selected %> <%= @type %>s</a>
+    <% end %>
 
-<% if @total is 1: %>
-    <% if @input is 1: %>
-        <p>We have found a matching <strong><%= @type %></strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>
+    <% if @total is 1: %>
+        <% if @input is 1: %>
+            <h2>We have found a matching <%= @type %> from your identifier</h2> <span class="has-tip tip-top noradius">?</span>
+        <% else: %>
+            <h2>We have found a matching <%= @type %> from <%= @input %> identifiers</h2> <span class="has-tip tip-top noradius">?</span>
+        <% end %>
     <% else: %>
-        <p>We have found a matching <strong><%= @type %></strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">?</span></p>
+        <% if @input is 1: %>
+            <h2>We have found <%= @total %> <%= @type %>s from your identifier</h2> <span class="has-tip tip-top noradius">?</span>
+        <% else: %>
+            <h2>We have found <%= @total %> <%= @type %>s from <%= @input %> identifiers</h2> <span class="has-tip tip-top noradius">?</span>
+        <% end %>
     <% end %>
-<% else: %>
-    <% if @input is 1: %>
-        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>
-    <% else: %>
-        <p>We have found <strong><%= @total %> <%= @type %>s</strong> from <%= @input %> identifiers. <span class="has-tip tip-top noradius">?</span></p>
-    <% end %>
-<% end %>
+</header>

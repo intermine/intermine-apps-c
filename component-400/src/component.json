@@ -16,6 +16,7 @@
         "app.coffee",
         "modules/mediator.coffee",
         "modules/view.coffee",
+        "models/collection.coffee",
         "views/header.coffee",
         "views/duplicates.coffee",
         "views/nomatches.coffee",

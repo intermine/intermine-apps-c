@@ -12,7 +12,7 @@ class SummaryView extends View
 
     constructor: ->
         super
-        @el.addClass 'summary'
+        @el.addClass 'summary section'
 
     render: ->
         @el.html do @template

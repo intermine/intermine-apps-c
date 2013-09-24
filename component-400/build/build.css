@@ -1083,6 +1083,26 @@ that IE7/8 do not support :nth-child.
 .foundation h2 {
   font-size: 20px;
   display: inline-block;
+  margin: 0;
+}
+.foundation table {
+  width: 100%;
+}
+.foundation .section {
+  padding: 10px;
+}
+.foundation .section:nth-child(even) {
+  border: 1px solid #e6e6e6;
+  border-width: 1px 0;
+}
+.foundation .section header {
+  margin-bottom: 10px;
+  vertical-align: middle;
+  line-height: 37px;
+}
+.foundation .section header .button {
+  margin-left: 10px;
+  float: right;
 }
 .foundation .summary dl.tabs dd a {
   cursor: pointer;

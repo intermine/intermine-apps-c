@@ -12,7 +12,7 @@ class DuplicatesView extends View
 
     constructor: ->
         super
-        @el.addClass 'duplicates'
+        @el.addClass 'duplicates section'
 
     render: ->
         @el.html do @template

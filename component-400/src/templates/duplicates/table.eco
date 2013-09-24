@@ -1,10 +1,9 @@
 <header>
+    <span class="small secondary remove-all button">Remove all</span>
+    <span class="small success add-all button">Add all</span>
     <h2>Choose from duplicates</h2>
     <span class="has-tip tip-top noradius">?</span>
 </header>
-
-<span class="small success add-all button">Add all</span>
-<span class="small secondary remove-all button">Remove all</span>
 
 <table>
     <thead>

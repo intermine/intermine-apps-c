@@ -12,24 +12,24 @@ DuplicatesView = require './views/duplicates'
 NoMatchesView  = require './views/nomatches'
 SummaryView    = require './views/summary'
 
-# We are passed an object/collection and a target to render to.
-module.exports = (collection, target, cb) ->
+Collection     = require './models/collection'
+
+module.exports = (data, target, cb) ->
     # Specified callback?
     cb ?= -> throw 'Provide your own callback function'
+
+    # Parse the input data.
+    collection = new Collection data
 
     # DOMify.
     target = $(target).addClass('foundation')
 
     # Render the header.
-    target.append (new HeaderView()).render().el
+    target.append (new HeaderView({ collection })).render().el
 
     # Render the duplicates?
     collection = [ {}, {} ]
     target.append (new DuplicatesView({ 'collection': collection })).render().el
-
-    # Render the no matches?
-    collection = [ {}, {} ]
-    target.append (new NoMatchesView({ 'collection': collection })).render().el
 
     # Summary overview.
     collection = [ { 'cid': 'c0' }, { 'cid': 'c1' }, { 'cid': 'c2' } ]

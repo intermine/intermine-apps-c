@@ -8,7 +8,7 @@ class NoMatchesView extends View
 
     constructor: ->
         super
-        @el.addClass 'nomatches'
+        @el.addClass 'nomatches section'
 
     render: ->
         @el.html @template 'items': @collection

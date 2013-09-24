@@ -1,3 +1,7 @@
-<span class="small download button">Download summary</span>
+<header>
+    <span class="small download button">Download summary</span>
+    <h2>Summary</h2>
+    <span class="has-tip tip-top noradius">?</span>
+</header>
 <dl class="tabs contained"></dl>
 <ul class="tabs-content contained"></ul>

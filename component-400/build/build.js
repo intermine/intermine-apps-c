@@ -10387,7 +10387,7 @@ Events.unbind = Events.off;
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, DuplicatesView, HeaderView, NoMatchesView, SummaryView, extend, _;
+var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView, extend, _;
 
 extend = require('extend');
 
@@ -10409,20 +10409,22 @@ NoMatchesView = require('./views/nomatches');
 
 SummaryView = require('./views/summary');
 
-module.exports = function(collection, target, cb) {
+Collection = require('./models/collection');
+
+module.exports = function(data, target, cb) {
+  var collection;
   if (cb == null) {
     cb = function() {
       throw 'Provide your own callback function';
     };
   }
+  collection = new Collection(data);
   target = $(target).addClass('foundation');
-  target.append((new HeaderView()).render().el);
-  collection = [{}, {}];
-  target.append((new DuplicatesView({
-    'collection': collection
+  target.append((new HeaderView({
+    collection: collection
   })).render().el);
   collection = [{}, {}];
-  target.append((new NoMatchesView({
+  target.append((new DuplicatesView({
     'collection': collection
   })).render().el);
   collection = [
@@ -10513,12 +10515,99 @@ View = (function() {
 module.exports = View;
 
 });
+require.register("component-400/models/collection.js", function(exports, require, module){
+var Collection, length;
+
+length = require('object').length;
+
+Collection = (function() {
+  function Collection(data) {
+    var id, object, provided, reason, reasons, _i, _len, _ref;
+    this.input = {};
+    this.total = 0;
+    this.summary = {};
+    this.dupes = {};
+    this.selected = {};
+    this.type = null;
+    for (id in data) {
+      object = data[id];
+      this.total += 1;
+      _ref = object.identifiers;
+      for (provided in _ref) {
+        reasons = _ref[provided];
+        this.input[provided] = null;
+        for (_i = 0, _len = reasons.length; _i < _len; _i++) {
+          reason = reasons[_i];
+          if (this.type == null) {
+            this.type = object.type.toLowerCase();
+          }
+          switch (reason) {
+            case 'DUPLICATE':
+              this.addDupe({
+                provided: provided,
+                id: id,
+                object: object
+              });
+              break;
+            default:
+              this.addSummary({
+                reason: reason,
+                provided: provided,
+                id: id,
+                object: object
+              });
+          }
+        }
+      }
+    }
+    this.input = length(this.input);
+  }
+
+  Collection.prototype.addDupe = function(_arg) {
+    var id, object, provided, _base;
+    provided = _arg.provided, id = _arg.id, object = _arg.object;
+    if ((_base = this.dupes)[provided] == null) {
+      _base[provided] = [];
+    }
+    return this.dupes[provided].push({
+      id: id,
+      object: object
+    });
+  };
+
+  Collection.prototype.addSummary = function(_arg) {
+    var id, object, provided, reason, _base;
+    reason = _arg.reason, provided = _arg.provided, id = _arg.id, object = _arg.object;
+    if ((_base = this.summary)[reason] == null) {
+      _base[reason] = [];
+    }
+    this.summary[reason].push({
+      provided: provided,
+      id: id,
+      object: object
+    });
+    return this.selected[id] = true;
+  };
+
+  Collection.prototype.selectedLn = function() {
+    return length(this.selected);
+  };
+
+  return Collection;
+
+})();
+
+module.exports = Collection;
+
+});
 require.register("component-400/views/header.js", function(exports, require, module){
-var $, HeaderView, View,
+var $, HeaderView, View, extend,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
+
+extend = require('extend');
 
 View = require('../modules/view');
 
@@ -10527,19 +10616,29 @@ HeaderView = (function(_super) {
 
   HeaderView.prototype.template = require('../templates/header');
 
+  HeaderView.prototype.events = {
+    'click .button.save': 'save'
+  };
+
   function HeaderView() {
     HeaderView.__super__.constructor.apply(this, arguments);
-    this.el.addClass('header');
+    this.el.addClass('header section');
   }
 
   HeaderView.prototype.render = function() {
+    var input, total, type, _ref;
+    _ref = this.collection, input = _ref.input, total = _ref.total, type = _ref.type;
     this.el.html(this.template({
-      'type': 'gene',
-      'total': 22,
-      'input': 25,
-      'selected': 15
+      'selected': this.collection.selectedLn(),
+      input: input,
+      total: total,
+      type: type
     }));
     return this;
+  };
+
+  HeaderView.prototype.save = function() {
+    return console.log('Saving');
   };
 
   return HeaderView;
@@ -10570,7 +10669,7 @@ DuplicatesView = (function(_super) {
 
   function DuplicatesView() {
     DuplicatesView.__super__.constructor.apply(this, arguments);
-    this.el.addClass('duplicates');
+    this.el.addClass('duplicates section');
   }
 
   DuplicatesView.prototype.render = function() {
@@ -10640,7 +10739,7 @@ NoMatchesView = (function(_super) {
 
   function NoMatchesView() {
     NoMatchesView.__super__.constructor.apply(this, arguments);
-    this.el.addClass('nomatches');
+    this.el.addClass('nomatches section');
   }
 
   NoMatchesView.prototype.render = function() {
@@ -10679,7 +10778,7 @@ SummaryView = (function(_super) {
 
   function SummaryView() {
     SummaryView.__super__.constructor.apply(this, arguments);
-    this.el.addClass('summary');
+    this.el.addClass('summary section');
   }
 
   SummaryView.prototype.render = function() {
@@ -10826,7 +10925,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <h2>Choose from duplicates</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<span class="small success add-all button">Add all</span>\n<span class="small secondary remove-all button">Remove all</span>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Choose from duplicates</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -10924,7 +11023,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<span class="small download button">Download summary</span>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+      __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
     
     }).call(this);
     
@@ -11120,53 +11219,57 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
+      __out.push('<header>\n    ');
+    
       if (this.selected === 1) {
-        __out.push('\n    <a class="success button done">Save a list of 1 ');
+        __out.push('\n        <a class="success button save">Save a list of 1 ');
         __out.push(__sanitize(this.type));
-        __out.push('</a>\n');
+        __out.push('</a>\n    ');
       } else {
-        __out.push('\n    <a class="success button done">Save a list of ');
+        __out.push('\n        <a class="success button save">Save a list of ');
         __out.push(__sanitize(this.selected));
         __out.push(' ');
         __out.push(__sanitize(this.type));
-        __out.push('s</a>\n');
+        __out.push('s</a>\n    ');
       }
     
-      __out.push('\n\n');
+      __out.push('\n\n    ');
     
       if (this.total === 1) {
-        __out.push('\n    ');
+        __out.push('\n        ');
         if (this.input === 1) {
-          __out.push('\n        <p>We have found a matching <strong>');
+          __out.push('\n            <h2>We have found a matching ');
           __out.push(__sanitize(this.type));
-          __out.push('</strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>\n    ');
+          __out.push(' from your identifier</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
         } else {
-          __out.push('\n        <p>We have found a matching <strong>');
+          __out.push('\n            <h2>We have found a matching ');
           __out.push(__sanitize(this.type));
-          __out.push('</strong> from ');
+          __out.push(' from ');
           __out.push(__sanitize(this.input));
-          __out.push(' identifiers. <span class="has-tip tip-top noradius">?</span></p>\n    ');
+          __out.push(' identifiers</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
         }
-        __out.push('\n');
+        __out.push('\n    ');
       } else {
-        __out.push('\n    ');
+        __out.push('\n        ');
         if (this.input === 1) {
-          __out.push('\n        <p>We have found <strong>');
+          __out.push('\n            <h2>We have found ');
           __out.push(__sanitize(this.total));
           __out.push(' ');
           __out.push(__sanitize(this.type));
-          __out.push('s</strong> from your identifier. <span class="has-tip tip-top noradius">?</span></p>\n    ');
+          __out.push('s from your identifier</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
         } else {
-          __out.push('\n        <p>We have found <strong>');
+          __out.push('\n            <h2>We have found ');
           __out.push(__sanitize(this.total));
           __out.push(' ');
           __out.push(__sanitize(this.type));
-          __out.push('s</strong> from ');
+          __out.push('s from ');
           __out.push(__sanitize(this.input));
-          __out.push(' identifiers. <span class="has-tip tip-top noradius">?</span></p>\n    ');
+          __out.push(' identifiers</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
         }
-        __out.push('\n');
+        __out.push('\n    ');
       }
+    
+      __out.push('\n</header>');
     
     }).call(this);
     
@@ -11215,7 +11318,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<h2>No matches found</h2>\n<span class="has-tip tip-top noradius">?</span>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
+      __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
     
     }).call(this);
     
