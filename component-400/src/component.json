@@ -14,6 +14,7 @@
     },
     "scripts": [
         "app.coffee",
+        "modules/displayer.coffee",
         "modules/mediator.coffee",
         "modules/view.coffee",
         "models/collection.coffee",

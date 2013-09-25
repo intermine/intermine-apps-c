@@ -36,7 +36,7 @@ class Paginator extends View
         if @options.truncate < (p = @options.pages)
             # How much on each flank?
             h = Math.floor @options.truncate / 2
-
+            # Render the start, unavailable, the end.
             @options.range = [].concat [ 1...h + 1 ], [ null ], [ p - h + 1...p + 1 ]
         else
             # Business as usual.

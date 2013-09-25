@@ -1,6 +1,7 @@
 $ = require 'jquery'
 
 mediator  = require '../modules/mediator'
+displayer = require '../modules/displayer'
 View      = require '../modules/view'
 Paginator = require './paginator'
 
@@ -39,7 +40,7 @@ class SummaryView extends View
         @
 
     download: ->
-        console.log 'Download summary'
+        console.log @collection
 
 class TabSwitcherView extends View
 
@@ -114,7 +115,7 @@ class TableRowView extends View
     tag: 'tr'
 
     render: ->
-        matched = @model.object.summary.primaryIdentifier
+        matched = displayer @model
         @el.html @template { 'provided': @model.provided, matched }
 
         @

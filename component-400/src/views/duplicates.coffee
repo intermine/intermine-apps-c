@@ -1,6 +1,7 @@
 $ = require 'jquery'
 
-View = require '../modules/view'
+displayer = require '../modules/displayer'
+View      = require '../modules/view'
 
 class DuplicatesView extends View
 
@@ -50,7 +51,7 @@ class DuplicatesRowView extends View
 
     render: ->
         { provided, rowspan } = @options
-        matched = @model.object.summary.primaryIdentifier
+        matched = displayer @model
         @el.html @template { provided, matched, rowspan }
 
         @

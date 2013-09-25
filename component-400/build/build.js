@@ -10438,6 +10438,12 @@ module.exports = function(data, target, cb) {
 };
 
 });
+require.register("component-400/modules/displayer.js", function(exports, require, module){
+module.exports = function(model) {
+  return model.object.summary.primaryIdentifier;
+};
+
+});
 require.register("component-400/modules/mediator.js", function(exports, require, module){
 var BackboneEvents, extend;
 
@@ -10662,11 +10668,13 @@ module.exports = HeaderView;
 
 });
 require.register("component-400/views/duplicates.js", function(exports, require, module){
-var $, DuplicatesRowView, DuplicatesView, View, _ref,
+var $, DuplicatesRowView, DuplicatesView, View, displayer, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
+
+displayer = require('../modules/displayer');
 
 View = require('../modules/view');
 
@@ -10742,7 +10750,7 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.render = function() {
     var matched, provided, rowspan, _ref1;
     _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan;
-    matched = this.model.object.summary.primaryIdentifier;
+    matched = displayer(this.model);
     this.el.html(this.template({
       provided: provided,
       matched: matched,
@@ -10894,13 +10902,15 @@ module.exports = NoMatchesView;
 
 });
 require.register("component-400/views/summary.js", function(exports, require, module){
-var $, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, mediator, _ref, _ref1,
+var $, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, displayer, mediator, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
 
 mediator = require('../modules/mediator');
+
+displayer = require('../modules/displayer');
 
 View = require('../modules/view');
 
@@ -10949,7 +10959,7 @@ SummaryView = (function(_super) {
   };
 
   SummaryView.prototype.download = function() {
-    return console.log('Download summary');
+    return console.log(this.collection);
   };
 
   return SummaryView;
@@ -11060,7 +11070,7 @@ TableRowView = (function(_super) {
 
   TableRowView.prototype.render = function() {
     var matched;
-    matched = this.model.object.summary.primaryIdentifier;
+    matched = displayer(this.model);
     this.el.html(this.template({
       'provided': this.model.provided,
       matched: matched
