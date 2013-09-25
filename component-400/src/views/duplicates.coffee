@@ -1,4 +1,6 @@
-$ = require 'jquery'
+$        = require 'jquery'
+Queue    = require 'queue'
+nextTick = require 'next-tick'
 
 formatter = require '../modules/formatter'
 mediator  = require '../modules/mediator'
@@ -36,11 +38,28 @@ class DuplicatesView extends View
 
         @
 
-    # Blocking (!) add all.
-    addAll: -> ( do view.add for view in @views )
+    # Non blocking add all.
+    addAll: -> @doAll 'add'
 
-    # Blocking (!) remove all.
-    removeAll: -> ( do view.remove for view in @views )
+    # Non-blocking remove all.
+    removeAll: -> @doAll 'remove'
+
+    # The worker to work with "all".
+    doAll: (fn) ->
+        # This many jobs.
+        length = i = @views.length
+        # In a queue.
+        q = new Queue { 'concurrency': 5 }
+        
+        job = (cb) =>
+            # Have we reached the bottom?
+            if i--
+                do @views[length - i - 1][fn] # 0+
+                q.push job
+            setTimeout cb, 300
+
+        # Start the queue.
+        q.push job
 
 class DuplicatesRowView extends View
 

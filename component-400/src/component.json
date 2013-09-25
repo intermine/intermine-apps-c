@@ -12,7 +12,9 @@
         "component/jquery": "*",
         "timoxley/backbone-events": "*",
         "radekstepan/filesaver": "*",
-        "cristiandouce/csv": "*"
+        "cristiandouce/csv": "*",
+        "component/queue": "*",
+        "timoxley/next-tick": "*"
     },
     "scripts": [
         "app.coffee",
