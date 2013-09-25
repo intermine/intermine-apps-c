@@ -1,6 +1,7 @@
 $ = require 'jquery'
 
-View = require '../modules/view'
+mediator = require '../modules/mediator'
+View     = require '../modules/view'
 
 class Paginator extends View
 
@@ -12,11 +13,11 @@ class Paginator extends View
     constructor: ->
         super
 
-        @options.total   ?= 0
-        @options.perPage ?= 5
-        @options.current ?= 0
+        @options.total   ?= 0 # set the total number of items
+        @options.perPage ?= 5 # how many per page?
+        @options.current ?= 0 # the initial page
 
-        # Total number of pages.
+        # Calculate total number of pages.
         @options.pages = Math.ceil @options.total / @options.perPage
 
     # Select the previous page.
@@ -28,10 +29,17 @@ class Paginator extends View
     # Select a specific page.
     select: (current) -> @options.current = current
 
+    # Render the template.
     render: ->
         @el.html @template @options
+
+        # Which page range?
+        b = Math.min (a = @options.current * @options.perPage) + @options.perPage, @options.total
+        mediator.trigger 'page:change', @cid, a, b
+
         @
 
+    # Events.
     onclick: (evt) ->
         switch (li = $(evt.target).closest('li')).data('action')
             when 'prev' then do @prev

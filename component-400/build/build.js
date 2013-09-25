@@ -10449,9 +10449,11 @@ module.exports = extend({}, BackboneEvents);
 
 });
 require.register("component-400/modules/view.js", function(exports, require, module){
-var $, View;
+var $, View, id;
 
 $ = require('jquery');
+
+id = 0;
 
 View = (function() {
   View.prototype.splitter = /^(\S+)\s*(.*)$/;
@@ -10465,6 +10467,7 @@ View = (function() {
   function View(opts) {
     var event, fn, k, v, _fn, _ref,
       _this = this;
+    this.cid = 'c' + id++;
     this.options = {};
     for (k in opts) {
       v = opts[k];
@@ -10500,6 +10503,16 @@ View = (function() {
       this.el.html(this.template());
     }
     return this;
+  };
+
+  View.prototype.dispose = function() {
+    var view, _i, _len, _ref;
+    _ref = this.views;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      view = _ref[_i];
+      view.dispose();
+    }
+    return this.el.remove();
   };
 
   return View;
@@ -10750,11 +10763,13 @@ module.exports = DuplicatesView;
 
 });
 require.register("component-400/views/paginator.js", function(exports, require, module){
-var $, Paginator, View,
+var $, Paginator, View, mediator,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
+
+mediator = require('../modules/mediator');
 
 View = require('../modules/view');
 
@@ -10795,7 +10810,10 @@ Paginator = (function(_super) {
   };
 
   Paginator.prototype.render = function() {
+    var a, b;
     this.el.html(this.template(this.options));
+    b = Math.min((a = this.options.current * this.options.perPage) + this.options.perPage, this.options.total);
+    mediator.trigger('page:change', this.cid, a, b);
     return this;
   };
 
@@ -10969,22 +10987,38 @@ TableView = (function(_super) {
     this.pagin = new Paginator({
       'total': this.collection.length
     });
+    mediator.on('page:change', function(cid, a, b) {
+      if (cid !== this.pagin.cid) {
+        return;
+      }
+      return this.renderPage.call(this, a, b);
+    }, this);
   }
 
   TableView.prototype.render = function() {
-    var model, tbody, view, _i, _len, _ref;
     this.el.html(this.template());
     this.el.find('.paginator').html(this.pagin.render().el);
+    return this;
+  };
+
+  TableView.prototype.renderPage = function(a, b) {
+    var model, tbody, view, _i, _j, _len, _len1, _ref, _ref1, _results;
     tbody = this.el.find('tbody');
-    _ref = this.collection;
+    _ref = this.views;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      model = _ref[_i];
+      view = _ref[_i];
+      view.dispose();
+    }
+    _ref1 = this.collection.slice(a, b);
+    _results = [];
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      model = _ref1[_j];
       this.views.push(view = new TableRowView({
         model: model
       }));
-      tbody.append(view.render().el);
+      _results.push(tbody.append(view.render().el));
     }
-    return this;
+    return _results;
   };
 
   return TableView;

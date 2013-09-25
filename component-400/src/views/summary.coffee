@@ -80,19 +80,33 @@ class TableView extends TabContentView
 
         @pagin = new Paginator({ 'total': @collection.length })
 
+        # Listen in on table page renders.
+        mediator.on 'page:change', (cid, a, b) ->
+            # Is this for us?
+            return if cid isnt @pagin.cid
+            # Render then.
+            @renderPage.call @, a, b
+        , @
+
     render: ->
         @el.html do @template
 
         # Pagin.
         @el.find('.paginator').html @pagin.render().el
 
+        @
+
+    # The item range is provided by paginator.
+    renderPage: (a, b) ->
         tbody = @el.find('tbody')
 
-        for model in @collection
+        # Cleanup.
+        ( do view.dispose for view in @views )
+
+        # Which range?
+        for model in @collection[ a...b ]
             @views.push view = new TableRowView({ model })
             tbody.append view.render().el
-
-        @
 
 class TableRowView extends View
 
