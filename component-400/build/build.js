@@ -11173,11 +11173,25 @@ DuplicatesView = (function(_super) {
   };
 
   DuplicatesView.prototype.addAll = function() {
-    return console.log('Add all');
+    var view, _i, _len, _ref, _results;
+    _ref = this.views;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      view = _ref[_i];
+      _results.push(view.add());
+    }
+    return _results;
   };
 
   DuplicatesView.prototype.removeAll = function() {
-    return console.log('Remove all');
+    var view, _i, _len, _ref, _results;
+    _ref = this.views;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      view = _ref[_i];
+      _results.push(view.remove());
+    }
+    return _results;
   };
 
   return DuplicatesView;
@@ -11197,7 +11211,7 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.tag = 'tr';
 
   DuplicatesRowView.prototype.events = {
-    'click .button': 'select'
+    'click .button': 'toggle'
   };
 
   DuplicatesRowView.prototype.render = function() {
@@ -11213,13 +11227,23 @@ DuplicatesRowView = (function(_super) {
     return this;
   };
 
-  DuplicatesRowView.prototype.select = function() {
+  DuplicatesRowView.prototype.toggle = function() {
     var _base;
     if ((_base = this.options).selected == null) {
       _base.selected = false;
     }
     this.options.selected = !this.options.selected;
     mediator.trigger('item:toggle', this.options.selected, this.model.id);
+    return this.render();
+  };
+
+  DuplicatesRowView.prototype.add = function() {
+    mediator.trigger('item:toggle', (this.options.selected = true), this.model.id);
+    return this.render();
+  };
+
+  DuplicatesRowView.prototype.remove = function() {
+    mediator.trigger('item:toggle', (this.options.selected = false), this.model.id);
     return this.render();
   };
 

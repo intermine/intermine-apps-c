@@ -36,11 +36,11 @@ class DuplicatesView extends View
 
         @
 
-    addAll: ->
-        console.log 'Add all'
+    # Blocking (!) add all.
+    addAll: -> ( do view.add for view in @views )
 
-    removeAll: ->
-        console.log 'Remove all'
+    # Blocking (!) remove all.
+    removeAll: -> ( do view.remove for view in @views )
 
 class DuplicatesRowView extends View
 
@@ -48,7 +48,7 @@ class DuplicatesRowView extends View
     tag: 'tr'
 
     events:
-        'click .button': 'select'
+        'click .button': 'toggle'
 
     render: ->
         { provided, rowspan, selected } = @options
@@ -58,14 +58,26 @@ class DuplicatesRowView extends View
         @
 
     # Toggle the selected state of an item.
-    select: ->
+    toggle: ->
         # Off by default.
         @options.selected ?= no
         # Toggle.
         @options.selected = !@options.selected
         # Say it.
         mediator.trigger 'item:toggle', @options.selected, @model.id
-        # Render again.
+        # Render it.
+        do @render
+
+    # Select.
+    add: ->
+        mediator.trigger 'item:toggle', (@options.selected = yes), @model.id
+        # Render it.
+        do @render
+
+    # Remove.
+    remove: ->
+        mediator.trigger 'item:toggle', (@options.selected = no), @model.id
+        # Render it.
         do @render
 
 module.exports = DuplicatesView
