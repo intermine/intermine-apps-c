@@ -1,6 +1,6 @@
 $ = require 'jquery'
 
-displayer = require '../modules/displayer'
+formatter = require '../modules/formatter'
 View      = require '../modules/view'
 
 class DuplicatesView extends View
@@ -51,7 +51,7 @@ class DuplicatesRowView extends View
 
     render: ->
         { provided, rowspan } = @options
-        matched = displayer @model
+        matched = formatter.primary @model
         @el.html @template { provided, matched, rowspan }
 
         @

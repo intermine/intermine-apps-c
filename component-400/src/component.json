@@ -11,12 +11,12 @@
         "esundahl/flatten": "*",
         "component/jquery": "*",
         "timoxley/backbone-events": "*",
-        "radekstepan/filesaver": "*"
+        "radekstepan/filesaver": "*",
+        "cristiandouce/csv": "*"
     },
     "scripts": [
         "app.coffee",
-        "modules/displayer.coffee",
-        "modules/exporter.coffee",
+        "modules/formatter.coffee",
         "modules/mediator.coffee",
         "modules/view.coffee",
         "models/collection.coffee",

@@ -10606,6 +10606,215 @@ var saveAs = saveAs
 
 if (typeof module !== 'undefined') module.exports = saveAs;
 });
+require.register("cristiandouce-csv/index.js", function(exports, require, module){
+/**
+ * Module dependencies.
+ */
+
+var object = require('object');
+
+/**
+ * Expose `CSV` constructor.
+ */
+
+module.exports = CSV;
+
+/**
+ * Defaults.
+ */
+
+var defaults = {
+  encoding: 'utf-8',
+  separator: ',',
+  quote: '"',
+  escape: '"',
+  comment: '',
+  columnNames: [],
+  columnsFromHeader: false,
+  nestedQuotes: false
+}
+
+/**
+ * Creates a CSV instance. Takes an Array as parameter expecting
+ * the first row to be the headers descriptors. Right now method
+ * won't check the fidelity of data; it will just compile and
+ * offer a download DataURI as a `.csv` file.
+ *
+ * @param {Array} data Array of Arrays with data sorted by columns.
+ * @param {Object} options allowing to alter row and column separators.
+ *     - encoding {String} defaults to `utf-8`.
+ *     - separator {String} defaults to ','.
+ *     - quote {String} defautls to `"`.
+ *     - escape {String} defaults to `"`.
+ *     - comment {String} defaults to ``.
+ *     - columnNames {Array} defaults to `[]`.
+ *     - columnsFromHeader {Boolean} defaults to false
+ *     - nestedQuotes {Boolean}
+ * @return {CSV} `CSV` instance
+ * @api public
+ */
+
+function CSV (data, options) {
+  if (!(this instanceof CSV)) {
+    return new CSV(data, options);
+  }
+
+  this.data = data;
+
+  this.options = object.merge({}, defaults);
+  this.options = object.merge(this.options, options || {});
+}
+
+/**
+ * Sets current `CSV` data to `v`
+ *
+ * @param {Array} v CSV data to be converted
+ * @return {CSV} `CSV` instance
+ * @api public
+ */
+
+CSV.prototype.set = function(v) {
+  this.clean();
+  this.data = v;
+  return this;
+}
+
+/**
+ * Get current `CSV` data or `undefined`
+ *
+ * @return {Array} current CSV data
+ * @api public
+ */
+
+CSV.prototype.get = function() {
+  return this.data;
+}
+
+/**
+ * Get current parsed `_csv` or set it to `v`
+ *
+ * @param {String} v `csv` string to parse
+ * @return {CSV|String} [description]
+ * @api public
+ */
+
+CSV.prototype.csv = function(v) {
+  if (!arguments.length) {
+    if (!this._csv) {
+      this.convert();
+    }
+    return this._csv;
+  };
+
+  this.clean();
+  this._csv = v;
+  return this;
+}
+
+/**
+ * Provides a DataUri format string.
+ *   - Usage:
+ *       var scoreboard = csv(data, options);
+ *       scoreboard.download() // "data:text/csv;charset=utf-8,..."
+ *
+ * @return {String} DataUri `.csv` MIME-Type string description
+ * @api public
+ */
+
+CSV.prototype.download = function() {
+  this.file = "data:text/csv;charset=$charset,".replace('$charset', this.options.encoding);
+  this.file += encodeURIComponent(this.csv());
+
+  return this.file;
+}
+
+/**
+ * Converts the received data into a string and
+ * saves string into internal property `csv`
+ *
+ * @return {CSV} `CSV` instance.
+ * @api private
+ */
+
+CSV.prototype.convert = function() {
+  // Clear string before a new conversion
+  this._csv = '';
+
+  for (var i = 0, l = this.data.length, row=this.data[i]; i < l; ++i, row = this.data[i]) {
+    var out = [];
+    for (var j = 0, m = row.length, cel = row[j]; j < m; ++j, cel = row[j]) {
+
+      if (j !== 0) {
+        out.push(this.options.separator);
+      }
+
+      out.push(this.options.quote);
+      out.push(this.safe(cel));
+      out.push(this.options.quote);
+
+    }
+
+    // Do not CRLF in last record
+    // Avoids parsing of empty record
+    if (i < l - 1) {
+      out.push('\r\n');
+    }
+    
+    this._csv += out.join('');
+  }
+
+  return this;
+}
+
+/**
+ * Parse `_csv` to return Array of data
+ *
+ * @return {Array} Array of data parsed from `_csv`
+ * @api private
+ */
+
+CSV.prototype.parse = function() {
+  // TODO
+}
+
+/**
+ * Returns a safe string after escaping quoutes or scape chars.
+ *
+ * @param {Mixed} cel Cel value
+ * @return {String} cel value converted to `String` and properly escaped.
+ * @api private
+ */
+
+CSV.prototype.safe = function(cel) {
+  var out = [];
+  cel += '';
+
+  for (var i = 0, ch = cel.charAt(i); i < cel.length; ++i, ch = cel.charAt(i)) {
+    if (ch === this.options.quote || ch === this.options.escape) {
+        out.push(this.options.quote);
+    }
+    out.push(ch);
+  }
+
+  return out.join('');
+}
+
+/**
+ * Reset CSV instance data.
+ *
+ * @return {CSV} `CSV` instance.
+ * @api private
+ */
+
+CSV.prototype.clean = function() {
+  this.file = '';
+  this.csv('');
+  this.data = [];
+
+  return this;
+}
+
+});
 require.register("component-400/app.js", function(exports, require, module){
 var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView, extend, _;
 
@@ -10658,23 +10867,29 @@ module.exports = function(data, target, cb) {
 };
 
 });
-require.register("component-400/modules/displayer.js", function(exports, require, module){
-module.exports = function(model) {
-  return model.object.summary.primaryIdentifier;
-};
+require.register("component-400/modules/formatter.js", function(exports, require, module){
+var _;
 
-});
-require.register("component-400/modules/exporter.js", function(exports, require, module){
-var saveAs;
+_ = require('object');
 
-saveAs = require('filesaver');
-
-module.exports = function() {
-  var blob;
-  blob = new Blob(["Hello, world!"], {
-    'type': "text/plain;charset=utf-8"
-  });
-  return saveAs(blob, 'hello.txt');
+module.exports = {
+  'primary': function(model) {
+    return model.object.summary.primaryIdentifier;
+  },
+  'csv': function(_arg, columns) {
+    var cols, object, provided, rows;
+    provided = _arg.provided, object = _arg.object;
+    if (columns == null) {
+      columns = true;
+    }
+    cols = [].concat(['provided', 'type'], _.keys(object.summary));
+    rows = [].concat([provided, object.type], _.values(object.summary));
+    if (columns) {
+      return [cols, rows];
+    } else {
+      return rows;
+    }
+  }
 };
 
 });
@@ -10902,13 +11117,13 @@ module.exports = HeaderView;
 
 });
 require.register("component-400/views/duplicates.js", function(exports, require, module){
-var $, DuplicatesRowView, DuplicatesView, View, displayer, _ref,
+var $, DuplicatesRowView, DuplicatesView, View, formatter, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
 
-displayer = require('../modules/displayer');
+formatter = require('../modules/formatter');
 
 View = require('../modules/view');
 
@@ -10984,7 +11199,7 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.render = function() {
     var matched, provided, rowspan, _ref1;
     _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan;
-    matched = displayer(this.model);
+    matched = formatter.primary(this.model);
     this.el.html(this.template({
       provided: provided,
       matched: matched,
@@ -11136,17 +11351,19 @@ module.exports = NoMatchesView;
 
 });
 require.register("component-400/views/summary.js", function(exports, require, module){
-var $, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, displayer, exporter, mediator, _ref, _ref1,
+var $, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, csv, formatter, mediator, saveAs, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
 
+saveAs = require('filesaver');
+
+csv = require('csv');
+
 mediator = require('../modules/mediator');
 
-exporter = require('../modules/exporter');
-
-displayer = require('../modules/displayer');
+formatter = require('../modules/formatter');
 
 View = require('../modules/view');
 
@@ -11195,7 +11412,27 @@ SummaryView = (function(_super) {
   };
 
   SummaryView.prototype.download = function() {
-    return exporter();
+    var blob, columns, converted, item, list, reason, row, rows, _i, _len, _ref, _ref1;
+    columns = null;
+    rows = [];
+    _ref = this.collection;
+    for (reason in _ref) {
+      list = _ref[reason];
+      for (_i = 0, _len = list.length; _i < _len; _i++) {
+        item = list[_i];
+        if (columns) {
+          rows.push(formatter.csv(item, false));
+        } else {
+          _ref1 = formatter.csv(item, true), columns = _ref1[0], row = _ref1[1];
+          rows.push.row;
+        }
+      }
+    }
+    converted = csv([columns].concat(rows)).csv();
+    blob = new Blob([converted], {
+      'type': 'text/csv;charset=utf-8'
+    });
+    return saveAs(blob, 'summary.csv');
   };
 
   return SummaryView;
@@ -11306,7 +11543,7 @@ TableRowView = (function(_super) {
 
   TableRowView.prototype.render = function() {
     var matched;
-    matched = displayer(this.model);
+    matched = formatter.primary(this.model);
     this.el.html(this.template({
       'provided': this.model.provided,
       matched: matched
@@ -11950,6 +12187,7 @@ module.exports = function(__obj) {
 
 
 
+
 require.alias("component-map/index.js", "component-400/deps/map/index.js");
 require.alias("component-map/index.js", "map/index.js");
 require.alias("component-to-function/index.js", "component-map/deps/to-function/index.js");
@@ -11985,5 +12223,9 @@ require.alias("component-object/index.js", "timoxley-backbone-events/deps/object
 
 require.alias("radekstepan-filesaver/index.js", "component-400/deps/filesaver/index.js");
 require.alias("radekstepan-filesaver/index.js", "filesaver/index.js");
+
+require.alias("cristiandouce-csv/index.js", "component-400/deps/csv/index.js");
+require.alias("cristiandouce-csv/index.js", "csv/index.js");
+require.alias("component-object/index.js", "cristiandouce-csv/deps/object/index.js");
 
 require.alias("component-400/app.js", "component-400/index.js");

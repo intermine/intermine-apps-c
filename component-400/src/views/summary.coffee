@@ -1,8 +1,9 @@
-$ = require 'jquery'
+$      = require 'jquery'
+saveAs = require 'filesaver'
+csv    = require 'csv'
 
 mediator  = require '../modules/mediator'
-exporter  = require '../modules/exporter'
-displayer = require '../modules/displayer'
+formatter = require '../modules/formatter'
 View      = require '../modules/view'
 Paginator = require './paginator'
 
@@ -20,8 +21,8 @@ class SummaryView extends View
     render: ->
         @el.html do @template
 
-        tabs = @el.find('.tabs')
-        content = @el.find('.tabs-content')
+        tabs    = @el.find '.tabs'
+        content = @el.find '.tabs-content'
 
         isFirst = yes
         for reason, collection of @collection
@@ -40,8 +41,24 @@ class SummaryView extends View
 
         @
 
+    # Saves the summary into a file.
     download: ->
-        do exporter
+        columns = null ; rows = []
+
+        for reason, list of @collection
+            for item in list
+                if columns
+                    rows.push formatter.csv item, no
+                else
+                    [ columns, row ] = formatter.csv item, yes
+                    rows.push.row
+
+        # Converted to a csv string.
+        converted = do csv([ columns ].concat(rows)).csv
+        # Make into a Blob.
+        blob = new Blob [ converted ], { 'type': 'text/csv;charset=utf-8' }
+        # Save it.
+        saveAs blob, 'summary.csv'
 
 class TabSwitcherView extends View
 
@@ -116,7 +133,7 @@ class TableRowView extends View
     tag: 'tr'
 
     render: ->
-        matched = displayer @model
+        matched = formatter.primary @model
         @el.html @template { 'provided': @model.provided, matched }
 
         @
