@@ -10,13 +10,11 @@
     <style>
     #target { width: 700px; margin: 0 auto; }
     </style>
-
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 </head>
 <body>
     <div id="target"></div>
     <script>
-        $.getJSON('/data.json', function(data) {
+        (require('jquery')).getJSON('/data.json', function(data) {
             require('component-400/app').call(null, data, '#target', function(err, selected) {
                 if (err) throw err;
                 console.log(selected);

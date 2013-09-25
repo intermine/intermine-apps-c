@@ -10,11 +10,13 @@
         "ianstormtaylor/reduce": "*",
         "esundahl/flatten": "*",
         "component/jquery": "*",
-        "timoxley/backbone-events": "*"
+        "timoxley/backbone-events": "*",
+        "radekstepan/filesaver": "*"
     },
     "scripts": [
         "app.coffee",
         "modules/displayer.coffee",
+        "modules/exporter.coffee",
         "modules/mediator.coffee",
         "modules/view.coffee",
         "models/collection.coffee",

@@ -1,6 +1,7 @@
 $ = require 'jquery'
 
 mediator  = require '../modules/mediator'
+exporter  = require '../modules/exporter'
 displayer = require '../modules/displayer'
 View      = require '../modules/view'
 Paginator = require './paginator'
@@ -40,7 +41,7 @@ class SummaryView extends View
         @
 
     download: ->
-        console.log @collection
+        do exporter
 
 class TabSwitcherView extends View
 
