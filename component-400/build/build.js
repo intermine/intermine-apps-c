@@ -10816,17 +10816,7 @@ CSV.prototype.clean = function() {
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView, extend, _;
-
-extend = require('extend');
-
-_ = extend({}, require('object'), {
-  extend: extend,
-  map: require('map'),
-  each: require('foreach'),
-  reduce: require('reduce'),
-  flatten: require('flatten')
-});
+var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView;
 
 $ = require('jquery');
 
@@ -10978,9 +10968,11 @@ module.exports = View;
 
 });
 require.register("component-400/models/collection.js", function(exports, require, module){
-var Collection, length;
+var Collection, length, mediator;
 
 length = require('object').length;
+
+mediator = require('../modules/mediator');
 
 Collection = (function() {
   Collection.prototype.dict = {
@@ -11029,6 +11021,13 @@ Collection = (function() {
       }
     }
     this.input = length(this.input);
+    mediator.on('item:toggle', function(selected, id) {
+      if (selected) {
+        return this.selected[id] = true;
+      } else {
+        return delete this.selected[id];
+      }
+    }, this);
   }
 
   Collection.prototype.addDupe = function(_arg) {
@@ -11069,13 +11068,15 @@ module.exports = Collection;
 
 });
 require.register("component-400/views/header.js", function(exports, require, module){
-var $, HeaderView, View, extend,
+var $, HeaderView, View, extend, mediator,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
 
 extend = require('extend');
+
+mediator = require('../modules/mediator');
 
 View = require('../modules/view');
 
@@ -11091,6 +11092,7 @@ HeaderView = (function(_super) {
   function HeaderView() {
     HeaderView.__super__.constructor.apply(this, arguments);
     this.el.addClass('header section');
+    mediator.on('item:toggle', this.render, this);
   }
 
   HeaderView.prototype.render = function() {
@@ -11117,13 +11119,15 @@ module.exports = HeaderView;
 
 });
 require.register("component-400/views/duplicates.js", function(exports, require, module){
-var $, DuplicatesRowView, DuplicatesView, View, formatter, _ref,
+var $, DuplicatesRowView, DuplicatesView, View, formatter, mediator, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
 
 formatter = require('../modules/formatter');
+
+mediator = require('../modules/mediator');
 
 View = require('../modules/view');
 
@@ -11193,23 +11197,30 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.tag = 'tr';
 
   DuplicatesRowView.prototype.events = {
-    'click .button.add': 'add'
+    'click .button': 'select'
   };
 
   DuplicatesRowView.prototype.render = function() {
-    var matched, provided, rowspan, _ref1;
-    _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan;
+    var matched, provided, rowspan, selected, _ref1;
+    _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan, selected = _ref1.selected;
     matched = formatter.primary(this.model);
     this.el.html(this.template({
       provided: provided,
       matched: matched,
-      rowspan: rowspan
+      rowspan: rowspan,
+      selected: selected
     }));
     return this;
   };
 
-  DuplicatesRowView.prototype.add = function() {
-    return console.log('Add row');
+  DuplicatesRowView.prototype.select = function() {
+    var _base;
+    if ((_base = this.options).selected == null) {
+      _base.selected = false;
+    }
+    this.options.selected = !this.options.selected;
+    mediator.trigger('item:toggle', this.options.selected, this.model.id);
+    return this.render();
   };
 
   return DuplicatesRowView;
@@ -11669,11 +11680,17 @@ module.exports = function(__obj) {
         __out.push('</td>\n');
       }
     
-      __out.push('\n<td><a href="#">');
+      __out.push('\n<td><a>');
     
       __out.push(__sanitize(this.matched));
     
-      __out.push('</a></td>\n<td><span class="tiny secondary add button">Add</span></td>');
+      __out.push('</a></td>\n');
+    
+      if (this.selected) {
+        __out.push('\n    <td><span class="tiny secondary button">Remove</span></td>\n');
+      } else {
+        __out.push('\n    <td><span class="tiny success button">Add</span></td>\n');
+      }
     
     }).call(this);
     

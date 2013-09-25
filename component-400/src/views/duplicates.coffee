@@ -1,6 +1,7 @@
 $ = require 'jquery'
 
 formatter = require '../modules/formatter'
+mediator  = require '../modules/mediator'
 View      = require '../modules/view'
 
 class DuplicatesView extends View
@@ -47,16 +48,24 @@ class DuplicatesRowView extends View
     tag: 'tr'
 
     events:
-        'click .button.add': 'add'
+        'click .button': 'select'
 
     render: ->
-        { provided, rowspan } = @options
+        { provided, rowspan, selected } = @options
         matched = formatter.primary @model
-        @el.html @template { provided, matched, rowspan }
+        @el.html @template { provided, matched, rowspan, selected }
 
         @
 
-    add: ->
-        console.log 'Add row'
+    # Toggle the selected state of an item.
+    select: ->
+        # Off by default.
+        @options.selected ?= no
+        # Toggle.
+        @options.selected = !@options.selected
+        # Say it.
+        mediator.trigger 'item:toggle', @options.selected, @model.id
+        # Render again.
+        do @render
 
 module.exports = DuplicatesView

@@ -1,7 +1,8 @@
 $      = require 'jquery'
 extend = require 'extend'
 
-View = require '../modules/view'
+mediator = require '../modules/mediator'
+View     = require '../modules/view'
 
 class HeaderView extends View
 
@@ -13,6 +14,9 @@ class HeaderView extends View
     constructor: ->
         super
         @el.addClass 'header section'
+
+        # Whatever was toggled, we will probably have to change the count.
+        mediator.on 'item:toggle', @render, @
 
     render: ->
         { input, total, type } = @collection

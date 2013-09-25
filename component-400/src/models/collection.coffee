@@ -1,5 +1,7 @@
 { length } = require 'object'
 
+mediator = require '../modules/mediator'
+
 class Collection
 
     # Translations.
@@ -35,6 +37,11 @@ class Collection
                             @addSummary { reason, provided, id, object }
 
         @input = length @input
+
+        # Listen to peeps being selected.
+        mediator.on 'item:toggle', (selected, id) ->
+            if selected then @selected[id] = yes else delete @selected[id]
+        , @
 
     addDupe: ({ provided, id, object }) ->
         @dupes[provided] ?= []

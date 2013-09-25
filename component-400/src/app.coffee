@@ -1,10 +1,3 @@
-extend = require 'extend'
-_ = extend {}, require('object'), # keys, values, length, isEmpty, merge
-    extend:  extend
-    map:     require 'map'
-    each:    require 'foreach'
-    reduce:  require 'reduce'
-    flatten: require 'flatten'
 $ = require 'jquery'
 
 HeaderView     = require './views/header'
