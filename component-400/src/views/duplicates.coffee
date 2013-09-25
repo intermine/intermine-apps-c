@@ -54,7 +54,7 @@ class DuplicatesView extends View
         # This many jobs.
         length = i = @views.length
         # In a queue.
-        q = new Queue { 'concurrency': 5 }
+        q = new Queue { 'concurrency': 50 }
         
         job = (cb) =>
             # Have we reached the bottom?

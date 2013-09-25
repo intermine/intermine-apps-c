@@ -1,10 +1,11 @@
 $ = require 'jquery'
+_ = require 'object' # keys, values, length, isEmpty, merge
 
+mediator       = require './modules/mediator'
 HeaderView     = require './views/header'
 DuplicatesView = require './views/duplicates'
 NoMatchesView  = require './views/nomatches'
 SummaryView    = require './views/summary'
-
 Collection     = require './models/collection'
 
 module.exports = (data, target, cb) ->
@@ -20,7 +21,12 @@ module.exports = (data, target, cb) ->
     # Render the header.
     target.append (new HeaderView({ collection })).render().el
 
-    { dupes, summary, dict } = collection
+    { dupes, summary, dict, selected } = collection
+
+    # Global save, call back.
+    mediator.on 'save', ->
+        cb null, _.keys selected
+    @
 
     # Render the duplicates?
     target.append((new DuplicatesView({

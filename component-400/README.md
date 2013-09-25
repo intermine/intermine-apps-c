@@ -1,6 +1,6 @@
 #component #400
 
-Shows a table of matches of an InterMine ID Resolution Job.
+Visualizes the result of an InterMine ID Resolution job.
 
 #Usage
 
@@ -25,15 +25,9 @@ Shows a table of matches of an InterMine ID Resolution Job.
 </html>
 ```
 
-You can see a running example like so:
-
-```bash
-$ apps-b serve ./example/
-```
-
 #Build
 
 ```bash
-$ npm install apps-b-builder
-$ apps-b build ./src/ ./build/
+$ npm install apps-b-builder -g
+$ watch -n 1 -c apps-b build ./src/ ./build/
 ```

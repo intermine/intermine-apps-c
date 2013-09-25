@@ -1,5 +1,4 @@
-$      = require 'jquery'
-extend = require 'extend'
+$ = require 'jquery'
 
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
@@ -27,7 +26,6 @@ class HeaderView extends View
 
         @
 
-    save: ->
-        console.log 'Saving'
+    save: -> mediator.trigger 'save'
 
 module.exports = HeaderView

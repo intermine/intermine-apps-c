@@ -432,9 +432,10 @@ exports.isEmpty = function(obj){
 require.register("manuelstofer-foreach/index.js", function(exports, require, module){
 
 var hasOwn = Object.prototype.hasOwnProperty;
+var toString = Object.prototype.toString;
 
 module.exports = function forEach (obj, fn, ctx) {
-    if (typeof fn !== 'function') {
+    if (toString.call(fn) !== '[object Function]') {
         throw new TypeError('iterator must be a function');
     }
     var l = obj.length;
@@ -11154,9 +11155,13 @@ else if (typeof window == 'undefined' || window.ActiveXObject || !window.postMes
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView;
+var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView, mediator, _;
 
 $ = require('jquery');
+
+_ = require('object');
+
+mediator = require('./modules/mediator');
 
 HeaderView = require('./views/header');
 
@@ -11169,7 +11174,7 @@ SummaryView = require('./views/summary');
 Collection = require('./models/collection');
 
 module.exports = function(data, target, cb) {
-  var collection, dict, dupes, summary;
+  var collection, dict, dupes, selected, summary;
   if (cb == null) {
     cb = function() {
       throw 'Provide your own callback function';
@@ -11180,7 +11185,11 @@ module.exports = function(data, target, cb) {
   target.append((new HeaderView({
     collection: collection
   })).render().el);
-  dupes = collection.dupes, summary = collection.summary, dict = collection.dict;
+  dupes = collection.dupes, summary = collection.summary, dict = collection.dict, selected = collection.selected;
+  mediator.on('save', function() {
+    return cb(null, _.keys(selected));
+  });
+  this;
   if (dupes) {
     target.append((new DuplicatesView({
       'collection': dupes
@@ -11406,13 +11415,11 @@ module.exports = Collection;
 
 });
 require.register("component-400/views/header.js", function(exports, require, module){
-var $, HeaderView, View, extend, mediator,
+var $, HeaderView, View, mediator,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
-
-extend = require('extend');
 
 mediator = require('../modules/mediator');
 
@@ -11446,7 +11453,7 @@ HeaderView = (function(_super) {
   };
 
   HeaderView.prototype.save = function() {
-    return console.log('Saving');
+    return mediator.trigger('save');
   };
 
   return HeaderView;
@@ -11532,7 +11539,7 @@ DuplicatesView = (function(_super) {
     (buttons = this.el.find('header .button')).addClass('disabled');
     length = i = this.views.length;
     q = new Queue({
-      'concurrency': 5
+      'concurrency': 50
     });
     job = function(cb) {
       if (i--) {
