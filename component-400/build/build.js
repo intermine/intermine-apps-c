@@ -10779,11 +10779,11 @@ Paginator = (function(_super) {
   Paginator.prototype.template = require('../templates/paginator');
 
   Paginator.prototype.events = {
-    'click a': 'onclick'
+    'click ul.pagination a': 'onclick'
   };
 
   function Paginator() {
-    var _base, _base1, _base2;
+    var _base, _base1, _base2, _base3;
     Paginator.__super__.constructor.apply(this, arguments);
     if ((_base = this.options).total == null) {
       _base.total = 0;
@@ -10793,6 +10793,9 @@ Paginator = (function(_super) {
     }
     if ((_base2 = this.options).current == null) {
       _base2.current = 0;
+    }
+    if ((_base3 = this.options).truncate == null) {
+      _base3.truncate = 10;
     }
     this.options.pages = Math.ceil(this.options.total / this.options.perPage);
   }
@@ -10810,7 +10813,25 @@ Paginator = (function(_super) {
   };
 
   Paginator.prototype.render = function() {
-    var a, b;
+    var a, b, h, p, _i, _j, _k, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2;
+    if (this.options.truncate < (p = this.options.pages)) {
+      h = Math.floor(this.options.truncate / 2);
+      this.options.range = [].concat((function() {
+        _results = [];
+        for (var _i = 1, _ref = h + 1; 1 <= _ref ? _i < _ref : _i > _ref; 1 <= _ref ? _i++ : _i--){ _results.push(_i); }
+        return _results;
+      }).apply(this), [null], (function() {
+        _results1 = [];
+        for (var _j = _ref1 = p - h + 1, _ref2 = p + 1; _ref1 <= _ref2 ? _j < _ref2 : _j > _ref2; _ref1 <= _ref2 ? _j++ : _j--){ _results1.push(_j); }
+        return _results1;
+      }).apply(this));
+    } else {
+      this.options.range = (function() {
+        _results2 = [];
+        for (var _k = 1, _ref3 = p + 1; 1 <= _ref3 ? _k < _ref3 : _k > _ref3; 1 <= _ref3 ? _k++ : _k--){ _results2.push(_k); }
+        return _results2;
+      }).apply(this);
+    }
     this.el.html(this.template(this.options));
     b = Math.min((a = this.options.current * this.options.perPage) + this.options.perPage, this.options.total);
     mediator.trigger('page:change', this.cid, a, b);
@@ -11623,7 +11644,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      var page, _i, _ref;
+      var page, _i, _len, _ref;
     
       if (this.pages > 1) {
         __out.push('\n    <ul class="pagination">\n        ');
@@ -11633,20 +11654,28 @@ module.exports = function(__obj) {
           __out.push('\n            <li class="arrow" data-action="prev"><a>&laquo;</a></li>\n        ');
         }
         __out.push('\n\n        ');
-        for (page = _i = 1, _ref = this.pages + 1; 1 <= _ref ? _i < _ref : _i > _ref; page = 1 <= _ref ? ++_i : --_i) {
+        _ref = this.range;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          page = _ref[_i];
           __out.push('\n            ');
-          if (page === this.current + 1) {
-            __out.push('\n                <li data-action="switch" data-page="');
-            __out.push(__sanitize(page - 1));
-            __out.push('" class="current"><a>');
-            __out.push(__sanitize(page));
-            __out.push('</a></li>\n            ');
+          if (page === null) {
+            __out.push('\n                <li class="unavailable"><a>&hellip;</a></li>\n            ');
           } else {
-            __out.push('\n                <li data-action="switch" data-page="');
-            __out.push(__sanitize(page - 1));
-            __out.push('"><a>');
-            __out.push(__sanitize(page));
-            __out.push('</a></li>\n            ');
+            __out.push('\n                ');
+            if (page === this.current + 1) {
+              __out.push('\n                    <li data-action="switch" data-page="');
+              __out.push(__sanitize(page - 1));
+              __out.push('" class="current"><a>');
+              __out.push(__sanitize(page));
+              __out.push('</a></li>\n                ');
+            } else {
+              __out.push('\n                    <li data-action="switch" data-page="');
+              __out.push(__sanitize(page - 1));
+              __out.push('"><a>');
+              __out.push(__sanitize(page));
+              __out.push('</a></li>\n                ');
+            }
+            __out.push('\n            ');
           }
           __out.push('\n        ');
         }

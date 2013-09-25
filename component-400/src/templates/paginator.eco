@@ -6,11 +6,15 @@
             <li class="arrow" data-action="prev"><a>&laquo;</a></li>
         <% end %>
 
-        <% for page in [1...@pages + 1]: %>
-            <% if page is @current + 1: %>
-                <li data-action="switch" data-page="<%= page - 1 %>" class="current"><a><%= page %></a></li>
+        <% for page in @range: %>
+            <% if page is null: %>
+                <li class="unavailable"><a>&hellip;</a></li>
             <% else: %>
-                <li data-action="switch" data-page="<%= page - 1 %>"><a><%= page %></a></li>
+                <% if page is @current + 1: %>
+                    <li data-action="switch" data-page="<%= page - 1 %>" class="current"><a><%= page %></a></li>
+                <% else: %>
+                    <li data-action="switch" data-page="<%= page - 1 %>"><a><%= page %></a></li>
+                <% end %>
             <% end %>
         <% end %>
 
