@@ -11514,17 +11514,22 @@ DuplicatesView = (function(_super) {
     return this;
   };
 
-  DuplicatesView.prototype.addAll = function() {
-    return this.doAll('add');
+  DuplicatesView.prototype.addAll = function(ev) {
+    if (!$(ev.target).hasClass('disabled')) {
+      return this.doAll('add');
+    }
   };
 
-  DuplicatesView.prototype.removeAll = function() {
-    return this.doAll('remove');
+  DuplicatesView.prototype.removeAll = function(ev) {
+    if (!$(ev.target).hasClass('disabled')) {
+      return this.doAll('remove');
+    }
   };
 
   DuplicatesView.prototype.doAll = function(fn) {
-    var i, job, length, q,
+    var buttons, i, job, length, q,
       _this = this;
+    (buttons = this.el.find('header .button')).addClass('disabled');
     length = i = this.views.length;
     q = new Queue({
       'concurrency': 5
@@ -11533,8 +11538,10 @@ DuplicatesView = (function(_super) {
       if (i--) {
         _this.views[length - i - 1][fn]();
         q.push(job);
+      } else {
+        buttons.removeClass('disabled');
       }
-      return setTimeout(cb, 300);
+      return nextTick(cb);
     };
     return q.push(job);
   };

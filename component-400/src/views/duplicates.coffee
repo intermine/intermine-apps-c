@@ -39,13 +39,18 @@ class DuplicatesView extends View
         @
 
     # Non blocking add all.
-    addAll: -> @doAll 'add'
+    addAll: (ev) ->
+        @doAll('add') unless $(ev.target).hasClass('disabled')
 
     # Non-blocking remove all.
-    removeAll: -> @doAll 'remove'
+    removeAll: (ev) ->
+        @doAll('remove') unless $(ev.target).hasClass('disabled')
 
-    # The worker to work with "all".
+    # The worker to work with "all" jobs.
     doAll: (fn) ->
+        # Disable the buttons for a mo.
+        (buttons = @el.find('header .button')).addClass('disabled')
+
         # This many jobs.
         length = i = @views.length
         # In a queue.
@@ -56,7 +61,11 @@ class DuplicatesView extends View
             if i--
                 do @views[length - i - 1][fn] # 0+
                 q.push job
-            setTimeout cb, 300
+            else
+                buttons.removeClass('disabled')
+            
+            # Go at it again.
+            nextTick cb
 
         # Start the queue.
         q.push job
