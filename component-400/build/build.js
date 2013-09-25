@@ -11155,52 +11155,25 @@ else if (typeof window == 'undefined' || window.ActiveXObject || !window.postMes
 
 });
 require.register("component-400/app.js", function(exports, require, module){
-var $, Collection, DuplicatesView, HeaderView, NoMatchesView, SummaryView, mediator, _;
+var AppView, Collection;
 
-$ = require('jquery');
-
-_ = require('object');
-
-mediator = require('./modules/mediator');
-
-HeaderView = require('./views/header');
-
-DuplicatesView = require('./views/duplicates');
-
-NoMatchesView = require('./views/nomatches');
-
-SummaryView = require('./views/summary');
+AppView = require('./views/app');
 
 Collection = require('./models/collection');
 
 module.exports = function(data, target, cb) {
-  var collection, dict, dupes, selected, summary;
+  var collection;
   if (cb == null) {
     cb = function() {
       throw 'Provide your own callback function';
     };
   }
   collection = new Collection(data);
-  target = $(target).addClass('foundation');
-  target.append((new HeaderView({
-    collection: collection
-  })).render().el);
-  dupes = collection.dupes, summary = collection.summary, dict = collection.dict, selected = collection.selected;
-  mediator.on('save', function() {
-    return cb(null, _.keys(selected));
+  return new AppView({
+    'el': target,
+    collection: collection,
+    cb: cb
   });
-  this;
-  if (dupes) {
-    target.append((new DuplicatesView({
-      'collection': dupes
-    })).render().el);
-  }
-  if (summary) {
-    return target.append((new SummaryView({
-      'collection': summary,
-      dict: dict
-    })).render().el);
-  }
 };
 
 });
@@ -11248,6 +11221,8 @@ $ = require('jquery');
 id = 0;
 
 View = (function() {
+  View.prototype.autoRender = false;
+
   View.prototype.splitter = /^(\S+)\s*(.*)$/;
 
   View.prototype.tag = 'div';
@@ -11268,11 +11243,16 @@ View = (function() {
         case 'collection':
           this[k] = v;
           break;
+        case 'el':
+          this[k] = $(v);
+          break;
         default:
           this.options[k] = v;
       }
     }
-    this.el = $("<" + this.tag + "/>");
+    if (!(this.el instanceof $)) {
+      this.el = $("<" + this.tag + "/>");
+    }
     _ref = this.events;
     _fn = function(event, fn) {
       var ev, selector, _ref1;
@@ -11286,6 +11266,9 @@ View = (function() {
       _fn(event, fn);
     }
     this.views = [];
+    if (this.autoRender) {
+      this.render();
+    }
   }
 
   View.prototype.render = function() {
@@ -11412,6 +11395,67 @@ Collection = (function() {
 })();
 
 module.exports = Collection;
+
+});
+require.register("component-400/views/app.js", function(exports, require, module){
+var AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, View, mediator, _,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+_ = require('object');
+
+mediator = require('../modules/mediator');
+
+View = require('../modules/view');
+
+HeaderView = require('./header');
+
+DuplicatesView = require('./duplicates');
+
+NoMatchesView = require('./nomatches');
+
+SummaryView = require('./summary');
+
+AppView = (function(_super) {
+  __extends(AppView, _super);
+
+  AppView.prototype.autoRender = true;
+
+  function AppView() {
+    var _this = this;
+    AppView.__super__.constructor.apply(this, arguments);
+    this.el.addClass('foundation');
+    mediator.on('save', function() {
+      return _this.options.cb(null, _.keys(_this.collection.selected));
+    });
+    this;
+  }
+
+  AppView.prototype.render = function() {
+    var dict, dupes, summary, _ref;
+    this.el.append((new HeaderView({
+      'collection': this.collection
+    })).render().el);
+    _ref = this.collection, dupes = _ref.dupes, summary = _ref.summary, dict = _ref.dict;
+    if (dupes) {
+      this.el.append((new DuplicatesView({
+        'collection': dupes
+      })).render().el);
+    }
+    if (summary) {
+      this.el.append((new SummaryView({
+        'collection': summary,
+        dict: dict
+      })).render().el);
+    }
+    return this;
+  };
+
+  return AppView;
+
+})(View);
+
+module.exports = AppView;
 
 });
 require.register("component-400/views/header.js", function(exports, require, module){

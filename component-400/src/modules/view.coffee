@@ -5,6 +5,7 @@ id = 0
 
 class View
 
+    autoRender: no
     splitter: /^(\S+)\s*(.*)$/
     tag: 'div'
     template: -> ''
@@ -19,11 +20,13 @@ class View
             switch k
                 when 'model', 'collection'
                     @[k] = v
+                when 'el'
+                    @[k] = $ v
                 else
                     @options[k] = v
 
-        # Render to here.
-        @el = $ "<#{@tag}/>"
+        # New element?
+        @el = $("<#{@tag}/>") unless @el instanceof $
 
         # Delegate events.
         for event, fn of @events then do (event, fn) =>
@@ -33,6 +36,9 @@ class View
 
         # Subviews go here.
         @views = []
+
+        # Auto-render?
+        do @render if @autoRender
 
     render: ->
         if @model
