@@ -1,3 +1,4 @@
+$ = require 'jquery'
 _ = require 'object' # keys, values, length, isEmpty, merge
 
 mediator = require '../modules/mediator'
@@ -11,6 +12,10 @@ SummaryView    = require './summary'
 class AppView extends View
 
     autoRender: yes
+
+    events:
+        'mouseover .has-tip': 'toggleTooltip'
+        'mouseout .has-tip':  'toggleTooltip'
 
     constructor: ->
         super
@@ -40,5 +45,46 @@ class AppView extends View
         })).render().el) if summary
 
         @
+
+    # Toggle a tooltip.
+    toggleTooltip: (ev) ->
+        switch ev.type
+            when 'mouseover'
+                if text = tooltips[(target = $(ev.target)).data('id')]
+                    @views.push view = new Tooltip({ 'model': { text } })
+                    target.after view.render().el
+                    do view.reposition
+            
+            when 'mouseout'
+                # Only tooltips are in the list.
+                # ( do view.dispose for view in @views )
+                no
+
+class Tooltip extends View
+
+    tag: 'span'
+
+    template: require '../templates/tooltip'
+
+    constructor: ->
+        super
+
+        @el.addClass('tooltip tip-top noradius')
+
+    # Reposition post render.
+    reposition: ->
+        { top, left } = (parent = @el.parent()).offset()
+
+        top  -= do @el.height
+        left -= do @el.width
+
+        @el.css({ top, left })
+
+# Tooltip text.
+tooltips =
+    '0': 'Because I said so'
+    '1': 'Choose, do it'
+    '2': 'Summarizing you know'
+    '3': 'Tabitha Tabby'
 
 module.exports = AppView

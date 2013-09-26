@@ -2,7 +2,7 @@
     <span class="small secondary remove-all button">Remove all</span>
     <span class="small success add-all button">Add all</span>
     <h2>Choose from duplicates</h2>
-    <span class="has-tip tip-top noradius">?</span>
+    <span data-id="1" class="has-tip tip-top noradius">?</span>
 </header>
 
 <table>

@@ -18,16 +18,19 @@
     },
     "scripts": [
         "app.coffee",
+        
         "modules/formatter.coffee",
         "modules/mediator.coffee",
         "modules/view.coffee",
         "models/collection.coffee",
+        
         "views/app.coffee",
         "views/header.coffee",
         "views/duplicates.coffee",
         "views/paginator.coffee",
         "views/nomatches.coffee",
         "views/summary.coffee",
+        
         "templates/duplicates/table.eco",
         "templates/duplicates/row.eco",
         "templates/summary/tabs.eco",
@@ -37,6 +40,7 @@
         "templates/summary/row.eco",
         "templates/header.eco",
         "templates/nomatches.eco",
+        "templates/tooltip.eco",
         "templates/paginator.eco"
     ],
     "styles": [

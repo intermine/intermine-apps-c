@@ -1095,6 +1095,10 @@ that IE7/8 do not support :nth-child.
 .foundation a {
   cursor: pointer;
 }
+.foundation .tooltip {
+  display: block;
+  font-size: 12px !important;
+}
 .foundation .section {
   padding: 10px;
 }

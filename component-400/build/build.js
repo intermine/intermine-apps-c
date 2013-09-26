@@ -11273,6 +11273,7 @@ View = (function() {
 
   View.prototype.render = function() {
     if (this.model) {
+      console.log(this.model);
       this.el.html(this.template(JSON.parse(JSON.stringify(this.model))));
     } else {
       this.el.html(this.template());
@@ -11398,9 +11399,11 @@ module.exports = Collection;
 
 });
 require.register("component-400/views/app.js", function(exports, require, module){
-var AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, View, mediator, _,
+var $, AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, Tooltip, View, mediator, tooltips, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+$ = require('jquery');
 
 _ = require('object');
 
@@ -11420,6 +11423,11 @@ AppView = (function(_super) {
   __extends(AppView, _super);
 
   AppView.prototype.autoRender = true;
+
+  AppView.prototype.events = {
+    'mouseover .has-tip': 'toggleTooltip',
+    'mouseout .has-tip': 'toggleTooltip'
+  };
 
   function AppView() {
     var _this = this;
@@ -11451,9 +11459,62 @@ AppView = (function(_super) {
     return this;
   };
 
+  AppView.prototype.toggleTooltip = function(ev) {
+    var target, text, view;
+    switch (ev.type) {
+      case 'mouseover':
+        if (text = tooltips[(target = $(ev.target)).data('id')]) {
+          this.views.push(view = new Tooltip({
+            'model': {
+              text: text
+            }
+          }));
+          target.after(view.render().el);
+          return view.reposition();
+        }
+        break;
+      case 'mouseout':
+        return false;
+    }
+  };
+
   return AppView;
 
 })(View);
+
+Tooltip = (function(_super) {
+  __extends(Tooltip, _super);
+
+  Tooltip.prototype.tag = 'span';
+
+  Tooltip.prototype.template = require('../templates/tooltip');
+
+  function Tooltip() {
+    Tooltip.__super__.constructor.apply(this, arguments);
+    this.el.addClass('tooltip tip-top noradius');
+  }
+
+  Tooltip.prototype.reposition = function() {
+    var left, parent, top, _ref;
+    _ref = (parent = this.el.parent()).offset(), top = _ref.top, left = _ref.left;
+    top -= this.el.height();
+    left -= this.el.width();
+    return this.el.css({
+      top: top,
+      left: left
+    });
+  };
+
+  return Tooltip;
+
+})(View);
+
+tooltips = {
+  '0': 'Because I said so',
+  '1': 'Choose, do it',
+  '2': 'Summarizing you know',
+  '3': 'Tabitha Tabby'
+};
 
 module.exports = AppView;
 
@@ -12050,7 +12111,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Choose from duplicates</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Choose from duplicates</h2>\n    <span data-id="1" class="has-tip tip-top noradius">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -12166,7 +12227,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+      __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="has-tip tip-top noradius">?</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
     
     }).call(this);
     
@@ -12219,7 +12280,7 @@ module.exports = function(__obj) {
     
       __out.push(__sanitize(this.name));
     
-      __out.push('s <span class="has-tip tip-top noradius">?</span></a>');
+      __out.push('s <span data-id="3" class="has-tip tip-top noradius">?</span></a>');
     
     }).call(this);
     
@@ -12444,13 +12505,13 @@ module.exports = function(__obj) {
         if (this.input === 1) {
           __out.push('\n            <h2>We have found a matching ');
           __out.push(__sanitize(this.type));
-          __out.push(' from your identifier</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
+          __out.push(' from your identifier</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
         } else {
           __out.push('\n            <h2>We have found a matching ');
           __out.push(__sanitize(this.type));
           __out.push(' from ');
           __out.push(__sanitize(this.input));
-          __out.push(' identifiers</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
+          __out.push(' identifiers</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
         }
         __out.push('\n    ');
       } else {
@@ -12460,7 +12521,7 @@ module.exports = function(__obj) {
           __out.push(__sanitize(this.total));
           __out.push(' ');
           __out.push(__sanitize(this.type));
-          __out.push('s from your identifier</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
+          __out.push('s from your identifier</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
         } else {
           __out.push('\n            <h2>We have found ');
           __out.push(__sanitize(this.total));
@@ -12468,7 +12529,7 @@ module.exports = function(__obj) {
           __out.push(__sanitize(this.type));
           __out.push('s from ');
           __out.push(__sanitize(this.input));
-          __out.push(' identifiers</h2> <span class="has-tip tip-top noradius">?</span>\n        ');
+          __out.push(' identifiers</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
         }
         __out.push('\n    ');
       }
@@ -12523,6 +12584,55 @@ module.exports = function(__obj) {
   (function() {
     (function() {
       __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/tooltip.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push(this.text - __out.push('<span class="nub" style="top: auto; bottom: -10px; left: auto; right: auto;"></span>'));
     
     }).call(this);
     
