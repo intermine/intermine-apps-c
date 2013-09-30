@@ -17,7 +17,7 @@ class AppView extends View
 
     events:
         'mouseover .has-tip': 'toggleTooltip'
-        'mouseout .has-tip':  'toggleTooltip'
+        'mouseout .has-tip': 'toggleTooltip'
 
     constructor: ->
         super

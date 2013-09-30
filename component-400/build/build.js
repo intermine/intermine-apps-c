@@ -11557,7 +11557,7 @@ module.exports = HeaderView;
 
 });
 require.register("component-400/views/duplicates.js", function(exports, require, module){
-var $, DuplicatesRowView, DuplicatesView, Queue, View, formatter, mediator, nextTick, _ref,
+var $, DuplicatesRowView, DuplicatesView, FlyoutView, Queue, View, formatter, mediator, nextTick, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -11572,6 +11572,8 @@ formatter = require('../modules/formatter');
 mediator = require('../modules/mediator');
 
 View = require('../modules/view');
+
+FlyoutView = require('../views/flyout');
 
 DuplicatesView = (function(_super) {
   __extends(DuplicatesView, _super);
@@ -11663,7 +11665,9 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.tag = 'tr';
 
   DuplicatesRowView.prototype.events = {
-    'click .button': 'toggle'
+    'click .button': 'toggle',
+    'mouseover .has-flyout': 'toggleFlyout',
+    'mouseout .has-flyout': 'toggleFlyout'
   };
 
   DuplicatesRowView.prototype.render = function() {
@@ -11697,6 +11701,23 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.remove = function() {
     mediator.trigger('item:toggle', (this.options.selected = false), this.model.id);
     return this.render();
+  };
+
+  DuplicatesRowView.prototype.toggleFlyout = function(ev) {
+    var view, _i, _len, _ref1, _results;
+    switch (ev.type) {
+      case 'mouseover':
+        this.views.push(view = new FlyoutView());
+        return $(ev.target).append(view.render().el);
+      case 'mouseout':
+        _ref1 = this.views;
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          view = _ref1[_i];
+          _results.push(view.dispose());
+        }
+        return _results;
+    }
   };
 
   return DuplicatesRowView;
@@ -12094,6 +12115,32 @@ tooltips = {
 module.exports = TooltipView;
 
 });
+require.register("component-400/views/flyout.js", function(exports, require, module){
+var $, FlyoutView, View,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+$ = require('jquery');
+
+View = require('../modules/view');
+
+FlyoutView = (function(_super) {
+  __extends(FlyoutView, _super);
+
+  FlyoutView.prototype.template = require('../templates/flyout');
+
+  function FlyoutView() {
+    FlyoutView.__super__.constructor.apply(this, arguments);
+    this.el.addClass('flyout');
+  }
+
+  return FlyoutView;
+
+})(View);
+
+module.exports = FlyoutView;
+
+});
 require.register("component-400/templates/duplicates/table.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
@@ -12134,7 +12181,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="has-tip tip-top noradius">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="has-tip">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -12191,11 +12238,11 @@ module.exports = function(__obj) {
         __out.push('</td>\n');
       }
     
-      __out.push('\n<td><a>');
+      __out.push('\n<td>\n    <a>');
     
       __out.push(__sanitize(this.matched));
     
-      __out.push('</a></td>\n');
+      __out.push('</a>\n    <span class="has-flyout">?</span>\n</td>\n');
     
       if (this.selected) {
         __out.push('\n    <td><span class="tiny secondary button">Remove</span></td>\n');
@@ -12250,7 +12297,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="has-tip tip-top noradius">?</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+      __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="has-tip">?</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
     
     }).call(this);
     
@@ -12303,7 +12350,7 @@ module.exports = function(__obj) {
     
       __out.push(__sanitize(this.name));
     
-      __out.push('s <span data-id="3" class="has-tip tip-top noradius">?</span></a>');
+      __out.push('s <span data-id="3" class="has-tip">?</span></a>');
     
     }).call(this);
     
@@ -12592,7 +12639,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="has-tip tip-top noradius">?</span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
+      __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="has-tip">?</span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
     
     }).call(this);
     
@@ -12644,6 +12691,55 @@ module.exports = function(__obj) {
       __out.push(this.text);
     
       __out.push('<span class="nub" style="top: auto; bottom: -10px; left: auto; right: auto;"></span>');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}
+});
+require.register("component-400/templates/flyout.js", function(exports, require, module){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    (function() {
+      __out.push('Lorem gypsum');
     
     }).call(this);
     

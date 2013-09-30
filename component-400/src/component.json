@@ -31,6 +31,7 @@
         "views/nomatches.coffee",
         "views/summary.coffee",
         "views/tooltip.coffee",
+        "views/flyout.coffee",
         
         "templates/duplicates/table.eco",
         "templates/duplicates/row.eco",
@@ -42,6 +43,7 @@
         "templates/header.eco",
         "templates/nomatches.eco",
         "templates/tooltip.eco",
+        "templates/flyout.eco",
         "templates/paginator.eco"
     ],
     "styles": [

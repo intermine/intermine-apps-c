@@ -6,6 +6,8 @@ formatter = require '../modules/formatter'
 mediator  = require '../modules/mediator'
 View      = require '../modules/view'
 
+FlyoutView = require '../views/flyout'
+
 class DuplicatesView extends View
 
     template: require '../templates/duplicates/table'
@@ -77,6 +79,8 @@ class DuplicatesRowView extends View
 
     events:
         'click .button': 'toggle'
+        'mouseover .has-flyout': 'toggleFlyout'
+        'mouseout .has-flyout': 'toggleFlyout'
 
     render: ->
         { provided, rowspan, selected } = @options
@@ -107,5 +111,16 @@ class DuplicatesRowView extends View
         mediator.trigger 'item:toggle', (@options.selected = no), @model.id
         # Render it.
         do @render
+
+    # Toggle flyout.
+    toggleFlyout: (ev) ->
+        switch ev.type
+            when 'mouseover'
+                @views.push view = new FlyoutView()
+                $(ev.target).append view.render().el
+            
+            when 'mouseout'
+                # Only flyouts are in the list.
+                ( do view.dispose for view in @views )
 
 module.exports = DuplicatesView

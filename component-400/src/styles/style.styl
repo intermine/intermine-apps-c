@@ -10,9 +10,26 @@
     a
         cursor: pointer
 
-    .has-tip
+    .has-flyout, .has-tip
         position: relative
 
+    .has-flyout
+        border-bottom: dotted 1px #CCC
+        cursor: help
+        font-weight: bold
+        color: #333
+
+        &:hover
+            border-bottom-color: #196177
+            color: #2ba6cb
+
+        .flyout
+            color: #333
+            font-weight: normal
+            top: -20px
+            left: 20px
+
+    .has-tip
         .tooltip
             display: block
             font-size: 12px !important

@@ -1,6 +1,6 @@
 <header>
     <h2>No matches found</h2>
-    <span class="has-tip tip-top noradius">?</span>
+    <span class="has-tip">?</span>
 </header>
 
 <ul class="inline">

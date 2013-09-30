@@ -1,1 +1,1 @@
-<a><%= @name %>s <span data-id="3" class="has-tip tip-top noradius">?</span></a>
+<a><%= @name %>s <span data-id="3" class="has-tip">?</span></a>

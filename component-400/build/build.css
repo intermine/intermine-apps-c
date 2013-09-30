@@ -1095,8 +1095,25 @@ that IE7/8 do not support :nth-child.
 .foundation a {
   cursor: pointer;
 }
+.foundation .has-flyout,
 .foundation .has-tip {
   position: relative;
+}
+.foundation .has-flyout {
+  border-bottom: dotted 1px #ccc;
+  cursor: help;
+  font-weight: bold;
+  color: #333;
+}
+.foundation .has-flyout:hover {
+  border-bottom-color: #196177;
+  color: #2ba6cb;
+}
+.foundation .has-flyout .flyout {
+  color: #333;
+  font-weight: normal;
+  top: -20px;
+  left: 20px;
 }
 .foundation .has-tip .tooltip {
   display: block;

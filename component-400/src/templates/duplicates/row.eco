@@ -1,7 +1,10 @@
 <% if @provided: %>
     <td rowspan="<%= @rowspan %>"><%= @provided %></td>
 <% end %>
-<td><a><%= @matched %></a></td>
+<td>
+    <a><%= @matched %></a>
+    <span class="has-flyout">?</span>
+</td>
 <% if @selected: %>
     <td><span class="tiny secondary button">Remove</span></td>
 <% else: %>
