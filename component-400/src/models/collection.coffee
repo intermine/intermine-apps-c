@@ -8,7 +8,7 @@ class Collection
     dict:
         'MATCH': 'direct hit'
         'TYPE_CONVERTED': 'converted type'
-        'OTHER': 'other thing'
+        'OTHER': 'synonym'
 
     constructor: (data) ->
         # Number of input identifiers provided.

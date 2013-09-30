@@ -5,17 +5,16 @@
         <a class="success button save">Save a list of <%= @selected %> <%= @type %>s</a>
     <% end %>
 
-    <% if @total is 1: %>
-        <% if @input is 1: %>
-            <h2>We have found a matching <%= @type %> from your identifier</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>
-        <% else: %>
-            <h2>We have found a matching <%= @type %> from <%= @input %> identifiers</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>
-        <% end %>
-    <% else: %>
-        <% if @input is 1: %>
-            <h2>We have found <%= @total %> <%= @type %>s from your identifier</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>
-        <% else: %>
-            <h2>We have found <%= @total %> <%= @type %>s from <%= @input %> identifiers</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>
-        <% end %>
-    <% end %>
+    <table>
+        <tr>
+            <td>You entered:</td>
+            <td><%= @input %> identifier<% if @input isnt 1: %>s<% end %></td>
+        </tr>
+        <tr>
+            <td>We found:</td>
+            <td><%= @total %> <%= @type %><% if @total isnt 1: %>s<% end %></td>
+        </tr>
+    </table>
+
+    <p>Why are the numbers different? See below.</p>
 </header>

@@ -42,7 +42,6 @@ class View
 
     render: ->
         if @model
-            console.log @model
             @el.html @template JSON.parse(JSON.stringify(@model))
         else
             @el.html do @template

@@ -1,7 +1,7 @@
 <header>
     <span class="small secondary remove-all button">Remove all</span>
     <span class="small success add-all button">Add all</span>
-    <h2>Choose from duplicates</h2>
+    <h2>Which one do you want?</h2>
     <span data-id="1" class="has-tip tip-top noradius">?</span>
 </header>
 

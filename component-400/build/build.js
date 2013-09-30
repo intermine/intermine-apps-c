@@ -11273,7 +11273,6 @@ View = (function() {
 
   View.prototype.render = function() {
     if (this.model) {
-      console.log(this.model);
       this.el.html(this.template(JSON.parse(JSON.stringify(this.model))));
     } else {
       this.el.html(this.template());
@@ -11309,7 +11308,7 @@ Collection = (function() {
   Collection.prototype.dict = {
     'MATCH': 'direct hit',
     'TYPE_CONVERTED': 'converted type',
-    'OTHER': 'other thing'
+    'OTHER': 'synonym'
   };
 
   function Collection(data) {
@@ -11399,7 +11398,7 @@ module.exports = Collection;
 
 });
 require.register("component-400/views/app.js", function(exports, require, module){
-var $, AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, Tooltip, View, mediator, tooltips, _,
+var $, AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -11418,6 +11417,10 @@ DuplicatesView = require('./duplicates');
 NoMatchesView = require('./nomatches');
 
 SummaryView = require('./summary');
+
+HeaderView = require('./header');
+
+TooltipView = require('./tooltip');
 
 AppView = (function(_super) {
   __extends(AppView, _super);
@@ -11460,61 +11463,30 @@ AppView = (function(_super) {
   };
 
   AppView.prototype.toggleTooltip = function(ev) {
-    var target, text, view;
+    var id, target, view, _i, _len, _ref, _results;
     switch (ev.type) {
       case 'mouseover':
-        if (text = tooltips[(target = $(ev.target)).data('id')]) {
-          this.views.push(view = new Tooltip({
-            'model': {
-              text: text
-            }
-          }));
-          target.after(view.render().el);
-          return view.reposition();
-        }
-        break;
+        id = (target = $(ev.target)).data('id');
+        this.views.push(view = new TooltipView({
+          'model': {
+            id: id
+          }
+        }));
+        return target.append(view.render().el);
       case 'mouseout':
-        return false;
+        _ref = this.views;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          view = _ref[_i];
+          _results.push(view.dispose());
+        }
+        return _results;
     }
   };
 
   return AppView;
 
 })(View);
-
-Tooltip = (function(_super) {
-  __extends(Tooltip, _super);
-
-  Tooltip.prototype.tag = 'span';
-
-  Tooltip.prototype.template = require('../templates/tooltip');
-
-  function Tooltip() {
-    Tooltip.__super__.constructor.apply(this, arguments);
-    this.el.addClass('tooltip tip-top noradius');
-  }
-
-  Tooltip.prototype.reposition = function() {
-    var left, parent, top, _ref;
-    _ref = (parent = this.el.parent()).offset(), top = _ref.top, left = _ref.left;
-    top -= this.el.height();
-    left -= this.el.width();
-    return this.el.css({
-      top: top,
-      left: left
-    });
-  };
-
-  return Tooltip;
-
-})(View);
-
-tooltips = {
-  '0': 'Because I said so',
-  '1': 'Choose, do it',
-  '2': 'Summarizing you know',
-  '3': 'Tabitha Tabby'
-};
 
 module.exports = AppView;
 
@@ -12071,6 +12043,41 @@ ListView = (function(_super) {
 module.exports = SummaryView;
 
 });
+require.register("component-400/views/tooltip.js", function(exports, require, module){
+var $, TooltipView, View, tooltips,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+$ = require('jquery');
+
+View = require('../modules/view');
+
+TooltipView = (function(_super) {
+  __extends(TooltipView, _super);
+
+  TooltipView.prototype.tag = 'span';
+
+  TooltipView.prototype.template = require('../templates/tooltip');
+
+  function TooltipView() {
+    TooltipView.__super__.constructor.apply(this, arguments);
+    this.model.text = tooltips[this.model.id];
+    this.el.addClass('tooltip tip-top noradius');
+  }
+
+  return TooltipView;
+
+})(View);
+
+tooltips = {
+  '1': 'Choose, do it',
+  '2': 'Summarizing you know',
+  '3': 'Tabitha Tabby'
+};
+
+module.exports = TooltipView;
+
+});
 require.register("component-400/templates/duplicates/table.js", function(exports, require, module){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
@@ -12111,7 +12118,7 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Choose from duplicates</h2>\n    <span data-id="1" class="has-tip tip-top noradius">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+      __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="has-tip tip-top noradius">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
     
     }).call(this);
     
@@ -12498,43 +12505,29 @@ module.exports = function(__obj) {
         __out.push('s</a>\n    ');
       }
     
-      __out.push('\n\n    ');
+      __out.push('\n\n    <table>\n        <tr>\n            <td>You entered:</td>\n            <td>');
     
-      if (this.total === 1) {
-        __out.push('\n        ');
-        if (this.input === 1) {
-          __out.push('\n            <h2>We have found a matching ');
-          __out.push(__sanitize(this.type));
-          __out.push(' from your identifier</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
-        } else {
-          __out.push('\n            <h2>We have found a matching ');
-          __out.push(__sanitize(this.type));
-          __out.push(' from ');
-          __out.push(__sanitize(this.input));
-          __out.push(' identifiers</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
-        }
-        __out.push('\n    ');
-      } else {
-        __out.push('\n        ');
-        if (this.input === 1) {
-          __out.push('\n            <h2>We have found ');
-          __out.push(__sanitize(this.total));
-          __out.push(' ');
-          __out.push(__sanitize(this.type));
-          __out.push('s from your identifier</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
-        } else {
-          __out.push('\n            <h2>We have found ');
-          __out.push(__sanitize(this.total));
-          __out.push(' ');
-          __out.push(__sanitize(this.type));
-          __out.push('s from ');
-          __out.push(__sanitize(this.input));
-          __out.push(' identifiers</h2> <span data-id="0" class="has-tip tip-top noradius">?</span>\n        ');
-        }
-        __out.push('\n    ');
+      __out.push(__sanitize(this.input));
+    
+      __out.push(' identifier');
+    
+      if (this.input !== 1) {
+        __out.push('s');
       }
     
-      __out.push('\n</header>');
+      __out.push('</td>\n        </tr>\n        <tr>\n            <td>We found:</td>\n            <td>');
+    
+      __out.push(__sanitize(this.total));
+    
+      __out.push(' ');
+    
+      __out.push(__sanitize(this.type));
+    
+      if (this.total !== 1) {
+        __out.push('s');
+      }
+    
+      __out.push('</td>\n        </tr>\n    </table>\n\n    <p>Why are the numbers different? See below.</p>\n</header>');
     
     }).call(this);
     
@@ -12632,7 +12625,9 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push(this.text - __out.push('<span class="nub" style="top: auto; bottom: -10px; left: auto; right: auto;"></span>'));
+      __out.push(this.text);
+    
+      __out.push('<span class="nub" style="top: auto; bottom: -10px; left: auto; right: auto;"></span>');
     
     }).call(this);
     

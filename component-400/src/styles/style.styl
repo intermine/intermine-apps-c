@@ -10,9 +10,15 @@
     a
         cursor: pointer
 
-    .tooltip
-        display: block
-        font-size: 12px !important
+    .has-tip
+        position: relative
+
+        .tooltip
+            display: block
+            font-size: 12px !important
+            white-space: nowrap
+            top: -30px
+            left: -5px
 
     .section
         padding: 10px
@@ -29,6 +35,29 @@
             .button
                 margin-left: 10px
                 float: right
+
+    .header
+        header
+            table
+                width: auto
+                border: 0
+
+                tr
+                    background: #FFF
+
+                    &:nth-child(1)
+                        font-weight: bold
+
+                    td
+                        padding: 0
+                        font-size: 20px
+
+                        &:nth-child(1)
+                            text-align: right
+
+                        &:nth-child(2)
+                            padding-left: 5px
+                            text-align: left
 
     .summary
         dl.tabs

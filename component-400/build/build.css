@@ -1095,9 +1095,15 @@ that IE7/8 do not support :nth-child.
 .foundation a {
   cursor: pointer;
 }
-.foundation .tooltip {
+.foundation .has-tip {
+  position: relative;
+}
+.foundation .has-tip .tooltip {
   display: block;
   font-size: 12px !important;
+  white-space: nowrap;
+  top: -30px;
+  left: -5px;
 }
 .foundation .section {
   padding: 10px;
@@ -1114,6 +1120,27 @@ that IE7/8 do not support :nth-child.
 .foundation .section header .button {
   margin-left: 10px;
   float: right;
+}
+.foundation .header header table {
+  width: auto;
+  border: 0;
+}
+.foundation .header header table tr {
+  background: #fff;
+}
+.foundation .header header table tr:nth-child(1) {
+  font-weight: bold;
+}
+.foundation .header header table tr td {
+  padding: 0;
+  font-size: 20px;
+}
+.foundation .header header table tr td:nth-child(1) {
+  text-align: right;
+}
+.foundation .header header table tr td:nth-child(2) {
+  padding-left: 5px;
+  text-align: left;
 }
 .foundation .summary dl.tabs dd a {
   text-transform: capitalize;

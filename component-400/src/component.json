@@ -30,6 +30,7 @@
         "views/paginator.coffee",
         "views/nomatches.coffee",
         "views/summary.coffee",
+        "views/tooltip.coffee",
         
         "templates/duplicates/table.eco",
         "templates/duplicates/row.eco",
