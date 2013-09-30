@@ -15,9 +15,13 @@
     <div id="target"></div>
     <script>
         (require('jquery')).getJSON('/data.json', function(data) {
-            require('component-400/app').call(null, data, '#target', function(err, selected) {
-                if (err) throw err;
-                console.log(selected);
+            require('component-400/app')({
+                'data': data,
+                'target': '#target',
+                'cb': function(err, selected) {
+                    if (err) throw err;
+                    console.log(selected);
+                }
             });
         })
     </script>

@@ -1,11 +1,15 @@
 AppView    = require './views/app'
 Collection = require './models/collection'
 
-module.exports = (data, target, cb) ->
-    # Specified callback?
-    cb ?= -> throw 'Provide your own callback function'
+module.exports = (opts) ->
+    # Formatter?
+    require('./modules/formatter').primary = opts.formatter if opts.formatter
 
     # Parse the input data.
-    collection = new Collection data
+    collection = new Collection opts.data or []
 
-    new AppView({ 'el': target, collection, cb })
+    new AppView {
+        'el': opts.target or 'body'
+        'cb': opts.cb or -> throw 'Provide your own callback function'
+        collection
+    }

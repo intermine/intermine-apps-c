@@ -11161,18 +11161,18 @@ AppView = require('./views/app');
 
 Collection = require('./models/collection');
 
-module.exports = function(data, target, cb) {
+module.exports = function(opts) {
   var collection;
-  if (cb == null) {
-    cb = function() {
-      throw 'Provide your own callback function';
-    };
+  if (opts.formatter) {
+    require('./modules/formatter').primary = opts.formatter;
   }
-  collection = new Collection(data);
+  collection = new Collection(opts.data || []);
   return new AppView({
-    'el': target,
-    collection: collection,
-    cb: cb
+    'el': opts.target || 'body',
+    'cb': opts.cb || function() {
+      throw 'Provide your own callback function';
+    },
+    collection: collection
   });
 };
 
@@ -11184,7 +11184,23 @@ _ = require('object');
 
 module.exports = {
   'primary': function(model) {
-    return model.object.summary.primaryIdentifier;
+    var k, key, len, v, val, _i, _len, _ref, _ref1;
+    _ref = ['symbol', 'primaryIdentifier', 'secondIdentifier'];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      key = _ref[_i];
+      if (val = model.object.summary[key]) {
+        return val;
+      }
+    }
+    val = [0, 'NA'];
+    _ref1 = model.object.summary;
+    for (k in _ref1) {
+      v = _ref1[k];
+      if ((len = v.replace(/\W/, '').length) > val[0]) {
+        val = [len, v];
+      }
+    }
+    return val[1];
   },
   'csv': function(_arg, columns) {
     var cols, object, provided, rows;
