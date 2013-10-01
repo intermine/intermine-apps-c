@@ -1,0 +1,20 @@
+{
+    "name": "intermine-apps-b",
+    "version": "0.0.0",
+    "description": "Self contained JavaScript components by InterMine",
+    "dependencies": {
+        "buffet": "~0.6.0",
+        "connect": "~2.9.0"
+    },
+    "scripts": {
+        "start": "serve.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/intermine/intermine-apps-b.git"
+    },
+    "author": "Radek <rs676@cam.ac.uk>",
+    "bugs": {
+        "url": "https://github.com/intermine/intermine-apps-b/issues"
+    }
+}
