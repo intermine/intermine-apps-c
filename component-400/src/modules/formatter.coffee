@@ -8,13 +8,13 @@ module.exports =
         # Go for a symbol first.
         for key in [ 'symbol', 'primaryIdentifier', 'secondIdentifier' ]
             if val = model.object.summary[key]
-                return val
+                return JSON.stringify val
 
         # Try to return the longest string.
         val = [ 0, 'NA' ]
         for k, v of model.object.summary
             if (len = v.replace(/\W/, '').length) > val[0]
-                val = [ len, v ]
+                val = [ len, JSON.stringify(val) ]
 
         # Hopefully we have something here by now.
         val[1]
@@ -28,4 +28,4 @@ module.exports =
     # Provide a flyout summary of a model in question.
     'flyout': (model) ->
         format = (text) -> text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase()
-        ( [ format(k), v ] for k, v of model.object.summary when v )
+        ( [ format(k), JSON.stringify(v) ] for k, v of model.object.summary when v )

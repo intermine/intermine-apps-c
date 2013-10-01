@@ -1,8 +1,8 @@
 <% if @provided: %>
-    <td rowspan="<%= @rowspan %>"><%= @provided %></td>
+    <td rowspan="<%= @rowspan %>"><%- @provided %></td>
 <% end %>
 <td>
-    <a><%= @matched %></a>
+    <a><%- @matched %></a>
     <span class="has-flyout">?</span>
 </td>
 <% if @selected: %>

@@ -11189,7 +11189,7 @@ module.exports = {
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       key = _ref[_i];
       if (val = model.object.summary[key]) {
-        return val;
+        return JSON.stringify(val);
       }
     }
     val = [0, 'NA'];
@@ -11197,7 +11197,7 @@ module.exports = {
     for (k in _ref1) {
       v = _ref1[k];
       if ((len = v.replace(/\W/, '').length) > val[0]) {
-        val = [len, v];
+        val = [len, JSON.stringify(val)];
       }
     }
     return val[1];
@@ -11226,7 +11226,7 @@ module.exports = {
     for (k in _ref) {
       v = _ref[k];
       if (v) {
-        _results.push([format(k), v]);
+        _results.push([format(k), JSON.stringify(v)]);
       }
     }
     return _results;
@@ -12286,13 +12286,13 @@ module.exports = function(__obj) {
         __out.push('\n    <td rowspan="');
         __out.push(__sanitize(this.rowspan));
         __out.push('">');
-        __out.push(__sanitize(this.provided));
+        __out.push(this.provided);
         __out.push('</td>\n');
       }
     
       __out.push('\n<td>\n    <a>');
     
-      __out.push(__sanitize(this.matched));
+      __out.push(this.matched);
     
       __out.push('</a>\n    <span class="has-flyout">?</span>\n</td>\n');
     
@@ -12551,11 +12551,11 @@ module.exports = function(__obj) {
     (function() {
       __out.push('<td>');
     
-      __out.push(__sanitize(this.provided));
+      __out.push(this.provided);
     
       __out.push('</td>\n<td>\n    <a>');
     
-      __out.push(__sanitize(this.matched));
+      __out.push(this.matched);
     
       __out.push('</a>\n    <span class="has-flyout">?</span>\n</td>');
     
