@@ -116,7 +116,7 @@ class DuplicatesRowView extends View
     toggleFlyout: (ev) ->
         switch ev.type
             when 'mouseover'
-                @views.push view = new FlyoutView()
+                @views.push view = new FlyoutView({ @model })
                 $(ev.target).append view.render().el
             
             when 'mouseout'

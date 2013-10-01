@@ -24,3 +24,8 @@ module.exports =
         cols = [].concat([ 'provided', 'type' ], _.keys(object.summary))
         rows = [].concat([ provided, object.type ], _.values(object.summary))
         if columns then [ cols, rows ] else rows
+
+    # Provide a flyout summary of a model in question.
+    'flyout': (model) ->
+        format = (text) -> text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase()
+        ( [ format(k), v ] for k, v of model.object.summary when v )

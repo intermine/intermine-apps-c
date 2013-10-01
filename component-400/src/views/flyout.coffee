@@ -1,6 +1,7 @@
 $ = require 'jquery'
 
-View = require '../modules/view'
+formatter = require '../modules/formatter'
+View      = require '../modules/view'
 
 class FlyoutView extends View
 
@@ -10,5 +11,9 @@ class FlyoutView extends View
         super
 
         @el.addClass('flyout')
+
+    render: ->
+        @el.html @template { 'rows': formatter.flyout @model }
+        @
 
 module.exports = FlyoutView

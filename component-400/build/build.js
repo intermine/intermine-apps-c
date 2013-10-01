@@ -11215,6 +11215,21 @@ module.exports = {
     } else {
       return rows;
     }
+  },
+  'flyout': function(model) {
+    var format, k, v, _ref, _results;
+    format = function(text) {
+      return text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase();
+    };
+    _ref = model.object.summary;
+    _results = [];
+    for (k in _ref) {
+      v = _ref[k];
+      if (v) {
+        _results.push([format(k), v]);
+      }
+    }
+    return _results;
   }
 };
 
@@ -11707,7 +11722,9 @@ DuplicatesRowView = (function(_super) {
     var view, _i, _len, _ref1, _results;
     switch (ev.type) {
       case 'mouseover':
-        this.views.push(view = new FlyoutView());
+        this.views.push(view = new FlyoutView({
+          model: this.model
+        }));
         return $(ev.target).append(view.render().el);
       case 'mouseout':
         _ref1 = this.views;
@@ -12116,11 +12133,13 @@ module.exports = TooltipView;
 
 });
 require.register("component-400/views/flyout.js", function(exports, require, module){
-var $, FlyoutView, View,
+var $, FlyoutView, View, formatter,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
+
+formatter = require('../modules/formatter');
 
 View = require('../modules/view');
 
@@ -12133,6 +12152,13 @@ FlyoutView = (function(_super) {
     FlyoutView.__super__.constructor.apply(this, arguments);
     this.el.addClass('flyout');
   }
+
+  FlyoutView.prototype.render = function() {
+    this.el.html(this.template({
+      'rows': formatter.flyout(this.model)
+    }));
+    return this;
+  };
 
   return FlyoutView;
 
@@ -12739,7 +12765,24 @@ module.exports = function(__obj) {
   }
   (function() {
     (function() {
-      __out.push('Lorem gypsum');
+      var column, row, _i, _j, _len, _len1, _ref;
+    
+      __out.push('<table>\n    ');
+    
+      _ref = this.rows;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        row = _ref[_i];
+        __out.push('\n        <tr>\n            ');
+        for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
+          column = row[_j];
+          __out.push('\n                <td>');
+          __out.push(column);
+          __out.push('</td>\n            ');
+        }
+        __out.push('\n        </tr>\n    ');
+      }
+    
+      __out.push('\n</table>');
     
     }).call(this);
     
