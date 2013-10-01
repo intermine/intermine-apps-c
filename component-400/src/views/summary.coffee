@@ -136,6 +136,7 @@ class TableRowView extends View
     events:
         'mouseover .has-flyout': 'toggleFlyout'
         'mouseout .has-flyout': 'toggleFlyout'
+        'click a': 'portal'
 
     render: ->
         matched = formatter.primary @model
@@ -153,6 +154,10 @@ class TableRowView extends View
             when 'mouseout'
                 # Only flyouts are in the list.
                 ( do view.dispose for view in @views )
+
+    # Visit the portal (probably).
+    portal: (ev) ->
+        mediator.trigger 'object:click', @model, ev.target
 
 class ListView extends TabContentView
 

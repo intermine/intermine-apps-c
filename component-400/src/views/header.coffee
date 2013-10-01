@@ -26,6 +26,6 @@ class HeaderView extends View
 
         @
 
-    save: -> mediator.trigger 'save'
+    save: -> mediator.trigger 'app:save'
 
 module.exports = HeaderView

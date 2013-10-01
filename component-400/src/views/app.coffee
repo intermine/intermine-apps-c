@@ -1,5 +1,4 @@
 $ = require 'jquery'
-_ = require 'object' # keys, values, length, isEmpty, merge
 
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
@@ -23,11 +22,6 @@ class AppView extends View
         super
 
         @el.addClass('foundation')
-
-        # Global save, call back.
-        mediator.on 'save', =>
-            @options.cb null, _.keys @collection.selected
-        @
 
     render: ->
         # Render the header.

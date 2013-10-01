@@ -80,6 +80,7 @@ class DuplicatesRowView extends View
         'click .button': 'toggle'
         'mouseover .has-flyout': 'toggleFlyout'
         'mouseout .has-flyout': 'toggleFlyout'
+        'click a': 'portal'
 
     render: ->
         { provided, rowspan, selected } = @options
@@ -121,5 +122,9 @@ class DuplicatesRowView extends View
             when 'mouseout'
                 # Only flyouts are in the list.
                 ( do view.dispose for view in @views )
+
+    # Visit the portal (probably).
+    portal: (ev) ->
+        mediator.trigger 'object:click', @model, ev.target
 
 module.exports = DuplicatesView

@@ -34,6 +34,13 @@ Visualizes the result of an InterMine ID Resolution job.
                 //  symbol of some sort for a row of results.
                 'formatter': function(model) {
                     return 'NA'
+                },
+                // What to do when we click on one of the item/object links?
+                'portal': function(object, el) {
+                    var type = object.object.type,
+                        symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
+                        url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
+                    new require('popup')(url);
                 }
             });
         })

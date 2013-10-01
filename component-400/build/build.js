@@ -11154,8 +11154,168 @@ else if (typeof window == 'undefined' || window.ActiveXObject || !window.postMes
 }
 
 });
+require.register("component-inherit/index.js", function(exports, require, module){
+
+module.exports = function(a, b){
+  var fn = function(){};
+  fn.prototype = b.prototype;
+  a.prototype = new fn;
+  a.prototype.constructor = a;
+};
+});
+require.register("component-popup/index.js", function(exports, require, module){
+
+/**
+ * Simple wrapper component around `window.open()`.
+ *
+ * Usage:
+ *
+ *     var Popup = require('popup');
+ *     var win = new Popup('http://google.com', { width: 100, height: 100 });
+ *     win.on('close', function () {
+ *       console.log('popup window was closed');
+ *     });
+ */
+
+/**
+ * Module derencencies.
+ */
+
+var Emitter = require('emitter')
+  , inherit = require('inherit');
+
+/**
+ * Module exports.
+ */
+
+exports = module.exports = Popup;
+
+/**
+ * Default Popup options.
+ */
+
+var defaults = {
+    width: 700
+  , height: 520
+  , menubar: 'no'
+  , resizable: 'yes'
+  , location: 'yes'
+  , scrollbars: 'no'
+  , centered: true
+};
+
+/**
+ * The "Popup" constructor.
+ */
+
+function Popup (src, opts) {
+  if (!(this instanceof Popup)) {
+    return new Popup(src, opts);
+  }
+
+  // ensure an opts object exists
+  opts = opts || {};
+
+  // set the defaults if not provided
+  for (var i in defaults) {
+    if (!(i in opts)) {
+      opts[i] = defaults[i];
+    }
+  }
+
+  // we try to place it at the center of the current window
+  // note: this "centering" logic borrowed from the Facebook JavaScript SDK
+  if (opts.centered) {
+    var screenX = null == window.screenX ? window.screenLeft : window.screenX;
+    var screenY = null == window.screenY ? window.screenTop : window.screenY;
+    var outerWidth = null == window.outerWidth
+      ? document.documentElement.clientWidth : window.outerWidth;
+    var outerHeight = null == window.outerHeight
+      // 22= IE toolbar height
+      ? (document.documentElement.clientHeight - 22) : window.outerHeight;
+
+    if (null == opts.left)
+      opts.left = parseInt(screenX + ((outerWidth - opts.width) / 2), 10);
+    if (null == opts.top)
+      opts.top = parseInt(screenY + ((outerHeight - opts.height) / 2.5), 10);
+    delete opts.centered;
+  }
+
+  // interval to check for the window being closed
+  var interval = 500;
+  if (opts.interval) {
+    interval = +opts.interval;
+    delete opts.interval;
+  }
+
+  // turn the "opts" object into a window.open()-compatible String
+  var optsStr = [];
+  for (var key in opts) {
+    optsStr.push(key + '=' + opts[key]);
+  }
+  optsStr = optsStr.join(',');
+
+  // every popup window has a unique "name"
+  var name = opts.name;
+
+  // if a "name" was not provided, then create a random one
+  if (!name) name = 'popup-' + (Math.random() * 0x10000000 | 0).toString(36);
+
+  Emitter.call(this);
+  this.name = name;
+  this.opts = opts;
+  this.optsStr = optsStr;
+
+  // finally, open and return the popup window
+  this.window = window.open(src, name, optsStr);
+  this.focus();
+
+  this.interval = setInterval(checkClose(this), interval);
+}
+
+// inherit from Emitter
+inherit(Popup, Emitter);
+
+/**
+ * Closes the popup window.
+ */
+
+Popup.prototype.close = function () {
+  this.window.close();
+}
+
+/**
+ * Focuses the popup window (brings to front).
+ */
+
+Popup.prototype.focus = function () {
+  this.window.focus();
+}
+
+/**
+ * Emits the "close" event.
+ */
+
+Popup.prototype._checkClose = function () {
+  if (this.window.closed) {
+    this.emit('close');
+    clearInterval(this.interval);
+  }
+}
+
+function checkClose (popup) {
+  return function () {
+    popup._checkClose();
+  }
+}
+
+});
 require.register("component-400/app.js", function(exports, require, module){
-var AppView, Collection;
+var AppView, Collection, mediator, _;
+
+_ = require('object');
+
+mediator = require('./modules/mediator');
 
 AppView = require('./views/app');
 
@@ -11163,15 +11323,19 @@ Collection = require('./models/collection');
 
 module.exports = function(opts) {
   var collection;
+  if (!opts.cb) {
+    throw 'Provide your own callback function';
+  }
   if (opts.formatter) {
     require('./modules/formatter').primary = opts.formatter;
   }
   collection = new Collection(opts.data || []);
+  mediator.on('object:click', opts.portal || (function() {}), this);
+  mediator.on('app:save', function() {
+    return opts.cb(null, _.keys(collection.selected));
+  }, this);
   return new AppView({
     'el': opts.target || 'body',
-    'cb': opts.cb || function() {
-      throw 'Provide your own callback function';
-    },
     collection: collection
   });
 };
@@ -11433,13 +11597,11 @@ module.exports = Collection;
 
 });
 require.register("component-400/views/app.js", function(exports, require, module){
-var $, AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _,
+var $, AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 $ = require('jquery');
-
-_ = require('object');
 
 mediator = require('../modules/mediator');
 
@@ -11468,13 +11630,8 @@ AppView = (function(_super) {
   };
 
   function AppView() {
-    var _this = this;
     AppView.__super__.constructor.apply(this, arguments);
     this.el.addClass('foundation');
-    mediator.on('save', function() {
-      return _this.options.cb(null, _.keys(_this.collection.selected));
-    });
-    this;
   }
 
   AppView.prototype.render = function() {
@@ -11565,7 +11722,7 @@ HeaderView = (function(_super) {
   };
 
   HeaderView.prototype.save = function() {
-    return mediator.trigger('save');
+    return mediator.trigger('app:save');
   };
 
   return HeaderView;
@@ -11686,7 +11843,8 @@ DuplicatesRowView = (function(_super) {
   DuplicatesRowView.prototype.events = {
     'click .button': 'toggle',
     'mouseover .has-flyout': 'toggleFlyout',
-    'mouseout .has-flyout': 'toggleFlyout'
+    'mouseout .has-flyout': 'toggleFlyout',
+    'click a': 'portal'
   };
 
   DuplicatesRowView.prototype.render = function() {
@@ -11739,6 +11897,10 @@ DuplicatesRowView = (function(_super) {
         }
         return _results;
     }
+  };
+
+  DuplicatesRowView.prototype.portal = function(ev) {
+    return mediator.trigger('object:click', this.model, ev.target);
   };
 
   return DuplicatesRowView;
@@ -12074,7 +12236,8 @@ TableRowView = (function(_super) {
 
   TableRowView.prototype.events = {
     'mouseover .has-flyout': 'toggleFlyout',
-    'mouseout .has-flyout': 'toggleFlyout'
+    'mouseout .has-flyout': 'toggleFlyout',
+    'click a': 'portal'
   };
 
   TableRowView.prototype.render = function() {
@@ -12104,6 +12267,10 @@ TableRowView = (function(_super) {
         }
         return _results;
     }
+  };
+
+  TableRowView.prototype.portal = function(ev) {
+    return mediator.trigger('object:click', this.model, ev.target);
   };
 
   return TableRowView;
@@ -12924,6 +13091,7 @@ module.exports = function(__obj) {
 
 
 
+
 require.alias("component-map/index.js", "component-400/deps/map/index.js");
 require.alias("component-map/index.js", "map/index.js");
 require.alias("component-to-function/index.js", "component-map/deps/to-function/index.js");
@@ -12973,5 +13141,12 @@ require.alias("component-indexof/index.js", "component-emitter/deps/indexof/inde
 require.alias("component-queue/index.js", "component-queue/index.js");
 require.alias("timoxley-next-tick/index.js", "component-400/deps/next-tick/index.js");
 require.alias("timoxley-next-tick/index.js", "next-tick/index.js");
+
+require.alias("component-popup/index.js", "component-400/deps/popup/index.js");
+require.alias("component-popup/index.js", "popup/index.js");
+require.alias("component-emitter/index.js", "component-popup/deps/emitter/index.js");
+require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
+
+require.alias("component-inherit/index.js", "component-popup/deps/inherit/index.js");
 
 require.alias("component-400/app.js", "component-400/index.js");

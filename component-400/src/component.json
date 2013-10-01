@@ -14,7 +14,8 @@
         "radekstepan/filesaver": "*",
         "cristiandouce/csv": "*",
         "component/queue": "*",
-        "timoxley/next-tick": "*"
+        "timoxley/next-tick": "*",
+        "component/popup": "*"
     },
     "scripts": [
         "app.coffee",

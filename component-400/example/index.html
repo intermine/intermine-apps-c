@@ -14,16 +14,22 @@
 <body>
     <div id="target"></div>
     <script>
-        (require('jquery')).getJSON('data.json', function(data) {
+        require('jquery').getJSON('data.json', function(data) {
             require('component-400/app')({
                 'data': data,
                 'target': '#target',
                 'cb': function(err, selected) {
                     if (err) throw err;
                     console.log(selected);
+                },
+                'portal': function(object, el) {
+                    var type = object.object.type,
+                        symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
+                        url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
+                    new require('popup')(url);
                 }
             });
-        })
+        });
     </script>
 </body>
 </html>
