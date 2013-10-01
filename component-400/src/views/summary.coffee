@@ -2,10 +2,11 @@ $      = require 'jquery'
 saveAs = require 'filesaver'
 csv    = require 'csv'
 
-mediator  = require '../modules/mediator'
-formatter = require '../modules/formatter'
-View      = require '../modules/view'
-Paginator = require './paginator'
+mediator   = require '../modules/mediator'
+formatter  = require '../modules/formatter'
+View       = require '../modules/view'
+Paginator  = require './paginator'
+FlyoutView = require './flyout'
 
 class SummaryView extends View
 
@@ -132,11 +133,26 @@ class TableRowView extends View
     template: require '../templates/summary/row'
     tag: 'tr'
 
+    events:
+        'mouseover .has-flyout': 'toggleFlyout'
+        'mouseout .has-flyout': 'toggleFlyout'
+
     render: ->
         matched = formatter.primary @model
         @el.html @template { 'provided': @model.provided, matched }
 
         @
+
+    # Toggle flyout.
+    toggleFlyout: (ev) ->
+        switch ev.type
+            when 'mouseover'
+                @views.push view = new FlyoutView({ @model })
+                $(ev.target).append view.render().el
+            
+            when 'mouseout'
+                # Only flyouts are in the list.
+                ( do view.dispose for view in @views )
 
 class ListView extends TabContentView
 

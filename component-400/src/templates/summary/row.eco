@@ -1,2 +1,5 @@
 <td><%= @provided %></td>
-<td><a href="#"><%= @matched %></a></td>
+<td>
+    <a><%= @matched %></a>
+    <span class="has-flyout">?</span>
+</td>

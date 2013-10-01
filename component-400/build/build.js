@@ -11876,7 +11876,7 @@ module.exports = NoMatchesView;
 
 });
 require.register("component-400/views/summary.js", function(exports, require, module){
-var $, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, csv, formatter, mediator, saveAs, _ref, _ref1,
+var $, FlyoutView, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, csv, formatter, mediator, saveAs, _ref, _ref1,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -11893,6 +11893,8 @@ formatter = require('../modules/formatter');
 View = require('../modules/view');
 
 Paginator = require('./paginator');
+
+FlyoutView = require('./flyout');
 
 SummaryView = (function(_super) {
   __extends(SummaryView, _super);
@@ -12066,6 +12068,11 @@ TableRowView = (function(_super) {
 
   TableRowView.prototype.tag = 'tr';
 
+  TableRowView.prototype.events = {
+    'mouseover .has-flyout': 'toggleFlyout',
+    'mouseout .has-flyout': 'toggleFlyout'
+  };
+
   TableRowView.prototype.render = function() {
     var matched;
     matched = formatter.primary(this.model);
@@ -12074,6 +12081,25 @@ TableRowView = (function(_super) {
       matched: matched
     }));
     return this;
+  };
+
+  TableRowView.prototype.toggleFlyout = function(ev) {
+    var view, _i, _len, _ref1, _results;
+    switch (ev.type) {
+      case 'mouseover':
+        this.views.push(view = new FlyoutView({
+          model: this.model
+        }));
+        return $(ev.target).append(view.render().el);
+      case 'mouseout':
+        _ref1 = this.views;
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          view = _ref1[_i];
+          _results.push(view.dispose());
+        }
+        return _results;
+    }
   };
 
   return TableRowView;
@@ -12527,11 +12553,11 @@ module.exports = function(__obj) {
     
       __out.push(__sanitize(this.provided));
     
-      __out.push('</td>\n<td><a href="#">');
+      __out.push('</td>\n<td>\n    <a>');
     
       __out.push(__sanitize(this.matched));
     
-      __out.push('</a></td>');
+      __out.push('</a>\n    <span class="has-flyout">?</span>\n</td>');
     
     }).call(this);
     

@@ -2,10 +2,9 @@ $        = require 'jquery'
 Queue    = require 'queue'
 nextTick = require 'next-tick'
 
-formatter = require '../modules/formatter'
-mediator  = require '../modules/mediator'
-View      = require '../modules/view'
-
+formatter  = require '../modules/formatter'
+mediator   = require '../modules/mediator'
+View       = require '../modules/view'
 FlyoutView = require '../views/flyout'
 
 class DuplicatesView extends View
