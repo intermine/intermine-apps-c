@@ -11178,7 +11178,7 @@ module.exports = function(opts) {
 
 });
 require.register("component-400/modules/formatter.js", function(exports, require, module){
-var _;
+var escape, _;
 
 _ = require('object');
 
@@ -11189,7 +11189,7 @@ module.exports = {
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       key = _ref[_i];
       if (val = model.object.summary[key]) {
-        return JSON.stringify(val);
+        return escape(val);
       }
     }
     val = [0, 'NA'];
@@ -11197,7 +11197,7 @@ module.exports = {
     for (k in _ref1) {
       v = _ref1[k];
       if ((len = v.replace(/\W/, '').length) > val[0]) {
-        val = [len, JSON.stringify(val)];
+        val = [len, escape(val)];
       }
     }
     return val[1];
@@ -11226,11 +11226,15 @@ module.exports = {
     for (k in _ref) {
       v = _ref[k];
       if (v) {
-        _results.push([format(k), JSON.stringify(v)]);
+        _results.push([format(k), escape(v)]);
       }
     }
     return _results;
   }
+};
+
+escape = function(string) {
+  return JSON.stringify(string).slice(1, -1);
 };
 
 });

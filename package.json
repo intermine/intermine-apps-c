@@ -3,8 +3,7 @@
     "version": "0.0.0",
     "description": "Self contained JavaScript components by InterMine",
     "dependencies": {
-        "buffet": "~0.6.0",
-        "connect": "~2.9.0"
+        "express": "~3.4.0"
     },
     "scripts": {
         "start": "serve.js"

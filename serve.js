@@ -1,12 +1,8 @@
-var connect = require('connect')
-  , dir = __dirname
-  , app = connect()
-  , buffet = require('buffet')({ 'root': dir })
+var express = require('express'),
+    app = express()
+    dir = __dirname;
 
-app.use(buffet);
-app.use(buffet.notFound);
+app.listen(process.env.PORT);
 
-var server = require('http').createServer(app);
-server.listen(process.env.PORT, function () {
-    console.log('Serving ' + dir);
-});
+app.use(express.directory(dir));
+app.use(express.static(dir));

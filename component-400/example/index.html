@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title>component-400</title>
     
-    <link href="./example/build.css" media="all" rel="stylesheet" type="text/css" />
-    <script src="./example/build.js"></script>
+    <link href="build.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="build.js"></script>
 
     <style>
     #target { width: 700px; margin: 0 auto; }
@@ -14,7 +14,7 @@
 <body>
     <div id="target"></div>
     <script>
-        (require('jquery')).getJSON('./example/data.json', function(data) {
+        (require('jquery')).getJSON('data.json', function(data) {
             require('component-400/app')({
                 'data': data,
                 'target': '#target',
