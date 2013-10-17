@@ -1,6 +1,6 @@
 {
     "name": "component-400",
-    "main": "app.js",
+    "main": "../build/build.js",
     "version": "0.2.0",
     "dependencies": {
         "component/map": "*",
@@ -18,6 +18,13 @@
         "component/popup": "*"
     },
     "scripts": [
+        "../build/build.js"
+    ],
+    "styles": [
+        "styles/foundation.css",
+        "../build/build.css"
+    ],
+    "apps-b": [
         "app.coffee",
         
         "modules/formatter.coffee",
@@ -45,10 +52,8 @@
         "templates/nomatches.eco",
         "templates/tooltip.eco",
         "templates/flyout.eco",
-        "templates/paginator.eco"
-    ],
-    "styles": [
-        "styles/foundation.css",
+        "templates/paginator.eco",
+
         "styles/style.styl"
     ]
 }
