@@ -1,5 +1,5 @@
 $      = require 'jquery'
-saveAs = require 'filesaver'
+saveAs = require 'FileSaver.js'
 csv    = require 'csv'
 
 mediator   = require '../modules/mediator'
