@@ -49,9 +49,24 @@ Visualizes the result of an InterMine ID Resolution job.
 </html>
 ```
 
-#Build
+##Build
 
 ```bash
-$ npm install apps-b-builder -g
-$ watch -n 1 -c apps-b build ./src/ ./build/
+$ npm install
+$ grunt
+```
+
+##Dependencies
+
+The following can be fetched using [Bower](http://bower.io/):
+
+```
+component-400#0.3.0
+├── FileSaver#d8c81c105f
+├── backbone-events#fe7c8de59f
+├── csv#0.1.2
+├── jquery#2.0.3
+├── lodash#2.2.1
+├── queue-async#1.0.4
+└── setimmediate#1.0.1
 ```
