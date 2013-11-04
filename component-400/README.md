@@ -8,17 +8,17 @@ Visualizes the result of an InterMine ID Resolution job.
 <!doctype html>
 <html>
 <head>
-    <link href="/build.css" media="all" rel="stylesheet" type="text/css" />
-    <script src="/build.js"></script>
+    <link href="app.bundle.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="app.bundle.js"></script>
 </head>
 <body>
     <div id="target"></div>
     <script>
         // An example of fetching the results using JSON, yours will most likely work
         //  differently.
-        $.getJSON('/data.json', function(data) {
+        $.getJSON('data.json', function(data) {
             // Require the app and execute it passing the following opts...
-            require('component-400/app')({
+            require('component-400')({
                 // The data payload. You can see example in `example/data.json`.
                 'data': data,
                 // The target string, defaults to the <body/> element.
