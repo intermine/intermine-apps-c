@@ -1,7 +1,3 @@
-$      = require 'jquery'
-saveAs = require 'FileSaver.js'
-csv    = require 'csv'
-
 mediator   = require '../modules/mediator'
 formatter  = require '../modules/formatter'
 View       = require '../modules/view'
@@ -55,7 +51,8 @@ class SummaryView extends View
                     rows.push.row
 
         # Converted to a csv string.
-        converted = do csv([ columns ].concat(rows)).csv
+        converted = csv _.map rows, (row) ->
+            _.zipObject columns, row
         # Make into a Blob.
         blob = new Blob [ converted ], { 'type': 'text/csv;charset=utf-8' }
         # Save it.

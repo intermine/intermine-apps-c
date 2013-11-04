@@ -1,5 +1,3 @@
-$ = require 'jquery'
-
 # So we can generate ids for components.
 id = 0
 

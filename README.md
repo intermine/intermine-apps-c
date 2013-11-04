@@ -1,6 +1,6 @@
-#InterMine Apps/B Sources
+#InterMine Apps/C Sources
 
-Self contained JavaScript components built by [Apps/B Builder](https://github.com/intermine/apps-b-builder).
+JavaScript apps built by [Grunt Apps/C](https://github.com/intermine/grunt-apps-c).
 
 Serve this repo:
 

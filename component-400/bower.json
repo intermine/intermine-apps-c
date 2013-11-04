@@ -1,0 +1,14 @@
+{
+    "name": "component-400",
+    "version": "0.3.0",
+    "dependencies": {
+        "backbone-events": null,
+        "csv": null,
+        "FileSaver": null,
+        "bower-foundation-css": null,
+        "jquery": null,
+        "lodash": null,
+        "queue-async": null,
+        "setimmediate": null
+    }
+}

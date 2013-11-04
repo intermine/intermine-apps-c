@@ -1,0 +1,103 @@
+.foundation
+    h2
+        font-size: 20px
+        display: inline-block
+        margin: 0
+
+    table
+        width: 100%
+
+    a
+        cursor: pointer
+
+    ul
+        list-style-type: none
+
+    .has-flyout, .has-tip
+        position: relative
+
+    .has-flyout
+        border-bottom: dotted 1px #CCC
+        cursor: help
+        font-weight: bold
+        color: #333
+
+        &:hover
+            border-bottom-color: #196177
+            color: #2ba6cb
+
+        .flyout
+            color: #333
+            font-weight: normal
+            top: -20px
+            left: 20px
+
+    .has-tip
+        .tooltip
+            display: block
+            font-size: 12px !important
+            white-space: nowrap
+            top: -30px
+            left: -5px
+
+    .section
+        padding: 10px
+
+        &:nth-child(even)
+            border: 1px solid #e6e6e6
+            border-width: 1px 0
+
+        header
+            margin-bottom: 10px
+            vertical-align: middle
+            line-height: 37px
+
+            .button
+                margin-left: 10px
+                float: right
+
+    .header
+        header
+            table
+                width: auto
+                border: 0
+
+                tr
+                    background: #FFF
+
+                    &:nth-child(1)
+                        font-weight: bold
+
+                    td
+                        padding: 0
+                        font-size: 20px
+
+                        &:nth-child(1)
+                            text-align: right
+
+                        &:nth-child(2)
+                            padding-left: 5px
+                            text-align: left
+
+    .summary
+        dl.tabs
+            dd
+                a
+                    text-transform: capitalize
+
+        ul.pagination
+            text-align: center
+
+            li
+                display: inline-block
+                float: none
+
+    ul.inline
+        list-style: none
+        padding: 0
+
+        li
+            display: inline-block
+
+            &:not(:last-child):after
+                content: ", "

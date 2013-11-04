@@ -3,3 +3,5 @@ node_modules/
 *.log
 */src/components/
 */src/build/
+vendor/
+.build_cache~

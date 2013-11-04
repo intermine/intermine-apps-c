@@ -1,5 +1,3 @@
-_ = require 'object' # keys, values, length, isEmpty, merge
-
 # How do we display "an object"?
 module.exports =
     

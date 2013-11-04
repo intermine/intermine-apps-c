@@ -1,0 +1,14 @@
+{
+    "name": "component-400",
+    "version": "0.3.0",
+    "devDependencies": {
+        "bower": "~1.2.7",
+        "grunt": "~0.4.1",
+        
+        "grunt-apps-c": "git://github.com/radekstepan/grunt-apps-c.git#master",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-uglify": "~0.2.5",
+        "grunt-contrib-cssmin": "~0.6.2",
+        "grunt-contrib-stylus": "~0.9.0"
+    }
+}

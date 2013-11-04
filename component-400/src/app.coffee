@@ -1,5 +1,3 @@
-_ = require 'object' # keys, values, length, isEmpty, merge
-
 mediator   = require './modules/mediator'
 AppView    = require './views/app'
 Collection = require './models/collection'

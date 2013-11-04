@@ -1,7 +1,3 @@
-$        = require 'jquery'
-Queue    = require 'queue'
-nextTick = require 'next-tick'
-
 formatter  = require '../modules/formatter'
 mediator   = require '../modules/mediator'
 View       = require '../modules/view'
@@ -55,21 +51,21 @@ class DuplicatesView extends View
         # This many jobs.
         length = i = @views.length
         # In a queue.
-        q = new Queue { 'concurrency': 50 }
+        q = queue 50
         
         job = (cb) =>
             # Have we reached the bottom?
             if i--
                 do @views[length - i - 1][fn] # 0+
-                q.push job
+                q.defer job
             else
                 buttons.removeClass('disabled')
             
             # Go at it again.
-            nextTick cb
+            setImmediate cb
 
         # Start the queue.
-        q.push job
+        q.defer job
 
 class DuplicatesRowView extends View
 
