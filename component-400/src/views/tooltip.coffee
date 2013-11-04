@@ -1,5 +1,3 @@
-$ = require 'jquery'
-
 View = require '../modules/view'
 
 class TooltipView extends View

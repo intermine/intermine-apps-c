@@ -1,5 +1,3 @@
-$ = require 'jquery'
-
 formatter = require '../modules/formatter'
 View      = require '../modules/view'
 

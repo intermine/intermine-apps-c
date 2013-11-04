@@ -1,5 +1,3 @@
-$ = require 'jquery'
-
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
 

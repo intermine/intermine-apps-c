@@ -1,0 +1,25 @@
+.foundation h2{font-size:20px;display:inline-block;margin:0}
+.foundation table{width:100%}
+.foundation a{cursor:pointer}
+.foundation ul{list-style-type:none}
+.foundation .has-flyout,.foundation .has-tip{position:relative}
+.foundation .has-flyout{border-bottom:dotted 1px #ccc;cursor:help;font-weight:bold;color:#333;}
+.foundation .has-flyout:hover{border-bottom-color:#196177;color:#2ba6cb}
+.foundation .has-flyout .flyout{color:#333;font-weight:normal;top:-20px;left:20px}
+.foundation .has-tip .tooltip{display:block;font-size:12px !important;white-space:nowrap;top:-30px;left:-5px}
+.foundation .section{padding:10px;}
+.foundation .section:nth-child(even){border:1px solid #e6e6e6;border-width:1px 0}
+.foundation .section header{margin-bottom:10px;vertical-align:middle;line-height:37px;}
+.foundation .section header .button{margin-left:10px;float:right}
+.foundation .header header table{width:auto;border:0;}
+.foundation .header header table tr{background:#fff;}
+.foundation .header header table tr:nth-child(1){font-weight:bold}
+.foundation .header header table tr td{padding:0;font-size:20px;}
+.foundation .header header table tr td:nth-child(1){text-align:right}
+.foundation .header header table tr td:nth-child(2){padding-left:5px;text-align:left}
+.foundation .summary dl.tabs dd a{text-transform:capitalize}
+.foundation .summary ul.pagination{text-align:center;}
+.foundation .summary ul.pagination li{display:inline-block;float:none}
+.foundation ul.inline{list-style:none;padding:0;}
+.foundation ul.inline li{display:inline-block;}
+.foundation ul.inline li:not(:last-child):after{content:", "}

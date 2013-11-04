@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title>component-400</title>
     
-    <link href="build.css" media="all" rel="stylesheet" type="text/css" />
-    <script src="build.js"></script>
+    <link href="app.bundle.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="app.bundle.js"></script>
 
     <style>
     #target { width: 700px; margin: 0 auto; }
@@ -14,19 +14,19 @@
 <body>
     <div id="target"></div>
     <script>
-        require('jquery').getJSON('data.json', function(data) {
-            require('component-400/app')({
+        $.getJSON('data.json', function(data) {
+            require('component-400')({
                 'data': data,
                 'target': '#target',
-                'cb': function(err, selected) {
+                cb: function(err, selected) {
                     if (err) throw err;
                     console.log(selected);
                 },
-                'portal': function(object, el) {
+                portal: function(object, el) {
                     var type = object.object.type,
                         symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
                         url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
-                    new require('popup')(url);
+                    console.log(url);
                 }
             });
         });

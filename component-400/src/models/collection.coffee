@@ -1,5 +1,3 @@
-{ length } = require 'object'
-
 mediator = require '../modules/mediator'
 
 class Collection
@@ -36,7 +34,8 @@ class Collection
                         else
                             @addSummary { reason, provided, id, object }
 
-        @input = length @input
+        # Convert object to length.
+        @input = _.keys(@input).length
 
         # Listen to peeps being selected.
         mediator.on 'item:toggle', (selected, id) ->
@@ -55,6 +54,6 @@ class Collection
         @selected[id] = yes
 
     # Get the size of selected objects.
-    selectedLn: -> length @selected
+    selectedLn: -> _.keys(@selected).length
 
 module.exports = Collection
