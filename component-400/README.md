@@ -61,14 +61,13 @@ $ grunt
 The following can be fetched using [Bower](http://bower.io/):
 
 ```
-component-400#0.3.0
+component-400
 ├── FileSaver#d8c81c105f
 ├── backbone-events#fe7c8de59f
 ├── csv#0.1.2
+├── foundation3#e-tag:cbd43d4a2
 ├── jquery#2.0.3
 ├── lodash#2.2.1
 ├── queue-async#1.0.4
 └── setimmediate#1.0.1
 ```
-
-The `build/app.bundle.css` also contains [Foundation 3](http://foundation.zurb.com/old-docs/f3/).

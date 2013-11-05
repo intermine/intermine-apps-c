@@ -131,8 +131,8 @@ class TableRowView extends View
     tag: 'tr'
 
     events:
-        'mouseover .has-flyout': 'toggleFlyout'
-        'mouseout .has-flyout': 'toggleFlyout'
+        'mouseover .help-flyout': 'toggleFlyout'
+        'mouseout .help-flyout': 'toggleFlyout'
         'click a': 'portal'
 
     render: ->

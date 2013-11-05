@@ -1,5 +1,5 @@
 <td><%- @provided %></td>
 <td>
     <a><%- @matched %></a>
-    <span class="has-flyout">?</span>
+    <span class="help-flyout"></span>
 </td>

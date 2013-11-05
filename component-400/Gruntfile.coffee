@@ -13,9 +13,9 @@ module.exports = (grunt) ->
         stylus:
             compile:
                 options:
-                    paths: [ 'src/styles/app.styl' ]
+                    paths: [ 'src/app.styl' ]
                 files:
-                    'build/app.css': 'src/styles/app.styl'
+                    'build/app.css': 'src/app.styl'
 
         concat:
             scripts:
@@ -38,7 +38,7 @@ module.exports = (grunt) ->
             styles:
                 src: [
                     # Vendor dependencies.
-                    'src/styles/foundation.css'
+                    'vendor/foundation3/index.css'
                     # Our style.
                     'build/app.css'
                 ]
@@ -67,6 +67,9 @@ module.exports = (grunt) ->
         'apps_c'
         'stylus'
         'concat'
+    ])
+
+    grunt.registerTask('minify', [
         'uglify'
         'cssmin'
     ])

@@ -20,18 +20,35 @@ class DuplicatesView extends View
 
         tbody = @el.find('tbody')
 
+        i = 0 # for determining even/odd status of leading row columns
         for provided, matched of @collection
-            for i, match of matched
-                if i is '0'
+            for j, match of matched
+                if j is '0'
                     @views.push view = new DuplicatesRowView {
                         'model': match
                         'rowspan': matched.length
                         provided
+                        'class': [ 'even', 'odd' ][i % 2]
                     }
+                    i++
                 else
                     @views.push view = new DuplicatesRowView({ 'model': match })
                 
                 tbody.append view.render().el
+
+        @
+
+    # Call me when I am in DOM.
+    adjust: ->
+        faux = @el.find('.thead thead')
+        real = @el.find('.wrapper thead')
+
+        # Reduce the real thead.
+        real.parent().css 'margin-top': - do real.height + 'px'
+
+        # Adjust the cells.
+        real.find('th').each (i, th) ->
+            faux.find("th:eq(#{i})").width do $(th).width
 
         @
 
@@ -74,14 +91,13 @@ class DuplicatesRowView extends View
 
     events:
         'click .button': 'toggle'
-        'mouseover .has-flyout': 'toggleFlyout'
-        'mouseout .has-flyout': 'toggleFlyout'
+        'mouseover .help-flyout': 'toggleFlyout'
+        'mouseout .help-flyout': 'toggleFlyout'
         'click a': 'portal'
 
     render: ->
-        { provided, rowspan, selected } = @options
         matched = formatter.primary @model
-        @el.html @template { provided, matched, rowspan, selected }
+        @el.html @template _.extend @options, { matched }
 
         @
 

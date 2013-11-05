@@ -16577,6 +16577,8 @@ if (typeof module !== 'undefined') module.exports = saveAs;
             if (this.provided) {
               __out.push('\n    <td rowspan="');
               __out.push(__sanitize(this.rowspan));
+              __out.push('" class="');
+              __out.push(__sanitize(this["class"]));
               __out.push('">');
               __out.push(this.provided);
               __out.push('</td>\n');
@@ -16586,7 +16588,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
           
             __out.push(this.matched);
           
-            __out.push('</a>\n    <span class="has-flyout">?</span>\n</td>\n');
+            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>\n');
           
             if (this.selected) {
               __out.push('\n    <td><span class="tiny secondary button">Remove</span></td>\n');
@@ -16645,7 +16647,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="has-tip">?</span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="border">\n    <div class="thead">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n        </table>\n    </div>\n    <div class="wrapper">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        </table>\n    </div>\n</div>');
           
           }).call(this);
           
@@ -16857,7 +16859,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="has-tip">?</span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
+            __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="help"></span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
           
           }).call(this);
           
@@ -17066,7 +17068,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
           
             __out.push(this.matched);
           
-            __out.push('</a>\n    <span class="has-flyout">?</span>\n</td>');
+            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>');
           
           }).call(this);
           
@@ -17123,7 +17125,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
           
             __out.push(__sanitize(this.name));
           
-            __out.push('s <span data-id="3" class="has-tip">?</span></a>');
+            __out.push('s <span data-id="3" class="help"></span></a>');
           
           }).call(this);
           
@@ -17229,7 +17231,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="has-tip">?</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+            __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="help"></span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
           
           }).call(this);
           
@@ -17298,7 +17300,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
     // app.coffee
     require.register('component-400/src/views/app.js', function(exports, require, module) {
     
-      var AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator,
+      var AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -17321,28 +17323,31 @@ if (typeof module !== 'undefined') module.exports = saveAs;
       AppView = (function(_super) {
         __extends(AppView, _super);
       
+        function AppView() {
+          _ref = AppView.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+      
         AppView.prototype.autoRender = true;
       
         AppView.prototype.events = {
-          'mouseover .has-tip': 'toggleTooltip',
-          'mouseout .has-tip': 'toggleTooltip'
+          'mouseover .help': 'toggleTooltip',
+          'mouseout  .help': 'toggleTooltip'
         };
       
-        function AppView() {
-          AppView.__super__.constructor.apply(this, arguments);
-          this.el.addClass('foundation');
-        }
-      
         AppView.prototype.render = function() {
-          var dict, dupes, summary, _ref;
+          var dict, dupes, summary, view, _ref1;
           this.el.append((new HeaderView({
             'collection': this.collection
           })).render().el);
-          _ref = this.collection, dupes = _ref.dupes, summary = _ref.summary, dict = _ref.dict;
+          _ref1 = this.collection, dupes = _ref1.dupes, summary = _ref1.summary, dict = _ref1.dict;
           if (dupes) {
-            this.el.append((new DuplicatesView({
+            this.el.append((view = new DuplicatesView({
               'collection': dupes
             })).render().el);
+          }
+          if (view != null) {
+            view.adjust();
           }
           if (summary) {
             this.el.append((new SummaryView({
@@ -17354,7 +17359,7 @@ if (typeof module !== 'undefined') module.exports = saveAs;
         };
       
         AppView.prototype.toggleTooltip = function(ev) {
-          var id, target, view, _i, _len, _ref, _results;
+          var id, target, view, _i, _len, _ref1, _results;
           switch (ev.type) {
             case 'mouseover':
               id = (target = $(ev.target)).data('id');
@@ -17365,10 +17370,10 @@ if (typeof module !== 'undefined') module.exports = saveAs;
               }));
               return target.append(view.render().el);
             case 'mouseout':
-              _ref = this.views;
+              _ref1 = this.views;
               _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                view = _ref[_i];
+              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                view = _ref1[_i];
                 _results.push(view.dispose());
               }
               return _results;
@@ -17415,20 +17420,23 @@ if (typeof module !== 'undefined') module.exports = saveAs;
         }
       
         DuplicatesView.prototype.render = function() {
-          var i, match, matched, provided, tbody, view, _ref;
+          var i, j, match, matched, provided, tbody, view, _ref;
           this.el.html(this.template());
           tbody = this.el.find('tbody');
+          i = 0;
           _ref = this.collection;
           for (provided in _ref) {
             matched = _ref[provided];
-            for (i in matched) {
-              match = matched[i];
-              if (i === '0') {
+            for (j in matched) {
+              match = matched[j];
+              if (j === '0') {
                 this.views.push(view = new DuplicatesRowView({
                   'model': match,
                   'rowspan': matched.length,
-                  provided: provided
+                  provided: provided,
+                  'class': ['even', 'odd'][i % 2]
                 }));
+                i++;
               } else {
                 this.views.push(view = new DuplicatesRowView({
                   'model': match
@@ -17437,6 +17445,19 @@ if (typeof module !== 'undefined') module.exports = saveAs;
               tbody.append(view.render().el);
             }
           }
+          return this;
+        };
+      
+        DuplicatesView.prototype.adjust = function() {
+          var faux, real;
+          faux = this.el.find('.thead thead');
+          real = this.el.find('.wrapper thead');
+          real.parent().css({
+            'margin-top': -real.height() + 'px'
+          });
+          real.find('th').each(function(i, th) {
+            return faux.find("th:eq(" + i + ")").width($(th).width());
+          });
           return this;
         };
       
@@ -17488,21 +17509,17 @@ if (typeof module !== 'undefined') module.exports = saveAs;
       
         DuplicatesRowView.prototype.events = {
           'click .button': 'toggle',
-          'mouseover .has-flyout': 'toggleFlyout',
-          'mouseout .has-flyout': 'toggleFlyout',
+          'mouseover .help-flyout': 'toggleFlyout',
+          'mouseout .help-flyout': 'toggleFlyout',
           'click a': 'portal'
         };
       
         DuplicatesRowView.prototype.render = function() {
-          var matched, provided, rowspan, selected, _ref1;
-          _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan, selected = _ref1.selected;
+          var matched;
           matched = formatter.primary(this.model);
-          this.el.html(this.template({
-            provided: provided,
-            matched: matched,
-            rowspan: rowspan,
-            selected: selected
-          }));
+          this.el.html(this.template(_.extend(this.options, {
+            matched: matched
+          })));
           return this;
         };
       
@@ -17973,8 +17990,8 @@ if (typeof module !== 'undefined') module.exports = saveAs;
         TableRowView.prototype.tag = 'tr';
       
         TableRowView.prototype.events = {
-          'mouseover .has-flyout': 'toggleFlyout',
-          'mouseout .has-flyout': 'toggleFlyout',
+          'mouseover .help-flyout': 'toggleFlyout',
+          'mouseout .help-flyout': 'toggleFlyout',
           'click a': 'portal'
         };
       
