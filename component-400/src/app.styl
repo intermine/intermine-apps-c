@@ -9,32 +9,35 @@ table
 a
     cursor: pointer
 
-.has-flyout, .has-tip
+.help, .help-flyout
+    cursor: pointer
     position: relative
 
-.has-flyout
-    border-bottom: dotted 1px #CCC
-    cursor: help
-    font-weight: bold
-    color: #333
-
-    &:hover
-        border-bottom-color: #196177
-        color: #2ba6cb
+    &:before
+        content: "?"
+        width: 14px
+        height: 14px
+        font-size: 12px
+        font-weight: bold
+        line-height: 14px
+        text-align: center
+        color: #fff
+        background: rgb(43, 166, 203)
+        // border-radius: 50%
+        display: inline-block
+    
+    .tooltip
+        display: block
+        font-size: 12px !important
+        white-space: nowrap
+        top: -30px
+        left: -2px
 
     .flyout
         color: #333
         font-weight: normal
         top: -20px
         left: 20px
-
-.has-tip
-    .tooltip
-        display: block
-        font-size: 12px !important
-        white-space: nowrap
-        top: -30px
-        left: -5px
 
 .section
     padding: 10px

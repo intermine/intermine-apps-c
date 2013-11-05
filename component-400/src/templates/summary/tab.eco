@@ -1,1 +1,1 @@
-<a><%= @name %>s <span data-id="3" class="has-tip">?</span></a>
+<a><%= @name %>s <span data-id="3" class="help"></span></a>

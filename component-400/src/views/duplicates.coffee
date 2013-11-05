@@ -74,8 +74,8 @@ class DuplicatesRowView extends View
 
     events:
         'click .button': 'toggle'
-        'mouseover .has-flyout': 'toggleFlyout'
-        'mouseout .has-flyout': 'toggleFlyout'
+        'mouseover .help-flyout': 'toggleFlyout'
+        'mouseout .help-flyout': 'toggleFlyout'
         'click a': 'portal'
 
     render: ->

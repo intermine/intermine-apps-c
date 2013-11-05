@@ -13,13 +13,8 @@ class AppView extends View
     autoRender: yes
 
     events:
-        'mouseover .has-tip': 'toggleTooltip'
-        'mouseout .has-tip': 'toggleTooltip'
-
-    constructor: ->
-        super
-
-        @el.addClass('foundation')
+        'mouseover .help': 'toggleTooltip'
+        'mouseout .help': 'toggleTooltip'
 
     render: ->
         # Render the header.

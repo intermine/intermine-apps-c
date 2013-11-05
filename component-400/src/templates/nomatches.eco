@@ -1,6 +1,6 @@
 <header>
     <h2>No matches found</h2>
-    <span class="has-tip">?</span>
+    <span class="help"></span>
 </header>
 
 <ul class="inline">

@@ -3,7 +3,7 @@
 <% end %>
 <td>
     <a><%- @matched %></a>
-    <span class="has-flyout">?</span>
+    <span class="help-flyout"></span>
 </td>
 <% if @selected: %>
     <td><span class="tiny secondary button">Remove</span></td>

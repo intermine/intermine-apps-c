@@ -1075,11 +1075,10 @@ div.progress.round .meter { -webkit-border-radius: 1000px; -moz-border-radius: 1
 h2{font-size:20px;display:inline-block;margin:0}
 table{width:100%}
 a{cursor:pointer}
-.has-flyout,.has-tip{position:relative}
-.has-flyout{border-bottom:dotted 1px #ccc;cursor:help;font-weight:bold;color:#333;}
-.has-flyout:hover{border-bottom-color:#196177;color:#2ba6cb}
-.has-flyout .flyout{color:#333;font-weight:normal;top:-20px;left:20px}
-.has-tip .tooltip{display:block;font-size:12px !important;white-space:nowrap;top:-30px;left:-5px}
+.help,.help-flyout{cursor:pointer;position:relative;}
+.help:before,.help-flyout:before{content:"?";width:14px;height:14px;font-size:12px;font-weight:bold;line-height:14px;text-align:center;color:#fff;background:#2ba6cb;display:inline-block}
+.help .tooltip,.help-flyout .tooltip{display:block;font-size:12px !important;white-space:nowrap;top:-30px;left:-2px}
+.help .flyout,.help-flyout .flyout{color:#333;font-weight:normal;top:-20px;left:20px}
 .section{padding:10px;}
 .section:nth-child(even){border:1px solid #e6e6e6;border-width:1px 0}
 .section header{margin-bottom:10px;vertical-align:middle;line-height:37px;}
