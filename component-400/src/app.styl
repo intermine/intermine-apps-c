@@ -78,6 +78,35 @@ a
                         padding-left: 5px
                         text-align: left
 
+.duplicates
+    .border
+        border: 1px solid #ddd
+        border-radius: 3px
+        margin-bottom: 10px
+
+    .thead table thead
+        visibility: visible
+
+    .wrapper
+        overflow: auto
+        overflow-x: hidden
+        max-height: 300px
+
+    table
+        margin: 0
+        border: 0
+
+        thead
+            visibility: hidden
+
+        // fix the leading table row columns
+        tbody
+            td.odd
+                background: #f9f9f9
+            
+            td.even
+                background: #fff
+
 .summary
     dl.tabs
         dd

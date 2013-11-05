@@ -14,7 +14,7 @@ class AppView extends View
 
     events:
         'mouseover .help': 'toggleTooltip'
-        'mouseout .help': 'toggleTooltip'
+        'mouseout  .help': 'toggleTooltip'
 
     render: ->
         # Render the header.
@@ -23,9 +23,12 @@ class AppView extends View
         { dupes, summary, dict } = @collection
 
         # Render the duplicates?
-        @el.append((new DuplicatesView({
+        @el.append((view = new DuplicatesView({
             'collection': dupes
         })).render().el) if dupes
+
+        # Adjust the table.
+        do view?.adjust
 
         # Summary overview?
         @el.append((new SummaryView({

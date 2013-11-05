@@ -67,6 +67,9 @@ module.exports = (grunt) ->
         'apps_c'
         'stylus'
         'concat'
+    ])
+
+    grunt.registerTask('minify', [
         'uglify'
         'cssmin'
     ])

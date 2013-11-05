@@ -539,6 +539,8 @@
             if (this.provided) {
               __out.push('\n    <td rowspan="');
               __out.push(__sanitize(this.rowspan));
+              __out.push('" class="');
+              __out.push(__sanitize(this["class"]));
               __out.push('">');
               __out.push(this.provided);
               __out.push('</td>\n');
@@ -607,7 +609,7 @@
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="border">\n    <div class="thead">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n        </table>\n    </div>\n    <div class="wrapper">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        </table>\n    </div>\n</div>');
           
           }).call(this);
           
@@ -1292,19 +1294,22 @@
       
         AppView.prototype.events = {
           'mouseover .help': 'toggleTooltip',
-          'mouseout .help': 'toggleTooltip'
+          'mouseout  .help': 'toggleTooltip'
         };
       
         AppView.prototype.render = function() {
-          var dict, dupes, summary, _ref1;
+          var dict, dupes, summary, view, _ref1;
           this.el.append((new HeaderView({
             'collection': this.collection
           })).render().el);
           _ref1 = this.collection, dupes = _ref1.dupes, summary = _ref1.summary, dict = _ref1.dict;
           if (dupes) {
-            this.el.append((new DuplicatesView({
+            this.el.append((view = new DuplicatesView({
               'collection': dupes
             })).render().el);
+          }
+          if (view != null) {
+            view.adjust();
           }
           if (summary) {
             this.el.append((new SummaryView({
@@ -1377,20 +1382,23 @@
         }
       
         DuplicatesView.prototype.render = function() {
-          var i, match, matched, provided, tbody, view, _ref;
+          var i, j, match, matched, provided, tbody, view, _ref;
           this.el.html(this.template());
           tbody = this.el.find('tbody');
+          i = 0;
           _ref = this.collection;
           for (provided in _ref) {
             matched = _ref[provided];
-            for (i in matched) {
-              match = matched[i];
-              if (i === '0') {
+            for (j in matched) {
+              match = matched[j];
+              if (j === '0') {
                 this.views.push(view = new DuplicatesRowView({
                   'model': match,
                   'rowspan': matched.length,
-                  provided: provided
+                  provided: provided,
+                  'class': ['even', 'odd'][i % 2]
                 }));
+                i++;
               } else {
                 this.views.push(view = new DuplicatesRowView({
                   'model': match
@@ -1399,6 +1407,19 @@
               tbody.append(view.render().el);
             }
           }
+          return this;
+        };
+      
+        DuplicatesView.prototype.adjust = function() {
+          var faux, real;
+          faux = this.el.find('.thead thead');
+          real = this.el.find('.wrapper thead');
+          real.parent().css({
+            'margin-top': -real.height() + 'px'
+          });
+          real.find('th').each(function(i, th) {
+            return faux.find("th:eq(" + i + ")").width($(th).width());
+          });
           return this;
         };
       
@@ -1456,15 +1477,11 @@
         };
       
         DuplicatesRowView.prototype.render = function() {
-          var matched, provided, rowspan, selected, _ref1;
-          _ref1 = this.options, provided = _ref1.provided, rowspan = _ref1.rowspan, selected = _ref1.selected;
+          var matched;
           matched = formatter.primary(this.model);
-          this.el.html(this.template({
-            provided: provided,
-            matched: matched,
-            rowspan: rowspan,
-            selected: selected
-          }));
+          this.el.html(this.template(_.extend(this.options, {
+            matched: matched
+          })));
           return this;
         };
       
