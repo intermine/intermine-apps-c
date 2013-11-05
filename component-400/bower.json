@@ -1,14 +1,18 @@
 {
     "name": "component-400",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "dependencies": {
         "backbone-events": null,
         "csv": null,
         "FileSaver": null,
-        "bower-foundation-css": null,
+        "foundation3": "https://raw.github.com/intermine/CDN/master/css/foundation/3.1.1/stylesheets/foundation.css",
         "jquery": null,
         "lodash": null,
         "queue-async": null,
         "setimmediate": null
-    }
+    },
+    "ignore": [
+        "src/",
+        "example/"
+    ]
 }
