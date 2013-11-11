@@ -15,7 +15,7 @@ class EnrichmentPopulationView extends Backbone.View
 
     render: =>
         # The wrapper.
-        $(@el).append @widget.template "enrichment.population",
+        $(@el).append require('../../templates/enrichment/enrichment.population')
             'current': if @current? then @current else 'Default'
             'loggedIn': @loggedIn
 
@@ -26,7 +26,7 @@ class EnrichmentPopulationView extends Backbone.View
 
     # Background population lists.
     renderLists: (lists) =>
-        $(@el).find('div.values').html @widget.template "enrichment.populationlist",
+        $(@el).find('div.values').html require('../../templates/enrichment/enrichment.populationlist')
             'lists': lists
             'current': @current
 
@@ -63,3 +63,5 @@ class EnrichmentPopulationView extends Backbone.View
 
         # Do the bidding.
         @widget.selectBackgroundList list, $(@el).find('input.save:checked').length is 1
+
+module.exports = EnrichmentPopulationView

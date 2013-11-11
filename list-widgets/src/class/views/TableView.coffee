@@ -1,4 +1,7 @@
-### View maintaining Table Widget.###
+Models           = require '../models/CoreModel'
+TableRowView     = require './TableRowView'
+TablePopoverView = require './TablePopoverView'
+exporter         = require '../../utils/exporter'
 
 class TableView extends Backbone.View
 
@@ -11,14 +14,14 @@ class TableView extends Backbone.View
         @[k] = v for k, v of o
 
         # New **Collection**.
-        @collection = new TableResults()
+        @collection = new Models.TableResults()
         @collection.bind('change', @renderToolbar) # Re-render toolbar on change.
 
         @render()
 
     render: ->
         # Render the widget template.
-        $(@el).html @template "table",
+        $(@el).html require('../../templates/table/table')
             "title":       if @options.title then @response.title else ""
             "description": if @options.description then @response.description else ""
             "notAnalysed": @response.notAnalysed
@@ -31,7 +34,7 @@ class TableView extends Backbone.View
             @renderTable()
         else
             # Render no results
-            $(@el).find("div.content").html $ @template "noresults",
+            $(@el).find("div.content").html require('../../templates/noresults')
                 'text': "No \"#{@response.title}\" with your list."
 
         @widget.fireEvent { 'class': 'TableView', 'event': 'rendered' }
@@ -41,21 +44,21 @@ class TableView extends Backbone.View
     # Render the actions toolbar based on how many collection model rows are selected.
     renderToolbar: =>
         $(@el).find("div.actions").html(
-            $ @template "actions"
+            do require('../../templates/actions')
         )
 
     # Render the table of results using Document Fragment to prevent browser reflows.
     renderTable: =>
         # Render the table.
         $(@el).find("div.content").html(
-            $ @template "table.table", "columns": @response.columns.split(',')
+            require('../../templates/table/table.table') "columns": @response.columns.split(',')
         )
 
         # Table rows **Models** and a subsequent **Collection**.
         table = $(@el).find("div.content table")
         for i in [0...@response.results.length] then do (i) =>            
             # New **Model**.
-            row = new TableRow @response.results[i], @widget
+            row = new Models.TableRow @response.results[i], @widget
             @collection.add row
 
         # Render row **Views**.
@@ -85,7 +88,6 @@ class TableView extends Backbone.View
             # Render.
             fragment.appendChild new TableRowView(
                 "model":     row
-                "template":  @template
                 "response":  @response
                 "matchCb":   @options.matchCb
                 "resultsCb": @options.resultsCb
@@ -115,9 +117,9 @@ class TableView extends Backbone.View
 
         if result.length
             try
-                new Exporter result.join("\n"), "#{@widget.bagName} #{@widget.id}.tsv"
+                new exporter.Exporter result.join("\n"), "#{@widget.bagName} #{@widget.id}.tsv"
             catch TypeError
-                new PlainExporter $(e.target), result.join("\n")
+                new exporter.PlainExporter $(e.target), result.join("\n")
 
     # Selecting table rows and clicking on **View** should create an TableMatches collection of all matches ids.
     viewAction: =>
@@ -139,7 +141,6 @@ class TableView extends Backbone.View
             $(@el).find('div.actions').after (@popoverView = new TablePopoverView(
                 "identifiers":    rowIdentifiers
                 "description":    descriptions.join(', ')
-                "template":       @template
                 "matchCb":        @options.matchCb
                 "resultsCb":      @options.resultsCb
                 "listCb":         @options.listCb
@@ -149,3 +150,5 @@ class TableView extends Backbone.View
                 "type":           @response.type
                 "style":          'width:300px'
             )).el
+
+module.exports = TableView

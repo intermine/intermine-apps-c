@@ -1,4 +1,4 @@
-### View maintaining Chart Widget.###
+ChartPopoverView = require './ChartPopoverView'
 
 class ChartView extends Backbone.View
 
@@ -46,7 +46,7 @@ class ChartView extends Backbone.View
 
     render: ->
         # Render the widget template.
-        $(@el).html @template "chart",
+        $(@el).html require('../../templates/chart/chart')
             "title":       if @options.title then @response.title else ""
             "description": if @options.description then @response.description else ""
             "notAnalysed": @response.notAnalysed
@@ -54,7 +54,7 @@ class ChartView extends Backbone.View
 
         # Extra attributes (DataSets etc.)?
         if @response.filterLabel?
-            $(@el).find('div.form form').append @template "extra",
+            $(@el).find('div.form form').append require('../../templates/extra')
                 "label":    @response.filterLabel
                 "possible": @response.filters.split(',') # Is a String unfortunately.
                 "selected": @response.filterSelectedValue
@@ -115,7 +115,7 @@ class ChartView extends Backbone.View
 
         else
             # Render no results.
-            $(@el).find("div.content").html $ @template "noresults",
+            $(@el).find("div.content").html $ require('../../templates/noresults')
                 'text': "No \"#{@response.title}\" with your list."
 
         @widget.fireEvent { 'class': 'ChartView', 'event': 'rendered' }
@@ -124,7 +124,7 @@ class ChartView extends Backbone.View
 
     renderToolbar: =>
         $(@el).find("div.actions").html(
-            $ @template "chart.actions"
+            do require('../../templates/chart/chart.actions')
         )
 
     # Translate view series into PathQuery series (Expressed/Not Expressed into true/false).
@@ -195,7 +195,6 @@ class ChartView extends Backbone.View
                     # Create `View`
                     $(@el).find('div.content').append (@barView = new ChartPopoverView(
                         "description": description
-                        "template":    @template
                         "resultsPq":   resultsPq
                         "resultsCb":   @options.resultsCb
                         "listCb":      @options.listCb
@@ -304,3 +303,5 @@ class ChartView extends Backbone.View
     formAction: (e) =>
         @widget.formOptions[$(e.target).attr("name")] = $(e.target[e.target.selectedIndex]).attr("value")
         @widget.render()
+
+module.exports = ChartView

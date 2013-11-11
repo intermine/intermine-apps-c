@@ -21,7 +21,7 @@ class EnrichmentPopoverView extends Backbone.View
 
     render: =>
         $(@el).css 'position':'relative'
-        $(@el).html @template "popover",
+        $(@el).html require('../../templates/popover/popover')
             "description":      @description
             "descriptionLimit": @descriptionLimit
             "style":            @style or "width:300px;margin-left:-300px"
@@ -50,7 +50,7 @@ class EnrichmentPopoverView extends Backbone.View
             # Filter out duplicates by saving to a dict.
             values.push value unless value in values
 
-        $(@el).find('div.values').html @template 'popover.values',
+        $(@el).find('div.values').html require('../../templates/popover/popover.values')
             'values':      values
             'type':        @response.type
             'valuesLimit': @valuesLimit
@@ -110,3 +110,5 @@ class EnrichmentPopoverView extends Backbone.View
 
         # Callback.
         @listCb @pq
+
+module.exports = EnrichmentPopoverView

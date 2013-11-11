@@ -1,4 +1,4 @@
-### Enrichment Widget table row.###
+EnrichmentPopoverView = require './EnrichmentPopoverView'
 
 class EnrichmentRowView extends Backbone.View
 
@@ -16,7 +16,7 @@ class EnrichmentRowView extends Backbone.View
         @render()
 
     render: =>
-        $(@el).html @template "enrichment.row", "row": @model.toJSON()
+        $(@el).html require('../../templates/enrichment/enrichment.row') "row": @model.toJSON()
         @
 
     # Toggle the `selected` attr of this row object.
@@ -36,7 +36,6 @@ class EnrichmentRowView extends Backbone.View
                 "matches":     @model.get "matches"
                 "identifiers": [ @model.get "identifier" ]
                 "description": @model.get "description"
-                "template":    @template
                 "matchCb":     @callbacks.matchCb
                 "resultsCb":   @callbacks.resultsCb
                 "listCb":      @callbacks.listCb
@@ -45,3 +44,5 @@ class EnrichmentRowView extends Backbone.View
                 "size":        $(e.target).text() # get the number of matches we clicked on
             )).el
         else @popoverView.toggle()
+
+module.exports = EnrichmentRowView

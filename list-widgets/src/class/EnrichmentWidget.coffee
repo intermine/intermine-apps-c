@@ -1,4 +1,6 @@
-### Enrichment Widget main class.###
+InterMineWidget = require './InterMineWidget'
+EnrichmentView  = require './views/EnrichmentView'
+type            = require '../utils/type'
 
 class EnrichmentWidget extends InterMineWidget
 
@@ -54,7 +56,7 @@ class EnrichmentWidget extends InterMineWidget
     ###
     constructor: (@service, @token, @lists, @id, @bagName, @el, widgetOptions = {}) ->
         # Merge `widgetOptions`.
-        @widgetOptions = merge widgetOptions, @widgetOptions
+        @widgetOptions = _.extend {}, widgetOptions, @widgetOptions
 
         # Set form options for this widget.
         @formOptions =
@@ -69,7 +71,7 @@ class EnrichmentWidget extends InterMineWidget
     # Visualize the widget.
     render: =>
         # *Loading* overlay.
-        timeout = window.setTimeout((=> $(@el).append @loading = $ @template 'loading'), 400)
+        timeout = window.setTimeout((=> $(@el).append @loading = $ do require('../templates/loading')), 400)
 
         # Removes all of the **View**'s delegated events if there is one already.
         @view?.undelegateEvents()
@@ -130,3 +132,5 @@ class EnrichmentWidget extends InterMineWidget
                     )
             
             error: (request, status, error) => clearTimeout timeout ; @error { 'text': "#{@service}list/enrichment" }, "AJAXTransport"
+
+module.exports = EnrichmentWidget

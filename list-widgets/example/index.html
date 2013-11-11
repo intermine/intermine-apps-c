@@ -10,27 +10,22 @@
 <body class="bootstrap">
     <div class="navbar">
         <div class="navbar-inner">
-            <div class="container" style="width: auto;">
-                <a class="brand" href="#">List Widgets</a>
+            <div class="container" style="width:auto">
+                <a class="brand">List Widgets</a>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="widget span4" id="one"></div>
-            <div class="widget span4" id="two"></div>
-            <div class="widget span4" id="three"></div>
-        </div>
-        <script type="text/javascript">
-        (function() {
-            var ListWidgets = require('list-widgets')({ 'root': 'http://beta.flymine.org/beta/service/' });
-
-            ListWidgets.chart('flyfish', 'demo-list', '#one');
-            ListWidgets.enrichment('prot_dom_enrichment_for_gene', 'demo-list', '#two');
-            ListWidgets.table('orthologues', 'demo-list', '#three');
-        })();
-        </script>
+        <div class="row" id="target"></div>
     </div>
+
+    <script type="text/javascript">
+    (function() {
+        var ListWidgets = require('list-widgets'),
+            widgets = new ListWidgets({ 'root': 'http://beta.flymine.org/beta/service/' });
+        widgets.all('Gene', 'demo-list', '#target');
+    })();
+    </script>
 </body>
 </html>

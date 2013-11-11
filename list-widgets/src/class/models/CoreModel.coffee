@@ -1,4 +1,4 @@
-### Core Model for Enrichment and Table Models.###
+type = require '../../utils/type'
 
 #### Model
 class CoreModel extends Backbone.Model    
@@ -83,3 +83,10 @@ class TableRow extends CoreModel
 class TableResults extends CoreCollection
 
     model: TableRow
+
+module.exports = {
+    EnrichmentRow
+    EnrichmentResults
+    TableRow
+    TableResults
+}

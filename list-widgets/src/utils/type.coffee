@@ -1,6 +1,7 @@
 ### Types in JS.###
 
-type = {}
+module.exports = type = {}
+
 class type.Root
     result: false
     is: -> @result

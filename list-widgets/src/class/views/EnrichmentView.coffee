@@ -1,4 +1,9 @@
-### View maintaining Enrichment Widget.###
+Models                         = require '../models/CoreModel'
+EnrichmentRowView              = require './EnrichmentRowView'
+EnrichmentPopoverView          = require './EnrichmentPopoverView'
+EnrichmentPopulationView       = require './EnrichmentPopulationView'
+EnrichmentLengthCorrectionView = require './EnrichmentLengthCorrectionView'
+exporter                       = require '../../utils/exporter'
 
 class EnrichmentView extends Backbone.View
 
@@ -12,28 +17,28 @@ class EnrichmentView extends Backbone.View
         @[k] = v for k, v of o
 
         # New **Collection**.
-        @collection = new EnrichmentResults()
+        @collection = new Models.EnrichmentResults()
         @collection.bind('change', @renderToolbar) # Re-render toolbar on change.
 
         @render()
 
     render: ->
         # Render the widget template.
-        $(@el).html @template "enrichment",
+        $(@el).html require('../../templates/enrichment/enrichment')
             "title":       if @options.title then @response.title else ""
             "description": if @options.description then @response.description else ""
             "notAnalysed": @response.notAnalysed
             "type": @response.type
 
         # Form options.
-        $(@el).find("div.form").html @template "enrichment.form",
+        $(@el).find("div.form").html require('../../templates/enrichment/enrichment.form')
             "options":          @form.options
             "pValues":          @form.pValues
             "errorCorrections": @form.errorCorrections
 
         # Extra attributes (DataSets etc.)?
         if @response.filterLabel?
-            $(@el).find('div.form form').append @template "extra",
+            $(@el).find('div.form form').append require('../../templates/extra')
                 "label":    @response.filterLabel
                 "possible": @response.filters.split(',') # Is a String unfortunately.
                 "selected": @response.filterSelectedValue
@@ -52,7 +57,7 @@ class EnrichmentView extends Backbone.View
 
             # Enrichment gene length correction.
             if extraAttribute.gene_length
-                opts = merge extraAttribute.gene_length,
+                opts = _.extend {}, extraAttribute.gene_length,
                     'el': $(@el).find('div.form form')
                     'widget': @
                     'cb': @options.resultsCb                    
@@ -73,7 +78,7 @@ class EnrichmentView extends Backbone.View
             @renderTable()
         else
             # Render no results
-            $(@el).find("div.content").html $ @template "noresults",
+            $(@el).find("div.content").html $ require('../../templates/noresults')
                 'text': @response.message or 'No enrichment found.'
 
         @widget.fireEvent { 'class': 'EnrichmentView', 'event': 'rendered' }
@@ -83,14 +88,14 @@ class EnrichmentView extends Backbone.View
     # Render the actions toolbar based on how many collection model rows are selected.
     renderToolbar: =>
         $(@el).find("div.actions").html(
-            $ @template "actions"
+            do require('../../templates/actions')
         )
 
     # Render the table of results using Document Fragment to prevent browser reflows.
     renderTable: =>
         # Render the table.
         $(@el).find("div.content").html(
-            $ @template "enrichment.table", "label": @response.label
+            require('../../templates/enrichment/enrichment.table') "label": @response.label
         )
 
         # Table rows **Models** and a subsequent **Collection**.
@@ -102,7 +107,7 @@ class EnrichmentView extends Backbone.View
             if @response.externalLink then data.externalLink = @response.externalLink + data.identifier
             
             # New **Model**.
-            row = new EnrichmentRow data, @widget
+            row = new Models.EnrichmentRow data, @widget
             @collection.add row
 
         # Render row **Views**.
@@ -132,7 +137,6 @@ class EnrichmentView extends Backbone.View
             # Render.
             fragment.appendChild new EnrichmentRowView(
                 "model":     row
-                "template":  @template
                 "type":      @response.type
                 "callbacks": { "matchCb": @options.matchCb, "resultsCb": @options.resultsCb, "listCb": @options.listCb }
                 "response":  @response
@@ -187,9 +191,9 @@ class EnrichmentView extends Backbone.View
 
             if result.length
                 try
-                    new Exporter result.join("\n"), "#{@widget.bagName} #{@widget.id}.tsv"
+                    new exporter.Exporter result.join("\n"), "#{@widget.bagName} #{@widget.id}.tsv"
                 catch TypeError
-                    new PlainExporter $(e.target), result.join("\n")
+                    new exporter.PlainExporter $(e.target), result.join("\n")
 
     # Selecting table rows and clicking on **View** should create an EnrichmentMatches collection of all matches ids.
     viewAction: =>
@@ -210,7 +214,6 @@ class EnrichmentView extends Backbone.View
             $(@el).find('div.actions').after (@popoverView = new EnrichmentPopoverView(
                 "identifiers": rowIdentifiers
                 "description": descriptions.join(', ')
-                "template":    @template
                 "style":       "width:300px"
                 "matchCb":     @options.matchCb
                 "resultsCb":   @options.resultsCb
@@ -232,3 +235,5 @@ class EnrichmentView extends Backbone.View
         
         # Re-render.
         @widget.render()
+
+module.exports = EnrichmentView

@@ -7,27 +7,21 @@ module.exports = (grunt) ->
                 src: [ 'src/**/*.{coffee,js,eco}' ]
                 dest: 'build/app.js'
                 options:
-                    main: 'src/app.coffee'
-                    name: 'component-400'
-
-        stylus:
-            compile:
-                options:
-                    paths: [ 'src/app.styl' ]
-                files:
-                    'build/app.css': 'src/app.styl'
+                    main: 'src/widgets.coffee'
+                    name: 'list-widgets'
 
         concat:
             scripts:
                 src: [
                     # Vendor dependencies.
                     'vendor/jquery/jquery.js'
-                    'vendor/lodash/dist/lodash.js'
-                    'vendor/backbone-events/backbone-events.js'
-                    'vendor/csv/lib/csv.js'
-                    'vendor/FileSaver/FileSaver.js'
-                    'vendor/queue-async/queue.js'
-                    'vendor/setimmediate/setImmediate.js'
+                    'vendor/underscore/underscore.js'
+                    'vendor/backbone/backbone.js'
+                    'vendor/google/index'
+                    'vendor/im.js/index.js'
+                    'vendor/fileSaver/index.js'
+                    'vendor/setImmediate/index.js'
+                    'vendor/async/lib/async.js'
                     # Our app with requirerer.
                     'build/app.js'
                 ]
@@ -35,13 +29,9 @@ module.exports = (grunt) ->
                 options:
                     separator: ';' # we will minify...
 
+            # Vendor dependencies.
             styles:
-                src: [
-                    # Vendor dependencies.
-                    'vendor/foundation3/index.css'
-                    # Our style.
-                    'build/app.css'
-                ]
+                src: [ 'vendor/bootstrap2/index.css' ]
                 dest: 'build/app.bundle.css'
 
         uglify:
@@ -54,18 +44,15 @@ module.exports = (grunt) ->
         cssmin:
             combine:
                 files:
-                    'build/app.min.css': 'build/app.css'
                     'build/app.bundle.min.css': 'build/app.bundle.css'
 
     grunt.loadNpmTasks('grunt-apps-c')
-    grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-cssmin')
 
     grunt.registerTask('default', [
         'apps_c'
-        'stylus'
         'concat'
     ])
 

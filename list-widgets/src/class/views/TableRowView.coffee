@@ -1,4 +1,4 @@
-### Table Widget table row.###
+TablePopoverView = require './TablePopoverView'
 
 class TableRowView extends Backbone.View
 
@@ -16,7 +16,7 @@ class TableRowView extends Backbone.View
         @render()
 
     render: =>
-        $(@el).html @template "table.row", "row": @model.toJSON()
+        $(@el).html require('../../templates/table/table.row') "row": @model.toJSON()
         @
 
     # Toggle the `selected` attr of this row object.
@@ -35,7 +35,6 @@ class TableRowView extends Backbone.View
             $(@el).find('td.matches a.count').after (@popoverView = new TablePopoverView(
                 "identifiers":    [ @model.get "identifier" ]
                 "description":    @model.get("descriptions").join(', ')
-                "template":       @template
                 "matchCb":        @matchCb
                 "resultsCb":      @resultsCb
                 "listCb":         @listCb
@@ -46,3 +45,5 @@ class TableRowView extends Backbone.View
                 "size":           $(e.target).text() # get the number of matches we clicked on
             )).el
         else @popoverView.toggle()
+
+module.exports = TableRowView

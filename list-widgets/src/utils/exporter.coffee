@@ -1,7 +1,7 @@
 ### Create file download with custom content.###
 
 # Generate and download a file from a string.
-class Exporter
+class exports.Exporter
 
     mime:    'text/plain'
     charset: 'utf-8'
@@ -17,7 +17,7 @@ class Exporter
         saveAs blob, filename
 
 # For old browsers.
-class PlainExporter
+class exports.PlainExporter
 
     ###
     Create a new window with a formatted content.

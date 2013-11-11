@@ -26,12 +26,12 @@ class EnrichmentLengthCorrectionView extends Backbone.View
 
     render: =>
         # The wrapper.
-        $(@el).append @widget.template "enrichment.correction", @
+        $(@el).append do require('../../templates/enrichment/enrichment.correction'), @
 
         @
 
     showHelp: =>
-        $(@el).find('.hjalp').html @widget.template "popover.help",
+        $(@el).find('.hjalp').html require('../../templates/popover/popover.help')
             "title": 'What does "Normalise by length" mean?'
             "text":  @help
 
@@ -53,3 +53,5 @@ class EnrichmentLengthCorrectionView extends Backbone.View
         @cb pq
         # Stop it.
         e.preventDefault()
+
+module.exports = EnrichmentLengthCorrectionView

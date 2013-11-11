@@ -1,5 +1,3 @@
-### Parent for all Widgets, handling templating, validation and errors.###
-
 class InterMineWidget
 
     # Inject wrapper inside the target `div` that we have control over.
@@ -33,11 +31,6 @@ class InterMineWidget
                         pre = $ '<pre/>', 'html': @log.join('\n\n')
                         $(@el).css('overflow', 'scroll').html(pre)
 
-    # Where is eco?
-    template: (name, context = {}) =>
-        @log.push "Get eco template `#{name}`"
-        JST["#{name}.eco"]?(context)
-
     # Validate JSON object against the spec.
     validateType: (object, spec) =>
         @log.push 'Validating ' + JSON.stringify object
@@ -45,10 +38,11 @@ class InterMineWidget
         for key, value of object
             r = new spec[key]?(value)
             if r and not r.is()
-                fails.push @template "invalidjsonkey",
-                    key:      key
-                    actual:   r.is()
-                    expected: new String(r)
+                fails.push require('../templates/invalidjsonkey') {
+                    'actual':   do r.is
+                    'expected': new String(r)
+                    key
+                }
         
         if fails.length then @error fails, "JSONResponse"
 
@@ -66,7 +60,7 @@ class InterMineWidget
                 opts.text = "<ol>#{opts.join('')}</ol>"
 
         # Show.
-        $(@el).html @template "error", opts
+        $(@el).html require('../templates/error') opts
 
         @log.push opts.title
 
@@ -107,3 +101,5 @@ class InterMineWidget
             # TODO: Handle errors in a nice way.
 
             cb response
+
+module.exports = InterMineWidget

@@ -21,7 +21,7 @@ class ChartPopoverView extends Backbone.View
 
     render: =>
         # Skeleton.
-        $(@el).html @template "popover",
+        $(@el).html require('../../templates/popover/popover')
             "description":      @description
             "descriptionLimit": @descriptionLimit
             "style":            'width:300px'
@@ -39,7 +39,7 @@ class ChartPopoverView extends Backbone.View
                 for column in object
                     return column if column and column.length > 0
 
-        $(@el).find('div.values').html @template 'popover.values',
+        $(@el).find('div.values').html require('../../templates/popover/popover.values')
             'values':      values
             'type':        @type
             'valuesLimit': @valuesLimit
@@ -58,3 +58,5 @@ class ChartPopoverView extends Backbone.View
 
     # Switch off.
     close: => $(@el).remove()
+
+module.exports = ChartPopoverView

@@ -1,4 +1,6 @@
-### Table Widget main class.###
+InterMineWidget = require './InterMineWidget'
+TableView       = require './views/TableView'
+type            = require '../utils/type'
 
 class TableWidget extends InterMineWidget
 
@@ -41,7 +43,7 @@ class TableWidget extends InterMineWidget
     # 6. `widgetOptions`: { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }
     constructor: (@service, @token, @id, @bagName, @el, widgetOptions = {}) ->
         # Merge `widgetOptions`.
-        @widgetOptions = merge widgetOptions, @widgetOptions
+        @widgetOptions = _.extend {}, widgetOptions, @widgetOptions
         
         @log = []
 
@@ -51,7 +53,7 @@ class TableWidget extends InterMineWidget
     # Visualize the widget.
     render: =>
         # *Loading* overlay.
-        timeout = window.setTimeout((=> $(@el).append @loading = $ @template 'loading'), 400)
+        timeout = window.setTimeout((=> $(@el).append @loading = $ do require('../templates/loading')), 400)
 
         # Removes all of the **View**'s delegated events if there is one already.
         @view?.undelegateEvents()
@@ -90,9 +92,10 @@ class TableWidget extends InterMineWidget
                     @view = new TableView(
                         "widget":   @
                         "el":       @el
-                        "template": @template
                         "response": response
                         "options":  @widgetOptions
                     )
             
             error: (request, status, error) => clearTimeout timeout ; @error { 'text': "#{@service}list/table" }, "AJAXTransport"
+
+module.exports = TableWidget
