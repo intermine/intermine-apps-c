@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 node_modules/
 .idea/
 *.log
@@ -6,9 +5,3 @@ node_modules/
 */src/build/
 vendor/
 .build_cache~
-=======
-js/vendor/*
-node_modules/
-intermine.api.js
-*.log
->>>>>>> list-widgets/master

@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>List Widgets</title>
+    
+    <link href="app.bundle.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="app.bundle.js"></script>
+</head>
+<body class="bootstrap">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container" style="width: auto;">
+                <a class="brand" href="#">List Widgets</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="widget span4" id="one"></div>
+            <div class="widget span4" id="two"></div>
+            <div class="widget span4" id="three"></div>
+        </div>
+        <script type="text/javascript">
+        (function() {
+            var ListWidgets = require('list-widgets')({ 'root': 'http://beta.flymine.org/beta/service/' });
+
+            ListWidgets.chart('flyfish', 'demo-list', '#one');
+            ListWidgets.enrichment('prot_dom_enrichment_for_gene', 'demo-list', '#two');
+            ListWidgets.table('orthologues', 'demo-list', '#three');
+        })();
+        </script>
+    </div>
+</body>
+</html>
