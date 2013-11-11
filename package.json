@@ -1,7 +1,7 @@
 {
-    "name": "intermine-apps-b",
+    "name": "intermine-apps-c",
     "version": "0.0.0",
-    "description": "Self contained JavaScript components by InterMine",
+    "description": "InterMine apps built using bower and grunt",
     "dependencies": {
         "express": "~3.4.0"
     },
@@ -10,10 +10,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/intermine/intermine-apps-b.git"
+        "url": "git://github.com/intermine/intermine-apps-c.git"
     },
     "author": "Radek <rs676@cam.ac.uk>",
     "bugs": {
-        "url": "https://github.com/intermine/intermine-apps-b/issues"
+        "url": "https://github.com/intermine/intermine-apps-c/issues"
     }
 }

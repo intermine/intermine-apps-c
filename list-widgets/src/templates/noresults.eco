@@ -1,0 +1,3 @@
+<div class="alert alert-info">
+    <p><%= @text or 'The Widget has no results.' %></p>
+</div>
