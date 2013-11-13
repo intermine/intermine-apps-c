@@ -16,10 +16,10 @@ class HeaderView extends View
         mediator.on 'item:toggle', @render, @
 
     render: ->
-        { input, total, type } = @collection
+        { provided, found, type } = @collection
         @el.html @template {
-            'selected': do @collection.selectedLn
-            input, total, type
+            'selected': mori.count(@collection.selected)
+            provided, found, type
         }
 
         @

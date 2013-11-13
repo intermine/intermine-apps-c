@@ -224,7 +224,7 @@
         collection = new Collection(opts.data || []);
         mediator.on('object:click', opts.portal || (function() {}), this);
         mediator.on('app:save', function() {
-          return opts.cb(null, _.keys(collection.selected));
+          return opts.cb(null, mori.into_array(collection.selected));
         }, this);
         return new AppView({
           'el': opts.target || 'body',
@@ -238,7 +238,8 @@
     // collection.coffee
     require.register('component-400/src/models/collection.js', function(exports, require, module) {
     
-      var Collection, mediator;
+      var Collection, mediator,
+        __hasProp = {}.hasOwnProperty;
       
       mediator = require('../modules/mediator');
       
@@ -249,84 +250,53 @@
           'OTHER': 'synonym'
         };
       
+        Collection.prototype.provided = 0;
+      
+        Collection.prototype.found = 0;
+      
+        Collection.prototype.type = 'gene';
+      
         function Collection(data) {
-          var id, object, provided, reason, reasons, _i, _len, _ref;
-          this.input = {};
-          this.total = 0;
-          this.summary = {};
-          this.dupes = {};
-          this.selected = {};
-          this.type = null;
-          for (id in data) {
-            object = data[id];
-            this.total += 1;
-            _ref = object.identifiers;
-            for (provided in _ref) {
-              reasons = _ref[provided];
-              this.input[provided] = null;
-              for (_i = 0, _len = reasons.length; _i < _len; _i++) {
-                reason = reasons[_i];
-                if (this.type == null) {
-                  this.type = object.type.toLowerCase();
+          var extract, key, value,
+            _this = this;
+          this.selected = mori.set();
+          extract = function(obj) {
+            var item, key, value, _i, _len, _results, _results1;
+            switch (false) {
+              case !_.isArray(obj):
+                _results = [];
+                for (_i = 0, _len = obj.length; _i < _len; _i++) {
+                  item = obj[_i];
+                  _results.push(extract(item));
                 }
-                switch (reason) {
-                  case 'DUPLICATE':
-                    this.addDupe({
-                      provided: provided,
-                      id: id,
-                      object: object
-                    });
-                    break;
-                  default:
-                    this.addSummary({
-                      reason: reason,
-                      provided: provided,
-                      id: id,
-                      object: object
-                    });
+                return _results;
+              case !_.isObject(obj):
+                if (_.has(obj, 'id')) {
+                  return _this.selected = mori.conj(_this.selected, obj.id);
                 }
-              }
+                _results1 = [];
+                for (key in obj) {
+                  if (!__hasProp.call(obj, key)) continue;
+                  value = obj[key];
+                  _results1.push(extract(value));
+                }
+                return _results1;
+            }
+          };
+          for (key in data) {
+            if (!__hasProp.call(data, key)) continue;
+            value = data[key];
+            if (key !== 'DUPLICATE' && key !== 'UNRESOLVED') {
+              extract(value);
             }
           }
-          this.input = _.keys(this.input).length;
           mediator.on('item:toggle', function(selected, id) {
             if (selected) {
-              return this.selected[id] = true;
-            } else {
-              return delete this.selected[id];
+              return this.selected = mori.conj(this.selected, id);
             }
+            return this.selected = mori.disj(this.selected, id);
           }, this);
         }
-      
-        Collection.prototype.addDupe = function(_arg) {
-          var id, object, provided, _base;
-          provided = _arg.provided, id = _arg.id, object = _arg.object;
-          if ((_base = this.dupes)[provided] == null) {
-            _base[provided] = [];
-          }
-          return this.dupes[provided].push({
-            id: id,
-            object: object
-          });
-        };
-      
-        Collection.prototype.addSummary = function(_arg) {
-          var id, object, provided, reason, _base;
-          reason = _arg.reason, provided = _arg.provided, id = _arg.id, object = _arg.object;
-          if ((_base = this.summary)[reason] == null) {
-            _base[reason] = [];
-          }
-          this.summary[reason].push({
-            provided: provided,
-            id: id,
-            object: object
-          });
-          return this.selected[id] = true;
-        };
-      
-        Collection.prototype.selectedLn = function() {
-          return _.keys(this.selected).length;
-        };
       
         return Collection;
       
@@ -748,23 +718,23 @@
           
             __out.push('\n\n    <table>\n        <tr>\n            <td>You entered:</td>\n            <td>');
           
-            __out.push(__sanitize(this.input));
+            __out.push(__sanitize(this.provided));
           
             __out.push(' identifier');
           
-            if (this.input !== 1) {
+            if (this.provided !== 1) {
               __out.push('s');
             }
           
             __out.push('</td>\n        </tr>\n        <tr>\n            <td>We found:</td>\n            <td>');
           
-            __out.push(__sanitize(this.total));
+            __out.push(__sanitize(this.found));
           
             __out.push(' ');
           
             __out.push(__sanitize(this.type));
           
-            if (this.total !== 1) {
+            if (this.found !== 1) {
               __out.push('s');
             }
           
@@ -1601,12 +1571,12 @@
         }
       
         HeaderView.prototype.render = function() {
-          var input, total, type, _ref;
-          _ref = this.collection, input = _ref.input, total = _ref.total, type = _ref.type;
+          var found, provided, type, _ref;
+          _ref = this.collection, provided = _ref.provided, found = _ref.found, type = _ref.type;
           this.el.html(this.template({
-            'selected': this.collection.selectedLn(),
-            input: input,
-            total: total,
+            'selected': mori.count(this.collection.selected),
+            provided: provided,
+            found: found,
             type: type
           }));
           return this;
