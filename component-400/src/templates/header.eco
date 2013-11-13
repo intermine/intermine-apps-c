@@ -8,11 +8,11 @@
     <table>
         <tr>
             <td>You entered:</td>
-            <td><%= @input %> identifier<% if @input isnt 1: %>s<% end %></td>
+            <td><%= @provided %> identifier<% if @provided isnt 1: %>s<% end %></td>
         </tr>
         <tr>
             <td>We found:</td>
-            <td><%= @total %> <%= @type %><% if @total isnt 1: %>s<% end %></td>
+            <td><%= @found %> <%= @type %><% if @found isnt 1: %>s<% end %></td>
         </tr>
     </table>
 

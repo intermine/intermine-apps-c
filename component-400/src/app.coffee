@@ -15,7 +15,8 @@ module.exports = (opts) ->
     mediator.on 'object:click', opts.portal or ( -> ), @
     # Save this list, continue.
     mediator.on 'app:save', ->
-        opts.cb null, _.keys collection.selected
+        # Convert our set into an Array.
+        opts.cb null, mori.into_array collection.selected
     , @
 
     new AppView {

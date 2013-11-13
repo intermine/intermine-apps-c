@@ -17,6 +17,12 @@ module.exports = (grunt) ->
                 files:
                     'build/app.css': 'src/app.styl'
 
+        shell:
+            mori:
+                options:
+                    stdout: yes
+                command: './vendor/mori/scripts/build.sh'
+
         concat:
             scripts:
                 src: [
@@ -28,6 +34,7 @@ module.exports = (grunt) ->
                     'vendor/FileSaver/FileSaver.js'
                     'vendor/queue-async/queue.js'
                     'vendor/setimmediate/setImmediate.js'
+                    'vendor/mori/mori.js' # is built in the `shell` task
                     # Our app with requirerer.
                     'build/app.js'
                 ]
@@ -44,32 +51,14 @@ module.exports = (grunt) ->
                 ]
                 dest: 'build/app.bundle.css'
 
-        uglify:
-            my_target:
-                files:
-                    'build/app.min.js': 'build/app.js'
-                    'build/app.bundle.min.js': 'build/app.bundle.js'
-
-
-        cssmin:
-            combine:
-                files:
-                    'build/app.min.css': 'build/app.css'
-                    'build/app.bundle.min.css': 'build/app.bundle.css'
-
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
-    grunt.loadNpmTasks('grunt-contrib-uglify')
-    grunt.loadNpmTasks('grunt-contrib-cssmin')
+    grunt.loadNpmTasks('grunt-shell')
 
     grunt.registerTask('default', [
         'apps_c'
         'stylus'
+        'shell'
         'concat'
-    ])
-
-    grunt.registerTask('minify', [
-        'uglify'
-        'cssmin'
     ])
