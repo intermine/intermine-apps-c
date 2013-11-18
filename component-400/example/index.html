@@ -23,10 +23,7 @@
                     console.log(selected);
                 },
                 portal: function(object, el) {
-                    var type = object.object.type,
-                        symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
-                        url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
-                    console.log(url);
+                    console.log(arguments);
                 }
             });
         });

@@ -7,17 +7,12 @@ class Collection
         'MATCH': 'direct hit'
         'TYPE_CONVERTED': 'converted type'
         'OTHER': 'synonym'
-
-    # Number of input identifiers provided.
-    provided: 0
-
-    # Number of identifiers we have found.
-    found: 0
+        'WILDCARD': 'wildcard'
 
     # A type for header display. In lowercase.
     type: 'gene'
 
-    constructor: (data) ->
+    constructor: (@data) ->
         # A set of selected object identifiers.
         @selected = do mori.set
 
@@ -32,7 +27,7 @@ class Collection
                     return @selected = mori.conj(@selected, obj.id) if _.has(obj, 'id')
                     ( extract(value) for own key, value of obj )
         
-        ( extract(value) for own key, value of data when key not in [ 'DUPLICATE', 'UNRESOLVED' ] )
+        ( extract(value) for own key, value of @data.matches when key isnt 'DUPLICATE' )
 
         # Listen to peeps being selected.
         mediator.on 'item:toggle', (selected, id) ->

@@ -21,18 +21,18 @@ class DuplicatesView extends View
         tbody = @el.find('tbody')
 
         i = 0 # for determining even/odd status of leading row columns
-        for provided, matched of @collection
-            for j, match of matched
+        for { input, matches } in @collection
+            for j, model of matches
                 if j is '0'
                     @views.push view = new DuplicatesRowView {
-                        'model': match
-                        'rowspan': matched.length
-                        provided
+                        'rowspan': matches.length
                         'class': [ 'even', 'odd' ][i % 2]
+                        input
+                        model
                     }
                     i++
                 else
-                    @views.push view = new DuplicatesRowView({ 'model': match })
+                    @views.push view = new DuplicatesRowView({ model })
                 
                 tbody.append view.render().el
 

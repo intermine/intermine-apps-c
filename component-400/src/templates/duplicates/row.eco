@@ -1,5 +1,5 @@
-<% if @provided: %>
-    <td rowspan="<%= @rowspan %>" class="<%= @class %>"><%- @provided %></td>
+<% if @input: %>
+    <td rowspan="<%= @rowspan %>" class="<%= @class %>"><%- @input %></td>
 <% end %>
 <td>
     <a><%- @matched %></a>

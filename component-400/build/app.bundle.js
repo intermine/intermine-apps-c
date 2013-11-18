@@ -16824,18 +16824,16 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         Collection.prototype.dict = {
           'MATCH': 'direct hit',
           'TYPE_CONVERTED': 'converted type',
-          'OTHER': 'synonym'
+          'OTHER': 'synonym',
+          'WILDCARD': 'wildcard'
         };
-      
-        Collection.prototype.provided = 0;
-      
-        Collection.prototype.found = 0;
       
         Collection.prototype.type = 'gene';
       
         function Collection(data) {
-          var extract, key, value,
+          var extract, key, value, _ref,
             _this = this;
+          this.data = data;
           this.selected = mori.set();
           extract = function(obj) {
             var item, key, value, _i, _len, _results, _results1;
@@ -16860,10 +16858,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 return _results1;
             }
           };
-          for (key in data) {
-            if (!__hasProp.call(data, key)) continue;
-            value = data[key];
-            if (key !== 'DUPLICATE' && key !== 'UNRESOLVED') {
+          _ref = this.data.matches;
+          for (key in _ref) {
+            if (!__hasProp.call(_ref, key)) continue;
+            value = _ref[key];
+            if (key !== 'DUPLICATE') {
               extract(value);
             }
           }
@@ -16892,35 +16891,36 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       module.exports = {
         'primary': function(model) {
           var k, key, len, v, val, _i, _len, _ref, _ref1;
-          _ref = ['symbol', 'primaryIdentifier', 'secondIdentifier'];
+          _ref = ['symbol', 'primaryIdentifier', 'secondIdentifier', 'name'];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             key = _ref[_i];
-            if (val = model.object.summary[key]) {
+            if (val = model.summary[key]) {
               return escape(val);
             }
           }
           val = [0, 'NA'];
-          _ref1 = model.object.summary;
+          _ref1 = model.summary;
           for (k in _ref1) {
             v = _ref1[k];
-            if ((len = v.replace(/\W/, '').length) > val[0]) {
-              val = [len, escape(val)];
+            if (v) {
+              if ((len = ('' + v).replace(/\W/, '').length) > val[0]) {
+                val = [len, escape(v)];
+              }
             }
           }
           return val[1];
         },
-        'csv': function(_arg, columns) {
-          var cols, object, provided, rows;
-          provided = _arg.provided, object = _arg.object;
+        'csv': function(model, columns) {
+          var cols, row;
           if (columns == null) {
             columns = true;
           }
-          cols = [].concat(['provided', 'type'], _.keys(object.summary));
-          rows = [].concat([provided, object.type], _.values(object.summary));
+          cols = [].concat(['provided'], _.keys(model.summary));
+          row = [].concat([model.input.join(', ')], _.values(model.summary));
           if (columns) {
-            return [cols, rows];
+            return [cols, row];
           } else {
-            return rows;
+            return row;
           }
         },
         'flyout': function(model) {
@@ -16928,7 +16928,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           format = function(text) {
             return text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase();
           };
-          _ref = model.object.summary;
+          _ref = model.summary;
           _results = [];
           for (k in _ref) {
             v = _ref[k];
@@ -17083,13 +17083,13 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
-            if (this.provided) {
+            if (this.input) {
               __out.push('\n    <td rowspan="');
               __out.push(__sanitize(this.rowspan));
               __out.push('" class="');
               __out.push(__sanitize(this["class"]));
               __out.push('">');
-              __out.push(this.provided);
+              __out.push(this.input);
               __out.push('</td>\n');
             }
           
@@ -17283,35 +17283,35 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           
             if (this.selected === 1) {
               __out.push('\n        <a class="success button save">Save a list of 1 ');
-              __out.push(__sanitize(this.type));
+              __out.push(__sanitize(this.data.type));
               __out.push('</a>\n    ');
             } else {
               __out.push('\n        <a class="success button save">Save a list of ');
               __out.push(__sanitize(this.selected));
               __out.push(' ');
-              __out.push(__sanitize(this.type));
+              __out.push(__sanitize(this.data.type));
               __out.push('s</a>\n    ');
             }
           
             __out.push('\n\n    <table>\n        <tr>\n            <td>You entered:</td>\n            <td>');
           
-            __out.push(__sanitize(this.provided));
+            __out.push(__sanitize(this.data.stats.identifiers.all));
           
             __out.push(' identifier');
           
-            if (this.provided !== 1) {
+            if (this.data.stats.identifiers.all !== 1) {
               __out.push('s');
             }
           
             __out.push('</td>\n        </tr>\n        <tr>\n            <td>We found:</td>\n            <td>');
           
-            __out.push(__sanitize(this.found));
+            __out.push(__sanitize(this.data.stats.objects.matches));
           
             __out.push(' ');
           
-            __out.push(__sanitize(this.type));
+            __out.push(__sanitize(this.data.type));
           
-            if (this.found !== 1) {
+            if (this.data.stats.objects.matches !== 1) {
               __out.push('s');
             }
           
@@ -17571,7 +17571,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           (function() {
             __out.push('<td>');
           
-            __out.push(this.provided);
+            __out.push(this.input.join(', '));
           
             __out.push('</td>\n<td>\n    <a>');
           
@@ -17845,25 +17845,23 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         };
       
         AppView.prototype.render = function() {
-          var dict, dupes, summary, view, _ref1;
+          var collection, data, dict, view, _ref1;
           this.el.append((new HeaderView({
             'collection': this.collection
           })).render().el);
-          _ref1 = this.collection, dupes = _ref1.dupes, summary = _ref1.summary, dict = _ref1.dict;
-          if (dupes) {
+          _ref1 = this.collection, data = _ref1.data, dict = _ref1.dict;
+          if (collection = data.matches.DUPLICATE) {
             this.el.append((view = new DuplicatesView({
-              'collection': dupes
+              collection: collection
             })).render().el);
           }
           if (view != null) {
             view.adjust();
           }
-          if (summary) {
-            this.el.append((new SummaryView({
-              'collection': summary,
-              dict: dict
-            })).render().el);
-          }
+          this.el.append((new SummaryView({
+            'collection': data.matches,
+            dict: dict
+          })).render().el);
           return this;
         };
       
@@ -17929,26 +17927,26 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         DuplicatesView.prototype.render = function() {
-          var i, j, match, matched, provided, tbody, view, _ref;
+          var i, input, j, matches, model, tbody, view, _i, _len, _ref, _ref1;
           this.el.html(this.template());
           tbody = this.el.find('tbody');
           i = 0;
           _ref = this.collection;
-          for (provided in _ref) {
-            matched = _ref[provided];
-            for (j in matched) {
-              match = matched[j];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            _ref1 = _ref[_i], input = _ref1.input, matches = _ref1.matches;
+            for (j in matches) {
+              model = matches[j];
               if (j === '0') {
                 this.views.push(view = new DuplicatesRowView({
-                  'model': match,
-                  'rowspan': matched.length,
-                  provided: provided,
-                  'class': ['even', 'odd'][i % 2]
+                  'rowspan': matches.length,
+                  'class': ['even', 'odd'][i % 2],
+                  input: input,
+                  model: model
                 }));
                 i++;
               } else {
                 this.views.push(view = new DuplicatesRowView({
-                  'model': match
+                  model: model
                 }));
               }
               tbody.append(view.render().el);
@@ -18148,13 +18146,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         HeaderView.prototype.render = function() {
-          var found, provided, type, _ref;
-          _ref = this.collection, provided = _ref.provided, found = _ref.found, type = _ref.type;
+          var data;
+          data = this.collection.data;
           this.el.html(this.template({
             'selected': mori.count(this.collection.selected),
-            provided: provided,
-            found: found,
-            type: type
+            data: data
           }));
           return this;
         };
@@ -18347,6 +18343,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           _ref = this.collection;
           for (reason in _ref) {
             collection = _ref[reason];
+            if (!(reason !== 'DUPLICATE' && collection.length)) {
+              continue;
+            }
             this.views.push(view = new TabSwitcherView({
               'model': {
                 'name': this.options.dict[reason]
@@ -18373,13 +18372,15 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           _ref = this.collection;
           for (reason in _ref) {
             list = _ref[reason];
-            for (_i = 0, _len = list.length; _i < _len; _i++) {
-              item = list[_i];
-              if (columns) {
-                rows.push(formatter.csv(item, false));
-              } else {
-                _ref1 = formatter.csv(item, true), columns = _ref1[0], row = _ref1[1];
-                rows.push.row;
+            if (reason !== 'DUPLICATE') {
+              for (_i = 0, _len = list.length; _i < _len; _i++) {
+                item = list[_i];
+                if (columns) {
+                  rows.push(formatter.csv(item, false));
+                } else {
+                  _ref1 = formatter.csv(item, true), columns = _ref1[0], row = _ref1[1];
+                  rows.push(row);
+                }
               }
             }
           }
@@ -18505,11 +18506,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         };
       
         TableRowView.prototype.render = function() {
-          var matched;
-          matched = formatter.primary(this.model);
           this.el.html(this.template({
-            'provided': this.model.provided,
-            matched: matched
+            'input': this.model.input,
+            'matched': formatter.primary(this.model)
           }));
           return this;
         };
@@ -18587,9 +18586,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       })(View);
       
       tooltips = {
-        '1': 'Choose, do it',
-        '2': 'Summarizing you know',
-        '3': 'Tabitha Tabby'
+        '1': 'Choose from among duplicate matches below',
+        '2': 'These objects have been automatically added to your list',
+        '3': 'A class of matches'
       };
       
       module.exports = TooltipView;

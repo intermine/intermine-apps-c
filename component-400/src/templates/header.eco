@@ -1,18 +1,18 @@
 <header>
     <% if @selected is 1: %>
-        <a class="success button save">Save a list of 1 <%= @type %></a>
+        <a class="success button save">Save a list of 1 <%= @data.type %></a>
     <% else: %>
-        <a class="success button save">Save a list of <%= @selected %> <%= @type %>s</a>
+        <a class="success button save">Save a list of <%= @selected %> <%= @data.type %>s</a>
     <% end %>
 
     <table>
         <tr>
             <td>You entered:</td>
-            <td><%= @provided %> identifier<% if @provided isnt 1: %>s<% end %></td>
+            <td><%= @data.stats.identifiers.all %> identifier<% if @data.stats.identifiers.all isnt 1: %>s<% end %></td>
         </tr>
         <tr>
             <td>We found:</td>
-            <td><%= @found %> <%= @type %><% if @found isnt 1: %>s<% end %></td>
+            <td><%= @data.stats.objects.matches %> <%= @data.type %><% if @data.stats.objects.matches isnt 1: %>s<% end %></td>
         </tr>
     </table>
 
