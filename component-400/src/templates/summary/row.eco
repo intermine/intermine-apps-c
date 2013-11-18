@@ -1,4 +1,4 @@
-<td><%- @provided %></td>
+<td><%- @input.join(', ') %></td>
 <td>
     <a><%- @matched %></a>
     <span class="help-flyout"></span>

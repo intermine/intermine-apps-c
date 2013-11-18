@@ -5,15 +5,11 @@
         "backbone-events": null,
         "csv": "0.1.2",
         "FileSaver": null,
-        "foundation3": "https://raw.github.com/intermine/CDN/master/css/foundation/3.1.1/stylesheets/foundation.css",
+        "foundation3": "http://cdn.intermine.org/css/foundation/3.1.1/stylesheets/foundation.css",
         "jquery": "2.0.3",
         "lodash": "2.3.0",
         "mori": "0.2.4",
         "queue-async": "1.0.4",
         "setimmediate": "1.0.1"
-    },
-    "ignore": [
-        "src/",
-        "example/"
-    ]
+    }
 }

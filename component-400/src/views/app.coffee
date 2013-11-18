@@ -20,21 +20,21 @@ class AppView extends View
         # Render the header.
         @el.append (new HeaderView({ 'collection': @collection })).render().el
 
-        { dupes, summary, dict } = @collection
+        { data, dict } = @collection
 
         # Render the duplicates?
         @el.append((view = new DuplicatesView({
-            'collection': dupes
-        })).render().el) if dupes
+            collection
+        })).render().el) if collection = data.matches.DUPLICATE
 
         # Adjust the table.
         do view?.adjust
 
         # Summary overview?
         @el.append((new SummaryView({
-            'collection': summary
+            'collection': data.matches
             dict
-        })).render().el) if summary
+        })).render().el)
 
         @
 

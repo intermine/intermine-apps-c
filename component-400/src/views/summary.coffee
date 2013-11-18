@@ -22,7 +22,7 @@ class SummaryView extends View
         content = @el.find '.tabs-content'
 
         isFirst = yes
-        for reason, collection of @collection
+        for reason, collection of @collection when reason isnt 'DUPLICATE' and collection.length
             # Switcher.
             @views.push view = new TabSwitcherView {
                 'model': { 'name': @options.dict[reason] }, reason
@@ -42,13 +42,13 @@ class SummaryView extends View
     download: ->
         columns = null ; rows = []
 
-        for reason, list of @collection
+        for reason, list of @collection when reason isnt 'DUPLICATE'
             for item in list
                 if columns
                     rows.push formatter.csv item, no
                 else
                     [ columns, row ] = formatter.csv item, yes
-                    rows.push.row
+                    rows.push row
 
         # Converted to a csv string.
         converted = csv _.map rows, (row) ->
@@ -136,8 +136,10 @@ class TableRowView extends View
         'click a': 'portal'
 
     render: ->
-        matched = formatter.primary @model
-        @el.html @template { 'provided': @model.provided, matched }
+        @el.html @template {
+            'input': @model.input
+            'matched': formatter.primary @model
+        }
 
         @
 
