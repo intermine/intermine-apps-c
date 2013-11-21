@@ -1,12 +1,14 @@
+{ $ } = require '../modules/deps'
+
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
 
-HeaderView     = require './header'
-DuplicatesView = require './duplicates'
-NoMatchesView  = require './nomatches'
-SummaryView    = require './summary'
-HeaderView     = require './header'
-TooltipView    = require './tooltip'
+HeaderView          = require './header'
+DuplicatesTableView = require './duplicates'
+NoMatchesView       = require './nomatches'
+SummaryView         = require './summary'
+HeaderView          = require './header'
+TooltipView         = require './tooltip'
 
 class AppView extends View
 
@@ -23,17 +25,13 @@ class AppView extends View
         { data, dict } = @collection
 
         # Render the duplicates?
-        @el.append((view = new DuplicatesView({
-            collection
+        @el.append((new DuplicatesTableView({
+            collection # does not need to be filtered, instantiating one class only
         })).render().el) if collection = data.matches.DUPLICATE
-
-        # Adjust the table.
-        do view?.adjust
 
         # Summary overview?
         @el.append((new SummaryView({
-            'collection': data.matches
-            dict
+            'collection': data.matches # needs to be filtered
         })).render().el)
 
         @

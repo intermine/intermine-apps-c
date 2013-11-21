@@ -1,3 +1,5 @@
+{ _ } = require './deps'
+
 # How do we display "an object"?
 # TODO: use a reusable component from Results Tables here instead
 module.exports =
@@ -6,28 +8,28 @@ module.exports =
     'primary': (model) ->
         # Go for a symbol first.
         for key in [ 'symbol', 'primaryIdentifier', 'secondIdentifier', 'name' ]
-            if val = model.summary[key]
-                return escape val
+            return val if val = model.summary[key]
 
         # Try to return the longest string.
         val = [ 0, 'NA' ]
         for k, v of model.summary when v
             if (len = (''+v).replace(/\W/, '').length) > val[0]
-                val = [ len, escape(v) ]
+                val = [ len, v ]
 
         # Hopefully we have something here by now.
         val[1]
     
     # A row for CSV output.
-    'csv': (model, columns=yes) ->
-        cols = [].concat([ 'provided' ], _.keys(model.summary))
-        row  = [].concat([ model.input.join(', ') ], _.values(model.summary))
-        if columns then [ cols, row ] else row
+    'csv': (model, columns) ->
+        # Generate columns from the first object that comes by.
+        columns = _.keys model.summary unless columns
+        # Give us values from the summary object given a set of columns.
+        row = ( (if (value = model.summary[column]) then value else '') for column in columns )
+        
+        # Ret.
+        [ columns, row ]
 
     # Provide a flyout summary of a model in question.
     'flyout': (model) ->
         format = (text) -> text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase()
-        ( [ format(k), escape(v) ] for k, v of model.summary when v )
-
-# Accept newline characters and similar.
-escape = (string) -> JSON.stringify(string)[1...-1]
+        ( [ format(k), v ] for k, v of model.summary when v )

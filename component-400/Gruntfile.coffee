@@ -21,7 +21,7 @@ module.exports = (grunt) ->
             mori:
                 options:
                     stdout: yes
-                command: './vendor/mori/scripts/build.sh'
+                command: 'cd ./vendor/mori/ ; ./scripts/build.sh'
 
         concat:
             scripts:
@@ -32,8 +32,6 @@ module.exports = (grunt) ->
                     'vendor/backbone-events/backbone-events.js'
                     'vendor/csv/lib/csv.js'
                     'vendor/FileSaver/FileSaver.js'
-                    'vendor/queue-async/queue.js'
-                    'vendor/setimmediate/setImmediate.js'
                     'vendor/mori/mori.js' # is built in the `shell` task
                     # Our app with requirerer.
                     'build/app.js'
@@ -56,9 +54,17 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-shell')
 
+    # Will build mori too.
     grunt.registerTask('default', [
         'apps_c'
         'stylus'
         'shell'
+        'concat'
+    ])
+
+    # Use when watching...
+    grunt.registerTask('build', [
+        'apps_c'
+        'stylus'
         'concat'
     ])

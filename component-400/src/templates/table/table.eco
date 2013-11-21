@@ -1,4 +1,6 @@
-<table>
+<div class="paginator"></div>
+
+<table class="striped">
     <thead>
         <tr>
             <th>Identifier you provided</th>
@@ -7,5 +9,3 @@
     </thead>
     <tbody></tbody>
 </table>
-
-<div class="paginator"></div>

@@ -1,3 +1,5 @@
+{ mori } = require './modules/deps'
+
 mediator   = require './modules/mediator'
 AppView    = require './views/app'
 Collection = require './models/collection'
