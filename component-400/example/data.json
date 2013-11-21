@@ -2,309 +2,554 @@
     "matches": {
         "MATCH": [
             {
-                "id": 2000039,
+                "id": 1005169,
                 "summary": {
-                    "department.company.name": "Wernham-Hogg",
-                    "address.address": "98 Worker Av",
-                    "name": "Brenda",
-                    "class": "Employee",
-                    "department.manager.name": "Keith Bishop",
-                    "department.name": "Accounting",
-                    "fullTime": false
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0000099",
+                    "symbol": "ap",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG8376"
                 },
                 "input": [
-                    "brenda"
+                    "FBgn0000099"
                 ]
             },
             {
-                "id": 2000027,
+                "id": 1038730,
                 "summary": {
-                    "department.company.name": "Wernham-Hogg",
-                    "address.address": "58 Worker Av",
-                    "name": "Anne",
-                    "class": "Employee",
-                    "department.manager.name": "Neil Godwin",
-                    "department.name": "Human Resources",
-                    "fullTime": true
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0010433",
+                    "symbol": "ato",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG7508"
                 },
                 "input": [
-                    "anne"
+                    "FBgn0010433",
+                    "ato"
                 ]
             },
             {
-                "id": 2000035,
+                "id": 1006831,
                 "summary": {
-                    "department.company.name": "Wernham-Hogg",
-                    "address.address": "37 Worker Av",
-                    "name": "Carol",
-                    "class": "Employee",
-                    "department.manager.name": "Neil Godwin",
-                    "department.name": "Human Resources",
-                    "fullTime": true
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0000606",
+                    "symbol": "eve",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG2328"
                 },
                 "input": [
-                    "carol"
+                    "CG2328"
                 ]
             },
             {
-                "id": 2000025,
+                "id": 1036339,
                 "summary": {
-                    "department.company.name": "Wernham-Hogg",
-                    "address.address": "38 Worker Av",
-                    "name": "Alex",
-                    "class": "Employee",
-                    "department.manager.name": "Glynn Williams",
-                    "department.name": "Warehouse",
-                    "fullTime": true
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0001180",
+                    "symbol": "hb",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG9786"
                 },
                 "input": [
-                    "Alex"
+                    "CG9786"
+                ]
+            },
+            {
+                "id": 1025154,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0003460",
+                    "symbol": "so",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG11121"
+                },
+                "input": [
+                    "so"
+                ]
+            },
+            {
+                "id": 1011470,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0003720",
+                    "symbol": "tll",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG1378"
+                },
+                "input": [
+                    "tll"
+                ]
+            },
+            {
+                "id": 1007644,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0040765",
+                    "symbol": "luna",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG33473"
+                },
+                "input": [
+                    "CG33473"
+                ]
+            },
+            {
+                "id": 1020014,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0011648",
+                    "symbol": "Mad",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG12399"
+                },
+                "input": [
+                    "Mad"
+                ]
+            },
+            {
+                "id": 1030899,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0003430",
+                    "symbol": "slp1",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG16738"
+                },
+                "input": [
+                    "CG16738"
+                ]
+            },
+            {
+                "id": 1003727,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0004110",
+                    "symbol": "tin",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG7895"
+                },
+                "input": [
+                    "tinman"
+                ]
+            },
+            {
+                "id": 1017936,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0041111",
+                    "symbol": "lilli",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG8817"
+                },
+                "input": [
+                    "CG8817"
+                ]
+            },
+            {
+                "id": 1000753,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0011766",
+                    "symbol": "E2f",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG6376"
+                },
+                "input": [
+                    "E2f"
+                ]
+            },
+            {
+                "id": 1011043,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0003866",
+                    "symbol": "tsh",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG1374"
+                },
+                "input": [
+                    "CG1374"
+                ]
+            },
+            {
+                "id": 1016159,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0011655",
+                    "symbol": "Med",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG1775"
+                },
+                "input": [
+                    "CG1775"
+                ]
+            },
+            {
+                "id": 1056515,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0004915",
+                    "symbol": "TfIIB",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG5193"
+                },
+                "input": [
+                    "TfIIB"
+                ]
+            },
+            {
+                "id": 1034139,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0000157",
+                    "symbol": "Dll",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG3629"
+                },
+                "input": [
+                    "CG3629"
+                ]
+            },
+            {
+                "id": 1017291,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0024250",
+                    "symbol": "brk",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG9653"
+                },
+                "input": [
+                    "FBgn0024250"
+                ]
+            },
+            {
+                "id": 1028159,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0025800",
+                    "symbol": "Smox",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG2262"
+                },
+                "input": [
+                    "CG2262"
+                ]
+            },
+            {
+                "id": 1005496,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0000166",
+                    "symbol": "bcd",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG1034"
+                },
+                "input": [
+                    "CG1034"
+                ]
+            },
+            {
+                "id": 1013913,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0000028",
+                    "symbol": "acj6",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG9151"
+                },
+                "input": [
+                    "CG9151"
+                ]
+            },
+            {
+                "id": 1070331,
+                "summary": {
+                    "organism.name": "Drosophila melanogaster",
+                    "primaryIdentifier": "FBgn0001077",
+                    "symbol": "ftz",
+                    "class": "Gene",
+                    "secondaryIdentifier": "CG2047"
+                },
+                "input": [
+                    "ftz"
                 ]
             }
         ],
-        "TYPE_CONVERTED": [],
-        "OTHER": [],
-        "WILDCARD": [],
-        "DUPLICATE": [
+        "TYPE_CONVERTED": [
             {
-                "input": "Sales",
+                "input": "TWIST_DROME",
                 "matches": [
                     {
-                        "id": 2000009,
+                        "id": 1138735,
                         "summary": {
-                            "title": "Mr",
-                            "department.company.name": "Wernham-Hogg",
-                            "address.address": "13 Confusion Row",
-                            "name": "David Brent",
-                            "class": "Manager",
-                            "seniority": 81361,
-                            "department.name": "Sales"
+                            "organism.name": "Drosophila melanogaster",
+                            "primaryIdentifier": "FBgn0003900",
+                            "symbol": "twi",
+                            "class": "Gene",
+                            "secondaryIdentifier": "CG2956"
+                        },
+                        "from": {
+                            "id": 1138736,
+                            "summary": {
+                                "primaryAccession": "P10627",
+                                "organism.name": "Drosophila melanogaster",
+                                "primaryIdentifier": "TWIST_DROME",
+                                "class": "Protein"
+                            }
                         }
-                    },
-                    {
-                        "id": 2000021,
+                    }, {
+                        "id": "f1",
                         "summary": {
-                            "department.company.name": "Wernham-Hogg",
-                            "address.address": "31 Worker Av",
-                            "name": "Ricky",
-                            "class": "Employee",
-                            "department.manager.name": "David Brent",
-                            "department.name": "Sales",
-                            "fullTime": true
+                            "symbol": "fake1",
+                            "class": "Fakus"
                         }
-                    },
-                    {
-                        "id": 2000029,
+                    }, {
+                        "id": "f2",
                         "summary": {
-                            "department.company.name": "Wernham-Hogg",
-                            "address.address": "18 Worker Av",
-                            "name": "Rachel",
-                            "class": "Employee",
-                            "department.manager.name": "David Brent",
-                            "department.name": "Sales",
-                            "fullTime": false
+                            "symbol": "fake2",
+                            "class": "Fakus"
                         }
-                    },
-                    {
-                        "id": 2000037,
+                    }, {
+                        "id": "f3",
                         "summary": {
-                            "department.company.name": "Wernham-Hogg",
-                            "address.address": "83 Worker Av",
-                            "name": "Tim Canterbury",
-                            "class": "Employee",
-                            "department.manager.name": "David Brent",
-                            "department.name": "Sales",
-                            "fullTime": false
+                            "symbol": "fake3",
+                            "class": "Fakus"
                         }
-                    },
-                    {
-                        "id": 2000043,
+                    }, {
+                        "id": "f4",
                         "summary": {
-                            "department.company.name": "Wernham-Hogg",
-                            "address.address": "23 Worker Av",
-                            "name": "Gareth Keenan",
-                            "class": "Employee",
-                            "department.manager.name": "David Brent",
-                            "department.name": "Sales",
-                            "fullTime": true
+                            "symbol": "fake4",
+                            "class": "Fakus"
                         }
-                    },
-                    {
-                        "id": 2000047,
+                    }, {
+                        "id": "f5",
                         "summary": {
-                            "department.company.name": "Wernham-Hogg",
-                            "address.address": "22 Worker Av",
-                            "name": "Malcolm",
-                            "class": "Employee",
-                            "department.manager.name": "David Brent",
-                            "department.name": "Sales",
-                            "fullTime": false
+                            "symbol": "fake5",
+                            "class": "Fakus"
                         }
-                    },
-                    {
-                        "id": 2000148,
+                    }, {
+                        "id": "f6",
                         "summary": {
-                            "title": null,
-                            "department.company.name": "Dunder-Mifflin",
-                            "address.address": "85 Cowboy St",
-                            "name": "Michael Scott",
-                            "class": "Manager",
-                            "seniority": 75258,
-                            "department.name": "Sales"
+                            "symbol": "fake6",
+                            "class": "Fakus"
                         }
-                    },
-                    {
-                        "id": 2000160,
+                    }, {
+                        "id": "f7",
                         "summary": {
-                            "department.company.name": "Dunder-Mifflin",
-                            "address.address": "7 Worker Av.",
-                            "name": "Jim Halpert",
-                            "class": "Employee",
-                            "department.manager.name": "Michael Scott",
-                            "department.name": "Sales",
-                            "fullTime": true
-                        }
-                    },
-                    {
-                        "id": 2000168,
-                        "summary": {
-                            "department.company.name": "Dunder-Mifflin",
-                            "address.address": "69 Worker Av.",
-                            "name": "Dwight Schrute",
-                            "class": "Employee",
-                            "department.manager.name": "Michael Scott",
-                            "department.name": "Sales",
-                            "fullTime": true
-                        }
-                    },
-                    {
-                        "id": 2000176,
-                        "summary": {
-                            "department.company.name": "Dunder-Mifflin",
-                            "address.address": "63 Worker Av.",
-                            "name": "Andy Bernard",
-                            "class": "Employee",
-                            "department.manager.name": "Michael Scott",
-                            "department.name": "Sales",
-                            "fullTime": false
-                        }
-                    },
-                    {
-                        "id": 2000184,
-                        "summary": {
-                            "department.company.name": "Dunder-Mifflin",
-                            "address.address": "34 Worker Av.",
-                            "name": "Stanley Hudson",
-                            "class": "Employee",
-                            "department.manager.name": "Michael Scott",
-                            "department.name": "Sales",
-                            "fullTime": true
-                        }
-                    },
-                    {
-                        "id": 2000192,
-                        "summary": {
-                            "department.company.name": "Dunder-Mifflin",
-                            "address.address": "75 Worker Av.",
-                            "name": "Phyllis Lapin-Vance",
-                            "class": "Employee",
-                            "department.manager.name": "Michael Scott",
-                            "department.name": "Sales",
-                            "fullTime": false
-                        }
-                    },
-                    {
-                        "id": 2000209,
-                        "summary": {
-                            "title": "M.",
-                            "department.company.name": "Gogirep",
-                            "address.address": "Rue Représentant 16",
-                            "name": "Gilles Triquet",
-                            "class": "Manager",
-                            "seniority": 94459,
-                            "department.name": "Sales"
-                        }
-                    },
-                    {
-                        "id": 2000221,
-                        "summary": {
-                            "department.company.name": "Gogirep",
-                            "address.address": "Av. Fatigue 53",
-                            "name": "Jennifer",
-                            "class": "Employee",
-                            "department.manager.name": "Gilles Triquet",
-                            "department.name": "Sales",
-                            "fullTime": true
-                        }
-                    },
-                    {
-                        "id": 2000229,
-                        "summary": {
-                            "department.company.name": "Gogirep",
-                            "address.address": "Av. Fatigue 66",
-                            "name": "Delphine",
-                            "class": "Employee",
-                            "department.manager.name": "Gilles Triquet",
-                            "department.name": "Sales",
-                            "fullTime": false
-                        }
-                    },
-                    {
-                        "id": 2000237,
-                        "summary": {
-                            "department.company.name": "Gogirep",
-                            "address.address": "Av. Fatigue 45",
-                            "name": "Patrick",
-                            "class": "Employee",
-                            "department.manager.name": "Gilles Triquet",
-                            "department.name": "Sales",
-                            "fullTime": false
-                        }
-                    },
-                    {
-                        "id": 2000245,
-                        "summary": {
-                            "department.company.name": "Gogirep",
-                            "address.address": "Av. Fatigue 96",
-                            "name": "Nicole",
-                            "class": "Employee",
-                            "department.manager.name": "Gilles Triquet",
-                            "department.name": "Sales",
-                            "fullTime": true
-                        }
-                    },
-                    {
-                        "id": 2000251,
-                        "summary": {
-                            "department.company.name": "Gogirep",
-                            "address.address": "Av. Fatigue 19",
-                            "name": "Fatou",
-                            "class": "Employee",
-                            "department.manager.name": "Gilles Triquet",
-                            "department.name": "Sales",
-                            "fullTime": false
+                            "symbol": "fake7",
+                            "class": "Fakus"
                         }
                     }
                 ],
-                "reason": "Employees by Department"
+                "reason": "searching key fields for all types found by converting from x"
+            }, {
+                "input": "TWIST_AERODROME",
+                "matches": [
+                    {
+                        "id": "f8",
+                        "summary": {
+                            "symbol": "fake8",
+                            "class": "Fakus"
+                        }
+                    }, {
+                        "id": "f9",
+                        "summary": {
+                            "symbol": "fake9",
+                            "class": "Fakus"
+                        }
+                    }, {
+                        "id": "f10",
+                        "summary": {
+                            "symbol": "fake10",
+                            "class": "Fakus"
+                        }
+                    }, {
+                        "id": "f11",
+                        "summary": {
+                            "symbol": "fake11",
+                            "class": "Fakus"
+                        }
+                    }, {
+                        "id": "f12",
+                        "summary": {
+                            "symbol": "fake12",
+                            "class": "Fakus"
+                        }
+                    }, {
+                        "id": "f13",
+                        "summary": {
+                            "symbol": "fake13",
+                            "class": "Fakus"
+                        }
+                    }
+                ],
+                "reason": "searching key fields for all types found by converting from x"  
+            }
+        ],
+        "OTHER": [
+            {
+                "input": "FBgn0001251",
+                "matches": [
+                    {
+                        "id": 1029728,
+                        "summary": {
+                            "organism.name": "Drosophila melanogaster",
+                            "primaryIdentifier": "FBgn0001325",
+                            "symbol": "Kr",
+                            "class": "Gene",
+                            "secondaryIdentifier": "CG3340"
+                        }
+                    }
+                ],
+                "reason": "searching synonyms for all types"
+            }
+        ],
+        "WILDCARD": [],
+        "DUPLICATE": [
+            {
+                "input": "runt",
+                "matches": [
+                    {
+                        "id": 1006613,
+                        "summary": {
+                            "organism.name": "Drosophila melanogaster",
+                            "primaryIdentifier": "FBgn0003300",
+                            "symbol": "run",
+                            "class": "Gene",
+                            "secondaryIdentifier": "CG1849"
+                        }
+                    },
+                    {
+                        "id": 7010838,
+                        "summary": {
+                            "organism.name": "Drosophila simulans",
+                            "primaryIdentifier": "FBgn0016352",
+                            "symbol": "Dsim\\run",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GD17500"
+                        }
+                    },
+                    {
+                        "id": 7513944,
+                        "summary": {
+                            "organism.name": "Drosophila erecta",
+                            "primaryIdentifier": "FBgn0085118",
+                            "symbol": "Dere\\run",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GG19696"
+                        }
+                    },
+                    {
+                        "id": 7878501,
+                        "summary": {
+                            "organism.name": "Drosophila virilis",
+                            "primaryIdentifier": "FBgn0013920",
+                            "symbol": "Dvir\\run",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GJ19252"
+                        }
+                    },
+                    {
+                        "id": 7918488,
+                        "summary": {
+                            "organism.name": "Drosophila yakuba",
+                            "primaryIdentifier": "FBgn0084618",
+                            "symbol": "Dyak\\run",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GE17894"
+                        }
+                    }
+                ],
+                "reason": "searching key fields"
+            },
+            {
+                "input": "gt",
+                "matches": [
+                    {
+                        "id": 1005880,
+                        "summary": {
+                            "organism.name": "Drosophila melanogaster",
+                            "primaryIdentifier": "FBgn0001150",
+                            "symbol": "gt",
+                            "class": "Gene",
+                            "secondaryIdentifier": "CG7952"
+                        }
+                    },
+                    {
+                        "id": 17024075,
+                        "summary": {
+                            "organism.name": "Mus musculus",
+                            "primaryIdentifier": "MGI:95866",
+                            "symbol": "gt",
+                            "class": "Gene",
+                            "secondaryIdentifier": null
+                        }
+                    }
+                ],
+                "reason": "searching key fields"
+            },
+            {
+                "input": "tramtrack",
+                "matches": [
+                    {
+                        "id": 1007138,
+                        "summary": {
+                            "organism.name": "Drosophila melanogaster",
+                            "primaryIdentifier": "FBgn0003870",
+                            "symbol": "ttk",
+                            "class": "Gene",
+                            "secondaryIdentifier": "CG1856"
+                        }
+                    },
+                    {
+                        "id": 6000139,
+                        "summary": {
+                            "organism.name": "Drosophila pseudoobscura",
+                            "primaryIdentifier": "FBgn0075017",
+                            "symbol": "Dpse\\ttk",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GA14992"
+                        }
+                    },
+                    {
+                        "id": 7000252,
+                        "summary": {
+                            "organism.name": "Drosophila simulans",
+                            "primaryIdentifier": "FBgn0193021",
+                            "symbol": "Dsim\\ttk",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GD21596"
+                        }
+                    },
+                    {
+                        "id": 7000255,
+                        "summary": {
+                            "organism.name": "Drosophila yakuba",
+                            "primaryIdentifier": "FBgn0228787",
+                            "symbol": "Dyak\\ttk",
+                            "class": "Gene",
+                            "secondaryIdentifier": "GE10957"
+                        }
+                    }
+                ],
+                "reason": "searching key fields"
             }
         ]
     },
     "stats": {
         "identifiers": {
-            "matches": 4,
-            "issues": 1,
-            "notFound": 1,
-            "all": 6
+            "matches": 22,
+            "issues": 5,
+            "notFound": 0,
+            "all": 27
         },
         "objects": {
-            "matches": 4,
-            "issues": 18,
-            "all": 22
+            "matches": 21,
+            "issues": 13,
+            "all": 34
         }
     },
-    "unresolved": [
-        "foo"
-    ],
-    "type": "Employee"
-}
+    "unresolved": [],
+    "type": "Gene"
+} 

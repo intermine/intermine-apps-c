@@ -15970,303 +15970,6 @@ var saveAs = saveAs
 // with an attribute `content` that corresponds to the window
 
 if (typeof module !== 'undefined') module.exports = saveAs;
-;(function() {
-  if (typeof module === "undefined") self.queue = queue;
-  else module.exports = queue;
-  queue.version = "1.0.4";
-
-  var slice = [].slice;
-
-  function queue(parallelism) {
-    var q,
-        tasks = [],
-        started = 0, // number of tasks that have been started (and perhaps finished)
-        active = 0, // number of tasks currently being executed (started but not finished)
-        remaining = 0, // number of tasks not yet finished
-        popping, // inside a synchronous task callback?
-        error = null,
-        await = noop,
-        all;
-
-    if (!parallelism) parallelism = Infinity;
-
-    function pop() {
-      while (popping = started < tasks.length && active < parallelism) {
-        var i = started++,
-            t = tasks[i],
-            a = slice.call(t, 1);
-        a.push(callback(i));
-        ++active;
-        t[0].apply(null, a);
-      }
-    }
-
-    function callback(i) {
-      return function(e, r) {
-        --active;
-        if (error != null) return;
-        if (e != null) {
-          error = e; // ignore new tasks and squelch active callbacks
-          started = remaining = NaN; // stop queued tasks from starting
-          notify();
-        } else {
-          tasks[i] = r;
-          if (--remaining) popping || pop();
-          else notify();
-        }
-      };
-    }
-
-    function notify() {
-      if (error != null) await(error);
-      else if (all) await(error, tasks);
-      else await.apply(null, [error].concat(tasks));
-    }
-
-    return q = {
-      defer: function() {
-        if (!error) {
-          tasks.push(arguments);
-          ++remaining;
-          pop();
-        }
-        return q;
-      },
-      await: function(f) {
-        await = f;
-        all = false;
-        if (!remaining) notify();
-        return q;
-      },
-      awaitAll: function(f) {
-        await = f;
-        all = true;
-        if (!remaining) notify();
-        return q;
-      }
-    };
-  }
-
-  function noop() {}
-})();
-;(function (global, undefined) {
-    "use strict";
-
-    var tasks = (function () {
-        function Task(handler, args) {
-            this.handler = handler;
-            this.args = args;
-        }
-        Task.prototype.run = function () {
-            // See steps in section 5 of the spec.
-            if (typeof this.handler === "function") {
-                // Choice of `thisArg` is not in the setImmediate spec; `undefined` is in the setTimeout spec though:
-                // http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html
-                this.handler.apply(undefined, this.args);
-            } else {
-                var scriptSource = "" + this.handler;
-                /*jshint evil: true */
-                eval(scriptSource);
-            }
-        };
-
-        var nextHandle = 1; // Spec says greater than zero
-        var tasksByHandle = {};
-        var currentlyRunningATask = false;
-
-        return {
-            addFromSetImmediateArguments: function (args) {
-                var handler = args[0];
-                var argsToHandle = Array.prototype.slice.call(args, 1);
-                var task = new Task(handler, argsToHandle);
-
-                var thisHandle = nextHandle++;
-                tasksByHandle[thisHandle] = task;
-                return thisHandle;
-            },
-            runIfPresent: function (handle) {
-                // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-                // So if we're currently running a task, we'll need to delay this invocation.
-                if (!currentlyRunningATask) {
-                    var task = tasksByHandle[handle];
-                    if (task) {
-                        currentlyRunningATask = true;
-                        try {
-                            task.run();
-                        } finally {
-                            delete tasksByHandle[handle];
-                            currentlyRunningATask = false;
-                        }
-                    }
-                } else {
-                    // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-                    // "too much recursion" error.
-                    global.setTimeout(function () {
-                        tasks.runIfPresent(handle);
-                    }, 0);
-                }
-            },
-            remove: function (handle) {
-                delete tasksByHandle[handle];
-            }
-        };
-    }());
-
-    function canUseNextTick() {
-        // Don't get fooled by e.g. browserify environments.
-        return typeof process === "object" &&
-               Object.prototype.toString.call(process) === "[object process]";
-    }
-
-    function canUseMessageChannel() {
-        return !!global.MessageChannel;
-    }
-
-    function canUsePostMessage() {
-        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-        // where `global.postMessage` means something completely different and can't be used for this purpose.
-
-        if (!global.postMessage || global.importScripts) {
-            return false;
-        }
-
-        var postMessageIsAsynchronous = true;
-        var oldOnMessage = global.onmessage;
-        global.onmessage = function () {
-            postMessageIsAsynchronous = false;
-        };
-        global.postMessage("", "*");
-        global.onmessage = oldOnMessage;
-
-        return postMessageIsAsynchronous;
-    }
-
-    function canUseReadyStateChange() {
-        return "document" in global && "onreadystatechange" in global.document.createElement("script");
-    }
-
-    function installNextTickImplementation(attachTo) {
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            process.nextTick(function () {
-                tasks.runIfPresent(handle);
-            });
-
-            return handle;
-        };
-    }
-
-    function installMessageChannelImplementation(attachTo) {
-        var channel = new global.MessageChannel();
-        channel.port1.onmessage = function (event) {
-            var handle = event.data;
-            tasks.runIfPresent(handle);
-        };
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            channel.port2.postMessage(handle);
-
-            return handle;
-        };
-    }
-
-    function installPostMessageImplementation(attachTo) {
-        // Installs an event handler on `global` for the `message` event: see
-        // * https://developer.mozilla.org/en/DOM/window.postMessage
-        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-
-        var MESSAGE_PREFIX = "com.bn.NobleJS.setImmediate" + Math.random();
-
-        function isStringAndStartsWith(string, putativeStart) {
-            return typeof string === "string" && string.substring(0, putativeStart.length) === putativeStart;
-        }
-
-        function onGlobalMessage(event) {
-            // This will catch all incoming messages (even from other windows!), so we need to try reasonably hard to
-            // avoid letting anyone else trick us into firing off. We test the origin is still this window, and that a
-            // (randomly generated) unpredictable identifying prefix is present.
-            if (event.source === global && isStringAndStartsWith(event.data, MESSAGE_PREFIX)) {
-                var handle = event.data.substring(MESSAGE_PREFIX.length);
-                tasks.runIfPresent(handle);
-            }
-        }
-        if (global.addEventListener) {
-            global.addEventListener("message", onGlobalMessage, false);
-        } else {
-            global.attachEvent("onmessage", onGlobalMessage);
-        }
-
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            // Make `global` post a message to itself with the handle and identifying prefix, thus asynchronously
-            // invoking our onGlobalMessage listener above.
-            global.postMessage(MESSAGE_PREFIX + handle, "*");
-
-            return handle;
-        };
-    }
-
-    function installReadyStateChangeImplementation(attachTo) {
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-            var scriptEl = global.document.createElement("script");
-            scriptEl.onreadystatechange = function () {
-                tasks.runIfPresent(handle);
-
-                scriptEl.onreadystatechange = null;
-                scriptEl.parentNode.removeChild(scriptEl);
-                scriptEl = null;
-            };
-            global.document.documentElement.appendChild(scriptEl);
-
-            return handle;
-        };
-    }
-
-    function installSetTimeoutImplementation(attachTo) {
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            global.setTimeout(function () {
-                tasks.runIfPresent(handle);
-            }, 0);
-
-            return handle;
-        };
-    }
-
-    if (!global.setImmediate) {
-        // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-        var attachTo = typeof Object.getPrototypeOf === "function" && "setTimeout" in Object.getPrototypeOf(global) ?
-                          Object.getPrototypeOf(global)
-                        : global;
-
-        if (canUseNextTick()) {
-            // For Node.js before 0.9
-            installNextTickImplementation(attachTo);
-        } else if (canUsePostMessage()) {
-            // For non-IE10 modern browsers
-            installPostMessageImplementation(attachTo);
-        } else if (canUseMessageChannel()) {
-            // For web workers, where supported
-            installMessageChannelImplementation(attachTo);
-        } else if (canUseReadyStateChange()) {
-            // For IE 6–8
-            installReadyStateChangeImplementation(attachTo);
-        } else {
-            // For older browsers
-            installSetTimeoutImplementation(attachTo);
-        }
-
-        attachTo.clearImmediate = tasks.remove;
-    }
-}(typeof global === "object" && global ? global : this));
 ;(function(definition){if(typeof exports==="object"){module.exports=definition();}else if(typeof define==="function"&&define.amd){define(definition);}else{mori=definition();}})(function(){return function(){
 function aa(){return function(a){return a}}function f(a){return function(){return this[a]}}function m(a){return function(){return a}}var n,ba=this;
 function p(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
@@ -16775,6 +16478,12 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
+
   // All our modules will see our own require.
   (function() {
     
@@ -16782,7 +16491,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // app.coffee
     require.register('component-400/src/app.js', function(exports, require, module) {
     
-      var AppView, Collection, mediator;
+      var AppView, Collection, mediator, mori;
+      
+      mori = require('./modules/deps').mori;
       
       mediator = require('./modules/mediator');
       
@@ -16815,23 +16526,18 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // collection.coffee
     require.register('component-400/src/models/collection.js', function(exports, require, module) {
     
-      var Collection, mediator,
+      var Collection, mediator, mori, _, _ref,
         __hasProp = {}.hasOwnProperty;
+      
+      _ref = require('../modules/deps'), _ = _ref._, mori = _ref.mori;
       
       mediator = require('../modules/mediator');
       
       Collection = (function() {
-        Collection.prototype.dict = {
-          'MATCH': 'direct hit',
-          'TYPE_CONVERTED': 'converted type',
-          'OTHER': 'synonym',
-          'WILDCARD': 'wildcard'
-        };
-      
         Collection.prototype.type = 'gene';
       
         function Collection(data) {
-          var extract, key, value, _ref,
+          var extract, key, value, _ref1,
             _this = this;
           this.data = data;
           this.selected = mori.set();
@@ -16858,10 +16564,10 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 return _results1;
             }
           };
-          _ref = this.data.matches;
-          for (key in _ref) {
-            if (!__hasProp.call(_ref, key)) continue;
-            value = _ref[key];
+          _ref1 = this.data.matches;
+          for (key in _ref1) {
+            if (!__hasProp.call(_ref1, key)) continue;
+            value = _ref1[key];
             if (key !== 'DUPLICATE') {
               extract(value);
             }
@@ -16883,10 +16589,27 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     });
 
     
+    // deps.coffee
+    require.register('component-400/src/modules/deps.js', function(exports, require, module) {
+    
+      module.exports = {
+        _: _,
+        mori: mori,
+        BackboneEvents: BackboneEvents,
+        saveAs: saveAs,
+        csv: csv,
+        $: $
+      };
+      
+    });
+
+    
     // formatter.coffee
     require.register('component-400/src/modules/formatter.js', function(exports, require, module) {
     
-      var escape;
+      var _;
+      
+      _ = require('./deps')._;
       
       module.exports = {
         'primary': function(model) {
@@ -16895,7 +16618,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             key = _ref[_i];
             if (val = model.summary[key]) {
-              return escape(val);
+              return val;
             }
           }
           val = [0, 'NA'];
@@ -16904,24 +16627,27 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
             v = _ref1[k];
             if (v) {
               if ((len = ('' + v).replace(/\W/, '').length) > val[0]) {
-                val = [len, escape(v)];
+                val = [len, v];
               }
             }
           }
           return val[1];
         },
         'csv': function(model, columns) {
-          var cols, row;
-          if (columns == null) {
-            columns = true;
+          var column, row, value;
+          if (!columns) {
+            columns = _.keys(model.summary);
           }
-          cols = [].concat(['provided'], _.keys(model.summary));
-          row = [].concat([model.input.join(', ')], _.values(model.summary));
-          if (columns) {
-            return [cols, row];
-          } else {
-            return row;
-          }
+          row = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = columns.length; _i < _len; _i++) {
+              column = columns[_i];
+              _results.push((value = model.summary[column]) ? value : '');
+            }
+            return _results;
+          })();
+          return [columns, row];
         },
         'flyout': function(model) {
           var format, k, v, _ref, _results;
@@ -16933,15 +16659,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           for (k in _ref) {
             v = _ref[k];
             if (v) {
-              _results.push([format(k), escape(v)]);
+              _results.push([format(k), v]);
             }
           }
           return _results;
         }
-      };
-      
-      escape = function(string) {
-        return JSON.stringify(string).slice(1, -1);
       };
       
     });
@@ -16950,7 +16672,65 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // mediator.coffee
     require.register('component-400/src/modules/mediator.js', function(exports, require, module) {
     
+      var BackboneEvents;
+      
+      BackboneEvents = require('./deps').BackboneEvents;
+      
       module.exports = _.extend({}, BackboneEvents);
+      
+    });
+
+    
+    // slicer.coffee
+    require.register('component-400/src/modules/slicer.js', function(exports, require, module) {
+    
+      module.exports = function(collection, aRng, bRng, handler) {
+        var aUs, bUs, item, _i, _len, _ref, _results;
+        _results = [];
+        for (_i = 0, _len = collection.length; _i < _len; _i++) {
+          item = collection[_i];
+          _ref = item.range, aUs = _ref[0], bUs = _ref[1];
+          if (aUs >= aRng) {
+            if (aUs === aRng) {
+              if (bUs <= bRng) {
+                handler.call(this, item, 0, item.matches.length);
+                if (bUs === bRng) {
+                  break;
+                } else {
+                  _results.push(void 0);
+                }
+              } else {
+                handler.call(this, item, 0, bRng - aUs);
+                break;
+              }
+            } else {
+              if (bUs > bRng) {
+                _results.push(handler.call(this, item, 0, bRng - aUs));
+              } else {
+                handler.call(this, item, 0, item.matches.length);
+                if (bUs === bRng) {
+                  break;
+                } else {
+                  _results.push(void 0);
+                }
+              }
+            }
+          } else {
+            if (bUs <= bRng) {
+              handler.call(this, item, aRng - aUs, item.matches.length);
+              if (bUs === bRng) {
+                break;
+              } else {
+                _results.push(void 0);
+              }
+            } else {
+              handler.call(this, item, aRng - aUs, bRng - aUs);
+              break;
+            }
+          }
+        }
+        return _results;
+      };
       
     });
 
@@ -16958,7 +16738,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // view.coffee
     require.register('component-400/src/modules/view.js', function(exports, require, module) {
     
-      var View, id;
+      var $, View, id;
+      
+      $ = require('./deps').$;
       
       id = 0;
       
@@ -17084,13 +16866,25 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         (function() {
           (function() {
             if (this.input) {
-              __out.push('\n    <td rowspan="');
-              __out.push(__sanitize(this.rowspan));
-              __out.push('" class="');
-              __out.push(__sanitize(this["class"]));
-              __out.push('">');
-              __out.push(this.input);
-              __out.push('</td>\n');
+              __out.push('\n    ');
+              if (this.continuing) {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push(' <em>cont.</em></td>\n    ');
+              } else {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push('</td>\n    ');
+              }
+              __out.push('\n');
             }
           
             __out.push('\n<td>\n    <a>');
@@ -17156,7 +16950,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="border">\n    <div class="thead">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n        </table>\n    </div>\n    <div class="wrapper">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        </table>\n    </div>\n</div>');
+            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -17474,120 +17268,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     });
 
     
-    // list.eco
-    require.register('component-400/src/templates/summary/list.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<ul class="inline">\n    <li>fkh</li>\n    <li>pan</li>\n</ul>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
-    // row.eco
-    require.register('component-400/src/templates/summary/row.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<td>');
-          
-            __out.push(this.input.join(', '));
-          
-            __out.push('</td>\n<td>\n    <a>');
-          
-            __out.push(this.matched);
-          
-            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
     // tab.eco
     require.register('component-400/src/templates/summary/tab.js', function(exports, require, module) {
     
@@ -17645,59 +17325,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     });
 
     
-    // table.eco
-    require.register('component-400/src/templates/summary/table.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>\n\n<div class="paginator"></div>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
     // tabs.eco
     require.register('component-400/src/templates/summary/tabs.js', function(exports, require, module) {
     
@@ -17741,6 +17368,138 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         (function() {
           (function() {
             __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="help"></span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // row.eco
+    require.register('component-400/src/templates/table/row.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            if (this.input) {
+              __out.push('\n    ');
+              if (this.continuing) {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push(' <em>cont.</em></td>\n    ');
+              } else {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push('</td>\n    ');
+              }
+              __out.push('\n');
+            }
+          
+            __out.push('\n<td>\n    <a>');
+          
+            __out.push(this.matched);
+          
+            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // table.eco
+    require.register('component-400/src/templates/table/table.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -17809,9 +17568,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // app.coffee
     require.register('component-400/src/views/app.js', function(exports, require, module) {
     
-      var AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _ref,
+      var $, AppView, DuplicatesTableView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      $ = require('../modules/deps').$;
       
       mediator = require('../modules/mediator');
       
@@ -17819,7 +17580,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       HeaderView = require('./header');
       
-      DuplicatesView = require('./duplicates');
+      DuplicatesTableView = require('./duplicates');
       
       NoMatchesView = require('./nomatches');
       
@@ -17845,22 +17606,18 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         };
       
         AppView.prototype.render = function() {
-          var collection, data, dict, view, _ref1;
+          var collection, data, dict, _ref1;
           this.el.append((new HeaderView({
             'collection': this.collection
           })).render().el);
           _ref1 = this.collection, data = _ref1.data, dict = _ref1.dict;
           if (collection = data.matches.DUPLICATE) {
-            this.el.append((view = new DuplicatesView({
+            this.el.append((new DuplicatesTableView({
               collection: collection
             })).render().el);
           }
-          if (view != null) {
-            view.adjust();
-          }
           this.el.append((new SummaryView({
-            'collection': data.matches,
-            dict: dict
+            'collection': data.matches
           })).render().el);
           return this;
         };
@@ -17899,7 +17656,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // duplicates.coffee
     require.register('component-400/src/views/duplicates.js', function(exports, require, module) {
     
-      var DuplicatesRowView, DuplicatesView, FlyoutView, View, formatter, mediator, _ref,
+      var DuplicatesTableRowView, DuplicatesTableView, FlyoutView, Table, View, formatter, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -17911,173 +17668,83 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       FlyoutView = require('../views/flyout');
       
-      DuplicatesView = (function(_super) {
-        __extends(DuplicatesView, _super);
+      Table = require('../views/table');
       
-        DuplicatesView.prototype.template = require('../templates/duplicates/table');
+      DuplicatesTableRowView = (function(_super) {
+        __extends(DuplicatesTableRowView, _super);
       
-        DuplicatesView.prototype.events = {
-          'click .button.add-all': 'addAll',
-          'click .button.remove-all': 'removeAll'
-        };
-      
-        function DuplicatesView() {
-          DuplicatesView.__super__.constructor.apply(this, arguments);
-          this.el.addClass('duplicates section');
-        }
-      
-        DuplicatesView.prototype.render = function() {
-          var i, input, j, matches, model, tbody, view, _i, _len, _ref, _ref1;
-          this.el.html(this.template());
-          tbody = this.el.find('tbody');
-          i = 0;
-          _ref = this.collection;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            _ref1 = _ref[_i], input = _ref1.input, matches = _ref1.matches;
-            for (j in matches) {
-              model = matches[j];
-              if (j === '0') {
-                this.views.push(view = new DuplicatesRowView({
-                  'rowspan': matches.length,
-                  'class': ['even', 'odd'][i % 2],
-                  input: input,
-                  model: model
-                }));
-                i++;
-              } else {
-                this.views.push(view = new DuplicatesRowView({
-                  model: model
-                }));
-              }
-              tbody.append(view.render().el);
-            }
-          }
-          return this;
-        };
-      
-        DuplicatesView.prototype.adjust = function() {
-          var faux, real;
-          faux = this.el.find('.thead thead');
-          real = this.el.find('.wrapper thead');
-          real.parent().css({
-            'margin-top': -real.height() + 'px'
-          });
-          real.find('th').each(function(i, th) {
-            return faux.find("th:eq(" + i + ")").width($(th).width());
-          });
-          return this;
-        };
-      
-        DuplicatesView.prototype.addAll = function(ev) {
-          if (!$(ev.target).hasClass('disabled')) {
-            return this.doAll('add');
-          }
-        };
-      
-        DuplicatesView.prototype.removeAll = function(ev) {
-          if (!$(ev.target).hasClass('disabled')) {
-            return this.doAll('remove');
-          }
-        };
-      
-        DuplicatesView.prototype.doAll = function(fn) {
-          var buttons, i, job, length, q,
-            _this = this;
-          (buttons = this.el.find('header .button')).addClass('disabled');
-          length = i = this.views.length;
-          q = queue(50);
-          job = function(cb) {
-            if (i--) {
-              _this.views[length - i - 1][fn]();
-              q.defer(job);
-            } else {
-              buttons.removeClass('disabled');
-            }
-            return setImmediate(cb);
-          };
-          return q.defer(job);
-        };
-      
-        return DuplicatesView;
-      
-      })(View);
-      
-      DuplicatesRowView = (function(_super) {
-        __extends(DuplicatesRowView, _super);
-      
-        function DuplicatesRowView() {
-          _ref = DuplicatesRowView.__super__.constructor.apply(this, arguments);
+        function DuplicatesTableRowView() {
+          _ref = DuplicatesTableRowView.__super__.constructor.apply(this, arguments);
           return _ref;
         }
       
-        DuplicatesRowView.prototype.template = require('../templates/duplicates/row');
+        DuplicatesTableRowView.prototype.template = require('../templates/duplicates/row');
       
-        DuplicatesRowView.prototype.tag = 'tr';
-      
-        DuplicatesRowView.prototype.events = {
+        DuplicatesTableRowView.prototype.events = {
           'click .button': 'toggle',
           'mouseover .help-flyout': 'toggleFlyout',
           'mouseout .help-flyout': 'toggleFlyout',
           'click a': 'portal'
         };
       
-        DuplicatesRowView.prototype.render = function() {
-          var matched;
-          matched = formatter.primary(this.model);
-          this.el.html(this.template(_.extend(this.options, {
-            matched: matched
-          })));
-          return this;
-        };
-      
-        DuplicatesRowView.prototype.toggle = function() {
+        DuplicatesTableRowView.prototype.toggle = function() {
           var _base;
-          if ((_base = this.options).selected == null) {
+          if ((_base = this.model).selected == null) {
             _base.selected = false;
           }
-          this.options.selected = !this.options.selected;
-          mediator.trigger('item:toggle', this.options.selected, this.model.id);
+          this.model.selected = !this.model.selected;
+          mediator.trigger('item:toggle', this.model.selected, this.model.id);
           return this.render();
         };
       
-        DuplicatesRowView.prototype.add = function() {
-          mediator.trigger('item:toggle', (this.options.selected = true), this.model.id);
-          return this.render();
+        return DuplicatesTableRowView;
+      
+      })(Table.TableRowView);
+      
+      DuplicatesTableView = (function(_super) {
+        __extends(DuplicatesTableView, _super);
+      
+        DuplicatesTableView.prototype.template = require('../templates/duplicates/table');
+      
+        DuplicatesTableView.prototype.rowClass = DuplicatesTableRowView;
+      
+        DuplicatesTableView.prototype.events = {
+          'click .button.add-all': 'addAll',
+          'click .button.remove-all': 'removeAll'
         };
       
-        DuplicatesRowView.prototype.remove = function() {
-          mediator.trigger('item:toggle', (this.options.selected = false), this.model.id);
-          return this.render();
+        function DuplicatesTableView() {
+          DuplicatesTableView.__super__.constructor.apply(this, arguments);
+          this.el.addClass('duplicates section');
+        }
+      
+        DuplicatesTableView.prototype.addAll = function() {
+          return this.doAll(true);
         };
       
-        DuplicatesRowView.prototype.toggleFlyout = function(ev) {
-          var view, _i, _len, _ref1, _results;
-          switch (ev.type) {
-            case 'mouseover':
-              this.views.push(view = new FlyoutView({
-                model: this.model
-              }));
-              return $(ev.target).append(view.render().el);
-            case 'mouseout':
-              _ref1 = this.views;
-              _results = [];
-              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                view = _ref1[_i];
-                _results.push(view.dispose());
-              }
-              return _results;
+        DuplicatesTableView.prototype.removeAll = function() {
+          return this.doAll(false);
+        };
+      
+        DuplicatesTableView.prototype.doAll = function(state) {
+          var item, match, _i, _j, _len, _len1, _ref1, _ref2;
+          _ref1 = this.collection;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            item = _ref1[_i];
+            _ref2 = item.matches;
+            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+              match = _ref2[_j];
+              mediator.trigger('item:toggle', (match.selected = state), match.id);
+            }
           }
+          return this.renderPage.apply(this, this.range);
         };
       
-        DuplicatesRowView.prototype.portal = function(ev) {
-          return mediator.trigger('object:click', this.model, ev.target);
-        };
+        return DuplicatesTableView;
       
-        return DuplicatesRowView;
+      })(Table.TableView);
       
-      })(View);
-      
-      module.exports = DuplicatesView;
+      module.exports = DuplicatesTableView;
       
     });
 
@@ -18206,9 +17873,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // paginator.coffee
     require.register('component-400/src/views/paginator.js', function(exports, require, module) {
     
-      var Paginator, View, mediator,
+      var $, Paginator, View, mediator,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      $ = require('../modules/deps').$;
       
       mediator = require('../modules/mediator');
       
@@ -18306,9 +17975,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // summary.coffee
     require.register('component-400/src/views/summary.js', function(exports, require, module) {
     
-      var FlyoutView, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, formatter, mediator, _ref, _ref1,
+      var Collection, SummaryView, TabSwitcherView, TabTableView, Table, View, csv, dict, formatter, mediator, saveAs, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      _ref = require('../modules/deps'), _ = _ref._, csv = _ref.csv, saveAs = _ref.saveAs;
       
       mediator = require('../modules/mediator');
       
@@ -18316,9 +17987,16 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       View = require('../modules/view');
       
-      Paginator = require('./paginator');
+      Table = require('./table');
       
-      FlyoutView = require('./flyout');
+      Collection = require('../models/collection');
+      
+      dict = {
+        'MATCH': 'direct hit',
+        'TYPE_CONVERTED': 'converted type',
+        'OTHER': 'synonym',
+        'WILDCARD': 'wildcard'
+      };
       
       SummaryView = (function(_super) {
         __extends(SummaryView, _super);
@@ -18335,25 +18013,25 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         SummaryView.prototype.render = function() {
-          var collection, content, isFirst, reason, tabs, view, _ref;
+          var collection, content, isFirst, reason, tabs, view, _ref1;
           this.el.html(this.template());
           tabs = this.el.find('.tabs');
           content = this.el.find('.tabs-content');
           isFirst = true;
-          _ref = this.collection;
-          for (reason in _ref) {
-            collection = _ref[reason];
-            if (!(reason !== 'DUPLICATE' && collection.length)) {
+          _ref1 = this.collection;
+          for (reason in _ref1) {
+            collection = _ref1[reason];
+            if (!((reason !== 'MATCH' && reason !== 'DUPLICATE') && collection.length)) {
               continue;
             }
             this.views.push(view = new TabSwitcherView({
               'model': {
-                'name': this.options.dict[reason]
+                'name': dict[reason]
               },
               reason: reason
             }));
             tabs.append(view.render().el);
-            this.views.push(view = new TableView({
+            this.views.push(view = new TabTableView({
               collection: collection,
               reason: reason
             }));
@@ -18366,24 +18044,25 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         };
       
         SummaryView.prototype.download = function() {
-          var blob, columns, converted, item, list, reason, row, rows, _i, _len, _ref, _ref1;
+          var blob, collection, columns, converted, item, match, reason, row, rows, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
           columns = null;
           rows = [];
-          _ref = this.collection;
-          for (reason in _ref) {
-            list = _ref[reason];
-            if (reason !== 'DUPLICATE') {
-              for (_i = 0, _len = list.length; _i < _len; _i++) {
-                item = list[_i];
-                if (columns) {
-                  rows.push(formatter.csv(item, false));
-                } else {
-                  _ref1 = formatter.csv(item, true), columns = _ref1[0], row = _ref1[1];
-                  rows.push(row);
+          _ref1 = this.collection;
+          for (reason in _ref1) {
+            collection = _ref1[reason];
+            if ((reason !== 'MATCH' && reason !== 'DUPLICATE') && collection.length) {
+              for (_i = 0, _len = collection.length; _i < _len; _i++) {
+                item = collection[_i];
+                _ref2 = item.matches;
+                for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                  match = _ref2[_j];
+                  _ref3 = formatter.csv(match, columns), columns = _ref3[0], row = _ref3[1];
+                  rows.push([item.input, reason].concat(row));
                 }
               }
             }
           }
+          columns = ['input', 'reason'].concat(columns);
           converted = csv(_.map(rows, function(row) {
             return _.zipObject(columns, row);
           }));
@@ -18423,31 +18102,124 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       })(View);
       
-      TabContentView = (function(_super) {
-        __extends(TabContentView, _super);
+      TabTableView = (function(_super) {
+        __extends(TabTableView, _super);
       
-        TabContentView.prototype.tag = 'li';
+        TabTableView.prototype.tag = 'li';
       
-        function TabContentView() {
-          TabContentView.__super__.constructor.apply(this, arguments);
+        function TabTableView() {
           mediator.on('tab:switch', function(reason) {
             return this.el.toggleClass('active', this.options.reason === reason);
           }, this);
+          this;
+          TabTableView.__super__.constructor.apply(this, arguments);
         }
       
-        return TabContentView;
+        return TabTableView;
+      
+      })(Table.TableView);
+      
+      module.exports = SummaryView;
+      
+    });
+
+    
+    // table.coffee
+    require.register('component-400/src/views/table.js', function(exports, require, module) {
+    
+      var $, FlyoutView, Paginator, TableRowView, TableView, View, formatter, mediator, slicer, _, _ref, _ref1,
+        __hasProp = {}.hasOwnProperty,
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      _ref = require('../modules/deps'), _ = _ref._, $ = _ref.$;
+      
+      mediator = require('../modules/mediator');
+      
+      formatter = require('../modules/formatter');
+      
+      View = require('../modules/view');
+      
+      Paginator = require('./paginator');
+      
+      FlyoutView = require('./flyout');
+      
+      slicer = require('../modules/slicer');
+      
+      TableRowView = (function(_super) {
+        __extends(TableRowView, _super);
+      
+        function TableRowView() {
+          _ref1 = TableRowView.__super__.constructor.apply(this, arguments);
+          return _ref1;
+        }
+      
+        TableRowView.prototype.template = require('../templates/table/row');
+      
+        TableRowView.prototype.tag = 'tr';
+      
+        TableRowView.prototype.events = {
+          'mouseover .help-flyout': 'toggleFlyout',
+          'mouseout .help-flyout': 'toggleFlyout',
+          'click a': 'portal'
+        };
+      
+        TableRowView.prototype.render = function() {
+          var matched;
+          matched = formatter.primary(this.model);
+          this.el.html(this.template(_.extend({}, this.model, this.options, {
+            matched: matched
+          })));
+          return this;
+        };
+      
+        TableRowView.prototype.toggleFlyout = function(ev) {
+          var view, _i, _len, _ref2, _results;
+          switch (ev.type) {
+            case 'mouseover':
+              this.views.push(view = new FlyoutView({
+                model: this.model
+              }));
+              return $(ev.target).append(view.render().el);
+            case 'mouseout':
+              _ref2 = this.views;
+              _results = [];
+              for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+                view = _ref2[_i];
+                _results.push(view.dispose());
+              }
+              return _results;
+          }
+        };
+      
+        TableRowView.prototype.portal = function(ev) {
+          return mediator.trigger('object:click', this.model, ev.target);
+        };
+      
+        return TableRowView;
       
       })(View);
       
       TableView = (function(_super) {
         __extends(TableView, _super);
       
-        TableView.prototype.template = require('../templates/summary/table');
+        TableView.prototype.template = require('../templates/table/table');
+      
+        TableView.prototype.rowClass = TableRowView;
       
         function TableView() {
+          var _this = this;
           TableView.__super__.constructor.apply(this, arguments);
           this.pagin = new Paginator({
-            'total': this.collection.length
+            'total': (function() {
+              var i;
+              i = 0;
+              return _.reduce(_this.collection, function(sum, item) {
+                sum += (item.length = item.matches.length);
+                item.range = [i, sum];
+                i = sum;
+                return sum;
+              }, 0);
+            })()
           });
           mediator.on('page:change', function(cid, a, b) {
             if (cid !== this.pagin.cid) {
@@ -18463,98 +18235,48 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           return this;
         };
       
-        TableView.prototype.renderPage = function(a, b) {
-          var model, tbody, view, _i, _j, _len, _len1, _ref, _ref1, _results;
+        TableView.prototype.renderPage = function(aRng, bRng) {
+          var i, tbody, view, _i, _len, _ref2;
           tbody = this.el.find('tbody');
-          _ref = this.views;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            view = _ref[_i];
+          this.range = [aRng, bRng];
+          _ref2 = this.views;
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            view = _ref2[_i];
             view.dispose();
           }
-          _ref1 = this.collection.slice(a, b);
-          _results = [];
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            model = _ref1[_j];
-            this.views.push(view = new TableRowView({
-              model: model
-            }));
-            _results.push(tbody.append(view.render().el));
-          }
-          return _results;
+          i = 0;
+          return slicer.apply(this, [this.collection].concat(this.range, function(_arg, begin, end) {
+            var input, j, matches, model, _ref3;
+            input = _arg.input, matches = _arg.matches;
+            _ref3 = matches.slice(begin, end);
+            for (j in _ref3) {
+              model = _ref3[j];
+              if (j === '0') {
+                this.views.push(view = new this.rowClass({
+                  'rowspan': end - begin,
+                  'class': ['even', 'odd'][i % 2],
+                  'continuing': begin !== 0,
+                  input: input,
+                  model: model
+                }));
+              } else {
+                this.views.push(view = new this.rowClass({
+                  model: model
+                }));
+              }
+              tbody.append(view.render().el);
+            }
+            return i++;
+          }));
         };
       
         return TableView;
       
-      })(TabContentView);
-      
-      TableRowView = (function(_super) {
-        __extends(TableRowView, _super);
-      
-        function TableRowView() {
-          _ref = TableRowView.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-      
-        TableRowView.prototype.template = require('../templates/summary/row');
-      
-        TableRowView.prototype.tag = 'tr';
-      
-        TableRowView.prototype.events = {
-          'mouseover .help-flyout': 'toggleFlyout',
-          'mouseout .help-flyout': 'toggleFlyout',
-          'click a': 'portal'
-        };
-      
-        TableRowView.prototype.render = function() {
-          this.el.html(this.template({
-            'input': this.model.input,
-            'matched': formatter.primary(this.model)
-          }));
-          return this;
-        };
-      
-        TableRowView.prototype.toggleFlyout = function(ev) {
-          var view, _i, _len, _ref1, _results;
-          switch (ev.type) {
-            case 'mouseover':
-              this.views.push(view = new FlyoutView({
-                model: this.model
-              }));
-              return $(ev.target).append(view.render().el);
-            case 'mouseout':
-              _ref1 = this.views;
-              _results = [];
-              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                view = _ref1[_i];
-                _results.push(view.dispose());
-              }
-              return _results;
-          }
-        };
-      
-        TableRowView.prototype.portal = function(ev) {
-          return mediator.trigger('object:click', this.model, ev.target);
-        };
-      
-        return TableRowView;
-      
       })(View);
       
-      ListView = (function(_super) {
-        __extends(ListView, _super);
+      exports.TableView = TableView;
       
-        function ListView() {
-          _ref1 = ListView.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-      
-        ListView.prototype.template = require('../templates/summary/list');
-      
-        return ListView;
-      
-      })(TabContentView);
-      
-      module.exports = SummaryView;
+      exports.TableRowView = TableRowView;
       
     });
 
@@ -18599,9 +18321,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
   // Return the main app.
   var main = require("component-400/src/app.js");
 
-  // Global on server, window in browser.
-  var root = this;
-
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
@@ -18627,7 +18346,4 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
   
   require.alias("component-400/src/app.js", "component-400/index.js");
   
-
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
 })();

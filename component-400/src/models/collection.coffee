@@ -1,13 +1,8 @@
+{ _, mori } = require '../modules/deps'
+
 mediator = require '../modules/mediator'
 
 class Collection
-
-    # Translations.
-    dict:
-        'MATCH': 'direct hit'
-        'TYPE_CONVERTED': 'converted type'
-        'OTHER': 'synonym'
-        'WILDCARD': 'wildcard'
 
     # A type for header display. In lowercase.
     type: 'gene'

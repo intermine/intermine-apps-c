@@ -1,5 +1,0 @@
-<td><%- @input.join(', ') %></td>
-<td>
-    <a><%- @matched %></a>
-    <span class="help-flyout"></span>
-</td>

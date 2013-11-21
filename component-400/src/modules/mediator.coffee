@@ -1,2 +1,3 @@
-#!/usr/bin/env coffee
+{ BackboneEvents } = require './deps'
+
 module.exports = _.extend {}, BackboneEvents

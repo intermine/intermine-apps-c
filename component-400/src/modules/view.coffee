@@ -1,11 +1,20 @@
+{ $ } = require './deps'
+
 # So we can generate ids for components.
 id = 0
 
 class View
 
+    # Automatically render?
     autoRender: no
+    
+    # Event delegation pattern.
     splitter: /^(\S+)\s*(.*)$/
+    
+    # Default DOM element.
     tag: 'div'
+    
+    # Default template function.
     template: -> ''
 
     constructor: (opts) ->
@@ -38,6 +47,7 @@ class View
         # Auto-render?
         do @render if @autoRender
 
+    # Override me.
     render: ->
         if @model
             @el.html @template JSON.parse(JSON.stringify(@model))

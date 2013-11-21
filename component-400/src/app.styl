@@ -22,8 +22,7 @@ a
         line-height: 14px
         text-align: center
         color: #fff
-        background: rgb(43, 166, 203)
-        // border-radius: 50%
+        background: #2ba6cb
         display: inline-block
 
     .tooltip
@@ -83,33 +82,17 @@ a
                         text-align: left
 
 .duplicates
-    .border
-        border: 1px solid #ddd
-        border-radius: 3px
+    table
+        border: 1px solid #ddd !important
         margin-bottom: 10px
 
-    .thead table thead
-        visibility: visible
-
-    .wrapper
-        overflow: auto
-        overflow-x: hidden
-        max-height: 300px
-
-    table
-        margin: 0
-        border: 0
-
-        thead
-            visibility: hidden
-
-        // fix the leading table row columns
-        tbody
-            td.odd
-                background: #f9f9f9
-            
-            td.even
-                background: #fff
+table.striped
+    tbody
+        td.odd
+            background: #f9f9f9
+        
+        td.even
+            background: #fff
 
 .summary
     dl.tabs
@@ -117,12 +100,13 @@ a
             a
                 text-transform: capitalize
 
-    ul.pagination
-        text-align: center
+ul.pagination
+    text-align: center
+    margin-bottom: 20px
 
-        li
-            display: inline-block
-            float: none
+    li
+        display: inline-block
+        float: none
 
 ul.inline
     list-style: none

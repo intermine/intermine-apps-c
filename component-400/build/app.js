@@ -198,6 +198,12 @@
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
+
   // All our modules will see our own require.
   (function() {
     
@@ -205,7 +211,9 @@
     // app.coffee
     require.register('component-400/src/app.js', function(exports, require, module) {
     
-      var AppView, Collection, mediator;
+      var AppView, Collection, mediator, mori;
+      
+      mori = require('./modules/deps').mori;
       
       mediator = require('./modules/mediator');
       
@@ -238,23 +246,18 @@
     // collection.coffee
     require.register('component-400/src/models/collection.js', function(exports, require, module) {
     
-      var Collection, mediator,
+      var Collection, mediator, mori, _, _ref,
         __hasProp = {}.hasOwnProperty;
+      
+      _ref = require('../modules/deps'), _ = _ref._, mori = _ref.mori;
       
       mediator = require('../modules/mediator');
       
       Collection = (function() {
-        Collection.prototype.dict = {
-          'MATCH': 'direct hit',
-          'TYPE_CONVERTED': 'converted type',
-          'OTHER': 'synonym',
-          'WILDCARD': 'wildcard'
-        };
-      
         Collection.prototype.type = 'gene';
       
         function Collection(data) {
-          var extract, key, value, _ref,
+          var extract, key, value, _ref1,
             _this = this;
           this.data = data;
           this.selected = mori.set();
@@ -281,10 +284,10 @@
                 return _results1;
             }
           };
-          _ref = this.data.matches;
-          for (key in _ref) {
-            if (!__hasProp.call(_ref, key)) continue;
-            value = _ref[key];
+          _ref1 = this.data.matches;
+          for (key in _ref1) {
+            if (!__hasProp.call(_ref1, key)) continue;
+            value = _ref1[key];
             if (key !== 'DUPLICATE') {
               extract(value);
             }
@@ -306,10 +309,27 @@
     });
 
     
+    // deps.coffee
+    require.register('component-400/src/modules/deps.js', function(exports, require, module) {
+    
+      module.exports = {
+        _: _,
+        mori: mori,
+        BackboneEvents: BackboneEvents,
+        saveAs: saveAs,
+        csv: csv,
+        $: $
+      };
+      
+    });
+
+    
     // formatter.coffee
     require.register('component-400/src/modules/formatter.js', function(exports, require, module) {
     
-      var escape;
+      var _;
+      
+      _ = require('./deps')._;
       
       module.exports = {
         'primary': function(model) {
@@ -318,7 +338,7 @@
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             key = _ref[_i];
             if (val = model.summary[key]) {
-              return escape(val);
+              return val;
             }
           }
           val = [0, 'NA'];
@@ -327,24 +347,27 @@
             v = _ref1[k];
             if (v) {
               if ((len = ('' + v).replace(/\W/, '').length) > val[0]) {
-                val = [len, escape(v)];
+                val = [len, v];
               }
             }
           }
           return val[1];
         },
         'csv': function(model, columns) {
-          var cols, row;
-          if (columns == null) {
-            columns = true;
+          var column, row, value;
+          if (!columns) {
+            columns = _.keys(model.summary);
           }
-          cols = [].concat(['provided'], _.keys(model.summary));
-          row = [].concat([model.input.join(', ')], _.values(model.summary));
-          if (columns) {
-            return [cols, row];
-          } else {
-            return row;
-          }
+          row = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = columns.length; _i < _len; _i++) {
+              column = columns[_i];
+              _results.push((value = model.summary[column]) ? value : '');
+            }
+            return _results;
+          })();
+          return [columns, row];
         },
         'flyout': function(model) {
           var format, k, v, _ref, _results;
@@ -356,15 +379,11 @@
           for (k in _ref) {
             v = _ref[k];
             if (v) {
-              _results.push([format(k), escape(v)]);
+              _results.push([format(k), v]);
             }
           }
           return _results;
         }
-      };
-      
-      escape = function(string) {
-        return JSON.stringify(string).slice(1, -1);
       };
       
     });
@@ -373,7 +392,65 @@
     // mediator.coffee
     require.register('component-400/src/modules/mediator.js', function(exports, require, module) {
     
+      var BackboneEvents;
+      
+      BackboneEvents = require('./deps').BackboneEvents;
+      
       module.exports = _.extend({}, BackboneEvents);
+      
+    });
+
+    
+    // slicer.coffee
+    require.register('component-400/src/modules/slicer.js', function(exports, require, module) {
+    
+      module.exports = function(collection, aRng, bRng, handler) {
+        var aUs, bUs, item, _i, _len, _ref, _results;
+        _results = [];
+        for (_i = 0, _len = collection.length; _i < _len; _i++) {
+          item = collection[_i];
+          _ref = item.range, aUs = _ref[0], bUs = _ref[1];
+          if (aUs >= aRng) {
+            if (aUs === aRng) {
+              if (bUs <= bRng) {
+                handler.call(this, item, 0, item.matches.length);
+                if (bUs === bRng) {
+                  break;
+                } else {
+                  _results.push(void 0);
+                }
+              } else {
+                handler.call(this, item, 0, bRng - aUs);
+                break;
+              }
+            } else {
+              if (bUs > bRng) {
+                _results.push(handler.call(this, item, 0, bRng - aUs));
+              } else {
+                handler.call(this, item, 0, item.matches.length);
+                if (bUs === bRng) {
+                  break;
+                } else {
+                  _results.push(void 0);
+                }
+              }
+            }
+          } else {
+            if (bUs <= bRng) {
+              handler.call(this, item, aRng - aUs, item.matches.length);
+              if (bUs === bRng) {
+                break;
+              } else {
+                _results.push(void 0);
+              }
+            } else {
+              handler.call(this, item, aRng - aUs, bRng - aUs);
+              break;
+            }
+          }
+        }
+        return _results;
+      };
       
     });
 
@@ -381,7 +458,9 @@
     // view.coffee
     require.register('component-400/src/modules/view.js', function(exports, require, module) {
     
-      var View, id;
+      var $, View, id;
+      
+      $ = require('./deps').$;
       
       id = 0;
       
@@ -507,13 +586,25 @@
         (function() {
           (function() {
             if (this.input) {
-              __out.push('\n    <td rowspan="');
-              __out.push(__sanitize(this.rowspan));
-              __out.push('" class="');
-              __out.push(__sanitize(this["class"]));
-              __out.push('">');
-              __out.push(this.input);
-              __out.push('</td>\n');
+              __out.push('\n    ');
+              if (this.continuing) {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push(' <em>cont.</em></td>\n    ');
+              } else {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push('</td>\n    ');
+              }
+              __out.push('\n');
             }
           
             __out.push('\n<td>\n    <a>');
@@ -579,7 +670,7 @@
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="border">\n    <div class="thead">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n        </table>\n    </div>\n    <div class="wrapper">\n        <table>\n            <thead>\n                <tr>\n                    <th>Identifier you provided</th>\n                    <th>Matches</th>\n                    <th>Action</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        </table>\n    </div>\n</div>');
+            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -897,120 +988,6 @@
     });
 
     
-    // list.eco
-    require.register('component-400/src/templates/summary/list.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<ul class="inline">\n    <li>fkh</li>\n    <li>pan</li>\n</ul>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
-    // row.eco
-    require.register('component-400/src/templates/summary/row.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<td>');
-          
-            __out.push(this.input.join(', '));
-          
-            __out.push('</td>\n<td>\n    <a>');
-          
-            __out.push(this.matched);
-          
-            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
     // tab.eco
     require.register('component-400/src/templates/summary/tab.js', function(exports, require, module) {
     
@@ -1068,59 +1045,6 @@
     });
 
     
-    // table.eco
-    require.register('component-400/src/templates/summary/table.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<table>\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>\n\n<div class="paginator"></div>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
     // tabs.eco
     require.register('component-400/src/templates/summary/tabs.js', function(exports, require, module) {
     
@@ -1164,6 +1088,138 @@
         (function() {
           (function() {
             __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="help"></span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // row.eco
+    require.register('component-400/src/templates/table/row.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            if (this.input) {
+              __out.push('\n    ');
+              if (this.continuing) {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push(' <em>cont.</em></td>\n    ');
+              } else {
+                __out.push('\n        <td rowspan="');
+                __out.push(__sanitize(this.rowspan));
+                __out.push('" class="');
+                __out.push(__sanitize(this["class"]));
+                __out.push('">');
+                __out.push(this.input);
+                __out.push('</td>\n    ');
+              }
+              __out.push('\n');
+            }
+          
+            __out.push('\n<td>\n    <a>');
+          
+            __out.push(this.matched);
+          
+            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // table.eco
+    require.register('component-400/src/templates/table/table.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -1232,9 +1288,11 @@
     // app.coffee
     require.register('component-400/src/views/app.js', function(exports, require, module) {
     
-      var AppView, DuplicatesView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _ref,
+      var $, AppView, DuplicatesTableView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      $ = require('../modules/deps').$;
       
       mediator = require('../modules/mediator');
       
@@ -1242,7 +1300,7 @@
       
       HeaderView = require('./header');
       
-      DuplicatesView = require('./duplicates');
+      DuplicatesTableView = require('./duplicates');
       
       NoMatchesView = require('./nomatches');
       
@@ -1268,22 +1326,18 @@
         };
       
         AppView.prototype.render = function() {
-          var collection, data, dict, view, _ref1;
+          var collection, data, dict, _ref1;
           this.el.append((new HeaderView({
             'collection': this.collection
           })).render().el);
           _ref1 = this.collection, data = _ref1.data, dict = _ref1.dict;
           if (collection = data.matches.DUPLICATE) {
-            this.el.append((view = new DuplicatesView({
+            this.el.append((new DuplicatesTableView({
               collection: collection
             })).render().el);
           }
-          if (view != null) {
-            view.adjust();
-          }
           this.el.append((new SummaryView({
-            'collection': data.matches,
-            dict: dict
+            'collection': data.matches
           })).render().el);
           return this;
         };
@@ -1322,7 +1376,7 @@
     // duplicates.coffee
     require.register('component-400/src/views/duplicates.js', function(exports, require, module) {
     
-      var DuplicatesRowView, DuplicatesView, FlyoutView, View, formatter, mediator, _ref,
+      var DuplicatesTableRowView, DuplicatesTableView, FlyoutView, Table, View, formatter, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -1334,173 +1388,83 @@
       
       FlyoutView = require('../views/flyout');
       
-      DuplicatesView = (function(_super) {
-        __extends(DuplicatesView, _super);
+      Table = require('../views/table');
       
-        DuplicatesView.prototype.template = require('../templates/duplicates/table');
+      DuplicatesTableRowView = (function(_super) {
+        __extends(DuplicatesTableRowView, _super);
       
-        DuplicatesView.prototype.events = {
-          'click .button.add-all': 'addAll',
-          'click .button.remove-all': 'removeAll'
-        };
-      
-        function DuplicatesView() {
-          DuplicatesView.__super__.constructor.apply(this, arguments);
-          this.el.addClass('duplicates section');
-        }
-      
-        DuplicatesView.prototype.render = function() {
-          var i, input, j, matches, model, tbody, view, _i, _len, _ref, _ref1;
-          this.el.html(this.template());
-          tbody = this.el.find('tbody');
-          i = 0;
-          _ref = this.collection;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            _ref1 = _ref[_i], input = _ref1.input, matches = _ref1.matches;
-            for (j in matches) {
-              model = matches[j];
-              if (j === '0') {
-                this.views.push(view = new DuplicatesRowView({
-                  'rowspan': matches.length,
-                  'class': ['even', 'odd'][i % 2],
-                  input: input,
-                  model: model
-                }));
-                i++;
-              } else {
-                this.views.push(view = new DuplicatesRowView({
-                  model: model
-                }));
-              }
-              tbody.append(view.render().el);
-            }
-          }
-          return this;
-        };
-      
-        DuplicatesView.prototype.adjust = function() {
-          var faux, real;
-          faux = this.el.find('.thead thead');
-          real = this.el.find('.wrapper thead');
-          real.parent().css({
-            'margin-top': -real.height() + 'px'
-          });
-          real.find('th').each(function(i, th) {
-            return faux.find("th:eq(" + i + ")").width($(th).width());
-          });
-          return this;
-        };
-      
-        DuplicatesView.prototype.addAll = function(ev) {
-          if (!$(ev.target).hasClass('disabled')) {
-            return this.doAll('add');
-          }
-        };
-      
-        DuplicatesView.prototype.removeAll = function(ev) {
-          if (!$(ev.target).hasClass('disabled')) {
-            return this.doAll('remove');
-          }
-        };
-      
-        DuplicatesView.prototype.doAll = function(fn) {
-          var buttons, i, job, length, q,
-            _this = this;
-          (buttons = this.el.find('header .button')).addClass('disabled');
-          length = i = this.views.length;
-          q = queue(50);
-          job = function(cb) {
-            if (i--) {
-              _this.views[length - i - 1][fn]();
-              q.defer(job);
-            } else {
-              buttons.removeClass('disabled');
-            }
-            return setImmediate(cb);
-          };
-          return q.defer(job);
-        };
-      
-        return DuplicatesView;
-      
-      })(View);
-      
-      DuplicatesRowView = (function(_super) {
-        __extends(DuplicatesRowView, _super);
-      
-        function DuplicatesRowView() {
-          _ref = DuplicatesRowView.__super__.constructor.apply(this, arguments);
+        function DuplicatesTableRowView() {
+          _ref = DuplicatesTableRowView.__super__.constructor.apply(this, arguments);
           return _ref;
         }
       
-        DuplicatesRowView.prototype.template = require('../templates/duplicates/row');
+        DuplicatesTableRowView.prototype.template = require('../templates/duplicates/row');
       
-        DuplicatesRowView.prototype.tag = 'tr';
-      
-        DuplicatesRowView.prototype.events = {
+        DuplicatesTableRowView.prototype.events = {
           'click .button': 'toggle',
           'mouseover .help-flyout': 'toggleFlyout',
           'mouseout .help-flyout': 'toggleFlyout',
           'click a': 'portal'
         };
       
-        DuplicatesRowView.prototype.render = function() {
-          var matched;
-          matched = formatter.primary(this.model);
-          this.el.html(this.template(_.extend(this.options, {
-            matched: matched
-          })));
-          return this;
-        };
-      
-        DuplicatesRowView.prototype.toggle = function() {
+        DuplicatesTableRowView.prototype.toggle = function() {
           var _base;
-          if ((_base = this.options).selected == null) {
+          if ((_base = this.model).selected == null) {
             _base.selected = false;
           }
-          this.options.selected = !this.options.selected;
-          mediator.trigger('item:toggle', this.options.selected, this.model.id);
+          this.model.selected = !this.model.selected;
+          mediator.trigger('item:toggle', this.model.selected, this.model.id);
           return this.render();
         };
       
-        DuplicatesRowView.prototype.add = function() {
-          mediator.trigger('item:toggle', (this.options.selected = true), this.model.id);
-          return this.render();
+        return DuplicatesTableRowView;
+      
+      })(Table.TableRowView);
+      
+      DuplicatesTableView = (function(_super) {
+        __extends(DuplicatesTableView, _super);
+      
+        DuplicatesTableView.prototype.template = require('../templates/duplicates/table');
+      
+        DuplicatesTableView.prototype.rowClass = DuplicatesTableRowView;
+      
+        DuplicatesTableView.prototype.events = {
+          'click .button.add-all': 'addAll',
+          'click .button.remove-all': 'removeAll'
         };
       
-        DuplicatesRowView.prototype.remove = function() {
-          mediator.trigger('item:toggle', (this.options.selected = false), this.model.id);
-          return this.render();
+        function DuplicatesTableView() {
+          DuplicatesTableView.__super__.constructor.apply(this, arguments);
+          this.el.addClass('duplicates section');
+        }
+      
+        DuplicatesTableView.prototype.addAll = function() {
+          return this.doAll(true);
         };
       
-        DuplicatesRowView.prototype.toggleFlyout = function(ev) {
-          var view, _i, _len, _ref1, _results;
-          switch (ev.type) {
-            case 'mouseover':
-              this.views.push(view = new FlyoutView({
-                model: this.model
-              }));
-              return $(ev.target).append(view.render().el);
-            case 'mouseout':
-              _ref1 = this.views;
-              _results = [];
-              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                view = _ref1[_i];
-                _results.push(view.dispose());
-              }
-              return _results;
+        DuplicatesTableView.prototype.removeAll = function() {
+          return this.doAll(false);
+        };
+      
+        DuplicatesTableView.prototype.doAll = function(state) {
+          var item, match, _i, _j, _len, _len1, _ref1, _ref2;
+          _ref1 = this.collection;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            item = _ref1[_i];
+            _ref2 = item.matches;
+            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+              match = _ref2[_j];
+              mediator.trigger('item:toggle', (match.selected = state), match.id);
+            }
           }
+          return this.renderPage.apply(this, this.range);
         };
       
-        DuplicatesRowView.prototype.portal = function(ev) {
-          return mediator.trigger('object:click', this.model, ev.target);
-        };
+        return DuplicatesTableView;
       
-        return DuplicatesRowView;
+      })(Table.TableView);
       
-      })(View);
-      
-      module.exports = DuplicatesView;
+      module.exports = DuplicatesTableView;
       
     });
 
@@ -1629,9 +1593,11 @@
     // paginator.coffee
     require.register('component-400/src/views/paginator.js', function(exports, require, module) {
     
-      var Paginator, View, mediator,
+      var $, Paginator, View, mediator,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      $ = require('../modules/deps').$;
       
       mediator = require('../modules/mediator');
       
@@ -1729,9 +1695,11 @@
     // summary.coffee
     require.register('component-400/src/views/summary.js', function(exports, require, module) {
     
-      var FlyoutView, ListView, Paginator, SummaryView, TabContentView, TabSwitcherView, TableRowView, TableView, View, formatter, mediator, _ref, _ref1,
+      var Collection, SummaryView, TabSwitcherView, TabTableView, Table, View, csv, dict, formatter, mediator, saveAs, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      _ref = require('../modules/deps'), _ = _ref._, csv = _ref.csv, saveAs = _ref.saveAs;
       
       mediator = require('../modules/mediator');
       
@@ -1739,9 +1707,16 @@
       
       View = require('../modules/view');
       
-      Paginator = require('./paginator');
+      Table = require('./table');
       
-      FlyoutView = require('./flyout');
+      Collection = require('../models/collection');
+      
+      dict = {
+        'MATCH': 'direct hit',
+        'TYPE_CONVERTED': 'converted type',
+        'OTHER': 'synonym',
+        'WILDCARD': 'wildcard'
+      };
       
       SummaryView = (function(_super) {
         __extends(SummaryView, _super);
@@ -1758,25 +1733,25 @@
         }
       
         SummaryView.prototype.render = function() {
-          var collection, content, isFirst, reason, tabs, view, _ref;
+          var collection, content, isFirst, reason, tabs, view, _ref1;
           this.el.html(this.template());
           tabs = this.el.find('.tabs');
           content = this.el.find('.tabs-content');
           isFirst = true;
-          _ref = this.collection;
-          for (reason in _ref) {
-            collection = _ref[reason];
-            if (!(reason !== 'DUPLICATE' && collection.length)) {
+          _ref1 = this.collection;
+          for (reason in _ref1) {
+            collection = _ref1[reason];
+            if (!((reason !== 'MATCH' && reason !== 'DUPLICATE') && collection.length)) {
               continue;
             }
             this.views.push(view = new TabSwitcherView({
               'model': {
-                'name': this.options.dict[reason]
+                'name': dict[reason]
               },
               reason: reason
             }));
             tabs.append(view.render().el);
-            this.views.push(view = new TableView({
+            this.views.push(view = new TabTableView({
               collection: collection,
               reason: reason
             }));
@@ -1789,24 +1764,25 @@
         };
       
         SummaryView.prototype.download = function() {
-          var blob, columns, converted, item, list, reason, row, rows, _i, _len, _ref, _ref1;
+          var blob, collection, columns, converted, item, match, reason, row, rows, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
           columns = null;
           rows = [];
-          _ref = this.collection;
-          for (reason in _ref) {
-            list = _ref[reason];
-            if (reason !== 'DUPLICATE') {
-              for (_i = 0, _len = list.length; _i < _len; _i++) {
-                item = list[_i];
-                if (columns) {
-                  rows.push(formatter.csv(item, false));
-                } else {
-                  _ref1 = formatter.csv(item, true), columns = _ref1[0], row = _ref1[1];
-                  rows.push(row);
+          _ref1 = this.collection;
+          for (reason in _ref1) {
+            collection = _ref1[reason];
+            if ((reason !== 'MATCH' && reason !== 'DUPLICATE') && collection.length) {
+              for (_i = 0, _len = collection.length; _i < _len; _i++) {
+                item = collection[_i];
+                _ref2 = item.matches;
+                for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                  match = _ref2[_j];
+                  _ref3 = formatter.csv(match, columns), columns = _ref3[0], row = _ref3[1];
+                  rows.push([item.input, reason].concat(row));
                 }
               }
             }
           }
+          columns = ['input', 'reason'].concat(columns);
           converted = csv(_.map(rows, function(row) {
             return _.zipObject(columns, row);
           }));
@@ -1846,31 +1822,124 @@
       
       })(View);
       
-      TabContentView = (function(_super) {
-        __extends(TabContentView, _super);
+      TabTableView = (function(_super) {
+        __extends(TabTableView, _super);
       
-        TabContentView.prototype.tag = 'li';
+        TabTableView.prototype.tag = 'li';
       
-        function TabContentView() {
-          TabContentView.__super__.constructor.apply(this, arguments);
+        function TabTableView() {
           mediator.on('tab:switch', function(reason) {
             return this.el.toggleClass('active', this.options.reason === reason);
           }, this);
+          this;
+          TabTableView.__super__.constructor.apply(this, arguments);
         }
       
-        return TabContentView;
+        return TabTableView;
+      
+      })(Table.TableView);
+      
+      module.exports = SummaryView;
+      
+    });
+
+    
+    // table.coffee
+    require.register('component-400/src/views/table.js', function(exports, require, module) {
+    
+      var $, FlyoutView, Paginator, TableRowView, TableView, View, formatter, mediator, slicer, _, _ref, _ref1,
+        __hasProp = {}.hasOwnProperty,
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      _ref = require('../modules/deps'), _ = _ref._, $ = _ref.$;
+      
+      mediator = require('../modules/mediator');
+      
+      formatter = require('../modules/formatter');
+      
+      View = require('../modules/view');
+      
+      Paginator = require('./paginator');
+      
+      FlyoutView = require('./flyout');
+      
+      slicer = require('../modules/slicer');
+      
+      TableRowView = (function(_super) {
+        __extends(TableRowView, _super);
+      
+        function TableRowView() {
+          _ref1 = TableRowView.__super__.constructor.apply(this, arguments);
+          return _ref1;
+        }
+      
+        TableRowView.prototype.template = require('../templates/table/row');
+      
+        TableRowView.prototype.tag = 'tr';
+      
+        TableRowView.prototype.events = {
+          'mouseover .help-flyout': 'toggleFlyout',
+          'mouseout .help-flyout': 'toggleFlyout',
+          'click a': 'portal'
+        };
+      
+        TableRowView.prototype.render = function() {
+          var matched;
+          matched = formatter.primary(this.model);
+          this.el.html(this.template(_.extend({}, this.model, this.options, {
+            matched: matched
+          })));
+          return this;
+        };
+      
+        TableRowView.prototype.toggleFlyout = function(ev) {
+          var view, _i, _len, _ref2, _results;
+          switch (ev.type) {
+            case 'mouseover':
+              this.views.push(view = new FlyoutView({
+                model: this.model
+              }));
+              return $(ev.target).append(view.render().el);
+            case 'mouseout':
+              _ref2 = this.views;
+              _results = [];
+              for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+                view = _ref2[_i];
+                _results.push(view.dispose());
+              }
+              return _results;
+          }
+        };
+      
+        TableRowView.prototype.portal = function(ev) {
+          return mediator.trigger('object:click', this.model, ev.target);
+        };
+      
+        return TableRowView;
       
       })(View);
       
       TableView = (function(_super) {
         __extends(TableView, _super);
       
-        TableView.prototype.template = require('../templates/summary/table');
+        TableView.prototype.template = require('../templates/table/table');
+      
+        TableView.prototype.rowClass = TableRowView;
       
         function TableView() {
+          var _this = this;
           TableView.__super__.constructor.apply(this, arguments);
           this.pagin = new Paginator({
-            'total': this.collection.length
+            'total': (function() {
+              var i;
+              i = 0;
+              return _.reduce(_this.collection, function(sum, item) {
+                sum += (item.length = item.matches.length);
+                item.range = [i, sum];
+                i = sum;
+                return sum;
+              }, 0);
+            })()
           });
           mediator.on('page:change', function(cid, a, b) {
             if (cid !== this.pagin.cid) {
@@ -1886,98 +1955,48 @@
           return this;
         };
       
-        TableView.prototype.renderPage = function(a, b) {
-          var model, tbody, view, _i, _j, _len, _len1, _ref, _ref1, _results;
+        TableView.prototype.renderPage = function(aRng, bRng) {
+          var i, tbody, view, _i, _len, _ref2;
           tbody = this.el.find('tbody');
-          _ref = this.views;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            view = _ref[_i];
+          this.range = [aRng, bRng];
+          _ref2 = this.views;
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            view = _ref2[_i];
             view.dispose();
           }
-          _ref1 = this.collection.slice(a, b);
-          _results = [];
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            model = _ref1[_j];
-            this.views.push(view = new TableRowView({
-              model: model
-            }));
-            _results.push(tbody.append(view.render().el));
-          }
-          return _results;
+          i = 0;
+          return slicer.apply(this, [this.collection].concat(this.range, function(_arg, begin, end) {
+            var input, j, matches, model, _ref3;
+            input = _arg.input, matches = _arg.matches;
+            _ref3 = matches.slice(begin, end);
+            for (j in _ref3) {
+              model = _ref3[j];
+              if (j === '0') {
+                this.views.push(view = new this.rowClass({
+                  'rowspan': end - begin,
+                  'class': ['even', 'odd'][i % 2],
+                  'continuing': begin !== 0,
+                  input: input,
+                  model: model
+                }));
+              } else {
+                this.views.push(view = new this.rowClass({
+                  model: model
+                }));
+              }
+              tbody.append(view.render().el);
+            }
+            return i++;
+          }));
         };
       
         return TableView;
       
-      })(TabContentView);
-      
-      TableRowView = (function(_super) {
-        __extends(TableRowView, _super);
-      
-        function TableRowView() {
-          _ref = TableRowView.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-      
-        TableRowView.prototype.template = require('../templates/summary/row');
-      
-        TableRowView.prototype.tag = 'tr';
-      
-        TableRowView.prototype.events = {
-          'mouseover .help-flyout': 'toggleFlyout',
-          'mouseout .help-flyout': 'toggleFlyout',
-          'click a': 'portal'
-        };
-      
-        TableRowView.prototype.render = function() {
-          this.el.html(this.template({
-            'input': this.model.input,
-            'matched': formatter.primary(this.model)
-          }));
-          return this;
-        };
-      
-        TableRowView.prototype.toggleFlyout = function(ev) {
-          var view, _i, _len, _ref1, _results;
-          switch (ev.type) {
-            case 'mouseover':
-              this.views.push(view = new FlyoutView({
-                model: this.model
-              }));
-              return $(ev.target).append(view.render().el);
-            case 'mouseout':
-              _ref1 = this.views;
-              _results = [];
-              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                view = _ref1[_i];
-                _results.push(view.dispose());
-              }
-              return _results;
-          }
-        };
-      
-        TableRowView.prototype.portal = function(ev) {
-          return mediator.trigger('object:click', this.model, ev.target);
-        };
-      
-        return TableRowView;
-      
       })(View);
       
-      ListView = (function(_super) {
-        __extends(ListView, _super);
+      exports.TableView = TableView;
       
-        function ListView() {
-          _ref1 = ListView.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-      
-        ListView.prototype.template = require('../templates/summary/list');
-      
-        return ListView;
-      
-      })(TabContentView);
-      
-      module.exports = SummaryView;
+      exports.TableRowView = TableRowView;
       
     });
 
@@ -2022,9 +2041,6 @@
   // Return the main app.
   var main = require("component-400/src/app.js");
 
-  // Global on server, window in browser.
-  var root = this;
-
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
@@ -2050,7 +2066,4 @@
   
   require.alias("component-400/src/app.js", "component-400/index.js");
   
-
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
 })();

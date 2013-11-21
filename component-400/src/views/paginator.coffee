@@ -1,3 +1,5 @@
+{ $ } = require '../modules/deps'
+
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
 
@@ -12,9 +14,9 @@ class Paginator extends View
         super
 
         @options.total    ?= 0  # set the total number of items
-        @options.perPage  ?= 5  # how many per page?
+        @options.perPage  ?= 5  # how many per page
         @options.current  ?= 0  # the first page to show
-        @options.truncate ?= 10 # what is the cutoff upon which we will start truncating?
+        @options.truncate ?= 10 # max number of links to show in paginator
 
         # Calculate total number of pages.
         @options.pages = Math.ceil @options.total / @options.perPage
