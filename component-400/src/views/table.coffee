@@ -58,7 +58,7 @@ class TableView extends View
             i = 0
             _.reduce @collection, (sum, item) ->
                 sum += (item.length = item.matches.length)
-                item.range = [ i, sum ] ; i = sum
+                item.range = [ i, sum - 1 ] ; i = sum
                 sum
             , 0
 
@@ -92,10 +92,10 @@ class TableView extends View
         i = 0 # for determining even/odd status of leading row columns
         slicer.apply @, [ @collection ].concat @range, ({ input, matches }, begin, end) ->
             # Generate a slice of models.
-            for j, model of matches[begin...end]
+            for j, model of matches[ begin..end ]
                 if j is '0'
                     @views.push view = new @rowClass({
-                        'rowspan': end - begin
+                        'rowspan': end - begin + 1
                         # Override Foundation alternating colors.
                         'class': [ 'even', 'odd' ][i % 2]
                         # Continuing from previous page?

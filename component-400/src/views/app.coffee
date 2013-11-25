@@ -27,7 +27,7 @@ class AppView extends View
         # Render the duplicates?
         @el.append((new DuplicatesTableView({
             collection # does not need to be filtered, instantiating one class only
-        })).render().el) if collection = data.matches.DUPLICATE
+        })).render().el) if (collection = data.matches.DUPLICATE or []).length
 
         # Summary overview?
         @el.append((new SummaryView({
