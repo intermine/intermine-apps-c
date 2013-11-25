@@ -587,25 +587,17 @@
         (function() {
           (function() {
             if (this.input) {
-              __out.push('\n    ');
+              __out.push('\n    <td rowspan="');
+              __out.push(__sanitize(this.rowspan));
+              __out.push('" class="');
+              __out.push(__sanitize(this["class"]));
+              __out.push('">\n        ');
+              __out.push(this.input);
+              __out.push('\n        ');
               if (this.continuing) {
-                __out.push('\n        <td rowspan="');
-                __out.push(__sanitize(this.rowspan));
-                __out.push('" class="');
-                __out.push(__sanitize(this["class"]));
-                __out.push('">');
-                __out.push(this.input);
-                __out.push(' <em>cont.</em></td>\n    ');
-              } else {
-                __out.push('\n        <td rowspan="');
-                __out.push(__sanitize(this.rowspan));
-                __out.push('" class="');
-                __out.push(__sanitize(this["class"]));
-                __out.push('">');
-                __out.push(this.input);
-                __out.push('</td>\n    ');
+                __out.push('<em>cont.</em>');
               }
-              __out.push('\n');
+              __out.push('\n    </td>\n');
             }
           
             __out.push('\n<td>\n    <a>');
@@ -1046,8 +1038,83 @@
     });
 
     
-    // row.eco
-    require.register('component-400/src/templates/table/row.js', function(exports, require, module) {
+    // many-to-one-row.eco
+    require.register('component-400/src/templates/table/many-to-one-row.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            var item, _i, _len, _ref;
+          
+            if (this.input) {
+              __out.push('\n    <td rowspan="');
+              __out.push(__sanitize(this.rowspan));
+              __out.push('" class="');
+              __out.push(__sanitize(this["class"]));
+              __out.push('">\n        <ul class="inline">\n            ');
+              _ref = this.input;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                item = _ref[_i];
+                __out.push('\n                <li>');
+                __out.push(item);
+                __out.push('</li>\n            ');
+              }
+              __out.push('\n        </ul>\n    </td>\n');
+            }
+          
+            __out.push('\n<td>\n    <a>');
+          
+            __out.push(this.matched);
+          
+            __out.push('</a>\n    <span class="help-flyout"></span>\n</td>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // one-to-many-row.eco
+    require.register('component-400/src/templates/table/one-to-many-row.js', function(exports, require, module) {
     
       module.exports = function(__obj) {
         if (!__obj) __obj = {};
@@ -1089,25 +1156,17 @@
         (function() {
           (function() {
             if (this.input) {
-              __out.push('\n    ');
+              __out.push('\n    <td rowspan="');
+              __out.push(__sanitize(this.rowspan));
+              __out.push('" class="');
+              __out.push(__sanitize(this["class"]));
+              __out.push('">\n        ');
+              __out.push(this.input);
+              __out.push('\n        ');
               if (this.continuing) {
-                __out.push('\n        <td rowspan="');
-                __out.push(__sanitize(this.rowspan));
-                __out.push('" class="');
-                __out.push(__sanitize(this["class"]));
-                __out.push('">');
-                __out.push(this.input);
-                __out.push(' <em>cont.</em></td>\n    ');
-              } else {
-                __out.push('\n        <td rowspan="');
-                __out.push(__sanitize(this.rowspan));
-                __out.push('" class="');
-                __out.push(__sanitize(this["class"]));
-                __out.push('">');
-                __out.push(this.input);
-                __out.push('</td>\n    ');
+                __out.push('<em>cont.</em>');
               }
-              __out.push('\n');
+              __out.push('\n    </td>\n');
             }
           
             __out.push('\n<td>\n    <a>');
@@ -1480,7 +1539,7 @@
       
         return DuplicatesTableView;
       
-      })(Table.TableView);
+      })(Table.OtMTableView);
       
       module.exports = DuplicatesTableView;
       
@@ -1680,7 +1739,7 @@
     // summary.coffee
     require.register('component-400/src/views/summary.js', function(exports, require, module) {
     
-      var Collection, SummaryView, TabSwitcherView, TabTableView, Table, View, csv, dict, formatter, mediator, saveAs, _, _ref,
+      var Collection, SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, dict, formatter, mediator, saveAs, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -1718,7 +1777,7 @@
         }
       
         SummaryView.prototype.render = function() {
-          var collection, content, isFirst, reason, tabs, view, _ref1;
+          var Clazz, collection, content, isFirst, reason, tabs, view, _ref1;
           this.el.html(this.template());
           tabs = this.el.find('.tabs');
           content = this.el.find('.tabs-content');
@@ -1726,7 +1785,7 @@
           _ref1 = this.collection;
           for (reason in _ref1) {
             collection = _ref1[reason];
-            if (!((reason !== 'MATCH' && reason !== 'DUPLICATE') && collection.length)) {
+            if (!(reason !== 'DUPLICATE' && collection.length)) {
               continue;
             }
             this.views.push(view = new TabSwitcherView({
@@ -1736,7 +1795,8 @@
               reason: reason
             }));
             tabs.append(view.render().el);
-            this.views.push(view = new TabTableView({
+            Clazz = reason === 'MATCH' ? TabMatchesTableView : TabTableView;
+            this.views.push(view = new Clazz({
               collection: collection,
               reason: reason
             }));
@@ -1822,7 +1882,24 @@
       
         return TabTableView;
       
-      })(Table.TableView);
+      })(Table.OtMTableView);
+      
+      TabMatchesTableView = (function(_super) {
+        __extends(TabMatchesTableView, _super);
+      
+        TabMatchesTableView.prototype.tag = 'li';
+      
+        function TabMatchesTableView() {
+          mediator.on('tab:switch', function(reason) {
+            return this.el.toggleClass('active', this.options.reason === reason);
+          }, this);
+          this;
+          TabMatchesTableView.__super__.constructor.apply(this, arguments);
+        }
+      
+        return TabMatchesTableView;
+      
+      })(Table.MtOTableView);
       
       module.exports = SummaryView;
       
@@ -1832,7 +1909,7 @@
     // table.coffee
     require.register('component-400/src/views/table.js', function(exports, require, module) {
     
-      var $, FlyoutView, Paginator, TableRowView, TableView, View, formatter, mediator, slicer, _, _ref, _ref1,
+      var $, FlyoutView, ManyToOneTableRowView, ManyToOneTableView, OneToManyTableView, Paginator, TableRowView, View, formatter, mediator, slicer, _, _ref, _ref1, _ref2,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -1858,7 +1935,7 @@
           return _ref1;
         }
       
-        TableRowView.prototype.template = require('../templates/table/row');
+        TableRowView.prototype.template = require('../templates/table/one-to-many-row');
       
         TableRowView.prototype.tag = 'tr';
       
@@ -1904,16 +1981,16 @@
       
       })(View);
       
-      TableView = (function(_super) {
-        __extends(TableView, _super);
+      OneToManyTableView = (function(_super) {
+        __extends(OneToManyTableView, _super);
       
-        TableView.prototype.template = require('../templates/table/table');
+        OneToManyTableView.prototype.template = require('../templates/table/table');
       
-        TableView.prototype.rowClass = TableRowView;
+        OneToManyTableView.prototype.rowClass = TableRowView;
       
-        function TableView() {
+        function OneToManyTableView() {
           var _this = this;
-          TableView.__super__.constructor.apply(this, arguments);
+          OneToManyTableView.__super__.constructor.apply(this, arguments);
           this.pagin = new Paginator({
             'total': (function() {
               var i;
@@ -1934,13 +2011,13 @@
           }, this);
         }
       
-        TableView.prototype.render = function() {
+        OneToManyTableView.prototype.render = function() {
           this.el.html(this.template());
           this.el.find('.paginator').html(this.pagin.render().el);
           return this;
         };
       
-        TableView.prototype.renderPage = function(aRng, bRng) {
+        OneToManyTableView.prototype.renderPage = function(aRng, bRng) {
           var i, tbody, view, _i, _len, _ref2;
           tbody = this.el.find('tbody');
           this.range = [aRng, bRng];
@@ -1961,7 +2038,7 @@
                   'rowspan': end - begin + 1,
                   'class': ['even', 'odd'][i % 2],
                   'continuing': begin !== 0,
-                  input: input,
+                  'input': [input],
                   model: model
                 }));
               } else {
@@ -1975,13 +2052,80 @@
           }));
         };
       
-        return TableView;
+        return OneToManyTableView;
       
       })(View);
       
-      exports.TableView = TableView;
+      ManyToOneTableRowView = (function(_super) {
+        __extends(ManyToOneTableRowView, _super);
+      
+        function ManyToOneTableRowView() {
+          _ref2 = ManyToOneTableRowView.__super__.constructor.apply(this, arguments);
+          return _ref2;
+        }
+      
+        ManyToOneTableRowView.prototype.template = require('../templates/table/many-to-one-row');
+      
+        return ManyToOneTableRowView;
+      
+      })(TableRowView);
+      
+      ManyToOneTableView = (function(_super) {
+        __extends(ManyToOneTableView, _super);
+      
+        ManyToOneTableView.prototype.template = require('../templates/table/table');
+      
+        ManyToOneTableView.prototype.rowClass = ManyToOneTableRowView;
+      
+        function ManyToOneTableView() {
+          ManyToOneTableView.__super__.constructor.apply(this, arguments);
+          this.pagin = new Paginator({
+            'total': this.collection.length
+          });
+          mediator.on('page:change', function(cid, a, b) {
+            if (cid !== this.pagin.cid) {
+              return;
+            }
+            return this.renderPage.call(this, a, b - 1);
+          }, this);
+        }
+      
+        ManyToOneTableView.prototype.render = function() {
+          this.el.html(this.template());
+          this.el.find('.paginator').html(this.pagin.render().el);
+          return this;
+        };
+      
+        ManyToOneTableView.prototype.renderPage = function(aRng, bRng) {
+          var model, tbody, view, _i, _j, _len, _len1, _ref3, _ref4, _results;
+          tbody = this.el.find('tbody');
+          this.range = [aRng, bRng];
+          _ref3 = this.views;
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            view = _ref3[_i];
+            view.dispose();
+          }
+          _ref4 = this.collection.slice(aRng, +bRng + 1 || 9e9);
+          _results = [];
+          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+            model = _ref4[_j];
+            this.views.push(view = new this.rowClass({
+              model: model
+            }));
+            _results.push(tbody.append(view.render().el));
+          }
+          return _results;
+        };
+      
+        return ManyToOneTableView;
+      
+      })(View);
       
       exports.TableRowView = TableRowView;
+      
+      exports.OtMTableView = OneToManyTableView;
+      
+      exports.MtOTableView = ManyToOneTableView;
       
     });
 
