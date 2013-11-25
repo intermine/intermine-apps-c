@@ -1,6 +1,6 @@
 {
     "name": "component-400",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "devDependencies": {
         "bower": "~1.2.7",
         "grunt": "~0.4.1",

@@ -1,4 +1,4 @@
-h2{font-size:20px;display:inline-block;margin:0}
+h2{font-size:20px;display:inline-block;margin:0;line-height:.5}
 table{width:100%}
 a{cursor:pointer}
 .help,.help-flyout{cursor:pointer;position:relative;}

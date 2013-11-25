@@ -841,59 +841,6 @@
     });
 
     
-    // nomatches.eco
-    require.register('component-400/src/templates/nomatches.js', function(exports, require, module) {
-    
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<header>\n    <h2>No matches found</h2>\n    <span class="help"></span>\n</header>\n\n<ul class="inline">\n    <li>monkey</li>\n    <li>CG11091</li>\n</ul>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
-    });
-
-    
     // paginator.eco
     require.register('component-400/src/templates/paginator.js', function(exports, require, module) {
     
@@ -1286,10 +1233,75 @@
     });
 
     
+    // unresolved.eco
+    require.register('component-400/src/templates/unresolved.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            var item, _i, _len, _ref;
+          
+            __out.push('<header>\n    <h2>No matches found</h2>\n    <span data-id="4" class="help"></span>\n</header>\n\n<ul class="inline">\n    ');
+          
+            _ref = this.collection;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              item = _ref[_i];
+              __out.push('\n        <li>');
+              __out.push(__sanitize(item));
+              __out.push('</li>\n    ');
+            }
+          
+            __out.push('\n</ul>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
     // app.coffee
     require.register('component-400/src/views/app.js', function(exports, require, module) {
     
-      var $, AppView, DuplicatesTableView, HeaderView, NoMatchesView, SummaryView, TooltipView, View, mediator, _ref,
+      var $, AppView, DuplicatesTableView, HeaderView, SummaryView, TooltipView, UnresolvedView, View, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -1303,7 +1315,7 @@
       
       DuplicatesTableView = require('./duplicates');
       
-      NoMatchesView = require('./nomatches');
+      UnresolvedView = require('./unresolved');
       
       SummaryView = require('./summary');
       
@@ -1340,6 +1352,11 @@
           this.el.append((new SummaryView({
             'collection': data.matches
           })).render().el);
+          if (data.unresolved.length) {
+            this.el.append(((new UnresolvedView({
+              'collection': data.unresolved
+            })).render().el));
+          }
           return this;
         };
       
@@ -1554,41 +1571,6 @@
       })(View);
       
       module.exports = HeaderView;
-      
-    });
-
-    
-    // nomatches.coffee
-    require.register('component-400/src/views/nomatches.js', function(exports, require, module) {
-    
-      var NoMatchesView, View,
-        __hasProp = {}.hasOwnProperty,
-        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-      
-      View = require('../modules/view');
-      
-      NoMatchesView = (function(_super) {
-        __extends(NoMatchesView, _super);
-      
-        NoMatchesView.prototype.template = require('../templates/nomatches');
-      
-        function NoMatchesView() {
-          NoMatchesView.__super__.constructor.apply(this, arguments);
-          this.el.addClass('nomatches section');
-        }
-      
-        NoMatchesView.prototype.render = function() {
-          this.el.html(this.template({
-            'items': this.collection
-          }));
-          return this;
-        };
-      
-        return NoMatchesView;
-      
-      })(View);
-      
-      module.exports = NoMatchesView;
       
     });
 
@@ -2033,10 +2015,46 @@
       tooltips = {
         '1': 'Choose from among duplicate matches below',
         '2': 'These objects have been automatically added to your list',
-        '3': 'A class of matches'
+        '3': 'A class of matches',
+        '4': 'Identifiers that could not be resolved'
       };
       
       module.exports = TooltipView;
+      
+    });
+
+    
+    // unresolved.coffee
+    require.register('component-400/src/views/unresolved.js', function(exports, require, module) {
+    
+      var UnresolvedView, View,
+        __hasProp = {}.hasOwnProperty,
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      View = require('../modules/view');
+      
+      UnresolvedView = (function(_super) {
+        __extends(UnresolvedView, _super);
+      
+        UnresolvedView.prototype.template = require('../templates/unresolved');
+      
+        function UnresolvedView() {
+          UnresolvedView.__super__.constructor.apply(this, arguments);
+          this.el.addClass('unresolved section');
+        }
+      
+        UnresolvedView.prototype.render = function() {
+          this.el.html(this.template({
+            collection: this.collection
+          }));
+          return this;
+        };
+      
+        return UnresolvedView;
+      
+      })(View);
+      
+      module.exports = UnresolvedView;
       
     });
   })();

@@ -1072,7 +1072,7 @@ div.progress.round .meter { -webkit-border-radius: 1000px; -moz-border-radius: 1
   .top-bar ul li.has-button { padding: 0 20px 5px; }
   .top-bar ul li .button.small { margin: 0 !important; display: inline-block; width: 100%; } }
 
-h2{font-size:20px;display:inline-block;margin:0}
+h2{font-size:20px;display:inline-block;margin:0;line-height:.5}
 table{width:100%}
 a{cursor:pointer}
 .help,.help-flyout{cursor:pointer;position:relative;}

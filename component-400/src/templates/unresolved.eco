@@ -1,0 +1,10 @@
+<header>
+    <h2>No matches found</h2>
+    <span data-id="4" class="help"></span>
+</header>
+
+<ul class="inline">
+    <% for item in @collection: %>
+        <li><%= item %></li>
+    <% end %>
+</ul>

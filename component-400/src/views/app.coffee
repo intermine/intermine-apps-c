@@ -5,7 +5,7 @@ View     = require '../modules/view'
 
 HeaderView          = require './header'
 DuplicatesTableView = require './duplicates'
-NoMatchesView       = require './nomatches'
+UnresolvedView      = require './unresolved'
 SummaryView         = require './summary'
 HeaderView          = require './header'
 TooltipView         = require './tooltip'
@@ -33,6 +33,11 @@ class AppView extends View
         @el.append((new SummaryView({
             'collection': data.matches # needs to be filtered
         })).render().el)
+
+        # No matches?
+        @el.append ((new UnresolvedView({
+            'collection': data.unresolved
+        })).render().el) if data.unresolved.length
 
         @
 

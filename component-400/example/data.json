@@ -466,6 +466,10 @@
             "all": 34
         }
     },
-    "unresolved": [],
+    "unresolved": [
+        "Edmonton",
+        "Calgary",
+        "Medicine Hat"
+    ],
     "type": "Gene"
 } 
