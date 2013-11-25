@@ -12,13 +12,18 @@ class HeaderView extends View
         super
         @el.addClass 'header section'
 
+        # Original selected count = number of found.
+        @found = mori.count @collection.selected
+
         # Whatever was toggled, we will probably have to change the count.
         mediator.on 'item:toggle', @render, @
 
     render: ->
         data = @collection.data
         @el.html @template {
-            'selected': mori.count(@collection.selected), data
+            'selected': mori.count(@collection.selected)
+            @found
+            data
         }
 
         @

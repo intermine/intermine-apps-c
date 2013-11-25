@@ -12,7 +12,7 @@
         </tr>
         <tr>
             <td>We found:</td>
-            <td><%= @data.stats.objects.matches %> <%= @data.type %><% if @data.stats.objects.matches isnt 1: %>s<% end %></td>
+            <td><%= @found %> <%= @data.type %><% if @found isnt 1: %>s<% end %></td>
         </tr>
     </table>
 

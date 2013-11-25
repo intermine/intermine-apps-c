@@ -413,7 +413,7 @@
           if (aUs >= aRng) {
             if (aUs === aRng) {
               if (bUs <= bRng) {
-                handler.call(this, item, 0, item.matches.length);
+                handler.call(this, item, 0, item.matches.length - 1);
                 if (bUs === bRng) {
                   break;
                 } else {
@@ -425,9 +425,10 @@
               }
             } else {
               if (bUs > bRng) {
-                _results.push(handler.call(this, item, 0, bRng - aUs));
+                handler.call(this, item, 0, bRng - aUs);
+                break;
               } else {
-                handler.call(this, item, 0, item.matches.length);
+                handler.call(this, item, 0, item.matches.length - 1);
                 if (bUs === bRng) {
                   break;
                 } else {
@@ -437,7 +438,7 @@
             }
           } else {
             if (bUs <= bRng) {
-              handler.call(this, item, aRng - aUs, item.matches.length);
+              handler.call(this, item, aRng - aUs, item.matches.length - 1);
               if (bUs === bRng) {
                 break;
               } else {
@@ -819,13 +820,13 @@
           
             __out.push('</td>\n        </tr>\n        <tr>\n            <td>We found:</td>\n            <td>');
           
-            __out.push(__sanitize(this.data.stats.objects.matches));
+            __out.push(__sanitize(this.found));
           
             __out.push(' ');
           
             __out.push(__sanitize(this.data.type));
           
-            if (this.data.stats.objects.matches !== 1) {
+            if (this.found !== 1) {
               __out.push('s');
             }
           
@@ -1331,7 +1332,7 @@
             'collection': this.collection
           })).render().el);
           _ref1 = this.collection, data = _ref1.data, dict = _ref1.dict;
-          if (collection = data.matches.DUPLICATE) {
+          if ((collection = data.matches.DUPLICATE || []).length) {
             this.el.append((new DuplicatesTableView({
               collection: collection
             })).render().el);
@@ -1529,6 +1530,7 @@
         function HeaderView() {
           HeaderView.__super__.constructor.apply(this, arguments);
           this.el.addClass('header section');
+          this.found = mori.count(this.collection.selected);
           mediator.on('item:toggle', this.render, this);
         }
       
@@ -1537,6 +1539,7 @@
           data = this.collection.data;
           this.el.html(this.template({
             'selected': mori.count(this.collection.selected),
+            found: this.found,
             data: data
           }));
           return this;
@@ -1935,7 +1938,7 @@
               i = 0;
               return _.reduce(_this.collection, function(sum, item) {
                 sum += (item.length = item.matches.length);
-                item.range = [i, sum];
+                item.range = [i, sum - 1];
                 i = sum;
                 return sum;
               }, 0);
@@ -1968,12 +1971,12 @@
           return slicer.apply(this, [this.collection].concat(this.range, function(_arg, begin, end) {
             var input, j, matches, model, _ref3;
             input = _arg.input, matches = _arg.matches;
-            _ref3 = matches.slice(begin, end);
+            _ref3 = matches.slice(begin, +end + 1 || 9e9);
             for (j in _ref3) {
               model = _ref3[j];
               if (j === '0') {
                 this.views.push(view = new this.rowClass({
-                  'rowspan': end - begin,
+                  'rowspan': end - begin + 1,
                   'class': ['even', 'odd'][i % 2],
                   'continuing': begin !== 0,
                   input: input,
