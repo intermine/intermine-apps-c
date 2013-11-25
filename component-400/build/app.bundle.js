@@ -18228,7 +18228,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
             if (cid !== this.pagin.cid) {
               return;
             }
-            return this.renderPage.call(this, a, b);
+            return this.renderPage.call(this, a, b - 1);
           }, this);
         }
       

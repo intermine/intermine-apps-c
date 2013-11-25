@@ -66,8 +66,8 @@ class TableView extends View
         mediator.on 'page:change', (cid, a, b) ->
             # Is this for us?
             return if cid isnt @pagin.cid
-            # Render then.
-            @renderPage.call @, a, b
+            # Render then (the range is inclusive).
+            @renderPage.call @, a, b - 1
         , @
 
     render: ->

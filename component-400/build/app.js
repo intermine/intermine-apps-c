@@ -1948,7 +1948,7 @@
             if (cid !== this.pagin.cid) {
               return;
             }
-            return this.renderPage.call(this, a, b);
+            return this.renderPage.call(this, a, b - 1);
           }, this);
         }
       
