@@ -18089,20 +18089,32 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         };
       
         SummaryView.prototype.download = function() {
-          var blob, collection, columns, converted, item, match, reason, row, rows, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
+          var adder, blob, collection, columns, converted, input, item, match, reason, rows, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
           columns = null;
           rows = [];
+          adder = function(match, input) {
+            var row, _ref1;
+            _ref1 = formatter.csv(match, columns), columns = _ref1[0], row = _ref1[1];
+            return rows.push([input, reason].concat(row));
+          };
           _ref1 = this.collection;
           for (reason in _ref1) {
             collection = _ref1[reason];
-            if ((reason !== 'MATCH' && reason !== 'DUPLICATE') && collection.length) {
+            if (reason !== 'DUPLICATE' && collection.length) {
               for (_i = 0, _len = collection.length; _i < _len; _i++) {
                 item = collection[_i];
-                _ref2 = item.matches;
-                for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-                  match = _ref2[_j];
-                  _ref3 = formatter.csv(match, columns), columns = _ref3[0], row = _ref3[1];
-                  rows.push([item.input, reason].concat(row));
+                if (reason === 'MATCH') {
+                  _ref2 = item.input;
+                  for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                    input = _ref2[_j];
+                    adder(item, input);
+                  }
+                } else {
+                  _ref3 = item.matches;
+                  for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+                    match = _ref3[_k];
+                    adder(match, item.input);
+                  }
                 }
               }
             }

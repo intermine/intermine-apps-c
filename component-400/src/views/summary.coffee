@@ -52,11 +52,18 @@ class SummaryView extends View
     download: ->
         columns = null ; rows = []
 
-        for reason, collection of @collection when reason not in [ 'MATCH', 'DUPLICATE' ] and collection.length
+        adder = (match, input) ->
+            [ columns, row ] = formatter.csv match, columns
+            rows.push [ input, reason ].concat row
+        
+        for reason, collection of @collection when reason isnt 'DUPLICATE' and collection.length
             for item in collection
-                for match in item.matches
-                    [ columns, row ] = formatter.csv match, columns
-                    rows.push [ item.input, reason ].concat row
+                # Many to one relationships.
+                if reason is 'MATCH'
+                    ( adder(item, input) for input in item.input )
+                # One to many relationships.
+                else
+                    ( adder(match, item.input) for match in item.matches )
 
         columns = [ 'input', 'reason' ].concat columns
 
