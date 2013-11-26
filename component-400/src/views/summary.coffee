@@ -32,13 +32,14 @@ class SummaryView extends View
         content = @el.find '.tabs-content'
 
         isFirst = yes
-        for reason, collection of @collection when reason not in [ 'MATCH', 'DUPLICATE' ] and collection.length
+        for reason, collection of @collection when reason isnt 'DUPLICATE' and collection.length
             # Switcher.
             @views.push view = new TabSwitcherView { 'model': { 'name': dict[reason]  }, reason }
             tabs.append view.render().el
             
-            # Content.
-            @views.push view = new TabTableView({ collection, reason })
+            # Content in two types of tables.
+            Clazz = if reason is 'MATCH' then TabMatchesTableView else TabTableView
+            @views.push view = new Clazz({ collection, reason })
             content.append view.render().el
 
             # Show the first one by default.
@@ -47,14 +48,22 @@ class SummaryView extends View
         @
 
     # Saves the summary into a file.
+    # TODO: show matches in download
     download: ->
         columns = null ; rows = []
 
-        for reason, collection of @collection when reason not in [ 'MATCH', 'DUPLICATE' ] and collection.length
+        adder = (match, input) ->
+            [ columns, row ] = formatter.csv match, columns
+            rows.push [ input, reason ].concat row
+        
+        for reason, collection of @collection when reason isnt 'DUPLICATE' and collection.length
             for item in collection
-                for match in item.matches
-                    [ columns, row ] = formatter.csv match, columns
-                    rows.push [ item.input, reason ].concat row
+                # Many to one relationships.
+                if reason is 'MATCH'
+                    ( adder(item, input) for input in item.input )
+                # One to many relationships.
+                else
+                    ( adder(match, item.input) for match in item.matches )
 
         columns = [ 'input', 'reason' ].concat columns
 
@@ -88,7 +97,22 @@ class TabSwitcherView extends View
         mediator.trigger 'tab:switch', @options.reason
 
 # Content of one tab.
-class TabTableView extends Table.TableView
+class TabTableView extends Table.OtMTableView
+
+    tag: 'li'
+
+    # Listen to tab switching.
+    constructor: ->
+        # Toggle content?
+        mediator.on 'tab:switch', (reason) ->
+            @el.toggleClass 'active', @options.reason is reason
+        , @
+
+        @
+
+        super
+
+class TabMatchesTableView extends Table.MtOTableView
 
     tag: 'li'
 

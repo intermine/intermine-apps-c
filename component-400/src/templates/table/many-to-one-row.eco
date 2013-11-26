@@ -1,0 +1,13 @@
+<% if @input: %>
+    <td rowspan="<%= @rowspan %>" class="<%= @class %>">
+        <ul class="inline">
+            <% for item in @input: %>
+                <li><%- item %></li>
+            <% end %>
+        </ul>
+    </td>
+<% end %>
+<td>
+    <a><%- @matched %></a>
+    <span class="help-flyout"></span>
+</td>

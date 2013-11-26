@@ -28,7 +28,7 @@ class DuplicatesTableRowView extends Table.TableRowView
         # Render it.
         do @render
 
-class DuplicatesTableView extends Table.TableView
+class DuplicatesTableView extends Table.OtMTableView
 
     # Provide custom template.
     template: require '../templates/duplicates/table'

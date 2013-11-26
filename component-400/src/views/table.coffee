@@ -11,7 +11,7 @@ slicer     = require '../modules/slicer'
 # One row in a table.
 class TableRowView extends View
 
-    template: require '../templates/table/row'
+    template: require '../templates/table/one-to-many-row'
     
     tag: 'tr'
 
@@ -41,8 +41,8 @@ class TableRowView extends View
     portal: (ev) ->
         mediator.trigger 'object:click', @model, ev.target
 
-# A paginated table.
-class TableView extends View
+# Paginated tables.
+class OneToManyTableView extends View
 
     template: require '../templates/table/table'
 
@@ -66,8 +66,8 @@ class TableView extends View
         mediator.on 'page:change', (cid, a, b) ->
             # Is this for us?
             return if cid isnt @pagin.cid
-            # Render then.
-            @renderPage.call @, a, b
+            # Render then (the range is inclusive).
+            @renderPage.call @, a, b - 1
         , @
 
     render: ->
@@ -100,7 +100,8 @@ class TableView extends View
                         'class': [ 'even', 'odd' ][i % 2]
                         # Continuing from previous page?
                         'continuing': begin isnt 0
-                        input
+                        # We always pass in arrays.
+                        'input': [ input ]
                         model
                     })
                 else
@@ -109,6 +110,54 @@ class TableView extends View
                 tbody.append view.render().el
             i++
 
+class ManyToOneTableRowView extends TableRowView
+
+    template: require '../templates/table/many-to-one-row'
+
+class ManyToOneTableView extends View
+
+    template: require '../templates/table/table'
+
+    # Which class to use for the rows?
+    rowClass: ManyToOneTableRowView
+
+    constructor: ->
+        super
+
+        # Multiple identifiers can match multiple objects.
+        @pagin = new Paginator 'total': @collection.length
+        
+        # Listen in on table page renders.
+        mediator.on 'page:change', (cid, a, b) ->
+            # Is this for us?
+            return if cid isnt @pagin.cid
+            # Render then (the range is inclusive).
+            @renderPage.call @, a, b - 1
+        , @
+
+    render: ->
+        @el.html do @template
+
+        # Pagin.
+        @el.find('.paginator').html @pagin.render().el
+
+        @
+
+    # The item range is provided by paginator.
+    renderPage: (aRng, bRng) ->
+        tbody = @el.find('tbody')
+
+        # Save the range if we need to re-render our page.
+        @range = [ aRng, bRng ]
+
+        # Cleanup.
+        ( do view.dispose for view in @views )
+
+        for model in @collection[ aRng..bRng ]
+            @views.push view = new @rowClass({ model })
+            tbody.append view.render().el
+
 # Exports map!
-exports.TableView    = TableView
 exports.TableRowView = TableRowView
+exports.OtMTableView = OneToManyTableView
+exports.MtOTableView = ManyToOneTableView
