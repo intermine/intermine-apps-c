@@ -1,6 +1,6 @@
 {
     "name": "component-400",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "dependencies": {
         "backbone-events": null,
         "csv": "0.1.2",

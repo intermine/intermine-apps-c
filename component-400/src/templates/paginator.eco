@@ -2,8 +2,10 @@
     <ul class="pagination">
         <% if @current is 0: %>
             <li class="unavailable arrow"><a>&laquo;</a></li>
+            <li class="unavailable arrow"><a>&lsaquo;</a></li>
         <% else: %>
-            <li class="arrow" data-action="prev"><a>&laquo;</a></li>
+            <li class="arrow" data-action="first" title="First"><a>&laquo;</a></li>
+            <li class="arrow" data-action="prev" title="Previous"><a>&lsaquo;</a></li>
         <% end %>
 
         <% for page in @range: %>
@@ -19,9 +21,11 @@
         <% end %>
 
         <% if @current + 1 is @pages: %>
+            <li class="unavailable arrow"><a>&rsaquo;</a></li>
             <li class="unavailable arrow"><a>&raquo;</a></li>
         <% else: %>
-            <li class="arrow" data-action="next"><a>&raquo;</a></li>
+            <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>
+            <li class="arrow" data-action="last" title="Last"><a>&raquo;</a></li>
         <% end %>
     </ul>
 <% end %>

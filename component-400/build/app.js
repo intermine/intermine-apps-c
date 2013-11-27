@@ -984,9 +984,9 @@
             if (this.pages > 1) {
               __out.push('\n    <ul class="pagination">\n        ');
               if (this.current === 0) {
-                __out.push('\n            <li class="unavailable arrow"><a>&laquo;</a></li>\n        ');
+                __out.push('\n            <li class="unavailable arrow"><a>&laquo;</a></li>\n            <li class="unavailable arrow"><a>&lsaquo;</a></li>\n        ');
               } else {
-                __out.push('\n            <li class="arrow" data-action="prev"><a>&laquo;</a></li>\n        ');
+                __out.push('\n            <li class="arrow" data-action="first" title="First"><a>&laquo;</a></li>\n            <li class="arrow" data-action="prev" title="Previous"><a>&lsaquo;</a></li>\n        ');
               }
               __out.push('\n\n        ');
               _ref = this.range;
@@ -1016,9 +1016,9 @@
               }
               __out.push('\n\n        ');
               if (this.current + 1 === this.pages) {
-                __out.push('\n            <li class="unavailable arrow"><a>&raquo;</a></li>\n        ');
+                __out.push('\n            <li class="unavailable arrow"><a>&rsaquo;</a></li>\n            <li class="unavailable arrow"><a>&raquo;</a></li>\n        ');
               } else {
-                __out.push('\n            <li class="arrow" data-action="next"><a>&raquo;</a></li>\n        ');
+                __out.push('\n            <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>\n            <li class="arrow" data-action="last" title="Last"><a>&raquo;</a></li>\n        ');
               }
               __out.push('\n    </ul>\n');
             }
@@ -1772,7 +1772,7 @@
         };
       
         function Paginator() {
-          var _base, _base1, _base2, _base3;
+          var _base, _base1, _base2;
           Paginator.__super__.constructor.apply(this, arguments);
           if ((_base = this.options).total == null) {
             _base.total = 0;
@@ -1783,28 +1783,13 @@
           if ((_base2 = this.options).current == null) {
             _base2.current = 0;
           }
-          if ((_base3 = this.options).truncate == null) {
-            _base3.truncate = 10;
-          }
           this.options.pages = Math.ceil(this.options.total / this.options.perPage);
         }
       
-        Paginator.prototype.prev = function() {
-          return this.select(Math.max(0, this.options.current - 1));
-        };
-      
-        Paginator.prototype.next = function() {
-          return this.select(Math.min(this.options.pages - 1, this.options.current + 1));
-        };
-      
-        Paginator.prototype.select = function(current) {
-          return this.options.current = current;
-        };
-      
         Paginator.prototype.render = function() {
           var a, b, h, p, _i, _j, _k, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2;
-          if (this.options.truncate < (p = this.options.pages)) {
-            h = Math.floor(this.options.truncate / 2);
+          if (10 < (p = this.options.pages)) {
+            h = Math.floor(10 / 2);
             this.options.range = [].concat((function() {
               _results = [];
               for (var _i = 1, _ref = h + 1; 1 <= _ref ? _i < _ref : _i > _ref; 1 <= _ref ? _i++ : _i--){ _results.push(_i); }
@@ -1828,18 +1813,38 @@
         };
       
         Paginator.prototype.onclick = function(evt) {
-          var li;
-          switch ((li = $(evt.target).closest('li')).data('action')) {
-            case 'prev':
-              this.prev();
-              break;
-            case 'next':
-              this.next();
-              break;
+          var fn, li;
+          switch (fn = (li = $(evt.target).closest('li')).data('action')) {
             case 'switch':
               this.select(parseInt(li.data('page')));
+              break;
+            case 'first':
+            case 'prev':
+            case 'next':
+            case 'last':
+              this[fn]();
           }
           return this.render();
+        };
+      
+        Paginator.prototype.first = function() {
+          return this.select(0);
+        };
+      
+        Paginator.prototype.prev = function() {
+          return this.select(Math.max(0, this.options.current - 1));
+        };
+      
+        Paginator.prototype.next = function() {
+          return this.select(Math.min(this.options.pages - 1, this.options.current + 1));
+        };
+      
+        Paginator.prototype.last = function() {
+          return this.select(this.options.pages - 1);
+        };
+      
+        Paginator.prototype.select = function(current) {
+          return this.options.current = current;
         };
       
         return Paginator;
