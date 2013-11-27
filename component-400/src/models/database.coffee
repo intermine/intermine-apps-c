@@ -18,6 +18,10 @@ class Database
             { name, collection, reason }
         )
 
+        # Add unresolved?
+        if (collection = @data.unresolved).length
+            @matches.push { 'reason': 'UNRESOLVED', collection }
+
         # A set of selected object identifiers.
         @selected = do mori.set
 

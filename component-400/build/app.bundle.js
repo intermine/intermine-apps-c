@@ -16558,6 +16558,12 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
             }
             return _results;
           }).call(this);
+          if ((collection = this.data.unresolved).length) {
+            this.matches.push({
+              'reason': 'UNRESOLVED',
+              collection: collection
+            });
+          }
           this.selected = mori.set();
           extract = function(obj) {
             var item, key, value, _i, _len, _results, _results1;
@@ -18165,6 +18171,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           _ref2 = this.options.matches;
           for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
             _ref3 = _ref2[_i], name = _ref3.name, collection = _ref3.collection, reason = _ref3.reason;
+            if (!(reason !== 'UNRESOLVED')) {
+              continue;
+            }
             this.views.push(view = new TabSwitcherView({
               'model': {
                 name: name
@@ -18197,18 +18206,23 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
             _ref3 = _ref2[_i], collection = _ref3.collection, reason = _ref3.reason;
             for (_j = 0, _len1 = collection.length; _j < _len1; _j++) {
               item = collection[_j];
-              if (reason === 'MATCH') {
-                _ref4 = item.input;
-                for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
-                  input = _ref4[_k];
-                  adder(item, input);
-                }
-              } else {
-                _ref5 = item.matches;
-                for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
-                  match = _ref5[_l];
-                  adder(match, item.input);
-                }
+              switch (reason) {
+                case 'MATCH':
+                  _ref4 = item.input;
+                  for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+                    input = _ref4[_k];
+                    adder(item, input);
+                  }
+                  break;
+                case 'UNRESOLVED':
+                  rows.push([item, reason]);
+                  break;
+                default:
+                  _ref5 = item.matches;
+                  for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
+                    match = _ref5[_l];
+                    adder(match, item.input);
+                  }
               }
             }
           }

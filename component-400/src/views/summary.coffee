@@ -23,7 +23,7 @@ class SummaryView extends View
 
         showFirstTab = _.once (reason) -> mediator.trigger 'tab:switch', reason
 
-        for { name, collection, reason } in @options.matches
+        for { name, collection, reason } in @options.matches when reason isnt 'UNRESOLVED'
             # Tab switcher.
             @views.push view = new TabSwitcherView { 'model': { name  }, reason }
             tabs.append view.render().el
@@ -48,12 +48,16 @@ class SummaryView extends View
 
         for { collection, reason } in @options.matches
             for item in collection
-                # Many to one relationships.
-                if reason is 'MATCH'
-                    ( adder(item, input) for input in item.input )
-                # One to many relationships.
-                else
-                    ( adder(match, item.input) for match in item.matches )
+                switch reason
+                    # Many to one relationships.
+                    when 'MATCH'
+                        ( adder(item, input) for input in item.input )
+                    # Plain unresolved collection.
+                    when 'UNRESOLVED'
+                        rows.push [ item, reason ]
+                    # One to many relationships.
+                    else
+                        ( adder(match, item.input) for match in item.matches )
 
         columns = [ 'input', 'reason' ].concat columns
 
