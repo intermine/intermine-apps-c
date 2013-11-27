@@ -5,6 +5,9 @@
                 <li><%- item %></li>
             <% end %>
         </ul>
+        <% if @input.length isnt 1: %>
+            <span data-id="5" class="help"></span>
+        <% end %>
     </td>
 <% end %>
 <td>

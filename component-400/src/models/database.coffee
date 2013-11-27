@@ -49,7 +49,7 @@ class Database
 # Translations.
 dict =
     'MATCH':                 -> 'direct hit'
-    'TYPE_CONVERTED': (type) -> "non-#{type} identifiers"
+    'TYPE_CONVERTED': (type) -> "non-#{type} identifier"
     'OTHER':                 -> 'synonym'
     'WILDCARD':              -> 'wildcard'
 

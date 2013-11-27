@@ -42,28 +42,32 @@ class SummaryView extends View
     download: ->
         columns = null ; rows = []
 
-        adder = (match, input) ->
+        adder = (match, input, count) ->
             [ columns, row ] = formatter.csv match, columns
-            rows.push [ input, reason ].concat row
+            # Merge the columns in a row.
+            rows.push [ input, reason, count ].concat row
 
         for { collection, reason } in @options.matches
             for item in collection
                 switch reason
                     # Many to one relationships.
                     when 'MATCH'
-                        ( adder(item, input) for input in item.input )
+                        ( adder(item, input, 1) for input in item.input )
                     # Plain unresolved collection.
                     when 'UNRESOLVED'
-                        rows.push [ item, reason ]
+                        rows.push [ item, reason, 1 ]
                     # One to many relationships.
                     else
-                        ( adder(match, item.input) for match in item.matches )
+                        for match in item.matches
+                            adder match, item.input, item.matches.length
 
-        columns = [ 'input', 'reason' ].concat columns
+        columns = [ 'input', 'reason', 'matches' ].concat columns
 
         # Converted to a csv string.
-        converted = csv _.map rows, (row) ->
-            _.zipObject columns, row
+        converted = csv _.map rows, (row) -> _.zipObject columns, row
+
+        return console.log converted
+
         # Make into a Blob.
         blob = new Blob [ converted ], { 'type': 'text/csv;charset=utf-8' }
         # Save it.

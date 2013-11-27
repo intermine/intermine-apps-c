@@ -16612,7 +16612,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           return 'direct hit';
         },
         'TYPE_CONVERTED': function(type) {
-          return "non-" + type + " identifiers";
+          return "non-" + type + " identifier";
         },
         'OTHER': function() {
           return 'synonym';
@@ -17479,7 +17479,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 __out.push(item);
                 __out.push('</li>\n            ');
               }
-              __out.push('\n        </ul>\n    </td>\n');
+              __out.push('\n        </ul>\n        ');
+              if (this.input.length !== 1) {
+                __out.push('\n            <span data-id="5" class="help"></span>\n        ');
+              }
+              __out.push('\n    </td>\n');
             }
           
             __out.push('\n<td>\n    <a>');
@@ -18196,10 +18200,10 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           var adder, blob, collection, columns, converted, input, item, match, reason, rows, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref2, _ref3, _ref4, _ref5;
           columns = null;
           rows = [];
-          adder = function(match, input) {
+          adder = function(match, input, count) {
             var row, _ref2;
             _ref2 = formatter.csv(match, columns), columns = _ref2[0], row = _ref2[1];
-            return rows.push([input, reason].concat(row));
+            return rows.push([input, reason, count].concat(row));
           };
           _ref2 = this.options.matches;
           for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
@@ -18211,25 +18215,26 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                   _ref4 = item.input;
                   for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
                     input = _ref4[_k];
-                    adder(item, input);
+                    adder(item, input, 1);
                   }
                   break;
                 case 'UNRESOLVED':
-                  rows.push([item, reason]);
+                  rows.push([item, reason, 1]);
                   break;
                 default:
                   _ref5 = item.matches;
                   for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
                     match = _ref5[_l];
-                    adder(match, item.input);
+                    adder(match, item.input, item.matches.length);
                   }
               }
             }
           }
-          columns = ['input', 'reason'].concat(columns);
+          columns = ['input', 'reason', 'matches'].concat(columns);
           converted = csv(_.map(rows, function(row) {
             return _.zipObject(columns, row);
           }));
+          return console.log(converted);
           blob = new Blob([converted], {
             'type': 'text/csv;charset=utf-8'
           });
@@ -18559,7 +18564,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         '1': 'Choose from among duplicate matches below',
         '2': 'These objects have been automatically added to your list',
         '3': 'A class of matches',
-        '4': 'Identifiers that could not be resolved'
+        '4': 'Identifiers that could not be resolved',
+        '5': 'Multiple identifiers matched an object'
       };
       
       module.exports = TooltipView;
