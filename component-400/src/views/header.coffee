@@ -3,6 +3,8 @@ View     = require '../modules/view'
 
 class HeaderView extends View
 
+    autoRender: yes
+
     template: require '../templates/header'
 
     events:
@@ -10,24 +12,28 @@ class HeaderView extends View
 
     constructor: ->
         super
-        @el.addClass 'header section'
 
-        # Original selected count = number of found.
-        @found = mori.count @collection.selected
+        # Save original selected count (= number of found).
+        @found = mori.count @options.db.selected
 
-        # Whatever was toggled, we will probably have to change the count.
+        # When someone got toggled, we will probably have to change the count.
         mediator.on 'item:toggle', @render, @
 
     render: ->
-        data = @collection.data
         @el.html @template {
-            'selected': mori.count(@collection.selected)
+            # Currently selected objects.
+            'selected': mori.count @options.db.selected
+            # The matched type.
+            'type': @options.db.type
+            # Identifiers entered.
+            'entered': @options.db.data.stats.identifiers.all
+            # Objects found (original count of selected objects).
             @found
-            data
         }
 
         @
 
+    # Trigger an event to arrayize selected objects.
     save: -> mediator.trigger 'app:save'
 
 module.exports = HeaderView

@@ -40,12 +40,6 @@ class DuplicatesTableView extends Table.OtMTableView
         'click .button.add-all': 'addAll'
         'click .button.remove-all': 'removeAll'
 
-    # Add custom classes.
-    constructor: ->
-        super
-
-        @el.addClass 'duplicates section'
-
     # Blocking add all.
     addAll: ->
         @doAll yes

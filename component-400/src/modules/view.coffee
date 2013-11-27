@@ -7,7 +7,7 @@ class View
 
     # Automatically render?
     autoRender: no
-    
+
     # Event delegation pattern.
     splitter: /^(\S+)\s*(.*)$/
     
@@ -25,10 +25,10 @@ class View
         @options = {}
         for k, v of opts
             switch k
-                when 'model', 'collection'
+                when 'collection', 'model'
                     @[k] = v
                 when 'el'
-                    @[k] = $ v
+                    @el = $ v
                 else
                     @options[k] = v
 
@@ -49,10 +49,13 @@ class View
 
     # Override me.
     render: ->
-        if @model
-            @el.html @template JSON.parse(JSON.stringify(@model))
-        else
-            @el.html do @template
+        switch
+            when @collection
+                @el.html @template 'collection': JSON.parse(JSON.stringify(@collection))
+            when @model
+                @el.html @template JSON.parse(JSON.stringify(@model))
+            else
+                @el.html do @template
         
         @
 

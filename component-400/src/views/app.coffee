@@ -14,30 +14,39 @@ class AppView extends View
 
     autoRender: yes
 
+    template: require '../templates/app'
+
     events:
         'mouseover .help': 'toggleTooltip'
         'mouseout  .help': 'toggleTooltip'
 
     render: ->
-        # Render the header.
-        @el.append (new HeaderView({ 'collection': @collection })).render().el
+        super
 
-        { data, dict } = @collection
+        # Render the header.
+        new HeaderView
+            'db': @options.db
+            'el': @el.find('div.header.section')
 
         # Render the duplicates?
-        @el.append((new DuplicatesTableView({
-            collection # does not need to be filtered, instantiating one class only
-        })).render().el) if (collection = data.matches.DUPLICATE or []).length
+        if (collection = @options.db.duplicates).length
+            view = new DuplicatesTableView {
+                'el': @el.find('div.duplicates.section')
+                collection
+            }
+            do view.render
 
-        # Summary overview?
-        @el.append((new SummaryView({
-            'collection': data.matches # needs to be filtered
-        })).render().el)
+        # Summary overview.
+        new SummaryView
+            'matches': @options.db.matches
+            'el': @el.find('div.summary.section')
 
         # No matches?
-        @el.append ((new UnresolvedView({
-            'collection': data.unresolved
-        })).render().el) if data.unresolved.length
+        if (collection = @options.db.data.unresolved).length
+            new UnresolvedView {
+                'el': @el.find('div.unresolved.section')
+                collection
+            }
 
         @
 
