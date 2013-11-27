@@ -1099,3 +1099,5 @@ ul.pagination li{display:inline-block;float:none}
 ul.inline{list-style:none;padding:0;margin:0;display:inline-block;}
 ul.inline li{display:inline-block;}
 ul.inline li:not(:last-child):after{content:", "}
+ul.pagination{text-align:left;}
+ul.pagination li{margin-left:0;float:left;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}

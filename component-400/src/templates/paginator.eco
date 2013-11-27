@@ -1,5 +1,6 @@
 <% if @pages > 1: %>
     <ul class="pagination">
+        <li class="unavailable"><a>Page <%= @current + 1 %> of <%= @pages %></a></li>
         <% if @current is 0: %>
             <li class="unavailable arrow"><a>&laquo;</a></li>
             <li class="unavailable arrow"><a>&lsaquo;</a></li>

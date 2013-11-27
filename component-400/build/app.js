@@ -982,7 +982,11 @@
             var page, _i, _len, _ref;
           
             if (this.pages > 1) {
-              __out.push('\n    <ul class="pagination">\n        ');
+              __out.push('\n    <ul class="pagination">\n        <li class="unavailable"><a>Page ');
+              __out.push(__sanitize(this.current + 1));
+              __out.push(' of ');
+              __out.push(__sanitize(this.pages));
+              __out.push('</a></li>\n        ');
               if (this.current === 0) {
                 __out.push('\n            <li class="unavailable arrow"><a>&laquo;</a></li>\n            <li class="unavailable arrow"><a>&lsaquo;</a></li>\n        ');
               } else {
@@ -1787,25 +1791,14 @@
         }
       
         Paginator.prototype.render = function() {
-          var a, b, h, p, _i, _j, _k, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2;
-          if (10 < (p = this.options.pages)) {
-            h = Math.floor(10 / 2);
-            this.options.range = [].concat((function() {
-              _results = [];
-              for (var _i = 1, _ref = h + 1; 1 <= _ref ? _i < _ref : _i > _ref; 1 <= _ref ? _i++ : _i--){ _results.push(_i); }
-              return _results;
-            }).apply(this), [null], (function() {
-              _results1 = [];
-              for (var _j = _ref1 = p - h + 1, _ref2 = p + 1; _ref1 <= _ref2 ? _j < _ref2 : _j > _ref2; _ref1 <= _ref2 ? _j++ : _j--){ _results1.push(_j); }
-              return _results1;
-            }).apply(this));
-          } else {
-            this.options.range = (function() {
-              _results2 = [];
-              for (var _k = 1, _ref3 = p + 1; 1 <= _ref3 ? _k < _ref3 : _k > _ref3; 1 <= _ref3 ? _k++ : _k--){ _results2.push(_k); }
-              return _results2;
-            }).apply(this);
-          }
+          var a, b, m, p, _i, _ref, _ref1, _results;
+          p = Math.max(0, 2 - this.options.current);
+          m = Math.max(0, this.options.current - this.options.pages + 3);
+          this.options.range = (function() {
+            _results = [];
+            for (var _i = _ref = this.options.current - 1 + p - m, _ref1 = this.options.current + 3 + p - m; _ref <= _ref1 ? _i <= _ref1 : _i >= _ref1; _ref <= _ref1 ? _i++ : _i--){ _results.push(_i); }
+            return _results;
+          }).apply(this);
           this.el.html(this.template(this.options));
           b = Math.min((a = this.options.current * this.options.perPage) + this.options.perPage, this.options.total);
           mediator.trigger('page:change', this.cid, a, b);

@@ -13,24 +13,19 @@ class Paginator extends View
     constructor: ->
         super
 
-        @options.total    ?= 0  # set the total number of items
-        @options.perPage  ?= 5  # how many per page
-        @options.current  ?= 0  # the first page to show
+        @options.total    ?= 0 # set the total number of items
+        @options.perPage  ?= 5 # how many per page
+        @options.current  ?= 0 # the first page to show
 
         # Calculate total number of pages.
         @options.pages = Math.ceil @options.total / @options.perPage
 
     # Render the template.
     render: ->
-        # Create a range of pages we want to generate links for.
-        if 10 < (p = @options.pages)
-            # How much on each flank?
-            h = Math.floor 10 / 2
-            # Render the start, unavailable, the end.
-            @options.range = [].concat [ 1...h + 1 ], [ null ], [ p - h + 1...p + 1 ]
-        else
-            # Business as usual.
-            @options.range = [1...p + 1]
+        # Show direct links to pages "around" our number, max 5 in total though.
+        p = Math.max 0, 2 - @options.current # too close to the left
+        m = Math.max 0, @options.current - @options.pages + 3
+        @options.range = [ @options.current - 1 + p - m..@options.current + 3 + p - m ]
 
         @el.html @template @options
 
