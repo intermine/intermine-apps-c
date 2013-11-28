@@ -2,6 +2,7 @@
 assert = require 'assert'
 proxy  = do require('proxyquire').noCallThru
 path   = require 'path'
+_      = require 'lodash'
 
 class View
 
@@ -13,8 +14,7 @@ class View
         ( @options[k] = v for k, v of opts )
 
 Paginator = proxy '../src/views/paginator',
-    '../modules/deps':
-        '$': null
+    '../modules/deps': { '$': null, _ }
     '../modules/mediator':
         'trigger': ->
     '../modules/view': View
@@ -26,37 +26,37 @@ module.exports =
 
     'paginator - single page': (done) ->
         total   = 3
-        current = 0
+        current = 1
 
         view = new Paginator { total, perPage, current }
         do view.render
 
         assert.equal 1, view.options.pages
-        assert.deepEqual [ 0 ], view.options.range
+        assert.deepEqual [ 1 ], view.options.range
         
         do done
 
     'paginator - three pages': (done) ->
         total   = 15
-        current = 0
+        current = 1
 
         view = new Paginator { total, perPage, current }
         do view.render
 
         assert.equal 3, view.options.pages
-        assert.deepEqual [ 0..2 ], view.options.range
+        assert.deepEqual [ 1..3 ], view.options.range
         
         do done
 
     'paginator - five pages': (done) ->
         total   = 25
-        current = 2
+        current = 3
 
         view = new Paginator { total, perPage, current }
         do view.render
 
         assert.equal 5, view.options.pages
-        assert.deepEqual [ 0..4 ], view.options.range
+        assert.deepEqual [ 1..5 ], view.options.range
         
         do done
 
@@ -68,7 +68,7 @@ module.exports =
         do view.render
 
         assert.equal 10, view.options.pages
-        assert.deepEqual [ 2..6 ], view.options.range
+        assert.deepEqual [ 2..6 ].concat([ null, 10 ]), view.options.range
         
         do done
 
@@ -80,6 +80,6 @@ module.exports =
         do view.render
 
         assert.equal 5, view.options.pages
-        assert.deepEqual [ 0..4 ], view.options.range
+        assert.deepEqual [ 1..5 ], view.options.range
         
         do done

@@ -17263,7 +17263,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           
             if (this.pages > 1) {
               __out.push('\n    <ul class="pagination">\n        <li class="unavailable"><a>Page ');
-              __out.push(__sanitize(this.current + 1));
+              __out.push(__sanitize(this.current));
               __out.push(' of ');
               __out.push(__sanitize(this.pages));
               __out.push('</a></li>\n        ');
@@ -17287,13 +17287,13 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                     __out.push('\n                        class="current"\n                    ');
                   }
                   __out.push('\n                ><a>');
-                  __out.push(__sanitize(page + 1));
+                  __out.push(__sanitize(page));
                   __out.push('</a></li>\n            ');
                 }
                 __out.push('\n        ');
               }
               __out.push('\n\n        ');
-              if (this.current + 1 === this.pages) {
+              if (this.current === this.pages) {
                 __out.push('\n            <li class="unavailable arrow"><a>&rsaquo;</a></li>\n            <li class="unavailable arrow"><a>&raquo;</a></li>\n        ');
               } else {
                 __out.push('\n            <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>\n            <li class="arrow" data-action="last" title="Last"><a>&raquo;</a></li>\n        ');
@@ -18030,11 +18030,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // paginator.coffee
     require.register('component-400/src/views/paginator.js', function(exports, require, module) {
     
-      var $, Paginator, View, mediator,
+      var $, Paginator, View, mediator, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
-      $ = require('../modules/deps').$;
+      _ref = require('../modules/deps'), $ = _ref.$, _ = _ref._;
       
       mediator = require('../modules/mediator');
       
@@ -18059,28 +18059,58 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
             _base1.perPage = 5;
           }
           if ((_base2 = this.options).current == null) {
-            _base2.current = 0;
+            _base2.current = 1;
           }
           this.options.pages = Math.ceil(this.options.total / this.options.perPage);
         }
       
         Paginator.prototype.render = function() {
-          var a, b, diff, max, min, _i, _results;
-          min = this.options.current - 2;
-          max = this.options.current + 2;
-          if ((diff = this.options.pages - 1 - max) < 0) {
-            min += diff;
-          }
-          if (min < 0) {
-            max += min * -1;
-          }
-          min = Math.max(min, 0);
-          max = Math.min(max, this.options.pages - 1);
+          var a, b, dec, decades, div, dmax, dmin, max, min, ranger, slice, _i, _j, _ref1, _ref2, _results, _results1;
+          ranger = function(a, x, b) {
+            var diff, max, min;
+            min = x - 2;
+            max = x + 2;
+            if ((diff = b - max) < a) {
+              min += diff;
+            }
+            if (min < a) {
+              max += min * -1;
+            }
+            min = Math.max(min, a);
+            max = Math.min(max, b);
+            return [min, max];
+          };
+          _ref1 = ranger(1, this.options.current, this.options.pages), min = _ref1[0], max = _ref1[1];
           this.options.range = (function() {
             _results = [];
             for (var _i = min; min <= max ? _i <= max : _i >= max; min <= max ? _i++ : _i--){ _results.push(_i); }
             return _results;
           }).apply(this);
+          dec = function(number) {
+            return Math.round(number / 10);
+          };
+          _ref2 = ranger(0, dec(this.options.current - 1), dec(this.options.pages - 1)), dmin = _ref2[0], dmax = _ref2[1];
+          decades = (function() {
+            _results1 = [];
+            for (var _j = dmin; dmin <= dmax ? _j <= dmax : _j >= dmax; dmin <= dmax ? _j++ : _j--){ _results1.push(_j); }
+            return _results1;
+          }).apply(this).map(function(num) {
+            return num * 10;
+          }).filter(function(num) {
+            return !(num === 0 || (min <= num && num <= max));
+          });
+          if ((slice = decades.filter(function(num) {
+            return num < min;
+          })).length) {
+            div = slice.slice(0) < min - 1 ? [null] : [];
+            this.options.range = slice.concat(div, this.options.range);
+          }
+          if ((slice = decades.filter(function(num) {
+            return num > max;
+          })).length) {
+            div = slice[0] > max + 1 ? [null] : [];
+            this.options.range = this.options.range.concat(div, slice);
+          }
           this.el.html(this.template(this.options));
           b = Math.min((a = this.options.current * this.options.perPage) + this.options.perPage, this.options.total);
           mediator.trigger('page:change', this.cid, a, b);
