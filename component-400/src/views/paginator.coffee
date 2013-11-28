@@ -22,10 +22,20 @@ class Paginator extends View
 
     # Render the template.
     render: ->
-        # Show direct links to pages "around" our number, max 5 in total though.
-        p = Math.max 0, 2 - @options.current # too close to the left
-        m = Math.max 0, @options.current - @options.pages + 3
-        @options.range = [ @options.current - 1 + p - m..@options.current + 3 + p - m ]
+        # Maximum range.
+        min = @options.current - 2
+        max = @options.current + 2
+
+        # Fill to 5.
+        min += diff if (diff = @options.pages - 1 - max) < 0
+        max += min * -1 if min < 0
+
+        # Trim it.
+        min = Math.max min, 0
+        max = Math.min max, @options.pages - 1
+
+        # Generate the range.
+        @options.range = [ min..max ]
 
         @el.html @template @options
 

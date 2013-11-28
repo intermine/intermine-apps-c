@@ -17280,21 +17280,15 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 if (page === null) {
                   __out.push('\n                <li class="unavailable"><a>&hellip;</a></li>\n            ');
                 } else {
-                  __out.push('\n                ');
-                  if (page === this.current + 1) {
-                    __out.push('\n                    <li data-action="switch" data-page="');
-                    __out.push(__sanitize(page - 1));
-                    __out.push('" class="current"><a>');
-                    __out.push(__sanitize(page));
-                    __out.push('</a></li>\n                ');
-                  } else {
-                    __out.push('\n                    <li data-action="switch" data-page="');
-                    __out.push(__sanitize(page - 1));
-                    __out.push('"><a>');
-                    __out.push(__sanitize(page));
-                    __out.push('</a></li>\n                ');
+                  __out.push('\n                <li data-action="switch" data-page="');
+                  __out.push(__sanitize(page));
+                  __out.push('"\n                    ');
+                  if (page === this.current) {
+                    __out.push('\n                        class="current"\n                    ');
                   }
-                  __out.push('\n            ');
+                  __out.push('\n                ><a>');
+                  __out.push(__sanitize(page + 1));
+                  __out.push('</a></li>\n            ');
                 }
                 __out.push('\n        ');
               }
@@ -18071,12 +18065,20 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         Paginator.prototype.render = function() {
-          var a, b, m, p, _i, _ref, _ref1, _results;
-          p = Math.max(0, 2 - this.options.current);
-          m = Math.max(0, this.options.current - this.options.pages + 3);
+          var a, b, diff, max, min, _i, _results;
+          min = this.options.current - 2;
+          max = this.options.current + 2;
+          if ((diff = this.options.pages - 1 - max) < 0) {
+            min += diff;
+          }
+          if (min < 0) {
+            max += min * -1;
+          }
+          min = Math.max(min, 0);
+          max = Math.min(max, this.options.pages - 1);
           this.options.range = (function() {
             _results = [];
-            for (var _i = _ref = this.options.current - 1 + p - m, _ref1 = this.options.current + 3 + p - m; _ref <= _ref1 ? _i <= _ref1 : _i >= _ref1; _ref <= _ref1 ? _i++ : _i--){ _results.push(_i); }
+            for (var _i = min; min <= max ? _i <= max : _i >= max; min <= max ? _i++ : _i--){ _results.push(_i); }
             return _results;
           }).apply(this);
           this.el.html(this.template(this.options));

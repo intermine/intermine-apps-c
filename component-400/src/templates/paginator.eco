@@ -13,11 +13,11 @@
             <% if page is null: %>
                 <li class="unavailable"><a>&hellip;</a></li>
             <% else: %>
-                <% if page is @current + 1: %>
-                    <li data-action="switch" data-page="<%= page - 1 %>" class="current"><a><%= page %></a></li>
-                <% else: %>
-                    <li data-action="switch" data-page="<%= page - 1 %>"><a><%= page %></a></li>
-                <% end %>
+                <li data-action="switch" data-page="<%= page %>"
+                    <% if page is @current: %>
+                        class="current"
+                    <% end %>
+                ><a><%= page + 1 %></a></li>
             <% end %>
         <% end %>
 
