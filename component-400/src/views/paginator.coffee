@@ -44,34 +44,51 @@ class Paginator extends View
         [ min, max ] = ranger 1, @options.current, @options.pages
 
         # Get the inner range (will probably be extended by decades below).
-        @options.range = [ min..max ]
+        range = [ min..max ]
 
         # Add the 2 closest decades not represented in the current range (sort of).
         # Which is our closest decade?
         dec = (number) -> Math.round number / 10
 
         # Give us the range again.
-        [ dmin, dmax ] = ranger 0, dec(@options.current - 1), dec(@options.pages - 1)
+        [ dmin, dmax ] = ranger 0, mid = dec(@options.current - 1), dec(@options.pages - 1)
 
-        decades = [ dmin..dmax ]
-        # Map back to decades.
-        .map( (num) -> num * 10 )
-        # Filter out 0 (we have start) and any value appearing in the existing range.
-        .filter( (num) -> not (num is 0 or min <= num <= max) )
+        # Turn into a decade range.
+        decade = (a, b) ->
+            [ a..b ]
+            # Map back to decades.
+            .map( (num) -> num * 10 )
+            # Filter out 0 (we have start) and any value appearing in the existing range.
+            .filter( (num) -> not (num is 0 or min <= num <= max) )
 
-        # Generate the range flanking it with the decades and separating on a null (ellipsis).
-        if (slice = decades.filter( (num) -> num < min )).length
-            div = if slice[..-1] < min - 1 then [ null ] else []
-            @options.range = slice.concat div, @options.range
-        
-        if (slice = decades.filter( (num) -> num > max )).length
-            div = if slice[0] > max + 1 then [ null ] else []
-            @options.range = @options.range.concat div, slice
+        # The decades flanks.
+        left  = decade dmin, mid
+        right = decade mid, dmax
 
+        # Generate the range flanking it with the decades and separating on a null (ellipsis) or a number.
+        range = [].concat left, range, right
+
+        # Add separators between items: null (ellipsis) for a gap or a number if gap is of 1.
+        @options.range = []
+        last = range[0] - 1
+        for number in range
+            switch
+                # Number filler.
+                when last + 2 is number
+                    @options.range.push last + 1
+                # Divider.
+                when last + 2 < number < last + 10
+                    @options.range.push null
+            
+            @options.range.push number
+            last = number
+
+        # Render our template.
         @el.html @template @options
 
-        # Which page range?
-        b = Math.min (a = @options.current * @options.perPage) + @options.perPage, @options.total
+        # Which page range? Convert page to 0 index.
+        b = Math.min (a = (@options.current - 1) * @options.perPage) + @options.perPage, @options.total
+        # Trigger a render.
         mediator.trigger 'page:change', @cid, a, b
 
         @

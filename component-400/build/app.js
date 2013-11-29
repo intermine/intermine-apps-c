@@ -1785,7 +1785,7 @@
         }
       
         Paginator.prototype.render = function() {
-          var a, b, dec, decades, div, dmax, dmin, max, min, ranger, slice, _i, _j, _ref1, _ref2, _results, _results1;
+          var a, b, dec, decade, dmax, dmin, last, left, max, mid, min, number, range, ranger, right, _i, _j, _len, _ref1, _ref2, _results;
           ranger = function(a, x, b) {
             var diff, max, min;
             min = x - 2;
@@ -1801,7 +1801,7 @@
             return [min, max];
           };
           _ref1 = ranger(1, this.options.current, this.options.pages), min = _ref1[0], max = _ref1[1];
-          this.options.range = (function() {
+          range = (function() {
             _results = [];
             for (var _i = min; min <= max ? _i <= max : _i >= max; min <= max ? _i++ : _i--){ _results.push(_i); }
             return _results;
@@ -1809,30 +1809,38 @@
           dec = function(number) {
             return Math.round(number / 10);
           };
-          _ref2 = ranger(0, dec(this.options.current - 1), dec(this.options.pages - 1)), dmin = _ref2[0], dmax = _ref2[1];
-          decades = (function() {
-            _results1 = [];
-            for (var _j = dmin; dmin <= dmax ? _j <= dmax : _j >= dmax; dmin <= dmax ? _j++ : _j--){ _results1.push(_j); }
-            return _results1;
-          }).apply(this).map(function(num) {
-            return num * 10;
-          }).filter(function(num) {
-            return !(num === 0 || (min <= num && num <= max));
-          });
-          if ((slice = decades.filter(function(num) {
-            return num < min;
-          })).length) {
-            div = slice.slice(0) < min - 1 ? [null] : [];
-            this.options.range = slice.concat(div, this.options.range);
-          }
-          if ((slice = decades.filter(function(num) {
-            return num > max;
-          })).length) {
-            div = slice[0] > max + 1 ? [null] : [];
-            this.options.range = this.options.range.concat(div, slice);
+          _ref2 = ranger(0, mid = dec(this.options.current - 1), dec(this.options.pages - 1)), dmin = _ref2[0], dmax = _ref2[1];
+          decade = function(a, b) {
+            var _j, _results1;
+            return (function() {
+              _results1 = [];
+              for (var _j = a; a <= b ? _j <= b : _j >= b; a <= b ? _j++ : _j--){ _results1.push(_j); }
+              return _results1;
+            }).apply(this).map(function(num) {
+              return num * 10;
+            }).filter(function(num) {
+              return !(num === 0 || (min <= num && num <= max));
+            });
+          };
+          left = decade(dmin, mid);
+          right = decade(mid, dmax);
+          range = [].concat(left, range, right);
+          this.options.range = [];
+          last = range[0] - 1;
+          for (_j = 0, _len = range.length; _j < _len; _j++) {
+            number = range[_j];
+            switch (false) {
+              case last + 2 !== number:
+                this.options.range.push(last + 1);
+                break;
+              case !((last + 2 < number && number < last + 10)):
+                this.options.range.push(null);
+            }
+            this.options.range.push(number);
+            last = number;
           }
           this.el.html(this.template(this.options));
-          b = Math.min((a = this.options.current * this.options.perPage) + this.options.perPage, this.options.total);
+          b = Math.min((a = (this.options.current - 1) * this.options.perPage) + this.options.perPage, this.options.total);
           mediator.trigger('page:change', this.cid, a, b);
           return this;
         };
