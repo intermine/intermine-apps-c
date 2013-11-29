@@ -24,49 +24,55 @@ class Paginator extends View
 
     # Render the template.
     render: ->
-        # [ a..x..b ]
-        ranger = (a, x, b) ->
-            # Ideal range.
-            min = x - 2
-            max = x + 2
+        # [ lower..middle..upper ]
+        ranger = (lower, middle, upper) ->
+            a = b = middle
+            
+            dec = ->
+                # We could not decrease.
+                return no if (nu = a - 1) < lower
+                a -= 1 ; yes
 
-            # Fill to 5.
-            min += diff if (diff = b - max) < a
-            max += min * -1 if min < a            
+            inc = ->
+                # We could not increase.
+                return no if (nu = b + 1) > upper
+                b += 1 ; yes
 
-            # Trim it.
-            min = Math.max min, a
-            max = Math.min max, b
+            # How many to show on each side.
+            flanks = 2
+            
+            # Keep adding to the page range around our number.
+            while flanks--
+                # Try adding or reduce.
+                (break unless do dec) unless do inc
+                
+                # Try reducing or add.
+                (break unless do inc) unless do dec
 
-            [ min, max ]
+            [ a, b ]
 
         # Generate the inner range.
-        [ min, max ] = ranger 1, @options.current, @options.pages
+        [ iMin, iMax ] = ranger 1, @options.current, @options.pages
 
         # Get the inner range (will probably be extended by decades below).
-        range = [ min..max ]
+        inner = [ iMin..iMax ]
 
-        # Add the 2 closest decades not represented in the current range (sort of).
-        # Which is our closest decade?
-        dec = (number) -> Math.round number / 10
+        # Add the 2 closest decades not represented in the current range.
+        [ oMin, oMax ] = ranger 0
+        # Find the closest decade.
+        , Math.round(@options.current / 10)
+        # The upper limit is the highest decade.
+        , Math.floor(@options.pages / 10)
 
-        # Give us the range again.
-        [ dmin, dmax ] = ranger 0, mid = dec(@options.current - 1), dec(@options.pages - 1)
+        # The decades outer range.
+        outer = [ oMin..oMax ]
+        # Convert to decades again.
+        .map( (num) -> num * 10 )
+        # Remove.
+        .filter( (num) -> num isnt 0 )
 
-        # Turn into a decade range.
-        decade = (a, b) ->
-            [ a..b ]
-            # Map back to decades.
-            .map( (num) -> num * 10 )
-            # Filter out 0 (we have start) and any value appearing in the existing range.
-            .filter( (num) -> not (num is 0 or min <= num <= max) )
-
-        # The decades flanks.
-        left  = decade dmin, mid
-        right = decade mid, dmax
-
-        # Generate the range flanking it with the decades and separating on a null (ellipsis) or a number.
-        range = [].concat left, range, right
+        # Merge sort them into a full range, removing dupes.
+        range = _.unique [].concat(outer, inner).sort( (a, b) -> a - b ), yes
 
         # Add separators between items: null (ellipsis) for a gap or a number if gap is of 1.
         @options.range = []

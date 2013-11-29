@@ -16,6 +16,6 @@
         "lodash": "~2.4.0"
     },
     "scripts": {
-        "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script --reporter spec --ui exports --bail"
+        "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script --reporter dot --ui exports --bail"
     }
 }

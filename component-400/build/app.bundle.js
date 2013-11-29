@@ -18065,50 +18065,64 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         Paginator.prototype.render = function() {
-          var a, b, dec, decade, dmax, dmin, last, left, max, mid, min, number, range, ranger, right, _i, _j, _len, _ref1, _ref2, _results;
-          ranger = function(a, x, b) {
-            var diff, max, min;
-            min = x - 2;
-            max = x + 2;
-            if ((diff = b - max) < a) {
-              min += diff;
+          var a, b, iMax, iMin, inner, last, number, oMax, oMin, outer, range, ranger, _i, _j, _k, _len, _ref1, _ref2, _results, _results1;
+          ranger = function(lower, middle, upper) {
+            var a, b, dec, flanks, inc;
+            a = b = middle;
+            dec = function() {
+              var nu;
+              if ((nu = a - 1) < lower) {
+                return false;
+              }
+              a -= 1;
+              return true;
+            };
+            inc = function() {
+              var nu;
+              if ((nu = b + 1) > upper) {
+                return false;
+              }
+              b += 1;
+              return true;
+            };
+            flanks = 2;
+            while (flanks--) {
+              if (!inc()) {
+                if (!dec()) {
+                  break;
+                }
+              }
+              if (!dec()) {
+                if (!inc()) {
+                  break;
+                }
+              }
             }
-            if (min < a) {
-              max += min * -1;
-            }
-            min = Math.max(min, a);
-            max = Math.min(max, b);
-            return [min, max];
+            return [a, b];
           };
-          _ref1 = ranger(1, this.options.current, this.options.pages), min = _ref1[0], max = _ref1[1];
-          range = (function() {
+          _ref1 = ranger(1, this.options.current, this.options.pages), iMin = _ref1[0], iMax = _ref1[1];
+          inner = (function() {
             _results = [];
-            for (var _i = min; min <= max ? _i <= max : _i >= max; min <= max ? _i++ : _i--){ _results.push(_i); }
+            for (var _i = iMin; iMin <= iMax ? _i <= iMax : _i >= iMax; iMin <= iMax ? _i++ : _i--){ _results.push(_i); }
             return _results;
           }).apply(this);
-          dec = function(number) {
-            return Math.round(number / 10);
-          };
-          _ref2 = ranger(0, mid = dec(this.options.current - 1), dec(this.options.pages - 1)), dmin = _ref2[0], dmax = _ref2[1];
-          decade = function(a, b) {
-            var _j, _results1;
-            return (function() {
-              _results1 = [];
-              for (var _j = a; a <= b ? _j <= b : _j >= b; a <= b ? _j++ : _j--){ _results1.push(_j); }
-              return _results1;
-            }).apply(this).map(function(num) {
-              return num * 10;
-            }).filter(function(num) {
-              return !(num === 0 || (min <= num && num <= max));
-            });
-          };
-          left = decade(dmin, mid);
-          right = decade(mid, dmax);
-          range = [].concat(left, range, right);
+          _ref2 = ranger(0, Math.round(this.options.current / 10), Math.floor(this.options.pages / 10)), oMin = _ref2[0], oMax = _ref2[1];
+          outer = (function() {
+            _results1 = [];
+            for (var _j = oMin; oMin <= oMax ? _j <= oMax : _j >= oMax; oMin <= oMax ? _j++ : _j--){ _results1.push(_j); }
+            return _results1;
+          }).apply(this).map(function(num) {
+            return num * 10;
+          }).filter(function(num) {
+            return num !== 0;
+          });
+          range = _.unique([].concat(outer, inner).sort(function(a, b) {
+            return a - b;
+          }), true);
           this.options.range = [];
           last = range[0] - 1;
-          for (_j = 0, _len = range.length; _j < _len; _j++) {
-            number = range[_j];
+          for (_k = 0, _len = range.length; _k < _len; _k++) {
+            number = range[_k];
             switch (false) {
               case last + 2 !== number:
                 this.options.range.push(last + 1);
