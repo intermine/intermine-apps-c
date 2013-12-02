@@ -15,8 +15,8 @@
 <% end %>
 
 <!-- do we need to show a paginator? -->
-<% if @pages > 1: %>
-    <ul class="pagination">
+<ul class="pagination">
+    <% if @pages > 1: %>
         <li class="unavailable"><a>Page <%= @current %> of <%= @pages %></a></li>
         <% if @current is 1: %>
             <li class="unavailable arrow"><a>&lsaquo;</a></li>
@@ -41,5 +41,5 @@
         <% else: %>
             <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>
         <% end %>
-    </ul>
-<% end %>
+    <% end %>
+</ul>
