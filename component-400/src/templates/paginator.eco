@@ -3,7 +3,7 @@
     <div class="small button dropdown right">
         <%= @perPage %> rows per page
         <ul class="no-hover">
-            <% for n in [ 5, 10, 20, 50, 100 ]: %>
+            <% for n in [ 5, 10, 20, 50, 100 ] when n <= @total: %>
                 <% if n isnt @perPage: %>
                     <li data-action="resize" data-n="<%= n %>">
                         <a>Show <%= n %> rows</a>
