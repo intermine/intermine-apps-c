@@ -10,7 +10,8 @@ class Paginator extends View
     template: require '../templates/paginator'
 
     events:
-        'click ul.pagination a': 'onclick'
+        'click a': 'onclick'
+        'click div.dropdown': 'dropdown'
 
     constructor: ->
         super
@@ -19,11 +20,11 @@ class Paginator extends View
         @options.perPage  ?= 5 # how many per page
         @options.current  ?= 1 # the first page to show
 
+    # Render the template.
+    render: ->
         # Calculate total number of pages.
         @options.pages = Math.ceil @options.total / @options.perPage
 
-    # Render the template.
-    render: ->
         do =>
             @options.range = []
             
@@ -81,10 +82,15 @@ class Paginator extends View
     # Events.
     onclick: (evt) ->
         switch fn = (li = $(evt.target).closest('li')).data('action')
-            when 'switch' then @select parseInt li.data('page')
+            when 'select', 'resize' then @[fn] parseInt(li.data('n'))
             when 'first', 'prev', 'next', 'last' then do @[fn]
 
+        # Always re-render.
         do @render
+
+        # No event chaining.
+        do evt.preventDefault
+        no
 
     # Select the first page.
     first: -> @select 0
@@ -100,5 +106,20 @@ class Paginator extends View
 
     # Select a specific page.
     select: (current) -> @options.current = current
+
+    # Show a different number of rows per page.
+    resize: (n) ->
+        # Which row are we looking at now?
+        row = 1 + (@options.perPage * (@options.current - 1))
+
+        # Change the number of pages.
+        @options.perPage = n
+
+        # Which page do we need to move to?
+        @options.current = Math.ceil row / @options.perPage
+
+    # Toggle the dropdown.
+    dropdown: ->
+        @el.find('.dropdown ul').toggleClass('show-dropdown')
 
 module.exports = Paginator

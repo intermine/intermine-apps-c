@@ -117,15 +117,22 @@ ul.inline
         &:not(:last-child):after
             content: ", "
 
-ul.pagination
-    text-align: left
-    margin-bottom: 20px
+div.paginator
 
-    li
-        display: inline-block
-        margin-left: 0
-        float: left
-        user-select: none
+    .dropdown
+        ul
+            top: 27px
+            width: 0
 
-        &.arrow:not(.unavailable)
-            background: lighten($blue, 90%)
+    ul.pagination
+        text-align: left
+        margin-bottom: 20px
+
+        li
+            display: inline-block
+            margin-left: 0
+            float: left
+            user-select: none
+
+            &.arrow:not(.unavailable)
+                background: lighten($blue, 90%)

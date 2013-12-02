@@ -55,7 +55,7 @@ class SummaryView extends View
                         ( adder(item, input, 1) for input in item.input )
                     # Plain unresolved collection.
                     when 'UNRESOLVED'
-                        rows.push [ item, reason, 1 ]
+                        rows.push [ item, reason, 0 ]
                     # One to many relationships.
                     else
                         for match in item.matches
@@ -65,8 +65,6 @@ class SummaryView extends View
 
         # Converted to a csv string.
         converted = csv _.map rows, (row) -> _.zipObject columns, row
-
-        return console.log converted
 
         # Make into a Blob.
         blob = new Blob [ converted ], { 'type': 'text/csv;charset=utf-8' }

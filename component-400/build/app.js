@@ -979,10 +979,30 @@
         }
         (function() {
           (function() {
-            var page, _i, _len, _ref;
+            var n, page, _i, _j, _len, _len1, _ref, _ref1;
           
             if (this.pages > 1) {
-              __out.push('\n    <ul class="pagination">\n        <li class="unavailable"><a>Page ');
+              __out.push('\n    <div class="small button dropdown right">\n        ');
+              __out.push(__sanitize(this.perPage));
+              __out.push(' rows per page\n        <ul class="no-hover">\n            ');
+              _ref = [5, 10, 20, 50, 100];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                n = _ref[_i];
+                __out.push('\n                ');
+                if (n !== this.perPage) {
+                  __out.push('\n                    <li data-action="resize" data-n="');
+                  __out.push(__sanitize(n));
+                  __out.push('">\n                        <a>Show ');
+                  __out.push(__sanitize(n));
+                  __out.push(' rows</a>\n                    </li>\n                ');
+                }
+                __out.push('\n            ');
+              }
+              __out.push('\n            <!--\n            <li class="divider"></li>\n            <li><a data-action="resize" data-n="');
+              __out.push(__sanitize(this.total));
+              __out.push('">Show all ');
+              __out.push(__sanitize(this.total));
+              __out.push(' rows</a></li>\n            -->\n        </ul>\n    </div>\n\n    <ul class="pagination">\n        <li class="unavailable"><a>Page ');
               __out.push(__sanitize(this.current));
               __out.push(' of ');
               __out.push(__sanitize(this.pages));
@@ -993,14 +1013,14 @@
                 __out.push('\n            <li class="arrow" data-action="prev" title="Previous"><a>&lsaquo;</a></li>\n        ');
               }
               __out.push('\n\n        ');
-              _ref = this.range;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                page = _ref[_i];
+              _ref1 = this.range;
+              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                page = _ref1[_j];
                 __out.push('\n            ');
                 if (page === null) {
                   __out.push('\n                <li class="unavailable"><a>&hellip;</a></li>\n            ');
                 } else {
-                  __out.push('\n                <li data-action="switch" data-page="');
+                  __out.push('\n                <li data-action="select" data-n="');
                   __out.push(__sanitize(page));
                   __out.push('"\n                    ');
                   if (page === this.current) {
@@ -1766,7 +1786,8 @@
         Paginator.prototype.template = require('../templates/paginator');
       
         Paginator.prototype.events = {
-          'click ul.pagination a': 'onclick'
+          'click a': 'onclick',
+          'click div.dropdown': 'dropdown'
         };
       
         function Paginator() {
@@ -1781,12 +1802,12 @@
           if ((_base2 = this.options).current == null) {
             _base2.current = 1;
           }
-          this.options.pages = Math.ceil(this.options.total / this.options.perPage);
         }
       
         Paginator.prototype.render = function() {
           var a, b,
             _this = this;
+          this.options.pages = Math.ceil(this.options.total / this.options.perPage);
           (function() {
             var diff, max, min, number, previous, range, _i, _j, _len, _ref1, _ref2, _results, _results1;
             _this.options.range = [];
@@ -1838,8 +1859,9 @@
         Paginator.prototype.onclick = function(evt) {
           var fn, li;
           switch (fn = (li = $(evt.target).closest('li')).data('action')) {
-            case 'switch':
-              this.select(parseInt(li.data('page')));
+            case 'select':
+            case 'resize':
+              this[fn](parseInt(li.data('n')));
               break;
             case 'first':
             case 'prev':
@@ -1847,7 +1869,9 @@
             case 'last':
               this[fn]();
           }
-          return this.render();
+          this.render();
+          evt.preventDefault();
+          return false;
         };
       
         Paginator.prototype.first = function() {
@@ -1868,6 +1892,17 @@
       
         Paginator.prototype.select = function(current) {
           return this.options.current = current;
+        };
+      
+        Paginator.prototype.resize = function(n) {
+          var row;
+          row = 1 + (this.options.perPage * (this.options.current - 1));
+          this.options.perPage = n;
+          return this.options.current = Math.ceil(row / this.options.perPage);
+        };
+      
+        Paginator.prototype.dropdown = function() {
+          return this.el.find('.dropdown ul').toggleClass('show-dropdown');
         };
       
         return Paginator;
@@ -1967,7 +2002,7 @@
                   }
                   break;
                 case 'UNRESOLVED':
-                  rows.push([item, reason, 1]);
+                  rows.push([item, reason, 0]);
                   break;
                 default:
                   _ref5 = item.matches;
@@ -1982,7 +2017,6 @@
           converted = csv(_.map(rows, function(row) {
             return _.zipObject(columns, row);
           }));
-          return console.log(converted);
           blob = new Blob([converted], {
             'type': 'text/csv;charset=utf-8'
           });

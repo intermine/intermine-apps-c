@@ -1,4 +1,21 @@
 <% if @pages > 1: %>
+    <div class="small button dropdown right">
+        <%= @perPage %> rows per page
+        <ul class="no-hover">
+            <% for n in [ 5, 10, 20, 50, 100 ]: %>
+                <% if n isnt @perPage: %>
+                    <li data-action="resize" data-n="<%= n %>">
+                        <a>Show <%= n %> rows</a>
+                    </li>
+                <% end %>
+            <% end %>
+            <!--
+            <li class="divider"></li>
+            <li><a data-action="resize" data-n="<%= @total %>">Show all <%= @total %> rows</a></li>
+            -->
+        </ul>
+    </div>
+
     <ul class="pagination">
         <li class="unavailable"><a>Page <%= @current %> of <%= @pages %></a></li>
         <% if @current is 1: %>
@@ -11,7 +28,7 @@
             <% if page is null: %>
                 <li class="unavailable"><a>&hellip;</a></li>
             <% else: %>
-                <li data-action="switch" data-page="<%= page %>"
+                <li data-action="select" data-n="<%= page %>"
                     <% if page is @current: %>
                         class="current"
                     <% end %>
