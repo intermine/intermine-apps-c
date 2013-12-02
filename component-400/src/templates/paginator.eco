@@ -1,6 +1,6 @@
 <!-- does it make sense to show a perPage switcher? -->
 <% if @total > 5: %>
-    <div class="small button dropdown right">
+    <div class="small button dropdown secondary right">
         <%= @perPage %> rows per page
         <ul class="no-hover">
             <% for n in [ 5, 10, 20, 50, 100 ] when n <= @total: %>
@@ -9,6 +9,13 @@
                         <a>Show <%= n %> rows</a>
                     </li>
                 <% end %>
+            <% end %>
+            <!-- show all rows? -->
+            <% if @total <= 50 and @total isnt @perPage: %>
+                <li class="divider"></li>
+                <li data-action="resize" data-n="<%= @total %>">
+                    <a>Show all rows</a>
+                </li>
             <% end %>
         </ul>
     </div>
