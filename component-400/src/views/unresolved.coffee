@@ -2,8 +2,11 @@ View = require '../modules/view'
 
 class UnresolvedView extends View
 
-    autoRender: yes
-
     template: require '../templates/unresolved'
+
+    render: ->
+        @el.addClass 'unresolved section'
+
+        super
 
 module.exports = UnresolvedView

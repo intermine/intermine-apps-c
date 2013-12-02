@@ -24,29 +24,26 @@ class AppView extends View
         super
 
         # Render the header.
-        new HeaderView
+        @el.append (new HeaderView({
             'db': @options.db
-            'el': @el.find('div.header.section')
+        })).render().el
 
         # Render the duplicates?
         if (collection = @options.db.duplicates).length
-            view = new DuplicatesTableView {
-                'el': @el.find('div.duplicates.section')
+            @el.append (new DuplicatesTableView({
                 collection
-            }
-            do view.render
+            })).render().el
 
         # Summary overview.
-        new SummaryView
+        @el.append (new SummaryView({
             'matches': @options.db.matches
-            'el': @el.find('div.summary.section')
+        })).render().el
 
         # No matches?
         if (collection = @options.db.data.unresolved).length
-            new UnresolvedView {
-                'el': @el.find('div.unresolved.section')
+            @el.append (new UnresolvedView({
                 collection
-            }
+            })).render().el
 
         @
 

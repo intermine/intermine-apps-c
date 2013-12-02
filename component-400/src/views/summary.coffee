@@ -8,14 +8,14 @@ Table      = require './table'
 # Show summary of all but matches and duplicates.
 class SummaryView extends View
 
-    autoRender: yes
-
     template: require '../templates/summary/tabs'
 
     events:
         'click .button.download': 'download'
 
     render: ->
+        @el.addClass 'summary section'
+
         @el.html do @template
 
         tabs    = @el.find '.tabs'

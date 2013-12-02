@@ -3,8 +3,6 @@ View     = require '../modules/view'
 
 class HeaderView extends View
 
-    autoRender: yes
-
     template: require '../templates/header'
 
     events:
@@ -20,6 +18,8 @@ class HeaderView extends View
         mediator.on 'item:toggle', @render, @
 
     render: ->
+        @el.addClass 'header section'
+
         @el.html @template {
             # Currently selected objects.
             'selected': mori.count @options.db.selected

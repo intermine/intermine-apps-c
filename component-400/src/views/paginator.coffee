@@ -96,10 +96,10 @@ class Paginator extends View
     first: -> @select 0
 
     # Select the previous page.
-    prev: -> @select Math.max 0, @options.current - 1
+    prev: -> @select Math.max 1, @options.current - 1
 
     # Select the next page.
-    next: -> @select Math.min @options.pages - 1, @options.current + 1
+    next: -> @select Math.min @options.pages, @options.current + 1
 
     # Select the last page.
     last: -> @select @options.pages - 1
