@@ -24,7 +24,7 @@ perPage = 5
 
 module.exports =
 
-    'paginator - single page': (done) ->
+    'paginator - 1 page': (done) ->
         total   = 3
         current = 1
 
@@ -32,13 +32,13 @@ module.exports =
         do view.render
 
         assert.equal 1, view.options.pages
-        assert.deepEqual [ 1 ], view.options.range
+        assert.deepEqual [], view.options.range
         
         do done
 
-    'paginator - three pages': (done) ->
+    'paginator - 3 pages': (done) ->
         total   = 15
-        current = 1
+        current = 2
 
         view = new Paginator { total, perPage, current }
         do view.render
@@ -48,9 +48,9 @@ module.exports =
         
         do done
 
-    'paginator - five pages': (done) ->
+    'paginator - 5 pages on 2': (done) ->
         total   = 25
-        current = 3
+        current = 2
 
         view = new Paginator { total, perPage, current }
         do view.render
@@ -60,74 +60,62 @@ module.exports =
         
         do done
 
-    'paginator - ten pages': (done) ->
-        total   = 50
-        current = 4
-
-        view = new Paginator { total, perPage, current }
-        do view.render
-
-        assert.equal 10, view.options.pages
-        assert.deepEqual [].concat([ 2..6 ], [ null, 10 ]), view.options.range
-        
-        do done
-
-    'paginator - last page': (done) ->
+    'paginator - 5 pages on 5': (done) ->
         total   = 25
-        current = 4
-
-        view = new Paginator { total, perPage, current }
-        do view.render
-
-        assert.equal 5, view.options.pages
-        assert.deepEqual [ 1..5 ], view.options.range
-        
-        do done
-
-    'paginator - 5 of 65': (done) ->
-        total   = 322
         current = 5
 
         view = new Paginator { total, perPage, current }
         do view.render
 
-        assert.equal 65, view.options.pages
-        assert.deepEqual [].concat([ 3..7 ], [ null, 10, 20, 30, 40 ]), view.options.range
+        assert.equal 5, view.options.pages
+        assert.deepEqual [ 1..5 ], view.options.range
         
         do done
 
-    'paginator - 6 of 65': (done) ->
-        total   = 322
-        current = 6
+    'paginator - 8 pages on 4': (done) ->
+        total   = 40
+        current = 4
 
         view = new Paginator { total, perPage, current }
         do view.render
 
-        assert.equal 65, view.options.pages
-        assert.deepEqual [].concat([ 4..9 ], [ 10, 20, 30, 40 ]), view.options.range
+        assert.equal 8, view.options.pages
+        assert.deepEqual [ 1..8 ], view.options.range
         
         do done
 
-    'paginator - 8 of 65': (done) ->
-        total   = 322
+    'paginator - 10 pages on 5': (done) ->
+        total   = 50
+        current = 5
+
+        view = new Paginator { total, perPage, current }
+        do view.render
+
+        assert.equal 10, view.options.pages
+        assert.deepEqual [ 1, 2, 3, 4, 5, 6, 7, null, 10 ], view.options.range
+        
+        do done
+
+    'paginator - 10 pages on 8': (done) ->
+        total   = 50
         current = 8
 
         view = new Paginator { total, perPage, current }
         do view.render
 
-        assert.equal 65, view.options.pages
-        assert.deepEqual [].concat([ 6..10 ], [ 20, 30, 40 ]), view.options.range
+        assert.equal 10, view.options.pages
+        assert.deepEqual [ 1, null, 6, 7, 8, 9, 10 ], view.options.range
         
         do done
 
-    'paginator - 65 of 65': (done) ->
-        total   = 322
-        current = 65
+    'paginator - 20 pages on 10': (done) ->
+        total   = 100
+        current = 10
 
         view = new Paginator { total, perPage, current }
         do view.render
 
-        assert.equal 65, view.options.pages
-        assert.deepEqual [].concat([ 30, 40, 50, 60 ], [ 61..65 ]), view.options.range
+        assert.equal 20, view.options.pages
+        assert.deepEqual [ 1, null, 8, 9, 10, 11, 12, null, 20 ], view.options.range
         
         do done

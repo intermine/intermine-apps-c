@@ -1,5 +1,7 @@
 @import 'nib'
 
+$blue = #2ba6cb
+
 h2
     font-size: 20px
     display: inline-block
@@ -25,7 +27,7 @@ a
         line-height: 14px
         text-align: center
         color: #fff
-        background: #2ba6cb
+        background: $blue
         display: inline-block
 
     .tooltip
@@ -103,14 +105,6 @@ table.striped
             a
                 text-transform: capitalize
 
-ul.pagination
-    text-align: center
-    margin-bottom: 20px
-
-    li
-        display: inline-block
-        float: none
-
 ul.inline
     list-style: none
     padding: 0
@@ -125,8 +119,13 @@ ul.inline
 
 ul.pagination
     text-align: left
+    margin-bottom: 20px
 
     li
+        display: inline-block
         margin-left: 0
         float: left
         user-select: none
+
+        &.arrow:not(.unavailable)
+            background: lighten($blue, 90%)

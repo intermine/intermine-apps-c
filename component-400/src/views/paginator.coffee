@@ -24,70 +24,49 @@ class Paginator extends View
 
     # Render the template.
     render: ->
-        # [ lower..middle..upper ]
-        ranger = (lower, middle, upper) ->
-            a = b = middle
+        do =>
+            @options.range = []
             
-            dec = ->
-                # We could not decrease.
-                return no if (nu = a - 1) < lower
-                a -= 1 ; yes
-
-            inc = ->
-                # We could not increase.
-                return no if (nu = b + 1) > upper
-                b += 1 ; yes
-
-            # How many to show on each side.
-            flanks = 2
+            # Don't show if only a single page.
+            return if @options.pages is 1
             
-            # Keep adding to the page range around our number.
-            while flanks--
-                # Try adding or reduce.
-                (break unless do dec) unless do inc
-                
-                # Try reducing or add.
-                (break unless do inc) unless do dec
+            # The perfect range.
+            min = @options.current - 2
+            max = @options.current + 2
 
-            [ a, b ]
-
-        # Generate the inner range.
-        [ iMin, iMax ] = ranger 1, @options.current, @options.pages
-
-        # Get the inner range (will probably be extended by decades below).
-        inner = [ iMin..iMax ]
-
-        # Add the 2 closest decades not represented in the current range.
-        [ oMin, oMax ] = ranger 0
-        # Find the closest decade.
-        , Math.round(@options.current / 10)
-        # The upper limit is the highest decade.
-        , Math.floor(@options.pages / 10)
-
-        # The decades outer range.
-        outer = [ oMin..oMax ]
-        # Convert to decades again.
-        .map( (num) -> num * 10 )
-        # Remove.
-        .filter( (num) -> num isnt 0 )
-
-        # Merge sort them into a full range, removing dupes.
-        range = _.unique [].concat(outer, inner).sort( (a, b) -> a - b ), yes
-
-        # Add separators between items: null (ellipsis) for a gap or a number if gap is of 1.
-        @options.range = []
-        last = range[0] - 1
-        for number in range
-            switch
-                # Number filler.
-                when last + 2 is number
-                    @options.range.push last + 1
-                # Divider.
-                when last + 2 < number < last + 10
-                    @options.range.push null
+            # Overflow? Decrease the lower bound.
+            min += diff if (diff = @options.pages - max) < 0
             
-            @options.range.push number
-            last = number
+            # Underflow? Increase the upper bound.
+            max += diff if (diff = 1 - min) > 0
+
+            # Finally trim and create a range.
+            range = [ Math.max(1, min) .. Math.min(@options.pages, max) ]
+
+            # Add the first and last pages.
+            range.push 1
+            range.push @options.pages
+
+            # Filter out and sort.
+            range = _.unique(range).sort( (a, b) -> a - b )
+
+            # Add dividers.
+            @options.range = []
+
+            previous = range[0] - 1
+            for number in range
+                # Optional divider.
+                if previous
+                    switch
+                        # A fillter.
+                        when previous + 2 is number
+                            @options.range.push previous + 1
+                        # Ellipsis.
+                        when previous + 1 < number
+                            @options.range.push null
+
+                # Add to the stack.
+                @options.range.push previous = number
 
         # Render our template.
         @el.html @template @options

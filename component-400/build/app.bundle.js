@@ -17267,10 +17267,10 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
               __out.push(' of ');
               __out.push(__sanitize(this.pages));
               __out.push('</a></li>\n        ');
-              if (this.current === 0) {
-                __out.push('\n            <li class="unavailable arrow"><a>&laquo;</a></li>\n            <li class="unavailable arrow"><a>&lsaquo;</a></li>\n        ');
+              if (this.current === 1) {
+                __out.push('\n            <li class="unavailable arrow"><a>&lsaquo;</a></li>\n        ');
               } else {
-                __out.push('\n            <li class="arrow" data-action="first" title="First"><a>&laquo;</a></li>\n            <li class="arrow" data-action="prev" title="Previous"><a>&lsaquo;</a></li>\n        ');
+                __out.push('\n            <li class="arrow" data-action="prev" title="Previous"><a>&lsaquo;</a></li>\n        ');
               }
               __out.push('\n\n        ');
               _ref = this.range;
@@ -17294,9 +17294,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
               }
               __out.push('\n\n        ');
               if (this.current === this.pages) {
-                __out.push('\n            <li class="unavailable arrow"><a>&rsaquo;</a></li>\n            <li class="unavailable arrow"><a>&raquo;</a></li>\n        ');
+                __out.push('\n            <li class="unavailable arrow"><a>&rsaquo;</a></li>\n        ');
               } else {
-                __out.push('\n            <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>\n            <li class="arrow" data-action="last" title="Last"><a>&raquo;</a></li>\n        ');
+                __out.push('\n            <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>\n        ');
               }
               __out.push('\n    </ul>\n');
             }
@@ -18065,74 +18065,50 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         Paginator.prototype.render = function() {
-          var a, b, iMax, iMin, inner, last, number, oMax, oMin, outer, range, ranger, _i, _j, _k, _len, _ref1, _ref2, _results, _results1;
-          ranger = function(lower, middle, upper) {
-            var a, b, dec, flanks, inc;
-            a = b = middle;
-            dec = function() {
-              var nu;
-              if ((nu = a - 1) < lower) {
-                return false;
-              }
-              a -= 1;
-              return true;
-            };
-            inc = function() {
-              var nu;
-              if ((nu = b + 1) > upper) {
-                return false;
-              }
-              b += 1;
-              return true;
-            };
-            flanks = 2;
-            while (flanks--) {
-              if (!inc()) {
-                if (!dec()) {
-                  break;
-                }
-              }
-              if (!dec()) {
-                if (!inc()) {
-                  break;
-                }
-              }
+          var a, b,
+            _this = this;
+          (function() {
+            var diff, max, min, number, previous, range, _i, _j, _len, _ref1, _ref2, _results, _results1;
+            _this.options.range = [];
+            if (_this.options.pages === 1) {
+              return;
             }
-            return [a, b];
-          };
-          _ref1 = ranger(1, this.options.current, this.options.pages), iMin = _ref1[0], iMax = _ref1[1];
-          inner = (function() {
-            _results = [];
-            for (var _i = iMin; iMin <= iMax ? _i <= iMax : _i >= iMax; iMin <= iMax ? _i++ : _i--){ _results.push(_i); }
-            return _results;
-          }).apply(this);
-          _ref2 = ranger(0, Math.round(this.options.current / 10), Math.floor(this.options.pages / 10)), oMin = _ref2[0], oMax = _ref2[1];
-          outer = (function() {
+            min = _this.options.current - 2;
+            max = _this.options.current + 2;
+            if ((diff = _this.options.pages - max) < 0) {
+              min += diff;
+            }
+            if ((diff = 1 - min) > 0) {
+              max += diff;
+            }
+            range = (function() {
+              _results = [];
+              for (var _i = _ref1 = Math.max(1, min), _ref2 = Math.min(_this.options.pages, max); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; _ref1 <= _ref2 ? _i++ : _i--){ _results.push(_i); }
+              return _results;
+            }).apply(this);
+            range.push(1);
+            range.push(_this.options.pages);
+            range = _.unique(range).sort(function(a, b) {
+              return a - b;
+            });
+            _this.options.range = [];
+            previous = range[0] - 1;
             _results1 = [];
-            for (var _j = oMin; oMin <= oMax ? _j <= oMax : _j >= oMax; oMin <= oMax ? _j++ : _j--){ _results1.push(_j); }
-            return _results1;
-          }).apply(this).map(function(num) {
-            return num * 10;
-          }).filter(function(num) {
-            return num !== 0;
-          });
-          range = _.unique([].concat(outer, inner).sort(function(a, b) {
-            return a - b;
-          }), true);
-          this.options.range = [];
-          last = range[0] - 1;
-          for (_k = 0, _len = range.length; _k < _len; _k++) {
-            number = range[_k];
-            switch (false) {
-              case last + 2 !== number:
-                this.options.range.push(last + 1);
-                break;
-              case !((last + 2 < number && number < last + 10)):
-                this.options.range.push(null);
+            for (_j = 0, _len = range.length; _j < _len; _j++) {
+              number = range[_j];
+              if (previous) {
+                switch (false) {
+                  case previous + 2 !== number:
+                    _this.options.range.push(previous + 1);
+                    break;
+                  case !(previous + 1 < number):
+                    _this.options.range.push(null);
+                }
+              }
+              _results1.push(_this.options.range.push(previous = number));
             }
-            this.options.range.push(number);
-            last = number;
-          }
+            return _results1;
+          })();
           this.el.html(this.template(this.options));
           b = Math.min((a = (this.options.current - 1) * this.options.perPage) + this.options.perPage, this.options.total);
           mediator.trigger('page:change', this.cid, a, b);
