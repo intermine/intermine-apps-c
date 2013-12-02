@@ -1,4 +1,5 @@
-<% if @pages > 1: %>
+<!-- does it make sense to show a perPage switcher? -->
+<% if @total > 5: %>
     <div class="small button dropdown right">
         <%= @perPage %> rows per page
         <ul class="no-hover">
@@ -9,13 +10,12 @@
                     </li>
                 <% end %>
             <% end %>
-            <!--
-            <li class="divider"></li>
-            <li><a data-action="resize" data-n="<%= @total %>">Show all <%= @total %> rows</a></li>
-            -->
         </ul>
     </div>
+<% end %>
 
+<!-- do we need to show a paginator? -->
+<% if @pages > 1: %>
     <ul class="pagination">
         <li class="unavailable"><a>Page <%= @current %> of <%= @pages %></a></li>
         <% if @current is 1: %>
