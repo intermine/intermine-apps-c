@@ -1,3 +1,5 @@
+{ _, Backbone } = require '../../deps'
+
 type = require '../../utils/type'
 
 #### Model

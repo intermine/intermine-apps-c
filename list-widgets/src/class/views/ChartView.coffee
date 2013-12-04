@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 ChartPopoverView = require './ChartPopoverView'
 
 class ChartView extends Backbone.View

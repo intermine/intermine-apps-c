@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 ### Enrichment Widget table row matches box.###
 
 class EnrichmentPopoverView extends Backbone.View

@@ -1,3 +1,5 @@
+{ _, $ } = require '../deps'
+
 InterMineWidget = require './InterMineWidget'
 EnrichmentView  = require './views/EnrichmentView'
 type            = require '../utils/type'

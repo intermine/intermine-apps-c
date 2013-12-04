@@ -1,3 +1,5 @@
+{ $, _, Backbone } = require '../../deps'
+
 Models                         = require '../models/CoreModel'
 EnrichmentRowView              = require './EnrichmentRowView'
 EnrichmentPopoverView          = require './EnrichmentPopoverView'

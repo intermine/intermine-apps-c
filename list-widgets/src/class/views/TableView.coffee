@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 Models           = require '../models/CoreModel'
 TableRowView     = require './TableRowView'
 TablePopoverView = require './TablePopoverView'

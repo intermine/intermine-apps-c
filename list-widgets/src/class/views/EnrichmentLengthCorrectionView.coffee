@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 ### Enrichment Widget gene length correction.###
 
 class EnrichmentLengthCorrectionView extends Backbone.View

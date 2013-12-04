@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 ### Enrichment Widget background population selection box.###
 
 class EnrichmentPopulationView extends Backbone.View

@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 ### Chart Widget bar onclick box.###
 
 class ChartPopoverView extends Backbone.View

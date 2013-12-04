@@ -8,7 +8,6 @@
         "backbone": "1.1.0",
 
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
-        "setImmediate": "https://raw.github.com/intermine/CDN/master/js/setImmediate/1.0.1/setImmediate.js",
         "google": "https://www.google.com/jsapi",
         "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js",
         "im.js": "https://raw.github.com/intermine/CDN/master/js/intermine/imjs/2.8.1/im.js"

@@ -1,3 +1,5 @@
+{ $, async, intermine } = require '../deps'
+
 class InterMineWidget
 
     # Inject wrapper inside the target `div` that we have control over.

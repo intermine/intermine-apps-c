@@ -1,3 +1,5 @@
+{ $, google } = require './deps'
+
 ChartWidget      = require './class/ChartWidget'
 EnrichmentWidget = require './class/EnrichmentWidget'
 TableWidget      = require './class/TableWidget'
