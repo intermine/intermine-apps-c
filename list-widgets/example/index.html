@@ -25,7 +25,8 @@
         var ListWidgets = require('list-widgets'),
             widgets = new ListWidgets({ 'root': 'http://beta.flymine.org/beta/service/' });
         widgets.all('Gene', 'demo-list', '#target');
-        //widgets.enrichment('publication_enrichment', 'demo-list', '#target');
+        //var opts = { 'matchCb': function() {}, 'listCb': function() {}, 'resultsCb': function() {} };
+        //widgets.enrichment('publication_enrichment', 'demo-list', '#target', opts);
     })();
     </script>
 </body>

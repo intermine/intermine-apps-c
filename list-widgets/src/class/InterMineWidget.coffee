@@ -11,7 +11,7 @@ class InterMineWidget
             'class': "inner"
             'style': "height:572px;overflow:hidden;position:relative"
         
-        @el = "#{@el} div.inner"
+        @el = $(@el).find 'div.inner'
 
         # Init imjs.
         @log.push 'Initializing InterMine Service'

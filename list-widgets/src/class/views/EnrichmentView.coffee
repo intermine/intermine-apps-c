@@ -22,7 +22,7 @@ class EnrichmentView extends Backbone.View
         @collection = new Models.EnrichmentResults()
         @collection.bind('change', @renderToolbar) # Re-render toolbar on change.
 
-        @render()
+        do @render
 
     render: ->
         # Render the widget template.

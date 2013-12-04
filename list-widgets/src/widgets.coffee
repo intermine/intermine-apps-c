@@ -44,7 +44,7 @@ class Widgets
             google.load 'visualization', '1.0',
                 packages: [ 'corechart' ]
                 callback: =>
-                    wait = no
+                    @wait = no
                     new ChartWidget @service, @token, opts...
     
     ###
@@ -59,30 +59,30 @@ class Widgets
             return setTimeout wait, 20 if @wait
 
             # Do we already have lists accessible to us?
-            if @lists? then new EnrichmentWidget @service, @token, @lists, opts...
-            else
-                # First to get here slows the others.
-                @wait = yes
-                # Fetch/cache lists this user has access to.
-                $.ajax
-                    'url':      "#{@service}lists?token=#{@token}&format=json"
-                    'dataType': 'jsonp'
-                    success: (data) =>
-                        # Problems?
-                        if data.statusCode isnt 200 and not data.lists?
-                            $(opts[2]).html $ '<div/>',
-                                'class': "alert alert-error"
-                                'html':  "Problem fetching lists we have access to <a href='#{@service}lists'>#{@service}lists</a>"
-                        else
-                            # Save it and stop waiting.
-                            @lists = data.lists
-                            @wait = no
-                            # New instance of a widget.
-                            new EnrichmentWidget @service, @token, @lists, opts...
+            return new EnrichmentWidget(@service, @token, @lists, opts...) if @lists?
+            
+            # First to get here slows the others.
+            @wait = yes
+            # Fetch/cache lists this user has access to.
+            $.ajax
+                'url':      "#{@service}lists?token=#{@token}&format=json"
+                'dataType': 'jsonp'
+                success: (data) =>
+                    # Problems?
+                    if data.statusCode isnt 200 and not data.lists?
+                        $(opts[2]).html $ '<div/>',
+                            'class': "alert alert-error"
+                            'html':  "Problem fetching lists we have access to <a href='#{@service}lists'>#{@service}lists</a>"
+                    else
+                        # Save it and stop waiting.
+                        @lists = data.lists
+                        @wait = no
+                        # New instance of a widget.
+                        new EnrichmentWidget @service, @token, @lists, opts...
 
-                    error: (xhr, opts, err) => $(opts[2]).html $ '<div/>',
-                        'class': "alert alert-error"
-                        'html':  "#{xhr.statusText} for <a href='#{@service}widgets'>#{@service}widgets</a>"
+                error: (xhr, opts, err) => $(opts[2]).html $ '<div/>',
+                    'class': "alert alert-error"
+                    'html':  "#{xhr.statusText} for <a href='#{@service}widgets'>#{@service}widgets</a>"
 
     ###
     Table Widget.
@@ -112,17 +112,15 @@ class Widgets
                     # For all that match our object type...
                     for widget in response.widgets when type in widget.targets
                         # Create target element for individual Widget (slugify just to make sure).
-                        widgetEl = widget.name.replace(/[^-a-zA-Z0-9,&\s]+/ig, '').replace(/-/gi, "_").replace(/\s/gi, "-").toLowerCase()
-                        $(el).append $('<div/>', 'id': widgetEl, 'class': "widget span6")
-                        
-                        # What type is it?
-                        switch widget.widgetType
-                            when "chart"
-                                @chart(widget.name, bagName, "#{el} ##{widgetEl}", widgetOptions)
-                            when "enrichment"
-                                @enrichment(widget.name, bagName, "#{el} ##{widgetEl}", widgetOptions)
-                            when "table"
-                                @table(widget.name, bagName, "#{el} ##{widgetEl}", widgetOptions)
+                        widgetEl = widget.name
+                        .replace(/[^-a-zA-Z0-9,&\s]+/ig, '')
+                        .replace(/-/gi, "_")
+                        .replace(/\s/gi, "-")
+                        .toLowerCase()
+                        # Append it.
+                        $(el).append target = $('<div/>', 'id': widgetEl, 'class': "widget span6")
+                        # Load it.
+                        @[widget.widgetType] widget.name, bagName, target, widgetOptions
             
             error: (xhr, opts, err) => $(el).html $ '<div/>',
                 'class': "alert alert-error"

@@ -44,7 +44,7 @@ class ChartView extends Backbone.View
         # Keyup events for the whole page.
         $(document).on 'keyup keydown', @keypressAction
 
-        @render()
+        do @render
 
     render: ->
         # Render the widget template.

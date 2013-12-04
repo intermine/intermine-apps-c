@@ -18,7 +18,7 @@ module.exports = (grunt) ->
                     'vendor/underscore/underscore.js'
                     'vendor/backbone/backbone.js'
                     'vendor/google/index'
-                    'vendor/im.js/index.js'
+                    'vendor/imjs/js/im.js'
                     'vendor/fileSaver/index.js'
                     'vendor/setImmediate/index.js'
                     'vendor/async/lib/async.js'

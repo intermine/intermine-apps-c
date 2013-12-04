@@ -79,8 +79,9 @@ class EnrichmentWidget extends InterMineWidget
 
         @log = []
 
-        super()
-        @render()
+        super
+        
+        do @render
 
     # Visualize the widget.
     render: =>

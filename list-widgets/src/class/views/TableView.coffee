@@ -19,7 +19,7 @@ class TableView extends Backbone.View
         @collection = new Models.TableResults()
         @collection.bind('change', @renderToolbar) # Re-render toolbar on change.
 
-        @render()
+        do @render
 
     render: ->
         # Render the widget template.
