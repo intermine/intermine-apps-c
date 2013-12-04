@@ -7,6 +7,7 @@
         "underscore": "1.5.2",
         "backbone": "1.1.0",
 
+        "setImmediate": "https://raw.github.com/intermine/CDN/master/js/setImmediate/1.0.1/setImmediate.js",
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
         "google": "https://www.google.com/jsapi",
         "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js",
