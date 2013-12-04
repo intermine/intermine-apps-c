@@ -14,6 +14,12 @@ class EnrichmentWidget extends InterMineWidget
             console?.log pq
         listCb:           (pq) ->
             console?.log pq
+    
+    formOptions:
+        # Default error correction.
+        errorCorrection: "Holm-Bonferroni"
+        # Default p-value.
+        pValue:          "0.05"
 
     errorCorrections: [ "Holm-Bonferroni", "Benjamini Hochberg", "Bonferroni", "None" ]
     pValues:          [ "0.05", "0.10", "1.00" ]
@@ -52,16 +58,22 @@ class EnrichmentWidget extends InterMineWidget
     @param {string} id widgetId
     @param {string} bagName myBag
     @param {string} el #target
-    @param {object} widgetOptions { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} } }
+    @param {object} widgetOptions { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }
     ###
     constructor: (@service, @token, @lists, @id, @bagName, @el, widgetOptions = {}) ->
+        # Key-values to extract from options.
+        formKeys = [ 'errorCorrection', 'pValue' ]
+        formOptions = {}
+        # Save them on form.
+        ( formOptions[k] = v for k, v of widgetOptions when k in formKeys )
+        # Delete them from options.
+        ( delete widgetOptions[k] for k in formKeys )
+
         # Merge `widgetOptions`.
-        @widgetOptions = _.extend {}, widgetOptions, @widgetOptions
+        @widgetOptions = _.extend {}, @widgetOptions, widgetOptions
 
         # Set form options for this widget.
-        @formOptions =
-            errorCorrection: "Holm-Bonferroni"
-            pValue:          "0.05"
+        @formOptions = _.extend {}, @formOptions, formOptions
 
         @log = []
 

@@ -50,7 +50,7 @@ class Widgets
     @param {string} id Represents a widget identifier as represented in webconfig-model.xml
     @param {string} bagName List name to use with this Widget.
     @param {jQuery selector} el Where to render the Widget to.
-    @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
+    @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }`
     ###
     enrichment: (opts...) ->
         do wait = =>

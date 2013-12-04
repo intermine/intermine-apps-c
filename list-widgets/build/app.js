@@ -354,7 +354,8 @@
       var EnrichmentView, EnrichmentWidget, InterMineWidget, type,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
         __hasProp = {}.hasOwnProperty,
-        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+        __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
       
       InterMineWidget = require('./InterMineWidget');
       
@@ -377,6 +378,11 @@
           listCb: function(pq) {
             return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
           }
+        };
+      
+        EnrichmentWidget.prototype.formOptions = {
+          errorCorrection: "Holm-Bonferroni",
+          pValue: "0.05"
         };
       
         EnrichmentWidget.prototype.errorCorrections = ["Holm-Bonferroni", "Benjamini Hochberg", "Bonferroni", "None"];
@@ -418,11 +424,12 @@
         @param {string} id widgetId
         @param {string} bagName myBag
         @param {string} el #target
-        @param {object} widgetOptions { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} } }
+        @param {object} widgetOptions { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }
         */
       
       
         function EnrichmentWidget(service, token, lists, id, bagName, el, widgetOptions) {
+          var formKeys, formOptions, k, v, _i, _len;
           this.service = service;
           this.token = token;
           this.lists = lists;
@@ -433,11 +440,20 @@
             widgetOptions = {};
           }
           this.render = __bind(this.render, this);
-          this.widgetOptions = _.extend({}, widgetOptions, this.widgetOptions);
-          this.formOptions = {
-            errorCorrection: "Holm-Bonferroni",
-            pValue: "0.05"
-          };
+          formKeys = ['errorCorrection', 'pValue'];
+          formOptions = {};
+          for (k in widgetOptions) {
+            v = widgetOptions[k];
+            if (__indexOf.call(formKeys, k) >= 0) {
+              formOptions[k] = v;
+            }
+          }
+          for (_i = 0, _len = formKeys.length; _i < _len; _i++) {
+            k = formKeys[_i];
+            delete widgetOptions[k];
+          }
+          this.widgetOptions = _.extend({}, this.widgetOptions, widgetOptions);
+          this.formOptions = _.extend({}, this.formOptions, formOptions);
           this.log = [];
           EnrichmentWidget.__super__.constructor.call(this);
           this.render();
@@ -2919,7 +2935,7 @@
               __out.push('\n                <option value="');
               __out.push(__sanitize(p));
               __out.push('" ');
-              if (this.options.pValue === p) {
+              if (parseFloat(this.options.pValue) === parseFloat(p)) {
                 __out.push(__sanitize('selected="selected"'));
               }
               __out.push('>\n                    ');
@@ -4335,7 +4351,7 @@
         @param {string} id Represents a widget identifier as represented in webconfig-model.xml
         @param {string} bagName List name to use with this Widget.
         @param {jQuery selector} el Where to render the Widget to.
-        @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
+        @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }`
         */
       
       
