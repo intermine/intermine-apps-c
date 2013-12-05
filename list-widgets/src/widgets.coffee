@@ -17,17 +17,23 @@ class Widgets
     constructor: (opts...) ->
         if typeof opts[0] is 'string'
             # Assuming a service.
-            @service = opts[0]
+            @root = opts[0]
             # Do we have a token?
             @token = opts[1] or ''
         else
             # Assuming an object.
             if opts[0].root?
-                @service = opts[0].root
+                @root = opts[0].root
             else
                 throw Error 'You need to set the `root` parameter pointing to the mine\'s service'
             # Do we have a token?
             @token = opts[0].token or ''
+
+        # Create a new imjs instance.
+        service = new intermine.Service { @root, @token }
+
+        # We will probably want to get user's lists.
+        @lists = do service.fetchLists
 
     ###
     Chart Widget.
@@ -41,7 +47,7 @@ class Widgets
         google.load 'visualization', '1.0',
             packages: [ 'corechart' ]
             callback: =>
-                new ChartWidget @service, @token, opts...
+                new ChartWidget @root, @token, opts...
     
     ###
     Enrichment Widget.
@@ -51,34 +57,18 @@ class Widgets
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }`
     ###
     enrichment: (opts...) ->
-        do wait = =>
-            return setTimeout wait, 20 if @wait
-
-            # Do we already have lists accessible to us?
-            return new EnrichmentWidget(@service, @token, @lists, opts...) if @lists?
+        done = (lists) =>
+            new EnrichmentWidget @root, @token, lists, opts...
             
-            # First to get here slows the others.
-            @wait = yes
-            # Fetch/cache lists this user has access to.
-            $.ajax
-                'url':      "#{@service}lists?token=#{@token}&format=json"
-                'dataType': 'jsonp'
-                success: (data) =>
-                    # Problems?
-                    if data.statusCode isnt 200 and not data.lists?
-                        $(opts[2]).html $ '<div/>',
-                            'class': "alert alert-error"
-                            'html':  "Problem fetching lists we have access to <a href='#{@service}lists'>#{@service}lists</a>"
-                    else
-                        # Save it and stop waiting.
-                        @lists = data.lists
-                        @wait = no
-                        # New instance of a widget.
-                        new EnrichmentWidget @service, @token, @lists, opts...
+        # noLists = => $(opts[2]).html $ '<div/>',
+        #     'class': "alert alert-error"
+        #     'html':  "Problem fetching lists we have access to <a href='#{@root}lists'>#{@root}lists</a>"
 
-                error: (xhr, opts, err) => $(opts[2]).html $ '<div/>',
-                    'class': "alert alert-error"
-                    'html':  "#{xhr.statusText} for <a href='#{@service}widgets'>#{@service}widgets</a>"
+        error = => $(opts[2]).html $ '<div/>',
+            'class': "alert alert-error"
+            'html':  "#{xhr.statusText} for <a href='#{@root}widgets'>#{@root}widgets</a>"
+
+        @lists.done(done).fail(error)
 
     ###
     Table Widget.
@@ -88,7 +78,7 @@ class Widgets
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
     ###
     table: (opts...) ->
-        new TableWidget @service, @token, opts...
+        new TableWidget @root, @token, opts...
 
     ###
     All available List Widgets.
@@ -99,7 +89,7 @@ class Widgets
     ###
     all: (type="Gene", bagName, el, widgetOptions) ->
         $.ajax
-            'url':      "#{@service}widgets"
+            'url':      "#{@root}widgets"
             'dataType': 'jsonp'
             
             success: (response) =>
@@ -120,6 +110,6 @@ class Widgets
             
             error: (xhr, opts, err) => $(el).html $ '<div/>',
                 'class': "alert alert-error"
-                'html':  "#{xhr.statusText} for <a href='#{@service}widgets'>#{@service}widgets</a>"
+                'html':  "#{xhr.statusText} for <a href='#{@root}widgets'>#{@root}widgets</a>"
 
 module.exports = Widgets
