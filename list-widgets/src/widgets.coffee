@@ -37,15 +37,11 @@ class Widgets
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
     ###
     chart: (opts...) ->
-        do wait = =>
-            return setTimeout wait, 20 if @wait
-            @wait = yes
-            # Load Google Visualization.
-            google.load 'visualization', '1.0',
-                packages: [ 'corechart' ]
-                callback: =>
-                    @wait = no
-                    new ChartWidget @service, @token, opts...
+        # Load Google Visualization.
+        google.load 'visualization', '1.0',
+            packages: [ 'corechart' ]
+            callback: =>
+                new ChartWidget @service, @token, opts...
     
     ###
     Enrichment Widget.
