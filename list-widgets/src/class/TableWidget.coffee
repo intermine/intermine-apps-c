@@ -37,20 +37,22 @@ class TableWidget extends InterMineWidget
 
     # Set the params on us and set Google load callback.
     #
+    # 0. `imjs`:          intermine.Service
     # 1. `service`:       [http://aragorn:8080/flymine/service/](http://aragorn:8080/flymine/service/)
     # 2. `token`:         token for accessing user's lists
     # 3. `id`:            widgetId
     # 4. `bagName`:       myBag
     # 5. `el`:            #target
     # 6. `widgetOptions`: { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }
-    constructor: (@service, @token, @id, @bagName, @el, widgetOptions = {}) ->
+    constructor: (@imjs, @service, @token, @id, @bagName, @el, widgetOptions = {}) ->
         # Merge `widgetOptions`.
-        @widgetOptions = _.extend {}, widgetOptions, @widgetOptions
+        @widgetOptions = _.extend {}, @widgetOptions, widgetOptions
         
         @log = []
 
-        super()
-        @render()
+        super
+        
+        do @render
 
     # Visualize the widget.
     render: =>

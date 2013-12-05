@@ -54,6 +54,7 @@ class EnrichmentWidget extends InterMineWidget
 
     ###
     Set the params on us and render.
+    @param {object} intermine.Service
     @param {string} service http://aragorn.flymine.org:8080/flymine/service/
     @param {string} token Token for accessing user's lists
     @param {Array} lists All lists that we have access to
@@ -62,7 +63,7 @@ class EnrichmentWidget extends InterMineWidget
     @param {string} el #target
     @param {object} widgetOptions { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }
     ###
-    constructor: (@service, @token, @lists, @id, @bagName, @el, widgetOptions = {}) ->
+    constructor: (@imjs, @service, @token, @lists, @id, @bagName, @el, widgetOptions = {}) ->
         # Key-values to extract from options.
         formKeys = [ 'errorCorrection', 'pValue' ]
         formOptions = {}

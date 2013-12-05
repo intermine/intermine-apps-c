@@ -30,10 +30,10 @@ class Widgets
             @token = opts[0].token or ''
 
         # Create a new imjs instance.
-        service = new intermine.Service { @root, @token }
+        @imjs = new intermine.Service { @root, @token }
 
         # We will probably want to get user's lists.
-        @lists = do service.fetchLists
+        @lists = do @imjs.fetchLists
 
     ###
     Chart Widget.
@@ -47,7 +47,7 @@ class Widgets
         google.load 'visualization', '1.0',
             packages: [ 'corechart' ]
             callback: =>
-                new ChartWidget @root, @token, opts...
+                new ChartWidget @imjs, @root, @token, opts...
     
     ###
     Enrichment Widget.
@@ -58,7 +58,7 @@ class Widgets
     ###
     enrichment: (opts...) ->
         done = (lists) =>
-            new EnrichmentWidget @root, @token, lists, opts...
+            new EnrichmentWidget @imjs, @root, @token, lists, opts...
             
         # noLists = => $(opts[2]).html $ '<div/>',
         #     'class': "alert alert-error"
@@ -78,7 +78,7 @@ class Widgets
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
     ###
     table: (opts...) ->
-        new TableWidget @root, @token, opts...
+        new TableWidget @imjs, @root, @token, opts...
 
     ###
     All available List Widgets.

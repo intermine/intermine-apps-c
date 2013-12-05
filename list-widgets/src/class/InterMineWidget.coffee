@@ -13,12 +13,6 @@ class InterMineWidget
         
         @el = $(@el).find 'div.inner'
 
-        # Init imjs.
-        @log.push 'Initializing InterMine Service'
-        @_service = new intermine.Service
-            'root': @service
-            'token': @token
-
         # Monitor hashchange for debug mode.
         @log.push 'Monitoring for debug mode'
         $(window).on 'hashchange', =>
@@ -87,7 +81,7 @@ class InterMineWidget
     queryRows: (query, cb) =>
         @log.push 'Querying for rows'
 
-        service = @_service
+        service = @imjs
 
         # Create a query.
         async.waterfall [ (cb) ->
