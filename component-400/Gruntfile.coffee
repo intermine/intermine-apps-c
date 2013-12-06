@@ -53,6 +53,7 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-shell')
+    #grunt.loadNpmTasks('grunt-notify')
 
     # Will build mori too.
     grunt.registerTask('default', [

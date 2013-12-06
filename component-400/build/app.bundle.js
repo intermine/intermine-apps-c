@@ -16290,7 +16290,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     var resolved = require.resolve(path);
 
     // lookup failed
-    if (null == resolved) {
+    if (null === resolved) {
       orig = orig || path;
       parent = parent || 'root';
       var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
@@ -16316,7 +16316,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     }
 
     return module.exports;
-  }
+  };
 
   /**
    * Registered modules.
@@ -16356,7 +16356,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     ];
 
     for (var i = 0; i < paths.length; i++) {
-      var path = paths[i];
+      path = paths[i];
       if (require.modules.hasOwnProperty(path)) return path;
       if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
     }
@@ -16382,7 +16382,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     for (var i = 0; i < path.length; ++i) {
       if ('..' == path[i]) {
         curr.pop();
-      } else if ('.' != path[i] && '' != path[i]) {
+      } else if ('.' !== path[i] && '' !== path[i]) {
         segs.push(path[i]);
       }
     }
@@ -16447,7 +16447,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     var localRequire = function(path) {
       var resolved = localRequire.resolve(path);
       return require(resolved, parent, path);
-    }
+    };
 
     /**
      * Resolve relative to the parent.
