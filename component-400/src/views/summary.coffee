@@ -25,7 +25,13 @@ class SummaryView extends View
 
         for { name, collection, reason } in @options.matches when reason isnt 'UNRESOLVED'
             # Tab switcher.
-            @views.push view = new TabSwitcherView { 'model': { name  }, reason }
+            @views.push view = new TabSwitcherView {
+                'model': {
+                    name,
+                    'reason': do reason.toLowerCase
+                },
+                reason
+            }
             tabs.append view.render().el
             
             # Content in two types of tables.

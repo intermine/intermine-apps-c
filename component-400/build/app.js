@@ -761,7 +761,7 @@
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Which one do you want?</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches</th>\n            <th>Action</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+            __out.push('<header>\n    <span class="small secondary remove-all button">Remove all</span>\n    <span class="small success add-all button">Add all</span>\n    <h2>Multiple matches</h2>\n    <span data-id="1" class="help"></span>\n</header>\n\n<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Matches <span data-id="matches" class="help"></span></th>\n            <th>Action <span data-id="add" class="help"></span></th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -1111,7 +1111,11 @@
           
             __out.push(__sanitize(this.name));
           
-            __out.push('s <span data-id="3" class="help"></span></a>');
+            __out.push('s <span data-id="');
+          
+            __out.push(__sanitize(this.reason));
+          
+            __out.push('" class="help"></span></a>');
           
           }).call(this);
           
@@ -1367,7 +1371,7 @@
         }
         (function() {
           (function() {
-            __out.push('<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match</th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+            __out.push('<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match <span data-id="matches" class="help"></span></th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -1976,7 +1980,8 @@
             }
             this.views.push(view = new TabSwitcherView({
               'model': {
-                name: name
+                name: name,
+                'reason': reason.toLowerCase()
               },
               reason: reason
             }));
@@ -2356,11 +2361,15 @@
       })(View);
       
       tooltips = {
-        '1': 'Choose from among duplicate matches below',
-        '2': 'These objects have been automatically added to your list',
-        '3': 'A class of matches',
-        '4': 'Identifiers that could not be resolved',
-        '5': 'Multiple identifiers matched an object'
+        '1': 'These identifiers matched more than one record in the database.<br />Click on the ADD button next to the identifier you want to include in your list.',
+        'provided': 'These are the identifiers you typed in the form on the previous page.',
+        'add': 'Use these buttons to add (or remove) this record to your list.',
+        'matches': 'These are the records in the database that correspond to the<br/>identifier you entered on the previous page.',
+        '2': 'This is a summary of what is in your list.',
+        'match': 'An exact match was found between what you entered and what is in our database.',
+        'type_converted': 'These identifiers matched records in our database but were<br/>not the type of data you specified on the previous page.',
+        'other': 'These identifiers matched old identifiers.',
+        '4': 'Identifiers that could not be resolved.'
       };
       
       module.exports = TooltipView;

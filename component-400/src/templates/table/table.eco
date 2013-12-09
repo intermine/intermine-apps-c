@@ -4,7 +4,7 @@
     <thead>
         <tr>
             <th>Identifier you provided</th>
-            <th>Match</th>
+            <th>Match <span data-id="matches" class="help"></span></th>
         </tr>
     </thead>
     <tbody></tbody>

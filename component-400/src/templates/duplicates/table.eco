@@ -1,7 +1,7 @@
 <header>
     <span class="small secondary remove-all button">Remove all</span>
     <span class="small success add-all button">Add all</span>
-    <h2>Which one do you want?</h2>
+    <h2>Multiple matches</h2>
     <span data-id="1" class="help"></span>
 </header>
 
@@ -11,8 +11,8 @@
     <thead>
         <tr>
             <th>Identifier you provided</th>
-            <th>Matches</th>
-            <th>Action</th>
+            <th>Matches <span data-id="matches" class="help"></span></th>
+            <th>Action <span data-id="add" class="help"></span></th>
         </tr>
     </thead>
     <tbody></tbody>

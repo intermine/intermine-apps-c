@@ -19,23 +19,27 @@ a
     position: relative
 
     &:before
-        content: "?"
-        width: 14px
-        height: 14px
+        content: "i"
+        padding: 0 4px
         font-size: 12px
-        font-weight: bold
         line-height: 14px
         text-align: center
         color: #fff
         background: $blue
         display: inline-block
+        text-transform: lowercase
+        font-family: serif
+        font-weight: bold
+        font-style: italic
 
     .tooltip
         display: block
         font-size: 12px !important
         white-space: nowrap
-        top: -30px
-        left: -2px
+        bottom: 22px
+        left: -3px
+        font-weight: bold
+        text-transform: none
 
     .flyout
         color: #333
