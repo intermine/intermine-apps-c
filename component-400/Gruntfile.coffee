@@ -44,6 +44,7 @@ module.exports = (grunt) ->
                 src: [
                     # Vendor dependencies.
                     'vendor/foundation3/index.css'
+                    'vendor/hint.css/hint.css'
                     # Our style.
                     'build/app.css'
                 ]

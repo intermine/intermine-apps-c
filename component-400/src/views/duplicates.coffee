@@ -1,21 +1,20 @@
+{ _ }      = require '../modules/deps'
+
 formatter  = require '../modules/formatter'
 mediator   = require '../modules/mediator'
 View       = require '../modules/view'
 FlyoutView = require '../views/flyout'
 Table      = require '../views/table'
 
-class DuplicatesTableRowView extends Table.TableRowView
+Daddy = Table.TableRowView
+
+class DuplicatesTableRowView extends Daddy
 
     # Provide custom template.
     template: require '../templates/duplicates/row'
 
-    events:
-        # Extra one to toggle.
-        'click .button': 'toggle'
-        # As before.
-        'mouseover .help-flyout': 'toggleFlyout'
-        'mouseout .help-flyout': 'toggleFlyout'
-        'click a': 'portal'
+    # Add extra event to toggle.
+    events: _.extend {}, Daddy::events, 'click .button': 'toggle'
 
     # Toggle the selected state of an item.
     toggle: ->

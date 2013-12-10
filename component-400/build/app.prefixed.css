@@ -16,11 +16,6 @@
 .-im-component400 .help,
 .-im-component400 .help-flyout {
   cursor: pointer;
-  position: relative;
-}
-
-.-im-component400 .help:before,
-.-im-component400 .help-flyout:before {
   content: "i";
   padding: 0 4px;
   font-size: 12px;
@@ -29,32 +24,35 @@
   color: #fff;
   background: #2ba6cb;
   display: inline-block;
-  text-transform: lowercase;
   font-family: serif;
   font-weight: bold;
   font-style: italic;
+  text-transform: lowercase;
+  vertical-align: middle;
 }
 
-.-im-component400 .help .tooltip,
-.-im-component400 .help-flyout .tooltip {
-  display: block;
-  font-size: 12px !important;
-  white-space: nowrap;
-  bottom: 22px;
-  left: -3px;
-  font-weight: bold;
+.-im-component400 .help:after,
+.-im-component400 .help-flyout:after,
+.-im-component400 .help:before,
+.-im-component400 .help-flyout:before {
+  font-style: normal;
   text-transform: none;
+  white-space: pre;
+  text-align: left;
 }
 
-.-im-component400 .help .flyout,
+.-im-component400 .help-flyout {
+  position: relative;
+}
+
 .-im-component400 .help-flyout .flyout {
   color: #333;
   font-weight: normal;
   top: -20px;
   left: 20px;
+  padding: 2px;
 }
 
-.-im-component400 .help .flyout tr td:first-child,
 .-im-component400 .help-flyout .flyout tr td:first-child {
   text-transform: capitalize;
 }
@@ -70,13 +68,16 @@
 
 .-im-component400 .section header {
   margin-bottom: 10px;
-  vertical-align: middle;
   line-height: 37px;
 }
 
 .-im-component400 .section header .button {
   margin-left: 10px;
   float: right;
+}
+
+.-im-component400 .section header * {
+  vertical-align: middle;
 }
 
 .-im-component400 .header header table {
@@ -109,6 +110,10 @@
 .-im-component400 .duplicates table {
   border: 1px solid #ddd !important;
   margin-bottom: 10px;
+}
+
+.-im-component400 table.striped thead th .help {
+  margin-bottom: 2px;
 }
 
 .-im-component400 table.striped tbody td.odd {

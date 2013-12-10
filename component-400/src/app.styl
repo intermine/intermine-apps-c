@@ -16,36 +16,37 @@ a
 
 .help, .help-flyout
     cursor: pointer
-    position: relative
+    content: "i"
+    padding: 0 4px
+    font-size: 12px
+    line-height: 14px
+    text-align: center
+    color: #fff
+    background: $blue
+    display: inline-block
+    font-family: serif
+    font-weight: bold
+    font-style: italic
+    text-transform: lowercase
+    vertical-align: middle
 
-    &:before
-        content: "i"
-        padding: 0 4px
-        font-size: 12px
-        line-height: 14px
-        text-align: center
-        color: #fff
-        background: $blue
-        display: inline-block
-        text-transform: lowercase
-        font-family: serif
-        font-weight: bold
-        font-style: italic
-
-    .tooltip
-        display: block
-        font-size: 12px !important
-        white-space: nowrap
-        bottom: 22px
-        left: -3px
-        font-weight: bold
+    // Reset for hint.css
+    &:after, &:before
+        font-style: normal
         text-transform: none
+        white-space: pre
+        text-align: left
+
+.help-flyout
+    position: relative
 
     .flyout
         color: #333
         font-weight: normal
         top: -20px
         left: 20px
+        // Override foundation
+        padding: 2px
 
         tr
             td:first-child
@@ -60,12 +61,14 @@ a
 
     header
         margin-bottom: 10px
-        vertical-align: middle
         line-height: 37px
 
         .button
             margin-left: 10px
             float: right
+
+        *
+            vertical-align: middle
 
 .header
     header
@@ -96,6 +99,10 @@ a
         margin-bottom: 10px
 
 table.striped
+    thead
+        th            
+            .help
+                margin-bottom: 2px
     tbody
         td.odd
             background: #f9f9f9

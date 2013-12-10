@@ -1,7 +1,7 @@
 <header>
     <span class="small download button">Download summary</span>
     <h2>Summary</h2>
-    <span data-id="2" class="help"></span>
+    <span data-id="2" class="help hint--right">i</span>
 </header>
 <dl class="tabs contained"></dl>
 <ul class="tabs-content contained"></ul>

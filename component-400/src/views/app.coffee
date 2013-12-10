@@ -3,12 +3,13 @@
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
 
+tooltips = require '../models/tooltips'
+
 HeaderView          = require './header'
 DuplicatesTableView = require './duplicates'
 UnresolvedView      = require './unresolved'
 SummaryView         = require './summary'
 HeaderView          = require './header'
-TooltipView         = require './tooltip'
 
 class AppView extends View
 
@@ -17,8 +18,8 @@ class AppView extends View
     template: require '../templates/app'
 
     events:
-        'mouseover .help': 'toggleTooltip'
-        'mouseout  .help': 'toggleTooltip'
+        # Tooltip text.
+        'mouseover .help': 'addTooltip'
 
     render: ->
         super
@@ -47,16 +48,13 @@ class AppView extends View
 
         @
 
-    # Toggle a tooltip.
-    toggleTooltip: (ev) ->
-        switch ev.type
-            when 'mouseover'
-                id = (target = $(ev.target)).data('id')
-                @views.push view = new TooltipView({ 'model': { id } })
-                target.append view.render().el
-            
-            when 'mouseout'
-                # Only tooltips are in the list.
-                ( do view.dispose for view in @views )
+    # Add tooltip text for hint.css
+    addTooltip: (ev) ->
+        target = $ ev.target
+        
+        target.addClass 'hint--bounce'
+        
+        # Populate the text.
+        ev.target.setAttribute 'data-hint', tooltips[target.data('id')]
 
 module.exports = AppView

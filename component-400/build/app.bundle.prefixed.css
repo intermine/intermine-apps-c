@@ -5225,6 +5225,429 @@ that IE7/8 do not support :nth-child.
   }
 }
 
+/*! Hint.css - v1.3.1 - 2013-11-23
+* http://kushagragour.in/lab/hint/
+* Copyright (c) 2013 Kushagra Gour; Licensed MIT */
+
+/*-------------------------------------*\
+	HINT.css - A CSS tooltip library
+\*-------------------------------------*/
+
+/**
+ * HINT.css is a tooltip library made in pure CSS.
+ *
+ * Source: https://github.com/chinchang/hint.css
+ * Demo: http://kushagragour.in/lab/hint/
+ *
+ * Release under The MIT License
+ *
+ */
+
+/**
+ * source: hint-core.scss
+ *
+ * Defines the basic styling for the tooltip.
+ * Each tooltip is made of 2 parts:
+ * 	1) body (:after)
+ * 	2) arrow (:before)
+ * 
+ * Classes added:
+ * 	1) hint
+ */
+
+.-im-component400 .hint,
+.-im-component400 [data-hint] {
+  position: relative;
+  display: inline-block;
+  /**
+   * tooltip arrow
+   */
+  /**
+   * tooltip body
+   */
+}
+
+.-im-component400 .hint:before,
+.-im-component400 .hint:after,
+.-im-component400 [data-hint]:before,
+.-im-component400 [data-hint]:after {
+  position: absolute;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  visibility: hidden;
+  opacity: 0;
+  z-index: 1000000;
+  pointer-events: none;
+  -webkit-transition: 0.3s ease;
+  -moz-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+
+.-im-component400 .hint:hover:before,
+.-im-component400 .hint:hover:after,
+.-im-component400 .hint:focus:before,
+.-im-component400 .hint:focus:after,
+.-im-component400 [data-hint]:hover:before,
+.-im-component400 [data-hint]:hover:after,
+.-im-component400 [data-hint]:focus:before,
+.-im-component400 [data-hint]:focus:after {
+  visibility: visible;
+  opacity: 1;
+}
+
+.-im-component400 .hint:before,
+.-im-component400 [data-hint]:before {
+  content: '';
+  position: absolute;
+  background: transparent;
+  border: 6px solid transparent;
+  z-index: 1000001;
+}
+
+.-im-component400 .hint:after,
+.-im-component400 [data-hint]:after {
+  content: attr(data-hint);
+  background: #383838;
+  color: white;
+  text-shadow: 0 -1px 0px black;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 12px;
+  white-space: nowrap;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/**
+ * source: hint-position.scss
+ *
+ * Defines the positoning logic for the tooltips.
+ *
+ * Classes added:
+ * 	1) hint--top
+ * 	2) hint--bottom
+ * 	3) hint--left
+ * 	4) hint--right
+ */
+
+/**
+ * set default color for tooltip arrows
+ */
+
+.-im-component400 .hint--top:before {
+  border-top-color: #383838;
+}
+
+.-im-component400 .hint--bottom:before {
+  border-bottom-color: #383838;
+}
+
+.-im-component400 .hint--left:before {
+  border-left-color: #383838;
+}
+
+.-im-component400 .hint--right:before {
+  border-right-color: #383838;
+}
+
+/**
+ * top tooltip
+ */
+
+.-im-component400 .hint--top:before {
+  margin-bottom: -12px;
+}
+
+.-im-component400 .hint--top:after {
+  margin-left: -18px;
+}
+
+.-im-component400 .hint--top:before,
+.-im-component400 .hint--top:after {
+  bottom: 100%;
+  left: 50%;
+}
+
+.-im-component400 .hint--top:hover:after,
+.-im-component400 .hint--top:hover:before,
+.-im-component400 .hint--top:focus:after,
+.-im-component400 .hint--top:focus:before {
+  -webkit-transform: translateY(-8px);
+  -moz-transform: translateY(-8px);
+  transform: translateY(-8px);
+}
+
+/**
+ * bottom tooltip
+ */
+
+.-im-component400 .hint--bottom:before {
+  margin-top: -12px;
+}
+
+.-im-component400 .hint--bottom:after {
+  margin-left: -18px;
+}
+
+.-im-component400 .hint--bottom:before,
+.-im-component400 .hint--bottom:after {
+  top: 100%;
+  left: 50%;
+}
+
+.-im-component400 .hint--bottom:hover:after,
+.-im-component400 .hint--bottom:hover:before,
+.-im-component400 .hint--bottom:focus:after,
+.-im-component400 .hint--bottom:focus:before {
+  -webkit-transform: translateY(8px);
+  -moz-transform: translateY(8px);
+  transform: translateY(8px);
+}
+
+/**
+ * right tooltip
+ */
+
+.-im-component400 .hint--right:before {
+  margin-left: -12px;
+  margin-bottom: -6px;
+}
+
+.-im-component400 .hint--right:after {
+  margin-bottom: -14px;
+}
+
+.-im-component400 .hint--right:before,
+.-im-component400 .hint--right:after {
+  left: 100%;
+  bottom: 50%;
+}
+
+.-im-component400 .hint--right:hover:after,
+.-im-component400 .hint--right:hover:before,
+.-im-component400 .hint--right:focus:after,
+.-im-component400 .hint--right:focus:before {
+  -webkit-transform: translateX(8px);
+  -moz-transform: translateX(8px);
+  transform: translateX(8px);
+}
+
+/**
+ * left tooltip
+ */
+
+.-im-component400 .hint--left:before {
+  margin-right: -12px;
+  margin-bottom: -6px;
+}
+
+.-im-component400 .hint--left:after {
+  margin-bottom: -14px;
+}
+
+.-im-component400 .hint--left:before,
+.-im-component400 .hint--left:after {
+  right: 100%;
+  bottom: 50%;
+}
+
+.-im-component400 .hint--left:hover:after,
+.-im-component400 .hint--left:hover:before,
+.-im-component400 .hint--left:focus:after,
+.-im-component400 .hint--left:focus:before {
+  -webkit-transform: translateX(-8px);
+  -moz-transform: translateX(-8px);
+  transform: translateX(-8px);
+}
+
+/**
+ * source: hint-color-types.scss
+ *
+ * Contains tooltips of various types based on color differences.
+ *
+ * Classes added:
+ * 	1) hint--error
+ * 	2) hint--warning
+ * 	3) hint--info
+ * 	4) hint--success
+ *
+ */
+
+/**
+ * Error
+ */
+
+.-im-component400 .hint--error:after {
+  background-color: #b34e4d;
+  text-shadow: 0 -1px 0px #592726;
+}
+
+.-im-component400 .hint--error.hint--top:before {
+  border-top-color: #b34e4d;
+}
+
+.-im-component400 .hint--error.hint--bottom:before {
+  border-bottom-color: #b34e4d;
+}
+
+.-im-component400 .hint--error.hint--left:before {
+  border-left-color: #b34e4d;
+}
+
+.-im-component400 .hint--error.hint--right:before {
+  border-right-color: #b34e4d;
+}
+
+/**
+ * Warning
+ */
+
+.-im-component400 .hint--warning:after {
+  background-color: #c09854;
+  text-shadow: 0 -1px 0px #6c5328;
+}
+
+.-im-component400 .hint--warning.hint--top:before {
+  border-top-color: #c09854;
+}
+
+.-im-component400 .hint--warning.hint--bottom:before {
+  border-bottom-color: #c09854;
+}
+
+.-im-component400 .hint--warning.hint--left:before {
+  border-left-color: #c09854;
+}
+
+.-im-component400 .hint--warning.hint--right:before {
+  border-right-color: #c09854;
+}
+
+/**
+ * Info
+ */
+
+.-im-component400 .hint--info:after {
+  background-color: #3986ac;
+  text-shadow: 0 -1px 0px #193b4d;
+}
+
+.-im-component400 .hint--info.hint--top:before {
+  border-top-color: #3986ac;
+}
+
+.-im-component400 .hint--info.hint--bottom:before {
+  border-bottom-color: #3986ac;
+}
+
+.-im-component400 .hint--info.hint--left:before {
+  border-left-color: #3986ac;
+}
+
+.-im-component400 .hint--info.hint--right:before {
+  border-right-color: #3986ac;
+}
+
+/**
+ * Success
+ */
+
+.-im-component400 .hint--success:after {
+  background-color: #458746;
+  text-shadow: 0 -1px 0px #1a321a;
+}
+
+.-im-component400 .hint--success.hint--top:before {
+  border-top-color: #458746;
+}
+
+.-im-component400 .hint--success.hint--bottom:before {
+  border-bottom-color: #458746;
+}
+
+.-im-component400 .hint--success.hint--left:before {
+  border-left-color: #458746;
+}
+
+.-im-component400 .hint--success.hint--right:before {
+  border-right-color: #458746;
+}
+
+/**
+ * source: hint-always.scss
+ *
+ * Defines a persisted tooltip which shows always.
+ *
+ * Classes added:
+ * 	1) hint--always
+ *
+ */
+
+.-im-component400 .hint--always:after,
+.-im-component400 .hint--always:before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.-im-component400 .hint--always.hint--top:after,
+.-im-component400 .hint--always.hint--top:before {
+  -webkit-transform: translateY(-8px);
+  -moz-transform: translateY(-8px);
+  transform: translateY(-8px);
+}
+
+.-im-component400 .hint--always.hint--bottom:after,
+.-im-component400 .hint--always.hint--bottom:before {
+  -webkit-transform: translateY(8px);
+  -moz-transform: translateY(8px);
+  transform: translateY(8px);
+}
+
+.-im-component400 .hint--always.hint--left:after,
+.-im-component400 .hint--always.hint--left:before {
+  -webkit-transform: translateX(-8px);
+  -moz-transform: translateX(-8px);
+  transform: translateX(-8px);
+}
+
+.-im-component400 .hint--always.hint--right:after,
+.-im-component400 .hint--always.hint--right:before {
+  -webkit-transform: translateX(8px);
+  -moz-transform: translateX(8px);
+  transform: translateX(8px);
+}
+
+/**
+ * source: hint-rounded.scss
+ *
+ * Defines rounded corner tooltips.
+ *
+ * Classes added:
+ * 	1) hint--rounded
+ *
+ */
+
+.-im-component400 .hint--rounded:after {
+  border-radius: 4px;
+}
+
+/**
+ * source: hint-effects.scss
+ *
+ * Defines various transition effects for the tooltips.
+ *
+ * Classes added:
+ * 	1) hint--bounce
+ *
+ */
+
+.-im-component400 .hint--bounce:before,
+.-im-component400 .hint--bounce:after {
+  -webkit-transition: opacity 0.3s ease, visibility 0.3s ease, -webkit-transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+  -moz-transition: opacity 0.3s ease, visibility 0.3s ease, -moz-transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+}
+
 .-im-component400 h2 {
   font-size: 20px;
   display: inline-block;
@@ -5243,11 +5666,6 @@ that IE7/8 do not support :nth-child.
 .-im-component400 .help,
 .-im-component400 .help-flyout {
   cursor: pointer;
-  position: relative;
-}
-
-.-im-component400 .help:before,
-.-im-component400 .help-flyout:before {
   content: "i";
   padding: 0 4px;
   font-size: 12px;
@@ -5256,32 +5674,35 @@ that IE7/8 do not support :nth-child.
   color: #fff;
   background: #2ba6cb;
   display: inline-block;
-  text-transform: lowercase;
   font-family: serif;
   font-weight: bold;
   font-style: italic;
+  text-transform: lowercase;
+  vertical-align: middle;
 }
 
-.-im-component400 .help .tooltip,
-.-im-component400 .help-flyout .tooltip {
-  display: block;
-  font-size: 12px !important;
-  white-space: nowrap;
-  bottom: 22px;
-  left: -3px;
-  font-weight: bold;
+.-im-component400 .help:after,
+.-im-component400 .help-flyout:after,
+.-im-component400 .help:before,
+.-im-component400 .help-flyout:before {
+  font-style: normal;
   text-transform: none;
+  white-space: pre;
+  text-align: left;
 }
 
-.-im-component400 .help .flyout,
+.-im-component400 .help-flyout {
+  position: relative;
+}
+
 .-im-component400 .help-flyout .flyout {
   color: #333;
   font-weight: normal;
   top: -20px;
   left: 20px;
+  padding: 2px;
 }
 
-.-im-component400 .help .flyout tr td:first-child,
 .-im-component400 .help-flyout .flyout tr td:first-child {
   text-transform: capitalize;
 }
@@ -5297,13 +5718,16 @@ that IE7/8 do not support :nth-child.
 
 .-im-component400 .section header {
   margin-bottom: 10px;
-  vertical-align: middle;
   line-height: 37px;
 }
 
 .-im-component400 .section header .button {
   margin-left: 10px;
   float: right;
+}
+
+.-im-component400 .section header * {
+  vertical-align: middle;
 }
 
 .-im-component400 .header header table {
@@ -5336,6 +5760,10 @@ that IE7/8 do not support :nth-child.
 .-im-component400 .duplicates table {
   border: 1px solid #ddd !important;
   margin-bottom: 10px;
+}
+
+.-im-component400 table.striped thead th .help {
+  margin-bottom: 2px;
 }
 
 .-im-component400 table.striped tbody td.odd {

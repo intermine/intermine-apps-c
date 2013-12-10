@@ -1,6 +1,6 @@
 <header>
     <h2>No matches found</h2>
-    <span data-id="4" class="help"></span>
+    <span data-id="4" class="help hint--top">i</span>
 </header>
 
 <ul class="inline">

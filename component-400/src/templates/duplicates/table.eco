@@ -1,8 +1,8 @@
 <header>
     <span class="small secondary remove-all button">Remove all</span>
     <span class="small success add-all button">Add all</span>
-    <h2>Multiple matches</h2>
-    <span data-id="1" class="help"></span>
+    <h2>Duplicates found - which one(s) do you want?</h2>
+    <span data-id="1" class="help hint--left">i</span>
 </header>
 
 <div class="paginator"></div>
@@ -10,9 +10,9 @@
 <table class="striped">
     <thead>
         <tr>
-            <th>Identifier you provided</th>
-            <th>Matches <span data-id="matches" class="help"></span></th>
-            <th>Action <span data-id="add" class="help"></span></th>
+            <th>Identifier you provided <span data-id="provided" class="help hint--right">i</span></a></th>
+            <th>Matches <span data-id="matches" class="help hint--left">i</span></th>
+            <th>Action <span data-id="add" class="help hint--left">i</span></th>
         </tr>
     </thead>
     <tbody></tbody>

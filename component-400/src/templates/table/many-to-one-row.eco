@@ -6,7 +6,7 @@
             <% end %>
         </ul>
         <% if @input.length isnt 1: %>
-            <span data-id="5" class="help"></span>
+            <span data-id="5" class="help">i</span>
         <% end %>
     </td>
 <% end %>
