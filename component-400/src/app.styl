@@ -31,23 +31,26 @@ a
     vertical-align: middle
 
     // Reset for hint.css
-    &:after, &:before
+    &:after, &:before, .flyout
         font-style: normal
         text-transform: none
         white-space: pre
         text-align: left
+        // not ideal, change with "default" when implemented
+        font-family: sans-serif
 
 .help-flyout
     position: relative
 
     .flyout
+        position: absolute
         color: #333
         font-weight: normal
         top: -20px
         left: 20px
         // Override foundation
         padding: 2px
-
+        
         tr
             td:first-child
                 text-transform: capitalize
