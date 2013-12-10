@@ -18,6 +18,7 @@ Visualizes the result of an InterMine ID Resolution job.
         //  differently.
         $.getJSON('data.json', function(data) {
             // Require the app and execute it passing the following opts...
+            // Will return the initially selected list of items.
             require('component-400')({
                 // The data payload. You can see example in `example/data.json`.
                 'data': data,

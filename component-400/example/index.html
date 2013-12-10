@@ -15,7 +15,7 @@
     <div id="target"></div>
     <script>
         $.getJSON('data.json', function(data) {
-            require('component-400')({
+            var selected = require('component-400')({
                 'data': data,
                 'target': '#target',
                 cb: function(err, selected) {
@@ -26,6 +26,7 @@
                     console.log(arguments);
                 }
             });
+            console.log('selected', selected);
         });
     </script>
 </body>

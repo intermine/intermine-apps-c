@@ -22,3 +22,6 @@ module.exports = (opts) ->
     , @
 
     new AppView { 'el': opts.target or 'body', db }
+
+    # Return the selected items.
+    mori.into_array db.selected
