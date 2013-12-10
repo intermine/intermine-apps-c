@@ -15,18 +15,17 @@
     <div id="target"></div>
     <script>
         $.getJSON('data.json', function(data) {
-            var selected = require('component-400')({
+            var fn = require('component-400')({
                 'data': data,
                 'target': '#target',
-                cb: function(err, selected) {
-                    if (err) throw err;
+                cb: function(selected) {
                     console.log(selected);
                 },
                 portal: function(object, el) {
                     console.log(arguments);
                 }
             });
-            console.log('selected', selected);
+            //console.log(fn());
         });
     </script>
 </body>

@@ -18,10 +18,10 @@ module.exports = (opts) ->
     # Save this list, continue.
     mediator.on 'app:save', ->
         # Convert our set into an Array.
-        opts.cb null, mori.into_array db.selected
+        opts.cb mori.into_array db.selected
     , @
 
     new AppView { 'el': opts.target or 'body', db }
 
-    # Return the selected items.
-    mori.into_array db.selected
+    # Call me to return the currently selected items.
+    -> mori.into_array db.selected

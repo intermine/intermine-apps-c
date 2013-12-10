@@ -18,16 +18,14 @@ Visualizes the result of an InterMine ID Resolution job.
         //  differently.
         $.getJSON('data.json', function(data) {
             // Require the app and execute it passing the following opts...
-            // Will return the initially selected list of items.
+            // Returns a function that can be called to retrieve the currently selected items.
             require('component-400')({
                 // The data payload. You can see example in `example/data.json`.
                 'data': data,
                 // The target string, defaults to the <body/> element.
                 'target': '#target',
                 // Callback once the user is happy with the selection.
-                cb: function(err, selected) {
-                    // Also called when there is a problem of some sort.
-                    if (err) throw err;
+                cb: function(selected) {
                     // Has a list of internal InterMine IDs.
                     console.log(selected);
                 },

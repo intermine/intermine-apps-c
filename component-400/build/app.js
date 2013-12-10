@@ -232,13 +232,15 @@
         db = new Database(opts.data || []);
         mediator.on('object:click', opts.portal || (function() {}), this);
         mediator.on('app:save', function() {
-          return opts.cb(null, mori.into_array(db.selected));
+          return opts.cb(mori.into_array(db.selected));
         }, this);
         new AppView({
           'el': opts.target || 'body',
           db: db
         });
-        return mori.into_array(db.selected);
+        return function() {
+          return mori.into_array(db.selected);
+        };
       };
       
     });
