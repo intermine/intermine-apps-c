@@ -31,32 +31,58 @@ module.exports = (grunt) ->
 
             # Vendor dependencies.
             styles:
-                src: [ 'vendor/bootstrap2/index.css' ]
+                src: [
+                    'vendor/bootstrap2/index.css'
+                    'vendor/hint.css/hint.css'
+                ]
                 dest: 'build/app.bundle.css'
 
+        rework:
+            app:
+                src: [ 'build/app.css' ]
+                dest: 'build/app.prefixed.css'
+                options:
+                    use: [
+                        [ 'rework.prefixSelectors', '.-im-listwidgets' ]
+                    ]
+
+            bundle:
+                src: [ 'build/app.bundle.css' ]
+                dest: 'build/app.bundle.prefixed.css'
+                options:
+                    use: [
+                        [ 'rework.prefixSelectors', '.-im-listwidgets' ]
+                    ]
+
         uglify:
-            my_target:
+            scripts:
                 files:
                     'build/app.min.js': 'build/app.js'
                     'build/app.bundle.min.js': 'build/app.bundle.js'
-
 
         cssmin:
             combine:
                 files:
                     'build/app.bundle.min.css': 'build/app.bundle.css'
+                    'build/app.min.css': 'build/app.css'
+                    'build/app.bundle.prefixed.min.css': 'build/app.bundle.prefixed.css'
+                    'build/app.prefixed.min.css': 'build/app.prefixed.css'
 
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-concat')
+    grunt.loadNpmTasks('grunt-rework')
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-cssmin')
 
     grunt.registerTask('default', [
         'apps_c'
         'concat'
-    ])
-
-    grunt.registerTask('minify', [
+        'rework'
         'uglify'
         'cssmin'
+    ])
+
+    grunt.registerTask('build', [
+        'apps_c'
+        'concat'
     ])

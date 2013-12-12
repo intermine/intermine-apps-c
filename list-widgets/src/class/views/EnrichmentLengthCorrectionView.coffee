@@ -18,7 +18,7 @@ class EnrichmentLengthCorrectionView extends Backbone.View
     events:
         'click .correction a.correction': 'toggleCull'
         'click .correction a.which': 'seeWhich'
-        'hover .correction label .badge': 'showHelp'
+        'mouseover .correction label .badge': 'showHelp'
         'click .correction a.close': 'hideHelp'
 
     initialize: (o) ->
