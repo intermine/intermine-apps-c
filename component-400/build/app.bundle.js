@@ -15738,7 +15738,173 @@ else if ( typeof define === "function" ) {
 else {
 	global.csv = csv;
 }
-})( this );;/* FileSaver.js
+})( this );;/* Blob.js
+ * A Blob implementation.
+ * 2013-06-20
+ * 
+ * By Eli Grey, http://eligrey.com
+ * By Devin Samarin, https://github.com/eboyjr
+ * License: X11/MIT
+ *   See LICENSE.md
+ */
+
+/*global self, unescape */
+/*jslint bitwise: true, regexp: true, confusion: true, es5: true, vars: true, white: true,
+  plusplus: true */
+
+/*! @source http://purl.eligrey.com/github/Blob.js/blob/master/Blob.js */
+
+if (!(typeof Blob === "function" || typeof Blob === "object") || typeof URL === "undefined")
+if ((typeof Blob === "function" || typeof Blob === "object") && typeof webkitURL !== "undefined") self.URL = webkitURL;
+else var Blob = (function (view) {
+	"use strict";
+
+	var BlobBuilder = view.BlobBuilder || view.WebKitBlobBuilder || view.MozBlobBuilder || view.MSBlobBuilder || (function(view) {
+		var
+			  get_class = function(object) {
+				return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
+			}
+			, FakeBlobBuilder = function BlobBuilder() {
+				this.data = [];
+			}
+			, FakeBlob = function Blob(data, type, encoding) {
+				this.data = data;
+				this.size = data.length;
+				this.type = type;
+				this.encoding = encoding;
+			}
+			, FBB_proto = FakeBlobBuilder.prototype
+			, FB_proto = FakeBlob.prototype
+			, FileReaderSync = view.FileReaderSync
+			, FileException = function(type) {
+				this.code = this[this.name = type];
+			}
+			, file_ex_codes = (
+				  "NOT_FOUND_ERR SECURITY_ERR ABORT_ERR NOT_READABLE_ERR ENCODING_ERR "
+				+ "NO_MODIFICATION_ALLOWED_ERR INVALID_STATE_ERR SYNTAX_ERR"
+			).split(" ")
+			, file_ex_code = file_ex_codes.length
+			, real_URL = view.URL || view.webkitURL || view
+			, real_create_object_URL = real_URL.createObjectURL
+			, real_revoke_object_URL = real_URL.revokeObjectURL
+			, URL = real_URL
+			, btoa = view.btoa
+			, atob = view.atob
+			
+			, ArrayBuffer = view.ArrayBuffer
+			, Uint8Array = view.Uint8Array
+		;
+		FakeBlob.fake = FB_proto.fake = true;
+		while (file_ex_code--) {
+			FileException.prototype[file_ex_codes[file_ex_code]] = file_ex_code + 1;
+		}
+		if (!real_URL.createObjectURL) {
+			URL = view.URL = {};
+		}
+		URL.createObjectURL = function(blob) {
+			var
+				  type = blob.type
+				, data_URI_header
+			;
+			if (type === null) {
+				type = "application/octet-stream";
+			}
+			if (blob instanceof FakeBlob) {
+				data_URI_header = "data:" + type;
+				if (blob.encoding === "base64") {
+					return data_URI_header + ";base64," + blob.data;
+				} else if (blob.encoding === "URI") {
+					return data_URI_header + "," + decodeURIComponent(blob.data);
+				} if (btoa) {
+					return data_URI_header + ";base64," + btoa(blob.data);
+				} else {
+					return data_URI_header + "," + encodeURIComponent(blob.data);
+				}
+			} else if (real_create_object_URL) {
+				return real_create_object_URL.call(real_URL, blob);
+			}
+		};
+		URL.revokeObjectURL = function(object_URL) {
+			if (object_URL.substring(0, 5) !== "data:" && real_revoke_object_URL) {
+				real_revoke_object_URL.call(real_URL, object_URL);
+			}
+		};
+		FBB_proto.append = function(data/*, endings*/) {
+			var bb = this.data;
+			// decode data to a binary string
+			if (Uint8Array && (data instanceof ArrayBuffer || data instanceof Uint8Array)) {
+				var
+					  str = ""
+					, buf = new Uint8Array(data)
+					, i = 0
+					, buf_len = buf.length
+				;
+				for (; i < buf_len; i++) {
+					str += String.fromCharCode(buf[i]);
+				}
+				bb.push(str);
+			} else if (get_class(data) === "Blob" || get_class(data) === "File") {
+				if (FileReaderSync) {
+					var fr = new FileReaderSync;
+					bb.push(fr.readAsBinaryString(data));
+				} else {
+					// async FileReader won't work as BlobBuilder is sync
+					throw new FileException("NOT_READABLE_ERR");
+				}
+			} else if (data instanceof FakeBlob) {
+				if (data.encoding === "base64" && atob) {
+					bb.push(atob(data.data));
+				} else if (data.encoding === "URI") {
+					bb.push(decodeURIComponent(data.data));
+				} else if (data.encoding === "raw") {
+					bb.push(data.data);
+				}
+			} else {
+				if (typeof data !== "string") {
+					data += ""; // convert unsupported types to strings
+				}
+				// decode UTF-16 to binary string
+				bb.push(unescape(encodeURIComponent(data)));
+			}
+		};
+		FBB_proto.getBlob = function(type) {
+			if (!arguments.length) {
+				type = null;
+			}
+			return new FakeBlob(this.data.join(""), type, "raw");
+		};
+		FBB_proto.toString = function() {
+			return "[object BlobBuilder]";
+		};
+		FB_proto.slice = function(start, end, type) {
+			var args = arguments.length;
+			if (args < 3) {
+				type = null;
+			}
+			return new FakeBlob(
+				  this.data.slice(start, args > 1 ? end : this.data.length)
+				, type
+				, this.encoding
+			);
+		};
+		FB_proto.toString = function() {
+			return "[object Blob]";
+		};
+		return FakeBlobBuilder;
+	}(view));
+
+	return function Blob(blobParts, options) {
+		var type = options ? (options.type || "") : "";
+		var builder = new BlobBuilder();
+		if (blobParts) {
+			for (var i = 0, len = blobParts.length; i < len; i++) {
+				builder.append(blobParts[i]);
+			}
+		}
+		return builder.getBlob(type);
+	};
+}(self));
+;/* FileSaver.js
  * A saveAs() FileSaver implementation.
  * 2013-10-21
  *
@@ -16643,7 +16809,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         'type_converted': "These identifiers matched records in our\ndatabase but were not the type of data you\nspecified on the previous page.",
         'other': 'These identifiers matched old identifiers.',
         '4': 'Identifiers that could not be resolved.',
-        '5': "Multiple identifiers matched an object."
+        '5': "Multiple identifiers matched an object.",
+        'noblob': "Please upgrade your browser to be able to\ndownload a summary table."
       };
       
     });
@@ -17470,7 +17637,15 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
-            __out.push('<header>\n    <span class="small download button">Download summary</span>\n    <h2>Summary</h2>\n    <span data-id="2" class="help hint--right">i</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
+            __out.push('<header>\n    ');
+          
+            if (this.canDownload) {
+              __out.push('\n        <span class="small download button">Download summary</span>\n    ');
+            } else {
+              __out.push('\n        <span data-id="noblob" class="help hint--left right">i</span>\n        <span class="small secondary disabled button">Download summary</span>\n    ');
+            }
+          
+            __out.push('\n    <h2>Summary</h2>\n    <span data-id="2" class="help hint--right">i</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
           
           }).call(this);
           
@@ -18167,7 +18342,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // summary.coffee
     root.require.register('component-400/src/views/summary.js', function(exports, require, module) {
     
-      var SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, formatter, mediator, saveAs, _, _ref, _ref1,
+      var SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, formatter, mediator, saveAs, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -18184,29 +18359,35 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       SummaryView = (function(_super) {
         __extends(SummaryView, _super);
       
-        function SummaryView() {
-          _ref1 = SummaryView.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-      
         SummaryView.prototype.template = require('../templates/summary/tabs');
       
         SummaryView.prototype.events = {
           'click .button.download': 'download'
         };
       
+        SummaryView.prototype.canDownload = false;
+      
+        function SummaryView() {
+          SummaryView.__super__.constructor.apply(this, arguments);
+          try {
+            this.canDownload = !!new Blob();
+          } catch (_error) {}
+        }
+      
         SummaryView.prototype.render = function() {
-          var Clazz, collection, content, name, reason, showFirstTab, tabs, view, _i, _len, _ref2, _ref3;
+          var Clazz, collection, content, name, reason, showFirstTab, tabs, view, _i, _len, _ref1, _ref2;
           this.el.addClass('summary section');
-          this.el.html(this.template());
+          this.el.html(this.template({
+            canDownload: this.canDownload
+          }));
           tabs = this.el.find('.tabs');
           content = this.el.find('.tabs-content');
           showFirstTab = _.once(function(reason) {
             return mediator.trigger('tab:switch', reason);
           });
-          _ref2 = this.options.matches;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            _ref3 = _ref2[_i], name = _ref3.name, collection = _ref3.collection, reason = _ref3.reason;
+          _ref1 = this.options.matches;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], name = _ref2.name, collection = _ref2.collection, reason = _ref2.reason;
             if (!(reason !== 'UNRESOLVED')) {
               continue;
             }
@@ -18230,24 +18411,24 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         };
       
         SummaryView.prototype.download = function() {
-          var adder, blob, collection, columns, converted, input, item, match, reason, rows, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref2, _ref3, _ref4, _ref5;
+          var adder, blob, collection, columns, converted, input, item, match, reason, rows, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4;
           columns = null;
           rows = [];
           adder = function(match, input, count) {
-            var row, _ref2;
-            _ref2 = formatter.csv(match, columns), columns = _ref2[0], row = _ref2[1];
+            var row, _ref1;
+            _ref1 = formatter.csv(match, columns), columns = _ref1[0], row = _ref1[1];
             return rows.push([input, reason, count].concat(row));
           };
-          _ref2 = this.options.matches;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            _ref3 = _ref2[_i], collection = _ref3.collection, reason = _ref3.reason;
+          _ref1 = this.options.matches;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], collection = _ref2.collection, reason = _ref2.reason;
             for (_j = 0, _len1 = collection.length; _j < _len1; _j++) {
               item = collection[_j];
               switch (reason) {
                 case 'MATCH':
-                  _ref4 = item.input;
-                  for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
-                    input = _ref4[_k];
+                  _ref3 = item.input;
+                  for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+                    input = _ref3[_k];
                     adder(item, input, 1);
                   }
                   break;
@@ -18255,9 +18436,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                   rows.push([item, reason, 0]);
                   break;
                 default:
-                  _ref5 = item.matches;
-                  for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
-                    match = _ref5[_l];
+                  _ref4 = item.matches;
+                  for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+                    match = _ref4[_l];
                     adder(match, item.input, item.matches.length);
                   }
               }

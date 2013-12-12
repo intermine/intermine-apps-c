@@ -1,5 +1,10 @@
 <header>
-    <span class="small download button">Download summary</span>
+    <% if @canDownload: %>
+        <span class="small download button">Download summary</span>
+    <% else: %>
+        <span data-id="noblob" class="help hint--left right">i</span>
+        <span class="small secondary disabled button">Download summary</span>
+    <% end %>
     <h2>Summary</h2>
     <span data-id="2" class="help hint--right">i</span>
 </header>

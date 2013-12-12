@@ -38,3 +38,6 @@ module.exports =
 
     # Many-to-one matches.
     '5': "Multiple identifiers matched an object."
+
+    'noblob': """Please upgrade your browser to be able to
+    download a summary table."""

@@ -21,6 +21,7 @@ a{cursor:pointer}
 table.striped thead th .help{margin-bottom:2px}
 table.striped tbody td.odd{background:#f9f9f9}
 table.striped tbody td.even{background:#fff}
+.summary header .help.right{margin:7px 0 0 10px}
 .summary dl.tabs dd a{text-transform:capitalize}
 ul.inline{list-style:none;padding:0;margin:0;display:inline-block;}
 ul.inline li{display:inline-block;}

@@ -13,11 +13,21 @@ class SummaryView extends View
     events:
         'click .button.download': 'download'
 
+    # Can we download using Blob?
+    canDownload: no
+
+    constructor: ->
+        super
+
+        # Check for Blob support.
+        try @canDownload = !!new Blob()
+
     render: ->
         @el.addClass 'summary section'
 
-        @el.html do @template
+        @el.html @template { @canDownload }
 
+        # Refs.
         tabs    = @el.find '.tabs'
         content = @el.find '.tabs-content'
 

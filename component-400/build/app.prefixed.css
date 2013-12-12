@@ -129,6 +129,10 @@
   background: #fff;
 }
 
+.-im-component400 .summary header .help.right {
+  margin: 7px 0 0 10px;
+}
+
 .-im-component400 .summary dl.tabs dd a {
   text-transform: capitalize;
 }
