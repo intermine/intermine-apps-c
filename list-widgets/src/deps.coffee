@@ -1,3 +1,3 @@
 $ = window.jQuery or window.Zepto
 
-module.exports = { $, _, Backbone, saveAs, async, google, intermine  }
+module.exports = { $, _, Backbone, saveAs, google, intermine  }

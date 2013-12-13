@@ -27,7 +27,7 @@ class Widgets
             else
                 throw Error 'You need to set the `root` parameter pointing to the mine\'s service'
             # Do we have a token?
-            @token = opts[0].token or ''
+            @token = opts[0].token
 
         # Create a new imjs instance.
         @imjs = new intermine.Service { @root, @token }
@@ -64,11 +64,12 @@ class Widgets
         #     'class': "alert alert-error"
         #     'html':  "Problem fetching lists we have access to <a href='#{@root}lists'>#{@root}lists</a>"
 
-        error = => $(opts[2]).html $ '<div/>',
+        error = (err) =>
+            $(opts[2]).html $ '<div/>',
             'class': "alert alert-error"
-            'html':  "#{xhr.statusText} for <a href='#{@root}widgets'>#{@root}widgets</a>"
+            'html':  "#{errstatusText} for <a href='#{@root}widgets'>#{@root}widgets</a>"
 
-        @lists.done(done).fail(error)
+        @lists.then(done, error)
 
     ###
     Table Widget.

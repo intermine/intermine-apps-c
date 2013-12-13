@@ -20,8 +20,6 @@ module.exports = (grunt) ->
                     'vendor/google/index'
                     'vendor/imjs/js/im.js'
                     'vendor/fileSaver/index.js'
-                    'vendor/setImmediate/index.js'
-                    'vendor/async/lib/async.js'
                     # Our app with requirerer.
                     'build/app.js'
                 ]
@@ -31,10 +29,7 @@ module.exports = (grunt) ->
 
             # Vendor dependencies.
             styles:
-                src: [
-                    'vendor/bootstrap2/index.css'
-                    'vendor/hint.css/hint.css'
-                ]
+                src: [ 'vendor/bootstrap2/index.css' ]
                 dest: 'build/app.bundle.css'
 
         rework:

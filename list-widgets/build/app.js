@@ -554,10 +554,10 @@
     // InterMineWidget.coffee
     root.require.register('list-widgets/src/class/InterMineWidget.js', function(exports, require, module) {
     
-      var $, InterMineWidget, async, intermine, _ref,
+      var $, InterMineWidget, intermine, _ref,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
       
-      _ref = require('../deps'), $ = _ref.$, async = _ref.async, intermine = _ref.intermine;
+      _ref = require('../deps'), $ = _ref.$, intermine = _ref.intermine;
       
       InterMineWidget = (function() {
         function InterMineWidget() {
@@ -655,22 +655,8 @@
         };
       
         InterMineWidget.prototype.queryRows = function(query, cb) {
-          var service;
           this.log.push('Querying for rows');
-          service = this.imjs;
-          return async.waterfall([
-            function(cb) {
-              return service.query(query, function(q) {
-                return cb(null, q);
-              });
-            }, function(q, cb) {
-              return q.rows(function(response) {
-                return cb(null, response);
-              });
-            }
-          ], function(err, response) {
-            return cb(response);
-          });
+          return this.imjs.rows(query).done(cb);
         };
       
         return InterMineWidget;
@@ -2584,7 +2570,6 @@
         _: _,
         Backbone: Backbone,
         saveAs: saveAs,
-        async: async,
         google: google,
         intermine: intermine
       };
@@ -4371,7 +4356,7 @@
             } else {
               throw Error('You need to set the `root` parameter pointing to the mine\'s service');
             }
-            this.token = opts[0].token || '';
+            this.token = opts[0].token;
           }
           this.imjs = new intermine.Service({
             root: this.root,
@@ -4425,13 +4410,13 @@
               return Object(result) === result ? result : child;
             })(EnrichmentWidget, [_this.imjs, _this.root, _this.token, lists].concat(__slice.call(opts)), function(){});
           };
-          error = function() {
+          error = function(err) {
             return $(opts[2]).html($('<div/>', {
               'class': "alert alert-error",
-              'html': "" + xhr.statusText + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
+              'html': "" + errstatusText + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
             }));
           };
-          return this.lists.done(done).fail(error);
+          return this.lists.then(done, error);
         };
       
         /*

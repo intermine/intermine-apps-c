@@ -1,4 +1,4 @@
-{ $, async, intermine } = require '../deps'
+{ $, intermine } = require '../deps'
 
 class InterMineWidget
 
@@ -66,7 +66,7 @@ class InterMineWidget
     # Fire a custom event (so we can capture in headless browser).
     fireEvent: (obj) ->
         evt = document.createEvent 'Events'
-        evt.initEvent 'InterMine', true, true
+        evt.initEvent 'InterMine', yes, yes
         ( evt[key] = value for key, value of obj )
         evt.source = 'ListWidgets'
         evt.widget =
@@ -81,21 +81,7 @@ class InterMineWidget
     queryRows: (query, cb) =>
         @log.push 'Querying for rows'
 
-        service = @imjs
-
-        # Create a query.
-        async.waterfall [ (cb) ->
-            service.query query, (q) ->
-                cb null, q
-        
-        # Turn query into rows.
-        , (q, cb) ->
-            q.rows (response) ->
-                cb null, response
-        
-        ], (err, response) ->
-            # TODO: Handle errors in a nice way.
-
-            cb response
+        # TODO: capture errors.
+        @imjs.rows(query).done(cb)
 
 module.exports = InterMineWidget

@@ -1,15 +1,12 @@
 {
     "name": "list-widgets",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "dependencies": {
-        "async": "0.2.5",
         "jquery": "2.0.3",
         "underscore": "1.5.2",
         "backbone": "1.1.0",
-        "imjs": "2.10.6",
-        "hint.css": "1.3.1",
+        "imjs": "3.0.0",
 
-        "setImmediate": "https://raw.github.com/intermine/CDN/master/js/setImmediate/1.0.1/setImmediate.js",
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
         "google": "https://www.google.com/jsapi",
         "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js"

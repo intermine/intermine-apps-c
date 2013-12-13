@@ -10,9 +10,13 @@ exporter                       = require '../../utils/exporter'
 class EnrichmentView extends Backbone.View
 
     events:
+        # View button.
         "click div.actions a.view":      "viewAction"
+        # Download button.
         "click div.actions a.export":    "exportAction"
+        # Change the form dropdown.
         "change div.form select":        "formAction"
+        # Select all rows.
         "click div.content input.check": "selectAllAction"
 
     initialize: (o) ->

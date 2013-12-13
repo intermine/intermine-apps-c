@@ -34,7 +34,7 @@ class EnrichmentPopoverView extends Backbone.View
             "path":   @response.pathConstraint
             "op":     "ONE OF"
             "values": @identifiers
-
+        
         # Grab the data for the selected row(s).
         @widget.queryRows pq, @renderValues
 
