@@ -5,7 +5,7 @@ escape = (text) ->
     return '""' unless text
     '"' + new String(text).replace(/\"/g, '""') + '"'
 
-exports.save = (rows, delimiter=' ', newline) ->    
+exports.save = (rows, delimiter=' ', newline) ->
     # Detect newline character.
     unless newline
         # http://en.wikipedia.org/wiki/Newline#Representations
