@@ -1,1 +1,1 @@
-module.exports = { _, mori, BackboneEvents, saveAs, platform, $ }
+module.exports = { _, mori, BackboneEvents, saveAs, $ }

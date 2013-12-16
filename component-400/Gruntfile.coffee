@@ -32,7 +32,6 @@ module.exports = (grunt) ->
                     'vendor/backbone-events/backbone-events.js'
                     'vendor/blob/Blob.js'
                     'vendor/FileSaver/FileSaver.js'
-                    'vendor/platform/platform.js'
                     'vendor/mori/mori.js' # is built in the `shell` task
                     # Our app with requirerer.
                     'build/app.js'

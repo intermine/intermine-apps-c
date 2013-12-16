@@ -1,4 +1,4 @@
-{ _, platform } = require './deps'
+{ _ } = require './deps'
 
 # Escape on enforced string or empty value.
 escape = (text) ->
@@ -10,7 +10,8 @@ exports.save = (rows, delimiter=' ', newline) ->
     unless newline
         # http://en.wikipedia.org/wiki/Newline#Representations
         switch
-            when platform.os.family is 'Windows'
+            # Windoze.
+            when navigator.appVersion.indexOf('Win') != -1
                 newline = "\r\n"
             else
                 newline = "\n"
