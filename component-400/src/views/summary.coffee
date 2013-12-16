@@ -1,7 +1,8 @@
-{ _, csv, saveAs } = require '../modules/deps'
+{ _, saveAs } = require '../modules/deps'
 
 mediator   = require '../modules/mediator'
 formatter  = require '../modules/formatter'
+csv        = require '../modules/csv'
 View       = require '../modules/view'
 Table      = require './table'
 
@@ -80,7 +81,7 @@ class SummaryView extends View
         columns = [ 'input', 'reason', 'matches' ].concat columns
 
         # Converted to a csv string.
-        converted = csv _.map rows, (row) -> _.zipObject columns, row
+        converted = csv.save [ columns ].concat rows
 
         # Make into a Blob.
         blob = new Blob [ converted ], { 'type': 'text/csv;charset=utf-8' }

@@ -370,6 +370,72 @@
     });
 
     
+    // csv.coffee
+    root.require.register('component-400/src/modules/csv.js', function(exports, require, module) {
+    
+      var escape, platform, _, _ref;
+      
+      _ref = require('./deps'), _ = _ref._, platform = _ref.platform;
+      
+      escape = function(text) {
+        if (!text) {
+          return '""';
+        }
+        return '"' + new String(text).replace(/\"/g, '""') + '"';
+      };
+      
+      exports.save = function(rows, delimiter, newline) {
+        if (delimiter == null) {
+          delimiter = ' ';
+        }
+        if (!newline) {
+          switch (false) {
+            case platform.os.family !== 'Windows':
+              newline = "\r\n";
+              break;
+            default:
+              newline = "\n";
+          }
+        }
+        return _.map(rows, function(row) {
+          return _.map(row, escape).join(delimiter);
+        }).join(newline);
+      };
+      
+      exports.read = function(data, delimiter) {
+        var column, foundDelimiter, matches, objPattern, quoted, row, sheet, value, _ref1;
+        if (delimiter == null) {
+          delimiter = ',';
+        }
+        if (!data.length) {
+          return {};
+        }
+        objPattern = new RegExp("(\\" + delimiter + "|\\r?\\n|\\r|^)" + "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" + "([^\"\\" + delimiter + "\\r\\n]*))", "gi");
+        sheet = {};
+        matches = null;
+        row = 0;
+        column = 0;
+        while (matches = objPattern.exec(data)) {
+          _ref1 = matches.slice(1), foundDelimiter = _ref1[0], quoted = _ref1[1], value = _ref1[2];
+          if (foundDelimiter && (foundDelimiter !== delimiter)) {
+            row++;
+            column = 0;
+          }
+          if (quoted) {
+            value = quoted.replace(new RegExp("\"\"", "g"), "\"");
+          }
+          if (value && value.length !== 0) {
+            sheet[String.fromCharCode(65 + column++) + row] = value;
+          } else {
+            column++;
+          }
+        }
+        return sheet;
+      };
+      
+    });
+
+    
     // deps.coffee
     root.require.register('component-400/src/modules/deps.js', function(exports, require, module) {
     
@@ -378,7 +444,7 @@
         mori: mori,
         BackboneEvents: BackboneEvents,
         saveAs: saveAs,
-        csv: csv,
+        platform: platform,
         $: $
       };
       
@@ -1900,11 +1966,13 @@
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
-      _ref = require('../modules/deps'), _ = _ref._, csv = _ref.csv, saveAs = _ref.saveAs;
+      _ref = require('../modules/deps'), _ = _ref._, saveAs = _ref.saveAs;
       
       mediator = require('../modules/mediator');
       
       formatter = require('../modules/formatter');
+      
+      csv = require('../modules/csv');
       
       View = require('../modules/view');
       
@@ -1999,9 +2067,7 @@
             }
           }
           columns = ['input', 'reason', 'matches'].concat(columns);
-          converted = csv(_.map(rows, function(row) {
-            return _.zipObject(columns, row);
-          }));
+          converted = csv.save([columns].concat(rows));
           blob = new Blob([converted], {
             'type': 'text/csv;charset=utf-8'
           });
