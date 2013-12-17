@@ -1,0 +1,19 @@
+{
+    "name": "choose-list",
+    "version": "0.3.0",
+    "dependencies": {
+        "foundation4": "http://cdn.intermine.org/css/foundation/4.2.2/foundation.css",
+        "jquery": "2.0.3",
+        "underscore": "1.5.2",
+        "backbone": "1.1.0",
+        "imjs": "2.9.2",
+        "async": "0.2.5",
+        "setimmediate": "1.0.1",
+        "hogan": "http://cdn.intermine.org/js/hogan.js/2.0.0/hogan.js",
+        "moment": "http://cdn.intermine.org/js/moment.js/2.0.0/moment.js",
+        "colorbrewer": "1.0.0",
+        "clusterfck": "http://cdn.intermine.org/js/clusterfck/0.5.1/clusterfck.js",
+        "levenshtein": "1.0.2",
+        "require": "http://cdn.intermine.org/js/brunch/1.7.0-pre/require.js"
+    }
+}

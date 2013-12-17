@@ -1,0 +1,147 @@
+.-im-chooselist input[type="checkbox"] {
+  margin: 0;
+}
+
+.-im-chooselist ul {
+  list-style-type: none;
+  margin: 0;
+}
+
+.-im-chooselist table {
+  width: 100%;
+}
+
+.-im-chooselist table thead th[data-sort] {
+  cursor: pointer;
+}
+
+.-im-chooselist table thead th.minimal {
+  width: 1%;
+}
+
+.-im-chooselist table tbody tr.selected td {
+  background: #ffffd4;
+}
+
+.-im-chooselist table tbody tr td input[type="checkbox"] {
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.-im-chooselist table tbody tr td span.created {
+  white-space: nowrap;
+}
+
+.-im-chooselist table tbody tr td span.title {
+  line-height: 22px;
+}
+
+.-im-chooselist table tbody ul.tags {
+  float: right;
+}
+
+.-im-chooselist table tbody ul.tags li {
+  position: relative;
+  cursor: help;
+  display: inline-block;
+}
+
+.-im-chooselist table tbody ul.tags li[data-slug="favourite"] .tooltip .text:before {
+  font-family: Entypo;
+  font-size: 22px;
+  line-height: 1px;
+  margin-right: 3px;
+  vertical-align: middle;
+  display: inline-block;
+  content: "♥";
+}
+
+.-im-chooselist table tbody ul.tags li[data-slug="public"] .tooltip .text:before {
+  font-family: Entypo;
+  font-size: 22px;
+  line-height: 1px;
+  margin-right: 3px;
+  vertical-align: middle;
+  display: inline-block;
+  content: "🌎";
+}
+
+.-im-chooselist span.color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: block;
+  float: left;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.-im-chooselist div[data-view="tags"] dl.sub-nav {
+  margin: 0;
+}
+
+.-im-chooselist div[data-view="tags"] dl.sub-nav dt {
+  margin-left: 0;
+}
+
+.-im-chooselist div[data-view="tags"] ul.side-nav li {
+  cursor: pointer;
+}
+
+.-im-chooselist div[data-view="tags"] ul.side-nav li span.color {
+  margin: 5px 5px 0 0;
+}
+
+.-im-chooselist div[data-view="tags"] ul.side-nav li:not(.active) span.color:after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: block;
+  background: #fff;
+}
+
+.-im-chooselist div[data-view="tags"] ul.side-nav li[data-slug="favourite"] a:before {
+  font-family: Entypo;
+  font-size: 22px;
+  line-height: 1px;
+  margin-right: 3px;
+  vertical-align: middle;
+  display: inline-block;
+  content: "♥";
+}
+
+.-im-chooselist div[data-view="tags"] ul.side-nav li[data-slug="public"] a:before {
+  font-family: Entypo;
+  font-size: 22px;
+  line-height: 1px;
+  margin-right: 3px;
+  vertical-align: middle;
+  display: inline-block;
+  content: "🌎";
+}
+
+.-im-chooselist dl.sub-nav,
+.-im-chooselist ul.side-nav,
+.-im-chooselist ul.pagination,
+.-im-chooselist table thead {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.-im-chooselist .tooltip {
+  display: block;
+  width: auto;
+  left: -4px;
+  top: 20px;
+  max-width: inherit;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+.-im-chooselist button#submit {
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
+}

@@ -1,0 +1,1 @@
+exports.mediator = _.extend({}, Backbone.Events)

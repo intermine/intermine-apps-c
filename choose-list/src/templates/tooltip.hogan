@@ -1,0 +1,4 @@
+<div class="tooltip" >
+    <span class="text">{{text}}</span>
+    <span class="nub"></span>
+</div>

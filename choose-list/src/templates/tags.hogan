@@ -1,0 +1,19 @@
+<dl class="sub-nav">
+    <dt>Select tags:</dt>
+    <dd{{#allActive}} class="active"{{/allActive}} data-filter="all"><a>All</a></dd>
+    <dd{{#allInactive}} class="active"{{/allInactive}} data-filter="none"><a>None</a></dd>
+</dl>
+
+<ul class="side-nav">
+{{#tags}}
+    <li class="{{#active}}active{{/active}}" data-model="{{id}}" data-slug="{{slug}}">
+        <span class="color" style="
+            {{#color}}
+                background-color:{{background}};
+                border-color:{{border}};
+            {{/color}}
+        "></span>
+        <a>{{name}}</a>
+    </li>
+{{/tags}}
+</ul>

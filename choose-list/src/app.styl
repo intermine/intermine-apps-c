@@ -1,0 +1,121 @@
+$icons = (favourite "♥") (public "🌎")
+
+input[type="checkbox"]
+    margin: 0
+
+ul
+    list-style-type: none
+    margin: 0
+
+table
+    width: 100%
+
+    thead
+        th
+            &[data-sort]
+                cursor: pointer
+
+            &.minimal
+                width: 1%
+
+    tbody
+        tr
+            &.selected
+                td
+                    background: #FFFFD4
+
+            td
+                input[type="checkbox"]
+                    vertical-align: middle
+                    cursor: pointer
+
+                span
+                    &.created
+                        white-space: nowrap
+
+                    &.title
+                        line-height: 22px
+
+        ul.tags
+            float: right
+
+            li
+                position: relative
+                cursor: help
+                display: inline-block
+
+                for icon in $icons
+                    $name = '"' + icon[0] + '"'
+                    &[data-slug={$name}]
+                        .tooltip
+                            .text:before
+                                font-family: Entypo
+                                font-size: 22px
+                                line-height: 1px
+                                margin-right: 3px
+                                vertical-align: middle
+                                display: inline-block
+                                content: icon[1]
+
+span.color
+    width: 12px
+    height: 12px
+    border-radius: 50%
+    display: block
+    float: left
+    border-width: 2px
+    border-style: solid
+
+div[data-view="tags"]
+    dl.sub-nav
+        margin: 0
+
+        dt
+            margin-left: 0
+
+    ul.side-nav
+        li
+            cursor: pointer
+
+            span.color
+                margin: 5px 5px 0 0
+
+            &:not(.active)
+                span.color:after
+                    content: ""
+                    width: 8px
+                    height: 8px
+                    border-radius: 50%
+                    display: block
+                    background: #FFF
+
+            for icon in $icons
+                $name = '"' + icon[0] + '"'
+                &[data-slug={$name}]
+                    a:before
+                        font-family: Entypo
+                        font-size: 22px
+                        line-height: 1px
+                        margin-right: 3px
+                        vertical-align: middle
+                        display: inline-block
+                        content: icon[1]
+
+dl.sub-nav, ul.side-nav, ul.pagination, table thead
+    -webkit-user-select: none
+    -moz-user-select: none
+    user-select: none
+
+.tooltip
+    display: block
+    width: auto
+    left: -4px
+    top: 20px
+    max-width: inherit
+    white-space: nowrap
+    font-weight: normal
+
+button#submit
+    display: block
+    margin: 0 auto
+    margin-top: 20px
