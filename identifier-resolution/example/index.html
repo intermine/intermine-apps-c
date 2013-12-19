@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>component-400</title>
+    
+    <link href="app.bundle.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="app.bundle.js"></script>
+
+    <style>
+    #target { width: 700px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <div id="target"></div>
+    <script>
+        $.getJSON('data.json', function(data) {
+            var fn = require('component-400')({
+                'data': data,
+                'target': '#target',
+                cb: function(selected) {
+                    console.log(selected);
+                },
+                portal: function(object, el) {
+                    console.log(arguments);
+                }
+            });
+            //console.log(fn());
+        });
+    </script>
+</body>
+</html>

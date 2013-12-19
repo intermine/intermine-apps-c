@@ -1,0 +1,4 @@
+body{background:#f2f2f2}
+.box{padding:20px;width:800px;margin:0 auto;margin-top:20px;margin-bottom:20px;background:#fff}
+table{width:100%;}
+table tr:hover{background:rgba(255,255,0,0.25);cursor:pointer}
