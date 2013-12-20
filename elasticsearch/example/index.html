@@ -12,41 +12,12 @@
     <script>
         // Once scripts have loaded.
         $(function() {
-            // Service endpoint.
-            var service = 'http://localhost:9200',
-                index = 'people',
-                type = 'person';
-
-            // Fetch documents (assume no errors).
-            $.getJSON('documents.json', function(docs) {
-                // Setup ejs client.
-                ejs.client = ejs.jQueryClient(service);
-
-                // Map docs to ejs documents.
-                docs = _.map(docs, function(doc, i) {
-                    return ejs.Document(index, type, i).source(doc);
-                });
-
-                // After we have indexed all docs...
-                var show = _.after(docs.length, function () {
-                    // ...show the app.
-                    var ES = require('es');
-                        es = ES({
-                            // Target element to render to.
-                            'el': '#app',
-                            // Service endpoint.
-                            'service': service,
-                            // Index.
-                            'index': index,
-                            // Document type.
-                            'type': type
-                        });
-                });
-
-                // Index docs.
-                _.each(docs, function(doc) {
-                    doc.refresh(true).doIndex(show);
-                });
+            // ...show the app.
+            require('es')({
+                'service': 'http://localhost:9200',
+                'index': 'publications',
+                'type': 'publication',
+                'el': '#app'
             });
         });
     </script>

@@ -211,27 +211,28 @@
     // app.coffee
     root.require.register('es/src/app.js', function(exports, require, module) {
     
-      var App, Notification, Results, Search, State, query, req, results, state;
+      var App, Notification, Results, Search, State, query, results, search, state;
       
-      req = can.compute(null);
+      search = can.compute(null);
       
       query = can.compute('');
       
       query.bind('change', function(ev, q, oldQ) {
-        var _ref;
+        var _base;
         if (!q) {
           return;
         }
         state.initSearch();
-        return (_ref = req()) != null ? _ref.query(ejs.QueryStringQuery(q)).doSearch(function(res) {
+        return typeof (_base = search()) === "function" ? _base(q, function(err, hits) {
           var docs, total;
-          if (!(total = res.hits.total)) {
+          if (err) {
+            return state.badRequest(err);
+          }
+          if (!(total = hits.total)) {
             return state.noResults();
           }
-          docs = _.map(res.hits.hits, '_source');
+          docs = _.map(hits.hits, '_source');
           return state.hasResults(total, docs);
-        }, function(obj, type, text) {
-          return state.badRequest(text);
         }) : void 0;
       });
       
@@ -367,11 +368,38 @@
       
       module.exports = function(opts) {
         var layout;
-        ejs.client = ejs.jQueryClient(opts.service);
-        req(ejs.Request({
-          'indices': opts.index,
-          'types': opts.type
-        }));
+        search((function() {
+          var client, index, service, type;
+          service = opts.service, index = opts.index, type = opts.type;
+          client = new $.es.Client({
+            'hosts': service
+          });
+          return function(query, cb) {
+            return client.search({
+              index: index,
+              type: type,
+              'body': {
+                'query': {
+                  'match': {
+                    '_all': query
+                  }
+                }
+              }
+            }).then(function(res) {
+              var body, e;
+              if (!/2../.test(res.status.status)) {
+                return cb('Error');
+              }
+              try {
+                body = JSON.parse(res.body);
+              } catch (_error) {
+                e = _error;
+                return cb('Malformed response');
+              }
+              return cb(null, body.hits);
+            });
+          };
+        })());
         layout = require('./templates/layout');
         $(opts.el).html(can.view.mustache(layout));
         return query('new* OR age:>35');

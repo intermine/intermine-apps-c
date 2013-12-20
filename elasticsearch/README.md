@@ -3,7 +3,7 @@
 ##Todo
 
 * English: "1 Results"
- Why does it say 1 result when we have a listing of 10?
+* Why does it say 1 result when we have a listing of 10?
 * Show the score next to the matches
 * Show example syntax
 * Show similar matches to the one we are clicking on
@@ -12,6 +12,5 @@
 * Have a button that shows a detail that shows us the whole document.
 * Breadcrumbs showing past few queries or show them in a sidebar if too wide.
 * Do not yellow-highlight the `<thead/>`
-* Have a link to load example documents in instead of doing it every time
 * Is there a smoother way to transition between notifications?
 * Load in example publications showing little documents as previews showing detail when clicking on them.

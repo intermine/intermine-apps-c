@@ -1,5 +1,5 @@
-# Will be the ejs request handler.
-req = can.compute(null)
+# Will be the ejs client search handler.
+search = can.compute(null)
 
 # The default search query.
 query = can.compute('')
@@ -12,21 +12,19 @@ query.bind 'change', (ev, q, oldQ) ->
     # Say we are doing the search.
     do state.initSearch
 
-    # Empty search string?
-    req()?.query(ejs.QueryStringQuery(q))
-    # On results...
-    .doSearch (res) ->
-        # No results?
-        return do state.noResults unless total = res.hits.total
+    # Is search setup?
+    (do search)? q, (err, hits) ->
+        # Trouble?
+        return state.badRequest err if err
 
-        # Plop the actual document from the results.
-        docs = _.map(res.hits.hits, '_source')
+        # No results?
+        return do state.noResults unless total = hits.total
+
+        # Pluck the actual document from the results.
+        docs = _.map(hits.hits, '_source')
 
         # Has results.
         state.hasResults(total, docs)
-    # Trouble?
-    , (obj, type, text) ->
-        state.badRequest text
 
 # Keep our results here.
 results = new can.Map
@@ -150,13 +148,29 @@ App = can.Component.extend
     scope: -> { state, results }
 
 module.exports = (opts) ->
-    # Setup ejs client. We already have it setup on a page
-    # from when we were storing documents with the service
-    # but let us assume it is not necessarily so.
-    ejs.client = ejs.jQueryClient(opts.service)
+    search do ->
+        { service, index, type } = opts
+        # Create a new client.
+        client = new $.es.Client 'hosts': service
+        # Return a function doing the actual search.
+        (query, cb) ->            
+            client.search({
+                index, type,
+                'body':
+                    'query':
+                        'match':
+                            '_all': query
+            }).then (res) ->
+                # 2xx?
+                return cb 'Error' unless /2../.test res.status.status
+                # JSON?
+                try
+                    body = JSON.parse res.body
+                catch e
+                    return cb 'Malformed response'
 
-    # Set the request handlet to our index search for a people.
-    req ejs.Request({ 'indices': opts.index, 'types': opts.type })
+                # Just the hits ma'am.
+                cb null, body.hits
 
     # Setup the UI.
     layout = require './templates/layout'

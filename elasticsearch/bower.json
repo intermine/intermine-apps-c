@@ -1,11 +1,11 @@
 {
     "name": "elasticsearch",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "dependencies": {
         "jquery": "2.0.3",
         "lodash": "2.4.1",
         "canjs": "2.0.3",
-        "elastic.js": "1.1.1",
+        "elasticsearch": "http://cdn.intermine.org/js/elasticsearch.js/1.0.2/elasticsearch.jquery.js",
         "foundation": "5.0.2"
     }
 }

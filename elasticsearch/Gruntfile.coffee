@@ -22,8 +22,7 @@ module.exports = (grunt) ->
                     'vendor/jquery/jquery.js'
                     'vendor/lodash/dist/lodash.js'
                     'vendor/canjs/can.jquery.js'
-                    'vendor/elastic.js/dist/elastic.js'
-                    'vendor/elastic.js/dist/elastic-jquery-client.js'
+                    'vendor/elasticsearch/index.js'
                     # Our app.
                     'build/js/es.js'
                 ]
