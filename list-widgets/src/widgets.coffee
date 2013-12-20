@@ -14,23 +14,21 @@ class Widgets
     or
     @param {Object} opts Config just like imjs consumes e.g. `{ "root": "", "token": "" }`
     ###
-    constructor: (opts...) ->
-        if typeof opts[0] is 'string'
+    constructor: (arg0, arg1) ->
+        if typeof arg0 is 'string'
             # Assuming a service.
-            @root = opts[0]
+            @root = arg0
             # Do we have a token?
-            @token = opts[1]
+            @token = arg1
+            serviceOpts = {@root, @token}
         else
             # Assuming an object.
-            if opts[0].root?
-                @root = opts[0].root
-            else
-                throw Error 'You need to set the `root` parameter pointing to the mine\'s service'
-            # Do we have a token?
-            @token = opts[0].token
+            {@root, @token} = serviceOpts = arg0
+            unless @root
+                throw new Error 'You need to set the `root` parameter pointing to the mine\'s service'
 
         # Create a new imjs instance.
-        @imjs = new intermine.Service { @root, @token }
+        @imjs = new intermine.Service serviceOpts
 
         # We will probably want to get user's lists.
         @lists = @imjs.fetchLists()
