@@ -450,7 +450,7 @@
     // results.mustache
     root.require.register('es/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <div class=\"page\">","            {{ _source.abstract }}","        </div>","        <div>","            <span class=\"{{ type _score }} label\">{{ round _score }}</span>","            <h4>{{ _source.title }}</h4>","            <ul class=\"authors\">","                {{ #_source.authors }}","                <li>{{ forename }} {{ lastname }}</li>","                {{ /_source.authors }}","            </ul>","        </div>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
+      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <div class=\"preview\">","            {{ _source.abstract }}","        </div>","        <div class=\"body\">","            <span class=\"{{ type _score }} label\">{{ round _score }}</span>","            <h4>{{ _source.title }}</h4>","            <ul class=\"authors\">","                {{ #_source.authors }}","                <li>{{ forename }} {{ lastname }}</li>","                {{ /_source.authors }}","            </ul>","        </div>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     

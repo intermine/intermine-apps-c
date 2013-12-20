@@ -4,10 +4,10 @@
 <ul class="results">
     {{ #results.docs }}
     <li class="result">
-        <div class="page">
+        <div class="preview">
             {{ _source.abstract }}
         </div>
-        <div>
+        <div class="body">
             <span class="{{ type _score }} label">{{ round _score }}</span>
             <h4>{{ _source.title }}</h4>
             <ul class="authors">

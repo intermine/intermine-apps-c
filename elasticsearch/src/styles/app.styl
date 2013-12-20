@@ -26,13 +26,21 @@ ul.results
     margin: 0
 
     li.result
-        height: 90px
+        box-sizing: border-box
 
         &:not(:last-child)
             border-bottom: 1px dashed #CCC
-            margin-bottom: 14px
 
-        .page
+        &:after
+            clear: both
+            display: block
+            content: ""
+
+        .preview, .body
+            float: left
+            margin: 20px 0
+
+        .preview
             border: 1px solid #AAA
             box-shadow: 2px 2px 0 #E0E0E0
             cursor:pointer
@@ -44,8 +52,6 @@ ul.results
             vertical-align: top
             overflow: hidden
             position: relative
-            float: left
-            margin-right: 20px
             line-height: 5px
             text-align: justify
 
@@ -58,29 +64,34 @@ ul.results
                 height: 8px
                 background: #FFF
 
-        h4
-            font-size: 14px
-            font-weight: bold
-            margin:0
+        .body
+            width: 840px
+            margin-left: 20px
 
-        ul.authors
-            list-style-type: none
-            line-height: 1
+            h4
+                font-size: 14px
+                font-weight: bold
+                margin:0
 
-            li
-                font-size: 12px
-                display: inline-block
-                color: #666
+            ul.authors
+                list-style-type: none
+                line-height: 1
+                margin: 0
 
-                &:not(:last-child):not(:first-child)
-                    margin-left: -4px
+                li
+                    font-size: 12px
+                    display: inline-block
+                    color: #666
 
-                    &:before
-                        content: ", "
+                    &:not(:last-child):not(:first-child)
+                        margin-left: -4px
 
-                &:last-child:not(:first-child)
-                    &:before
-                        content: "& "
+                        &:before
+                            content: ", "
 
-        .label
-            float: right
+                    &:last-child:not(:first-child)
+                        &:before
+                            content: "& "
+
+            .label
+                float: right
