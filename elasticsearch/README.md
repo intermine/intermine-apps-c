@@ -19,3 +19,4 @@
 * If many names, skip the middle people (like in Micklem Site)
 * Highlight the matching keywords
 * Show spyglass (webfont) onhover page preview
+* Have a minified build
