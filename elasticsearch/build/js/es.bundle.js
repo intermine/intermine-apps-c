@@ -45052,8 +45052,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           };
         },
         events: {
-          'input keyup': function() {
+          'a.button click': function() {
             return query(this.element.find('input').val());
+          },
+          'input keyup': function(el, evt) {
+            if ((evt.keyCode || evt.which) === 13) {
+              return query(el.val());
+            }
           }
         }
       });
@@ -45127,7 +45132,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     // search.mustache
     root.require.register('es/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"small-3 large-2 columns\">","        <span class=\"prefix\">Search:</span>","    </div>","    <div class=\"small-9 large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button postfix\">Search</a>","    </div>","</div>"].join("\n");
     });
   })();
 

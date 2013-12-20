@@ -114,13 +114,17 @@ Search = can.Component.extend
 
     template: require './templates/search'
 
-    # A bit of an ugly syntax...
-    scope: -> { 'query': { 'value': query } }
+    scope: ->
+        # A bit of an ugly syntax...
+        'query': { 'value': query }
 
     events:
-        # Search on keypress.
-        'input keyup': ->
+        # Button click:
+        'a.button click': ->
             query do @element.find('input').val
+        # Input field keypress.
+        'input keyup': (el, evt) ->
+            query do el.val if (evt.keyCode or evt.which) is 13
 
 # Search results.
 Results = can.Component.extend
