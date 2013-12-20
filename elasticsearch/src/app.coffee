@@ -185,4 +185,4 @@ module.exports = (opts) ->
     $(opts.el).html can.view.mustache layout
 
     # Manually change the query to init the search.
-    query 'tumor'
+    query 'vaccine'

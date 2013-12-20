@@ -41619,7 +41619,7 @@ module.exports = utils;
         })());
         layout = require('./templates/layout');
         $(opts.el).html(can.view.mustache(layout));
-        return query('tumor');
+        return query('vaccine');
       };
       
     });
