@@ -33,7 +33,7 @@ class Widgets
         @imjs = new intermine.Service { @root, @token }
 
         # We will probably want to get user's lists.
-        @lists = do @imjs.fetchLists
+        @lists = @imjs.fetchLists()
 
     ###
     Chart Widget.
