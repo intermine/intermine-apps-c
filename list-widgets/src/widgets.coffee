@@ -19,7 +19,7 @@ class Widgets
             # Assuming a service.
             @root = opts[0]
             # Do we have a token?
-            @token = opts[1] or ''
+            @token = opts[1]
         else
             # Assuming an object.
             if opts[0].root?
