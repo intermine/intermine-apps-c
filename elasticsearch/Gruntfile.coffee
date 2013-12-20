@@ -12,7 +12,7 @@ module.exports = (grunt) ->
 
         stylus:
             compile:
-                src: [ 'src/app.styl' ]
+                src: [ 'src/styles/app.styl' ]
                 dest: 'build/css/es.css'
 
         concat:            
@@ -34,6 +34,7 @@ module.exports = (grunt) ->
                 src: [
                     'vendor/foundation/css/normalize.css'
                     'vendor/foundation/css/foundation.css'
+                    'src/styles/fonts.css'
                     'build/css/es.css'
                 ]
                 dest: 'build/css/es.bundle.css'

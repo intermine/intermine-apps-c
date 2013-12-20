@@ -1,0 +1,86 @@
+@import 'nib'
+
+body
+    background: #efefef
+    color: #333
+    border-top: 6px solid #F8AF2D
+
+h1, h2, h3, h4, h5, h6, p, li, input[type="text"], .button
+    font-family: 'Actor', sans-serif
+
+.box
+    padding: 20px
+    width: 960px
+    margin: 0 auto
+    margin-top: 20px
+    margin-bottom: 20px
+    background: #FFF
+
+.alert-box
+    p
+        margin: 0
+        font-size: 14px
+
+ul.results
+    list-style-type: none
+    margin: 0
+
+    li.result
+        height: 90px
+
+        &:not(:last-child)
+            border-bottom: 1px dashed #CCC
+            margin-bottom: 14px
+
+        .page
+            border: 1px solid #AAA
+            box-shadow: 2px 2px 0 #E0E0E0
+            cursor:pointer
+            background: #FFF
+            width: 60px
+            height: 75px
+            padding: 8px
+            font-size: 4px
+            vertical-align: top
+            overflow: hidden
+            position: relative
+            float: left
+            margin-right: 20px
+            line-height: 5px
+            text-align: justify
+
+            &:after
+                content: ""
+                position: absolute
+                bottom: 0
+                left: 0
+                width: 100%
+                height: 8px
+                background: #FFF
+
+        h4
+            font-size: 14px
+            font-weight: bold
+            margin:0
+
+        ul.authors
+            list-style-type: none
+            line-height: 1
+
+            li
+                font-size: 12px
+                display: inline-block
+                color: #666
+
+                &:not(:last-child):not(:first-child)
+                    margin-left: -4px
+
+                    &:before
+                        content: ", "
+
+                &:last-child:not(:first-child)
+                    &:before
+                        content: "& "
+
+        .label
+            float: right

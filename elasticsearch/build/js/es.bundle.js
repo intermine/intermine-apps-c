@@ -41417,7 +41417,7 @@ module.exports = utils;
     // app.coffee
     root.require.register('es/src/app.js', function(exports, require, module) {
     
-      var App, Notification, Results, Search, State, query, results, search, state;
+      var App, Label, Notification, Results, Search, State, query, results, search, state;
       
       search = can.compute(null);
       
@@ -41430,15 +41430,14 @@ module.exports = utils;
         }
         state.initSearch();
         return typeof (_base = search()) === "function" ? _base(q, function(err, hits) {
-          var docs, total;
+          var total;
           if (err) {
             return state.badRequest(err);
           }
           if (!(total = hits.total)) {
             return state.noResults();
           }
-          docs = _.map(hits.hits, '_source');
-          return state.hasResults(total, docs);
+          return state.hasResults(total, hits.hits);
         }) : void 0;
       });
       
@@ -41549,15 +41548,27 @@ module.exports = utils;
         }
       });
       
+      Label = can.Component.extend({
+        tag: 'label',
+        template: require('./templates/label')
+      });
+      
       Results = can.Component.extend({
         tag: 'results',
         template: require('./templates/results'),
         scope: {
-          more: function(doc, source, evt) {
-            var key, value;
-            key = $(evt.target).data('key');
-            value = doc.attr(key);
-            return console.log(key, value);
+          more: function(doc, source, evt) {}
+        },
+        helpers: {
+          round: function(score) {
+            return Math.round(100 * score());
+          },
+          type: function(score) {
+            if (score() > 0.5) {
+              return 'success';
+            } else {
+              return 'secondary';
+            }
           }
         }
       });
@@ -41608,7 +41619,7 @@ module.exports = utils;
         })());
         layout = require('./templates/layout');
         $(opts.el).html(can.view.mustache(layout));
-        return query('new* OR age:>35');
+        return query('tumor');
       };
       
     });
@@ -41618,6 +41629,13 @@ module.exports = utils;
     root.require.register('es/src/templates/breadcrumbs.js', function(exports, require, module) {
     
       module.exports = ["<nav class=\"ink-navigation\">","    <ul class=\"breadcrumbs\">","        <li><a>Start</a></li>","        <li><a>Level 1</a></li>","        <li><a>Level 2</a></li>","        <li class=\"current\"><a>Current item</a></li>","    </ul>","</nav>"].join("\n");
+    });
+
+    
+    // label.mustache
+    root.require.register('es/src/templates/label.js', function(exports, require, module) {
+    
+      module.exports = ["<span class=\"{{ type }} label\">{{ text }}</span>"].join("\n");
     });
 
     
@@ -41631,21 +41649,21 @@ module.exports = utils;
     // notification.mustache
     root.require.register('es/src/templates/notification.js', function(exports, require, module) {
     
-      module.exports = ["{{ #state.alert.show }}","<div class=\"alert-box {{ state.alert.type }}\">","    {{{ state.alert.text }}}","    <a class=\"close\">&times;</a>","</div>","{{ /state.alert.show }}"].join("\n");
+      module.exports = ["{{ #state.alert.show }}","<div class=\"alert-box {{ state.alert.type }}\">","    <p>{{{ state.alert.text }}}</p>","    <a class=\"close\">&times;</a>","</div>","{{ /state.alert.show }}"].join("\n");
     });
 
     
     // results.mustache
     root.require.register('es/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<table>","    <thead>","        <tr>","            <th>Name</th>","            <th>Age</th>","            <th>Company</th>","            <th>Email</th>","            <th>Address</th>","        </tr>","    </thead>","    <tbody>","        {{ #results.docs }}","        <tr can-click=\"more\">","            <td data-key=\"name\">{{ name }}</td>","            <td data-key=\"age\">{{ age }}</td>","            <td data-key=\"company\">{{ company }}</td>","            <td data-key=\"email\">{{ email }}</td>","            <td data-key=\"address\">{{ address }}</td>","        </tr>","        {{ /results.docs }}","    </tbody>","</table>","{{ /results.total }}"].join("\n");
+      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <div class=\"page\">","            {{ _source.abstract }}","        </div>","        <div>","            <span class=\"{{ type _score }} label\">{{ round _score }}</span>","            <h4>{{ _source.title }}</h4>","            <ul class=\"authors\">","                {{ #_source.authors }}","                <li>{{ forename }} {{ lastname }}</li>","                {{ /_source.authors }}","            </ul>","        </div>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     
     // search.mustache
     root.require.register('es/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button postfix\">Search</a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">Search</a>","    </div>","</div>"].join("\n");
     });
   })();
 

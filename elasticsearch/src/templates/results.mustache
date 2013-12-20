@@ -1,26 +1,22 @@
 {{ #results.total }}
 <h3>Top Results</h3>
 
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Company</th>
-            <th>Email</th>
-            <th>Address</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{ #results.docs }}
-        <tr can-click="more">
-            <td data-key="name">{{ name }}</td>
-            <td data-key="age">{{ age }}</td>
-            <td data-key="company">{{ company }}</td>
-            <td data-key="email">{{ email }}</td>
-            <td data-key="address">{{ address }}</td>
-        </tr>
-        {{ /results.docs }}
-    </tbody>
-</table>
+<ul class="results">
+    {{ #results.docs }}
+    <li class="result">
+        <div class="page">
+            {{ _source.abstract }}
+        </div>
+        <div>
+            <span class="{{ type _score }} label">{{ round _score }}</span>
+            <h4>{{ _source.title }}</h4>
+            <ul class="authors">
+                {{ #_source.authors }}
+                <li>{{ forename }} {{ lastname }}</li>
+                {{ /_source.authors }}
+            </ul>
+        </div>
+    </li>
+    {{ /results.docs }}
+</ul>
 {{ /results.total }}

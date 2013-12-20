@@ -20,11 +20,8 @@ query.bind 'change', (ev, q, oldQ) ->
         # No results?
         return do state.noResults unless total = hits.total
 
-        # Pluck the actual document from the results.
-        docs = _.map(hits.hits, '_source')
-
         # Has results.
-        state.hasResults(total, docs)
+        state.hasResults(total, hits.hits)
 
 # Keep our results here.
 results = new can.Map
@@ -124,6 +121,14 @@ Search = can.Component.extend
         'input keyup': (el, evt) ->
             query do el.val if (evt.keyCode or evt.which) is 13
 
+# A label.
+
+Label = can.Component.extend
+
+    tag: 'label'
+
+    template: require './templates/label'
+
 # Search results.
 Results = can.Component.extend
 
@@ -134,11 +139,14 @@ Results = can.Component.extend
     scope:
         # Onclick row find us similar documents.
         more: (doc, source, evt) ->
-            # Get the column key.
-            key = $(evt.target).data('key')
-            # Now the value.
-            value = doc.attr(key)
-            console.log key, value
+
+    helpers:
+        # For score.
+        round: (score) ->
+            Math.round 100 * do score
+
+        type: (score) ->
+            if do score > 0.5 then 'success' else 'secondary'
 
 # The app herself.
 App = can.Component.extend
@@ -177,4 +185,4 @@ module.exports = (opts) ->
     $(opts.el).html can.view.mustache layout
 
     # Manually change the query to init the search.
-    query 'new* OR age:>35'
+    query 'tumor'

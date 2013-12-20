@@ -14,3 +14,7 @@
 * Do not yellow-highlight the `<thead/>`
 * Is there a smoother way to transition between notifications?
 * Load in example publications showing little documents as previews showing detail when clicking on them.
+* D3 color scales for scores
+* Why are scores not sorted?
+* If many names, skip the middle people (like in Micklem Site)
+* Highlight the matching keywords
