@@ -171,6 +171,21 @@ Result = can.Component.extend
         author: (ctx) ->
             ctx.forename + ' ' + ctx.lastname
 
+        # Merge text and highlighted terms together.
+        mark: (orig, hilite) ->
+            # Get the values.
+            orig = do orig ; hilite = do hilite
+            # Skip if we have nothing to highlight.
+            return orig unless hilite
+            # For each snippet...
+            for snip in hilite
+                # Strip the tags from the snippet.
+                range = snip.replace /<\/?em>/g, ''
+                # ...replace the original with the snippet.
+                orig = orig.replace range, snip
+            # Return the new text.
+            orig
+
 # Search results.
 Results = can.Component.extend
 
@@ -203,6 +218,10 @@ module.exports = (opts) ->
                                 'abstract'
                             ]
                         }
+                    'highlight':
+                        'fields':
+                            'title': {}
+                            'abstract': {}
             }).then (res) ->
                 # 2xx?
                 return cb 'Error' unless /2../.test res.status.status

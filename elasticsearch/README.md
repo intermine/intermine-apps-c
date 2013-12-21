@@ -16,7 +16,6 @@
 * D3 color scales for scores
 * Why are scores not sorted?
 * If many names, skip the middle people (like in Micklem Site)
-* Highlight the matching keywords
 * Show spyglass (webfont) onhover page preview
 * Have a minified build
 * Change the notification to be shown as a text in a title, e.g.: Top results out of 27 etc.
