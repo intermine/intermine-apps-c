@@ -2,11 +2,14 @@
     <label type="{{ type _score }}" text="{{ round _score }}" />
 
     <h4>{{ _source.title }}</h4>
+
     <ul class="authors">
         {{ #_source.authors }}
         <li>{{ author this }}</li>
         {{ /_source.authors }}
     </ul>
+
+    <em class="journal">in {{ _source.journal }}</em>
 
     {{ #isPublished _source.issue.published }}
     <div class="meta hint--top" data-hint="{{ date _source.issue.published }}">Published {{ ago _source.issue.published }}</div>

@@ -416,8 +416,9 @@
               type: type,
               'body': {
                 'query': {
-                  'match': {
-                    '_all': query
+                  'multi_match': {
+                    query: query,
+                    'fields': ['title^2', 'abstract']
                   }
                 }
               }
@@ -475,7 +476,7 @@
     // result.mustache
     root.require.register('es/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <label type=\"{{ type _score }}\" text=\"{{ round _score }}\" />","","    <h4>{{ _source.title }}</h4>","    <ul class=\"authors\">","        {{ #_source.authors }}","        <li>{{ author this }}</li>","        {{ /_source.authors }}","    </ul>","","    {{ #isPublished _source.issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date _source.issue.published }}\">Published {{ ago _source.issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #_source.id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}\">{{ _source.id.pubmed }}</a>","    </div>","    {{ /_source.id.pubmed }}","    ","    {{ #_source.id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ _source.id.doi }}\">{{ _source.id.doi }}</a>","    </div>","    {{ /_source.id.doi }}","</div>","","{{ #_source.abstract }}","<div class=\"preview\">","    {{ _source.abstract }}","</div>","{{ /_source.abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <label type=\"{{ type _score }}\" text=\"{{ round _score }}\" />","","    <h4>{{ _source.title }}</h4>","","    <ul class=\"authors\">","        {{ #_source.authors }}","        <li>{{ author this }}</li>","        {{ /_source.authors }}","    </ul>","","    <em class=\"journal\">in {{ _source.journal }}</em>","","    {{ #isPublished _source.issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date _source.issue.published }}\">Published {{ ago _source.issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #_source.id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}\">{{ _source.id.pubmed }}</a>","    </div>","    {{ /_source.id.pubmed }}","    ","    {{ #_source.id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ _source.id.doi }}\">{{ _source.id.doi }}</a>","    </div>","    {{ /_source.id.doi }}","</div>","","{{ #_source.abstract }}","<div class=\"preview\">","    {{ _source.abstract }}","</div>","{{ /_source.abstract }}"].join("\n");
     });
 
     

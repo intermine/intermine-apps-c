@@ -196,8 +196,13 @@ module.exports = (opts) ->
                 index, type,
                 'body':
                     'query':
-                        'match':
-                            '_all': query
+                        'multi_match': {
+                            query,
+                            'fields': [
+                                'title^2'
+                                'abstract'
+                            ]
+                        }
             }).then (res) ->
                 # 2xx?
                 return cb 'Error' unless /2../.test res.status.status
