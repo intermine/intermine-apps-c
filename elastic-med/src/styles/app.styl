@@ -65,6 +65,10 @@ ul.results
             text-align: justify
             float: left
 
+            &:hover
+                .fa
+                    opacity: 1
+
             &:after
                 content: ""
                 position: absolute
@@ -73,6 +77,17 @@ ul.results
                 width: 100%
                 height: 8px
                 background: #FFF
+
+            .fa
+                font-size: 16px
+                position: absolute
+                top: 0
+                left: 0
+                background: rgba(255,255,255,0.5)
+                padding: 29px 22px
+                z-index: 2
+                opacity: 0
+                transition: opacity 0.2s ease-in-out
 
         .body
             width: 840px

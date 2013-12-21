@@ -7,14 +7,6 @@ colorize = d3.scale.linear()
 .domain(d3.range(min, max, (max - min) / (colors.length - 1)))
 .range(colors)
 
-# log = (text, color) ->
-#     console.log "%c#{text}", "background-color:#{color}"
-
-# log ' 0%   ', colorize(min)
-# log ' 50%  ', colorize((max - min) / 2)
-# log ' 100% ', colorize(max)
-# log ' REAL ', colors[8]
-
 # Will be the ejs client search handler.
 search = can.compute(null)
 
@@ -43,7 +35,7 @@ query.bind 'change', (ev, q) ->
             _source.score = _score
             # Map the highlights in.
             for key, value of _source when key in [ 'title', 'abstract' ]
-                _source[key] = { value, 'highlights': highlight[key] or [] }
+                _source[key] = { value, 'highlights': highlight?[key] or [] }
             _source
 
         # Has results.
@@ -245,6 +237,7 @@ module.exports = (opts) ->
                             query,
                             'fields': [
                                 'title^2'
+                                'keywords^2'
                                 'abstract'
                             ]
                         }

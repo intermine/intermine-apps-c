@@ -53323,7 +53323,7 @@ var colorbrewer = {YlGn: {
     
     
     // app.coffee
-    root.require.register('es/src/app.js', function(exports, require, module) {
+    root.require.register('em/src/app.js', function(exports, require, module) {
     
       var App, Label, Notification, Result, Results, Search, State, colorize, colors, max, min, query, results, search, state;
       
@@ -53362,7 +53362,7 @@ var colorbrewer = {YlGn: {
               if (key === 'title' || key === 'abstract') {
                 _source[key] = {
                   value: value,
-                  'highlights': highlight[key] || []
+                  'highlights': (highlight != null ? highlight[key] : void 0) || []
                 };
               }
             }
@@ -53567,7 +53567,7 @@ var colorbrewer = {YlGn: {
                 'query': {
                   'multi_match': {
                     query: query,
-                    'fields': ['title^2', 'abstract']
+                    'fields': ['title^2', 'keywords^2', 'abstract']
                   }
                 },
                 'highlight': {
@@ -53601,61 +53601,61 @@ var colorbrewer = {YlGn: {
 
     
     // breadcrumbs.mustache
-    root.require.register('es/src/templates/breadcrumbs.js', function(exports, require, module) {
+    root.require.register('em/src/templates/breadcrumbs.js', function(exports, require, module) {
     
       module.exports = ["<nav class=\"ink-navigation\">","    <ul class=\"breadcrumbs\">","        <li><a>Start</a></li>","        <li><a>Level 1</a></li>","        <li><a>Level 2</a></li>","        <li class=\"current\"><a>Current item</a></li>","    </ul>","</nav>"].join("\n");
     });
 
     
     // label.mustache
-    root.require.register('es/src/templates/label.js', function(exports, require, module) {
+    root.require.register('em/src/templates/label.js', function(exports, require, module) {
     
       module.exports = ["<span class=\"score\" style=\"{{ color score }}\">{{ round score }}</span>"].join("\n");
     });
 
     
     // layout.mustache
-    root.require.register('es/src/templates/layout.js', function(exports, require, module) {
+    root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticSearch</h2>","        <p>An example app searching a backend service.</p>","        <app-breadcrumbs></app-breadcrumbs>","        <app-search></app-search>","        <app-notification></app-notification>","        <app-results></app-results>","    </div>","</app>"].join("\n");
+      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticMed</h2>","        <p>An example app searching a backend service.</p>","        <app-breadcrumbs></app-breadcrumbs>","        <app-search></app-search>","        <app-notification></app-notification>","        <app-results></app-results>","    </div>","</app>"].join("\n");
     });
 
     
     // notification.mustache
-    root.require.register('es/src/templates/notification.js', function(exports, require, module) {
+    root.require.register('em/src/templates/notification.js', function(exports, require, module) {
     
       module.exports = ["{{ #state.alert.show }}","<div class=\"alert-box {{ state.alert.type }}\">","    <p>{{{ state.alert.text }}}</p>","    <a class=\"close\">&times;</a>","</div>","{{ /state.alert.show }}"].join("\n");
     });
 
     
     // result.mustache
-    root.require.register('es/src/templates/result.js', function(exports, require, module) {
+    root.require.register('em/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        <li>{{ author this }}</li>","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","</div>","{{ /abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        <li>{{ author this }}</li>","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","    <div class=\"fa fa-search\"></div>","</div>","{{ /abstract }}"].join("\n");
     });
 
     
     // results.mustache
-    root.require.register('es/src/templates/results.js', function(exports, require, module) {
+    root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
       module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <app-result/>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     
     // search.mustache
-    root.require.register('es/src/templates/search.js', function(exports, require, module) {
+    root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
       module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">Search</a>","    </div>","</div>"].join("\n");
     });
   })();
 
   // Return the main app.
-  var main = root.require("es/src/app.js");
+  var main = root.require("em/src/app.js");
 
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
-    define("es", [ /* load deps ahead of time */ ], function () {
+    define("em", [ /* load deps ahead of time */ ], function () {
       return main;
     });
   
@@ -53669,12 +53669,12 @@ var colorbrewer = {YlGn: {
   // Globally exported.
   else {
   
-    root["es"] = main;
+    root["em"] = main;
   
   }
 
   // Alias our app.
   
-  root.require.alias("es/src/app.js", "es/index.js");
+  root.require.alias("em/src/app.js", "em/index.js");
   
 })();

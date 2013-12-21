@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ElasticSearch Example App</title>
+    <title>ElasticMed</title>
     
-    <link href="build/css/es.bundle.css" media="all" rel="stylesheet" type="text/css" />
-    <script src="build/js/es.bundle.js"></script>
+    <link href="build/css/em.bundle.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="build/js/em.bundle.js"></script>
 </head>
 <body>
     <div id="app"></div>
@@ -13,7 +13,7 @@
         // Once scripts have loaded.
         $(function() {
             // ...show the app.
-            require('es')({
+            require('em')({
                 'service': 'http://localhost:9200',
                 'index': 'publications',
                 'type': 'publication',
