@@ -211,7 +211,7 @@
     // app.coffee
     root.require.register('es/src/app.js', function(exports, require, module) {
     
-      var App, Label, Notification, Results, Search, State, query, results, search, state;
+      var App, Label, Notification, Result, Results, Search, State, query, results, search, state;
       
       search = can.compute(null);
       
@@ -341,15 +341,16 @@
       
       Label = can.Component.extend({
         tag: 'label',
-        template: require('./templates/label')
+        template: require('./templates/label'),
+        scope: {
+          type: '@',
+          text: '@'
+        }
       });
       
-      Results = can.Component.extend({
-        tag: 'results',
-        template: require('./templates/results'),
-        scope: {
-          more: function(doc, source, evt) {}
-        },
+      Result = can.Component.extend({
+        tag: 'result',
+        template: require('./templates/result'),
         helpers: {
           round: function(score) {
             return Math.round(100 * score());
@@ -379,8 +380,16 @@
               return opts.inverse(this);
             }
             return opts.fn(this);
+          },
+          author: function(ctx) {
+            return ctx.forename + ' ' + ctx.lastname;
           }
         }
+      });
+      
+      Results = can.Component.extend({
+        tag: 'results',
+        template: require('./templates/results')
       });
       
       App = can.Component.extend({
@@ -452,7 +461,7 @@
     // layout.mustache
     root.require.register('es/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticSearch</h2>","        <p>An example app searching a backend service.</p>","        <breadcrumbs></breadcrumbs>","        <search></search>","        <notification></notification>","        <results></results>","    </div>","</app>"].join("\n");
+      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticSearch</h2>","        <p>An example app searching a backend service.</p>","        <breadcrumbs/>","        <search/>","        <notification/>","        <results/>","    </div>","</app>"].join("\n");
     });
 
     
@@ -463,10 +472,17 @@
     });
 
     
+    // result.mustache
+    root.require.register('es/src/templates/result.js', function(exports, require, module) {
+    
+      module.exports = ["<div class=\"body\">","    <label type=\"{{ type _score }}\" text=\"{{ round _score }}\" />","","    <h4>{{ _source.title }}</h4>","    <ul class=\"authors\">","        {{ #_source.authors }}","        <li>{{ author this }}</li>","        {{ /_source.authors }}","    </ul>","","    {{ #isPublished _source.issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date _source.issue.published }}\">Published {{ ago _source.issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #_source.id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}\">{{ _source.id.pubmed }}</a>","    </div>","    {{ /_source.id.pubmed }}","    ","    {{ #_source.id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ _source.id.doi }}\">{{ _source.id.doi }}</a>","    </div>","    {{ /_source.id.doi }}","</div>","","{{ #_source.abstract }}","<div class=\"preview\">","    {{ _source.abstract }}","</div>","{{ /_source.abstract }}"].join("\n");
+    });
+
+    
     // results.mustache
     root.require.register('es/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <div class=\"body\">","            <span class=\"{{ type _score }} label\">{{ round _score }}</span>","","            <h4>{{ _source.title }}</h4>","            <ul class=\"authors\">","                {{ #_source.authors }}","                <li>{{ forename }} {{ lastname }}</li>","                {{ /_source.authors }}","            </ul>","","            {{ #isPublished _source.issue.published }}","            <div class=\"meta hint--top\" data-hint=\"{{ date _source.issue.published }}\">Published {{ ago _source.issue.published }}</div>","            {{ else }}","            <div class=\"meta\">In print</div>","            {{ /isPublished }}","","            {{ #_source.id.pubmed }}","            <div class=\"meta\">","            PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}\">{{ _source.id.pubmed }}</a>","            </div>","            {{ /_source.id.pubmed }}","            ","            {{ #_source.id.doi }}","            <div class=\"meta\">","            DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ _source.id.doi }}\">{{ _source.id.doi }}</a>","            </div>","            {{ /_source.id.doi }}","        </div>","","        {{ #_source.abstract }}","        <div class=\"preview\">","            {{ _source.abstract }}","        </div>","        {{ /_source.abstract }}","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
+      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <result/>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     

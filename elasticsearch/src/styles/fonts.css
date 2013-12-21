@@ -1,7 +1,12 @@
 @font-face {
-    font-family: 'Actor';
+    font-family: 'Source Sans Pro';
     font-style: normal;
     font-weight: 400;
-    src: local('Actor Regular'), local('Actor-Regular'),
-    url(http://themes.googleusercontent.com/static/fonts/actor/v3/gZ8EM_Gzaq4WRjCimioyzQ.woff) format('woff');
+    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v6/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v6/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
 }

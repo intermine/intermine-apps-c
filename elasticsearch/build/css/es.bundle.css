@@ -5190,14 +5190,19 @@ th.hide-for-touch {
   transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24); }
 
 @font-face {
-    font-family: 'Actor';
+    font-family: 'Source Sans Pro';
     font-style: normal;
     font-weight: 400;
-    src: local('Actor Regular'), local('Actor-Regular'),
-    url(http://themes.googleusercontent.com/static/fonts/actor/v3/gZ8EM_Gzaq4WRjCimioyzQ.woff) format('woff');
+    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v6/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v6/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
 }
 body{background:#efefef;color:#333;border-top:6px solid #f8af2d}
-h1,h2,h3,h4,h5,h6,p,li,input[type="text"],.button{font-family:'Actor',sans-serif}
+h1,h2,h3,h4,h5,h6,p,li,input[type="text"],.button{font-family:'Source Sans Pro',sans-serif}
 ul{list-style-type:none}
 .box{padding:20px;width:960px;margin:0 auto;margin-top:20px;margin-bottom:20px;background:#fff}
 .alert-box p{margin:0;font-size:14px}
@@ -5216,4 +5221,4 @@ ul.results li.result .body ul.authors li:not(:last-child):not(:first-child):befo
 ul.results li.result .body ul.authors li:last-child:not(:first-child):before{content:"& "}
 ul.results li.result .body .meta{font-size:12px;display:inline-block;}
 ul.results li.result .body .meta:not(:last-child){margin-right:10px}
-ul.results li.result .body .label{float:right}
+ul.results li.result .body .label{float:right;margin-left:10px}

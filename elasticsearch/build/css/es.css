@@ -1,5 +1,5 @@
 body{background:#efefef;color:#333;border-top:6px solid #f8af2d}
-h1,h2,h3,h4,h5,h6,p,li,input[type="text"],.button{font-family:'Actor',sans-serif}
+h1,h2,h3,h4,h5,h6,p,li,input[type="text"],.button{font-family:'Source Sans Pro',sans-serif}
 ul{list-style-type:none}
 .box{padding:20px;width:960px;margin:0 auto;margin-top:20px;margin-bottom:20px;background:#fff}
 .alert-box p{margin:0;font-size:14px}
@@ -18,4 +18,4 @@ ul.results li.result .body ul.authors li:not(:last-child):not(:first-child):befo
 ul.results li.result .body ul.authors li:last-child:not(:first-child):before{content:"& "}
 ul.results li.result .body .meta{font-size:12px;display:inline-block;}
 ul.results li.result .body .meta:not(:last-child){margin-right:10px}
-ul.results li.result .body .label{float:right}
+ul.results li.result .body .label{float:right;margin-left:10px}

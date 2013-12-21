@@ -124,23 +124,22 @@ Search = can.Component.extend
             query do el.val if (evt.keyCode or evt.which) is 13
 
 # A label.
-
 Label = can.Component.extend
 
     tag: 'label'
 
     template: require './templates/label'
 
-# Search results.
-Results = can.Component.extend
-
-    tag: 'results'
-
-    template: require './templates/results'
-
     scope:
-        # Onclick row find us similar documents.
-        more: (doc, source, evt) ->
+        type: '@'
+        text: '@'
+
+# One result.
+Result = can.Component.extend
+
+    tag: 'result'
+
+    template: require './templates/result'
 
     helpers:
         # For score.
@@ -167,6 +166,17 @@ Results = can.Component.extend
             return opts.inverse(@) if (stamp or Infinity) > +new Date
             # Continue.
             opts.fn(@)
+
+        # Author name.
+        author: (ctx) ->
+            ctx.forename + ' ' + ctx.lastname
+
+# Search results.
+Results = can.Component.extend
+
+    tag: 'results'
+
+    template: require './templates/results'
 
 # The app herself.
 App = can.Component.extend
