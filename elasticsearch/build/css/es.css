@@ -1,19 +1,21 @@
 body{background:#efefef;color:#333;border-top:6px solid #f8af2d}
 h1,h2,h3,h4,h5,h6,p,li,input[type="text"],.button{font-family:'Actor',sans-serif}
+ul{list-style-type:none}
 .box{padding:20px;width:960px;margin:0 auto;margin-top:20px;margin-bottom:20px;background:#fff}
 .alert-box p{margin:0;font-size:14px}
-ul.results{list-style-type:none;margin:0;}
-ul.results li.result{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}
+ul.results{margin:0;}
 ul.results li.result:not(:last-child){border-bottom:1px dashed #ccc}
 ul.results li.result:after{clear:both;display:block;content:""}
-ul.results li.result .preview,ul.results li.result .body{float:left;margin:20px 0}
-ul.results li.result .preview{border:1px solid #aaa;-webkit-box-shadow:2px 2px 0 #e0e0e0;box-shadow:2px 2px 0 #e0e0e0;cursor:pointer;background:#fff;width:60px;height:75px;padding:8px;font-size:4px;vertical-align:top;overflow:hidden;position:relative;line-height:5px;text-align:justify;}
+ul.results li.result .preview,ul.results li.result .body{margin:20px 0}
+ul.results li.result .preview{border:1px solid #aaa;-webkit-box-shadow:2px 2px 0 #e0e0e0;box-shadow:2px 2px 0 #e0e0e0;cursor:pointer;background:#fff;width:60px;height:75px;padding:8px;font-size:4px;vertical-align:top;overflow:hidden;position:relative;line-height:5px;text-align:justify;float:left;}
 ul.results li.result .preview:after{content:"";position:absolute;bottom:0;left:0;width:100%;height:8px;background:#fff}
-ul.results li.result .body{width:840px;margin-left:20px;}
+ul.results li.result .body{width:840px;float:right;}
 ul.results li.result .body h4{font-size:14px;font-weight:bold;margin:0}
-ul.results li.result .body ul.authors{list-style-type:none;line-height:1;margin:0;}
+ul.results li.result .body ul.authors{line-height:1;margin:4px 0;}
 ul.results li.result .body ul.authors li{font-size:12px;display:inline-block;color:#666;}
 ul.results li.result .body ul.authors li:not(:last-child):not(:first-child){margin-left:-4px;}
 ul.results li.result .body ul.authors li:not(:last-child):not(:first-child):before{content:", "}
 ul.results li.result .body ul.authors li:last-child:not(:first-child):before{content:"& "}
+ul.results li.result .body .meta{font-size:12px;display:inline-block;}
+ul.results li.result .body .meta:not(:last-child){margin-right:10px}
 ul.results li.result .body .label{float:right}

@@ -148,6 +148,15 @@ Results = can.Component.extend
         type: (score) ->
             if do score > 0.5 then 'success' else 'secondary'
 
+        # Published ago & format date.
+        ago: (published) ->
+            { year, month, day } = do published
+            do moment([ year, month, day ].join(' ')).fromNow
+
+        date: (published) ->
+            { day, month, year } = do published
+            [ day, month, year ].join(' ')
+
 # The app herself.
 App = can.Component.extend
     

@@ -8,6 +8,9 @@ body
 h1, h2, h3, h4, h5, h6, p, li, input[type="text"], .button
     font-family: 'Actor', sans-serif
 
+ul
+    list-style-type: none
+
 .box
     padding: 20px
     width: 960px
@@ -22,12 +25,9 @@ h1, h2, h3, h4, h5, h6, p, li, input[type="text"], .button
         font-size: 14px
 
 ul.results
-    list-style-type: none
     margin: 0
 
     li.result
-        box-sizing: border-box
-
         &:not(:last-child)
             border-bottom: 1px dashed #CCC
 
@@ -37,7 +37,6 @@ ul.results
             content: ""
 
         .preview, .body
-            float: left
             margin: 20px 0
 
         .preview
@@ -54,6 +53,7 @@ ul.results
             position: relative
             line-height: 5px
             text-align: justify
+            float: left
 
             &:after
                 content: ""
@@ -66,7 +66,7 @@ ul.results
 
         .body
             width: 840px
-            margin-left: 20px
+            float: right
 
             h4
                 font-size: 14px
@@ -74,9 +74,8 @@ ul.results
                 margin:0
 
             ul.authors
-                list-style-type: none
                 line-height: 1
-                margin: 0
+                margin: 4px 0
 
                 li
                     font-size: 12px
@@ -92,6 +91,13 @@ ul.results
                     &:last-child:not(:first-child)
                         &:before
                             content: "& "
+
+            .meta
+                font-size: 12px
+                display: inline-block
+
+                &:not(:last-child)
+                    margin-right: 10px
 
             .label
                 float: right

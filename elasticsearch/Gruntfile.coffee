@@ -23,6 +23,7 @@ module.exports = (grunt) ->
                     'vendor/lodash/dist/lodash.js'
                     'vendor/canjs/can.jquery.js'
                     'vendor/elasticsearch/index.js'
+                    'vendor/moment/moment.js'
                     # Our app.
                     'build/js/es.js'
                 ]
@@ -34,6 +35,7 @@ module.exports = (grunt) ->
                 src: [
                     'vendor/foundation/css/normalize.css'
                     'vendor/foundation/css/foundation.css'
+                    'vendor/hint.css/hint.css'
                     'src/styles/fonts.css'
                     'build/css/es.css'
                 ]
