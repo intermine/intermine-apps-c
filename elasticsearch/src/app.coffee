@@ -20,8 +20,17 @@ query.bind 'change', (ev, q, oldQ) ->
         # No results?
         return do state.noResults unless total = hits.total
 
+        # Format the results.
+        docs = _.map hits.hits, ({ _score, _source, highlight }) ->
+            # Add the score.
+            _source.score = _score
+            # Map the highlights in.
+            for key, value of _source when key in [ 'title', 'abstract' ]
+                _source[key] = { value, 'highlights': highlight[key] or [] }
+            _source
+
         # Has results.
-        state.hasResults(total, hits.hits)
+        state.hasResults(total, docs)
 
 # Keep our results here.
 results = new can.Map
@@ -29,7 +38,7 @@ results = new can.Map
     # Total number of matched documents.
     'total': 0
 
-    # The array with top (10) documents.
+    # The array with top (max 10) documents.
     'docs': []
 
 # State of the application.
@@ -172,19 +181,19 @@ Result = can.Component.extend
             ctx.forename + ' ' + ctx.lastname
 
         # Merge text and highlighted terms together.
-        mark: (orig, hilite) ->
+        highlight: (field) ->
             # Get the values.
-            orig = do orig ; hilite = do hilite
+            field = do field
             # Skip if we have nothing to highlight.
-            return orig unless hilite
+            return field.value unless field.highlights.length
             # For each snippet...
-            for snip in hilite
+            for snip in field.highlights
                 # Strip the tags from the snippet.
                 range = snip.replace /<\/?em>/g, ''
                 # ...replace the original with the snippet.
-                orig = orig.replace range, snip
+                field.value = field.value.replace range, snip
             # Return the new text.
-            orig
+            field.value
 
 # Search results.
 Results = can.Component.extend

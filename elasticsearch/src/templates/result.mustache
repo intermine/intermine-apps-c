@@ -1,37 +1,37 @@
 <div class="body">
-    <label type="{{ type _score }}" text="{{ round _score }}" />
+    <label type="{{ type score }}" text="{{ round score }}" />
 
-    <h4 class="highlight">{{{ mark _source.title highlight.title }}}</h4>
+    <h4 class="highlight">{{{ highlight title }}}</h4>
 
     <ul class="authors">
-        {{ #_source.authors }}
+        {{ #authors }}
         <li>{{ author this }}</li>
-        {{ /_source.authors }}
+        {{ /authors }}
     </ul>
 
-    <em class="journal">in {{ _source.journal }}</em>
+    <em class="journal">in {{ journal }}</em>
 
-    {{ #isPublished _source.issue.published }}
-    <div class="meta hint--top" data-hint="{{ date _source.issue.published }}">Published {{ ago _source.issue.published }}</div>
+    {{ #isPublished issue.published }}
+    <div class="meta hint--top" data-hint="{{ date issue.published }}">Published {{ ago issue.published }}</div>
     {{ else }}
     <div class="meta">In print</div>
     {{ /isPublished }}
 
-    {{ #_source.id.pubmed }}
+    {{ #id.pubmed }}
     <div class="meta">
-    PubMed: <a target="new" href="http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}">{{ _source.id.pubmed }}</a>
+    PubMed: <a target="new" href="http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}">{{ id.pubmed }}</a>
     </div>
-    {{ /_source.id.pubmed }}
+    {{ /id.pubmed }}
     
-    {{ #_source.id.doi }}
+    {{ #id.doi }}
     <div class="meta">
-    DOI: <a target="new" href="http://dx.doi.org/{{ _source.id.doi }}">{{ _source.id.doi }}</a>
+    DOI: <a target="new" href="http://dx.doi.org/{{ id.doi }}">{{ id.doi }}</a>
     </div>
-    {{ /_source.id.doi }}
+    {{ /id.doi }}
 </div>
 
-{{ #_source.abstract }}
+{{ #abstract }}
 <div class="preview highlight">
-    {{{ mark _source.abstract highlight.abstract }}}
+    {{{ highlight abstract }}}
 </div>
-{{ /_source.abstract }}
+{{ /abstract }}
