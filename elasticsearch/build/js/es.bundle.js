@@ -43812,10 +43812,7 @@ module.exports = utils;
               'type': 'success'
             }
           });
-          return results.attr({
-            total: total,
-            docs: docs
-          });
+          return results.attr('total', total).attr('docs', docs);
         }
       });
       
@@ -43893,6 +43890,15 @@ module.exports = utils;
             var day, month, year, _ref;
             _ref = published(), day = _ref.day, month = _ref.month, year = _ref.year;
             return [day, month, year].join(' ');
+          },
+          isPublished: function(published, opts) {
+            var day, month, stamp, year, _ref;
+            _ref = published(), day = _ref.day, month = _ref.month, year = _ref.year;
+            stamp = +moment([day, month, year].join(' '));
+            if ((stamp || Infinity) > +(new Date)) {
+              return opts.inverse(this);
+            }
+            return opts.fn(this);
           }
         }
       });
@@ -43980,7 +43986,7 @@ module.exports = utils;
     // results.mustache
     root.require.register('es/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <div class=\"body\">","            <span class=\"{{ type _score }} label\">{{ round _score }}</span>","","            <h4>{{ _source.title }}</h4>","            <ul class=\"authors\">","                {{ #_source.authors }}","                <li>{{ forename }} {{ lastname }}</li>","                {{ /_source.authors }}","            </ul>","","            <div class=\"meta hint--top\" data-hint=\"{{ date _source.issue.published }}\">Published: {{ ago _source.issue.published }}</div>","","            {{ #_source.id.pubmed }}","            <div class=\"meta\">","            PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}\">{{ _source.id.pubmed }}</a>","            </div>","            {{ /_source.id.pubmed }}","            ","            {{ #_source.id.doi }}","            <div class=\"meta\">","            DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ _source.id.doi }}\">{{ _source.id.doi }}</a>","            </div>","            {{ /_source.id.doi }}","        </div>","","        {{ #_source.abstract }}","        <div class=\"preview\">","            {{ _source.abstract }}","        </div>","        {{ /_source.abstract }}","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
+      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <div class=\"body\">","            <span class=\"{{ type _score }} label\">{{ round _score }}</span>","","            <h4>{{ _source.title }}</h4>","            <ul class=\"authors\">","                {{ #_source.authors }}","                <li>{{ forename }} {{ lastname }}</li>","                {{ /_source.authors }}","            </ul>","","            {{ #isPublished _source.issue.published }}","            <div class=\"meta hint--top\" data-hint=\"{{ date _source.issue.published }}\">Published {{ ago _source.issue.published }}</div>","            {{ else }}","            <div class=\"meta\">In print</div>","            {{ /isPublished }}","","            {{ #_source.id.pubmed }}","            <div class=\"meta\">","            PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ _source.id.pubmed }}\">{{ _source.id.pubmed }}</a>","            </div>","            {{ /_source.id.pubmed }}","            ","            {{ #_source.id.doi }}","            <div class=\"meta\">","            DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ _source.id.doi }}\">{{ _source.id.doi }}</a>","            </div>","            {{ /_source.id.doi }}","        </div>","","        {{ #_source.abstract }}","        <div class=\"preview\">","            {{ _source.abstract }}","        </div>","        {{ /_source.abstract }}","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     

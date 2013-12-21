@@ -14,7 +14,11 @@
                 {{ /_source.authors }}
             </ul>
 
-            <div class="meta hint--top" data-hint="{{ date _source.issue.published }}">Published: {{ ago _source.issue.published }}</div>
+            {{ #isPublished _source.issue.published }}
+            <div class="meta hint--top" data-hint="{{ date _source.issue.published }}">Published {{ ago _source.issue.published }}</div>
+            {{ else }}
+            <div class="meta">In print</div>
+            {{ /isPublished }}
 
             {{ #_source.id.pubmed }}
             <div class="meta">

@@ -3,7 +3,6 @@
 ##Todo
 
 * English: "1 Results"
-* Why does it say 1 result when we have a listing of 10? It seems to always return 10. Shall I just trim them to the n number?
 * Show the score next to the matches
 * Show example syntax
 * Show similar matches to the one we are clicking on

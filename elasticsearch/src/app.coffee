@@ -83,7 +83,9 @@ State = can.Map.extend
                 'type': 'success'
 
         # Save them on results.
-        results.attr { total, docs }
+        results
+        .attr('total', total)
+        .attr('docs', docs)
 
 # New global state instance.
 state = new State
@@ -156,6 +158,15 @@ Results = can.Component.extend
         date: (published) ->
             { day, month, year } = do published
             [ day, month, year ].join(' ')
+
+
+        # Is publication out yet?
+        isPublished: (published, opts) ->
+            { day, month, year } = do published
+            stamp = +moment([ day, month, year ].join(' '))
+            return opts.inverse(@) if (stamp or Infinity) > +new Date
+            # Continue.
+            opts.fn(@)
 
 # The app herself.
 App = can.Component.extend
