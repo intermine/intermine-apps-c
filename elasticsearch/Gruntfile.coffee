@@ -24,6 +24,8 @@ module.exports = (grunt) ->
                     'vendor/canjs/can.jquery.js'
                     'vendor/elasticsearch/index.js'
                     'vendor/moment/moment.js'
+                    'vendor/colorbrewer/colorbrewer.js'
+                    'vendor/d3/d3.js'
                     # Our app.
                     'build/js/es.js'
                 ]

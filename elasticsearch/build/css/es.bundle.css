@@ -5224,4 +5224,4 @@ ul.results li.result .body ul.authors li:last-child:not(:first-child):before{con
 ul.results li.result .body .journal{display:block}
 ul.results li.result .body .meta{display:inline-block;}
 ul.results li.result .body .meta:not(:last-child){margin-right:10px}
-ul.results li.result .body .label{float:right;margin-left:10px}
+ul.results li.result .body .score{float:right;margin-left:10px;padding:3px 4px;font-size:11px;line-height:1;-webkit-border-radius:2px;border-radius:2px;-webkit-box-shadow:inset 0 -1px 0 rgba(0,0,0,0.12);box-shadow:inset 0 -1px 0 rgba(0,0,0,0.12)}

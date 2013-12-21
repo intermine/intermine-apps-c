@@ -211,13 +211,21 @@
     // app.coffee
     root.require.register('es/src/app.js', function(exports, require, module) {
     
-      var App, Label, Notification, Result, Results, Search, State, query, results, search, state;
+      var App, Label, Notification, Result, Results, Search, State, colorize, colors, max, min, query, results, search, state;
+      
+      colors = colorbrewer.YlOrRd[9];
+      
+      min = 0.2;
+      
+      max = 2.5;
+      
+      colorize = d3.scale.linear().domain(d3.range(min, max, (max - min) / (colors.length - 1))).range(colors);
       
       search = can.compute(null);
       
       query = can.compute('');
       
-      query.bind('change', function(ev, q, oldQ) {
+      query.bind('change', function(ev, q) {
         var _base;
         if (!q) {
           return;
@@ -319,7 +327,7 @@
       });
       
       Notification = can.Component.extend({
-        tag: 'notification',
+        tag: 'app-notification',
         template: require('./templates/notification'),
         events: {
           'a.close click': function() {
@@ -333,7 +341,7 @@
       });
       
       Search = can.Component.extend({
-        tag: 'search',
+        tag: 'app-search',
         template: require('./templates/search'),
         scope: function() {
           return {
@@ -355,28 +363,26 @@
       });
       
       Label = can.Component.extend({
-        tag: 'label',
+        tag: 'app-label',
         template: require('./templates/label'),
-        scope: {
-          type: '@',
-          text: '@'
+        helpers: {
+          color: function(score) {
+            var bg, fg, l;
+            bg = colorize(Math.max(min, Math.min(max, score())));
+            l = d3.hsl(bg).l;
+            fg = l < 0.5 ? '#FFF' : '#222';
+            return "background-color:" + bg + ";color:" + fg;
+          },
+          round: function(score) {
+            return Math.round(100 * score());
+          }
         }
       });
       
       Result = can.Component.extend({
-        tag: 'result',
+        tag: 'app-result',
         template: require('./templates/result'),
         helpers: {
-          round: function(score) {
-            return Math.round(100 * score());
-          },
-          type: function(score) {
-            if (score() > 0.5) {
-              return 'success';
-            } else {
-              return 'secondary';
-            }
-          },
           ago: function(published) {
             var day, month, year, _ref;
             _ref = published(), year = _ref.year, month = _ref.month, day = _ref.day;
@@ -400,7 +406,7 @@
             return ctx.forename + ' ' + ctx.lastname;
           },
           highlight: function(field) {
-            var range, snip, _i, _len, _ref;
+            var snip, text, _i, _len, _ref;
             field = field();
             if (!field.highlights.length) {
               return field.value;
@@ -408,8 +414,8 @@
             _ref = field.highlights;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               snip = _ref[_i];
-              range = snip.replace(/<\/?em>/g, '');
-              field.value = field.value.replace(range, snip);
+              text = snip.replace(/<\/?em>/g, '');
+              field.value = field.value.replace(text, snip);
             }
             return field.value;
           }
@@ -417,7 +423,7 @@
       });
       
       Results = can.Component.extend({
-        tag: 'results',
+        tag: 'app-results',
         template: require('./templates/results')
       });
       
@@ -474,7 +480,7 @@
         })());
         layout = require('./templates/layout');
         $(opts.el).html(can.view.mustache(layout));
-        return query('vaccine');
+        return query('(breast size OR exercise) AND breast cancer');
       };
       
     });
@@ -490,14 +496,14 @@
     // label.mustache
     root.require.register('es/src/templates/label.js', function(exports, require, module) {
     
-      module.exports = ["<span class=\"{{ type }} label\">{{ text }}</span>"].join("\n");
+      module.exports = ["<span class=\"score\" style=\"{{ color score }}\">{{ round score }}</span>"].join("\n");
     });
 
     
     // layout.mustache
     root.require.register('es/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticSearch</h2>","        <p>An example app searching a backend service.</p>","        <breadcrumbs/>","        <search/>","        <notification/>","        <results/>","    </div>","</app>"].join("\n");
+      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticSearch</h2>","        <p>An example app searching a backend service.</p>","        <app-breadcrumbs></app-breadcrumbs>","        <app-search></app-search>","        <app-notification></app-notification>","        <app-results></app-results>","    </div>","</app>"].join("\n");
     });
 
     
@@ -511,14 +517,14 @@
     // result.mustache
     root.require.register('es/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <label type=\"{{ type score }}\" text=\"{{ round score }}\" />","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        <li>{{ author this }}</li>","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","</div>","{{ /abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        <li>{{ author this }}</li>","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","</div>","{{ /abstract }}"].join("\n");
     });
 
     
     // results.mustache
     root.require.register('es/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <result/>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
+      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <app-result/>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     

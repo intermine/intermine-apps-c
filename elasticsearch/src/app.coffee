@@ -1,3 +1,20 @@
+# ColorBrewer color scales.
+colors = colorbrewer.YlOrRd[9]
+# The "allowed" ranges for scores.
+min = 0.2 ; max = 2.5
+# Convert input domain to an output color range.
+colorize = d3.scale.linear()
+.domain(d3.range(min, max, (max - min) / (colors.length - 1)))
+.range(colors)
+
+# log = (text, color) ->
+#     console.log "%c#{text}", "background-color:#{color}"
+
+# log ' 0%   ', colorize(min)
+# log ' 50%  ', colorize((max - min) / 2)
+# log ' 100% ', colorize(max)
+# log ' REAL ', colors[8]
+
 # Will be the ejs client search handler.
 search = can.compute(null)
 
@@ -5,7 +22,7 @@ search = can.compute(null)
 query = can.compute('')
 
 # Observe query changes to trigger a service search.
-query.bind 'change', (ev, q, oldQ) ->
+query.bind 'change', (ev, q) ->
     # Empty query?
     return unless q
 
@@ -105,7 +122,7 @@ state = new State
 # Notifications.
 Notification = can.Component.extend
 
-    tag: 'notification'
+    tag: 'app-notification'
 
     template: require './templates/notification'
 
@@ -116,7 +133,7 @@ Notification = can.Component.extend
 # Search form.
 Search = can.Component.extend
 
-    tag: 'search'
+    tag: 'app-search'
 
     template: require './templates/search'
 
@@ -132,32 +149,36 @@ Search = can.Component.extend
         'input keyup': (el, evt) ->
             query do el.val if (evt.keyCode or evt.which) is 13
 
-# A label.
+# A score label.
 Label = can.Component.extend
 
-    tag: 'label'
+    tag: 'app-label'
 
     template: require './templates/label'
 
-    scope:
-        type: '@'
-        text: '@'
+    helpers:
+        # Calculate a color for a score.
+        color: (score) ->
+            # The background.
+            bg = colorize Math.max min, Math.min max, do score
+            # Base foreground on the lightness of the background.
+            { l } = d3.hsl(bg)
+            fg = if l < 0.5 then '#FFF' else '#222'
+            # Return the "style" string.
+            "background-color:#{bg};color:#{fg}"
+
+        # Provide a "nice" score value.
+        round: (score) ->
+            Math.round 100 * do score
 
 # One result.
 Result = can.Component.extend
 
-    tag: 'result'
+    tag: 'app-result'
 
     template: require './templates/result'
 
     helpers:
-        # For score.
-        round: (score) ->
-            Math.round 100 * do score
-
-        type: (score) ->
-            if do score > 0.5 then 'success' else 'secondary'
-
         # Published ago & format date.
         ago: (published) ->
             { year, month, day } = do published
@@ -189,16 +210,16 @@ Result = can.Component.extend
             # For each snippet...
             for snip in field.highlights
                 # Strip the tags from the snippet.
-                range = snip.replace /<\/?em>/g, ''
+                text = snip.replace /<\/?em>/g, ''
                 # ...replace the original with the snippet.
-                field.value = field.value.replace range, snip
+                field.value = field.value.replace text, snip
             # Return the new text.
             field.value
 
 # Search results.
 Results = can.Component.extend
 
-    tag: 'results'
+    tag: 'app-results'
 
     template: require './templates/results'
 
@@ -248,4 +269,4 @@ module.exports = (opts) ->
     $(opts.el).html can.view.mustache layout
 
     # Manually change the query to init the search.
-    query 'vaccine'
+    query '(breast size OR exercise) AND breast cancer'
