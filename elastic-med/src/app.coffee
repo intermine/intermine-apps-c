@@ -234,9 +234,8 @@ module.exports = (opts) ->
                             'title': {}
                             'abstract': {}
                 }
+            
             }).then (res) ->
-                # 2xx?
-                return cb 'Error' unless /2../.test res.status.status
                 # JSON?
                 try
                     body = JSON.parse res.body
@@ -245,6 +244,9 @@ module.exports = (opts) ->
 
                 # Just the hits ma'am.
                 cb null, body.hits
+            
+            # Trouble?
+            ,  cb
 
     # Setup the UI.
     layout = require './templates/layout'

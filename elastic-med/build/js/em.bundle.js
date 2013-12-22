@@ -53569,9 +53569,6 @@ var colorbrewer = {YlGn: {
               }
             }).then(function(res) {
               var body, e;
-              if (!/2../.test(res.status.status)) {
-                return cb('Error');
-              }
               try {
                 body = JSON.parse(res.body);
               } catch (_error) {
@@ -53579,7 +53576,7 @@ var colorbrewer = {YlGn: {
                 return cb('Malformed response');
               }
               return cb(null, body.hits);
-            });
+            }, cb);
           };
         })());
         layout = require('./templates/layout');
