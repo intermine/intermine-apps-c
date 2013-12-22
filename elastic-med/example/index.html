@@ -14,10 +14,11 @@
         $(function() {
             // ...show the app.
             require('em')({
+                'el': '#app',
                 'service': 'http://localhost:9200',
                 'index': 'publications',
                 'type': 'publication',
-                'el': '#app'
+                'query': '(breast size OR exercise) AND breast cancer'
             });
         });
     </script>

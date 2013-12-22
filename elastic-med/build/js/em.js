@@ -211,7 +211,7 @@
     // app.coffee
     root.require.register('em/src/app.js', function(exports, require, module) {
     
-      var App, Label, Notification, Result, Results, Search, State, colorize, colors, max, min, query, results, search, state;
+      var App, Label, Result, Results, Search, State, colorize, colors, max, min, query, results, search, size, state;
       
       colors = colorbrewer.YlOrRd[9];
       
@@ -225,6 +225,8 @@
       
       query = can.compute('');
       
+      size = 10;
+      
       query.bind('change', function(ev, q) {
         var _base;
         if (!q) {
@@ -234,7 +236,7 @@
         return typeof (_base = search()) === "function" ? _base(q, function(err, hits) {
           var docs, total;
           if (err) {
-            return state.badRequest(err);
+            return state.badRequest();
           }
           if (!(total = hits.total)) {
             return state.noResults();
@@ -264,80 +266,37 @@
       });
       
       State = can.Map.extend({
-        'alert': {
-          'show': false,
-          'type': 'default'
-        },
         initSearch: function() {
-          this.attr({
-            'alert': {
-              'show': true,
-              'text': 'Searching &hellip;',
-              'type': 'default'
+          state.attr('text', 'Searching &hellip;');
+          return results.attr('total', 0);
+        },
+        hasResults: function(total, docs) {
+          if (total > size) {
+            state.attr('text', "Top results out of " + total + " matches");
+          } else {
+            if (total === 1) {
+              state.attr('text', '1 Result');
+            } else {
+              state.attr('text', "" + total + " Results");
             }
-          });
-          return results.attr({
-            'total': 0
-          });
+          }
+          return results.attr('total', total).attr('docs', docs);
+        },
+        noResults: function() {
+          state.attr('text', 'No results found');
+          return results.attr('total', 0);
         },
         badRequest: function(text) {
           if (text == null) {
             text = 'Error';
           }
-          this.attr({
-            'alert': {
-              'show': true,
-              'type': 'warning',
-              text: text
-            }
-          });
-          return results.attr({
-            'total': 0
-          });
-        },
-        noResults: function() {
-          this.attr({
-            'alert': {
-              'show': true,
-              'text': 'No results found',
-              'type': 'default'
-            }
-          });
-          return results.attr({
-            'total': 0
-          });
-        },
-        hasResults: function(total, docs) {
-          this.attr({
-            'alert': {
-              'show': true,
-              'text': "Found " + total + " results",
-              'type': 'success'
-            }
-          });
-          return results.attr('total', total).attr('docs', docs);
+          state.attr('text', text);
+          return results.attr('total', 0);
         }
       });
       
       state = new State({
-        'alert': {
-          'show': true,
-          'text': 'Search ready'
-        }
-      });
-      
-      Notification = can.Component.extend({
-        tag: 'app-notification',
-        template: require('./templates/notification'),
-        events: {
-          'a.close click': function() {
-            return state.attr({
-              'alert': {
-                'show': false
-              }
-            });
-          }
-        }
+        'text': 'Search ready'
       });
       
       Search = can.Component.extend({
@@ -424,7 +383,13 @@
       
       Results = can.Component.extend({
         tag: 'app-results',
-        template: require('./templates/results')
+        template: require('./templates/results'),
+        scope: function() {
+          return {
+            state: state,
+            'results': '@'
+          };
+        }
       });
       
       App = can.Component.extend({
@@ -450,6 +415,7 @@
               index: index,
               type: type,
               'body': {
+                size: size,
                 'query': {
                   'multi_match': {
                     query: query,
@@ -480,7 +446,7 @@
         })());
         layout = require('./templates/layout');
         $(opts.el).html(can.view.mustache(layout));
-        return query('(breast size OR exercise) AND breast cancer');
+        return query(opts.query || '');
       };
       
     });
@@ -503,7 +469,7 @@
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticMed</h2>","        <p>An example app searching a backend service.</p>","        <app-breadcrumbs></app-breadcrumbs>","        <app-search></app-search>","        <app-notification></app-notification>","        <app-results></app-results>","    </div>","</app>"].join("\n");
+      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticMed</h2>","        <p>An example app searching through an example collection of cancer related publications.</p>","        <app-breadcrumbs></app-breadcrumbs>","        <app-search></app-search>","        <app-results></app-results>","    </div>","</app>"].join("\n");
     });
 
     
@@ -524,7 +490,7 @@
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #results.total }}","<h3>Top Results</h3>","","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <app-result/>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
+      module.exports = ["<h3>{{{ state.text }}}</h3>","","{{ #results.total }}","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <app-result></app-result>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
     });
 
     

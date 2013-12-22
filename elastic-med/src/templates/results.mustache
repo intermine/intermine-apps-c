@@ -1,10 +1,10 @@
-{{ #results.total }}
-<h3>Top Results</h3>
+<h3>{{{ state.text }}}</h3>
 
+{{ #results.total }}
 <ul class="results">
     {{ #results.docs }}
     <li class="result">
-        <app-result/>
+        <app-result></app-result>
     </li>
     {{ /results.docs }}
 </ul>

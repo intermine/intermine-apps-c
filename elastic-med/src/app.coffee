@@ -13,6 +13,9 @@ search = can.compute(null)
 # The default search query.
 query = can.compute('')
 
+# Number of documents to return.
+size = 10
+
 # Observe query changes to trigger a service search.
 query.bind 'change', (ev, q) ->
     # Empty query?
@@ -24,7 +27,7 @@ query.bind 'change', (ev, q) ->
     # Is search setup?
     (do search)? q, (err, hits) ->
         # Trouble?
-        return state.badRequest err if err
+        return do state.badRequest if err
 
         # No results?
         return do state.noResults unless total = hits.total
@@ -53,74 +56,42 @@ results = new can.Map
 # State of the application.
 State = can.Map.extend
 
-    # Default alert/notification.
-    'alert':
-        'show': no
-        'type': 'default'
-
     # Start a search.
     initSearch: ->
-        @.attr
-            'alert':
-                'show': yes
-                'text': 'Searching &hellip;'
-                'type': 'default'
-
+        state.attr('text', 'Searching &hellip;')
         # Clear results.
-        results.attr { 'total': 0 }
-
-    badRequest: (text='Error') ->
-    # Something bad.
-        @.attr
-            'alert': {
-                'show': yes
-                'type': 'warning'
-                text
-            }
-
-        # Clear results.
-        results.attr { 'total': 0 }        
-
-    # We have no results.
-    noResults: ->
-        @.attr
-            'alert':
-                'show': yes
-                'text': 'No results found'
-                'type': 'default'
-
-        # Clear results.
-        results.attr { 'total': 0 }
+        results.attr('total', 0)
 
     # We have results.
     hasResults: (total, docs) ->
-        @.attr
-            'alert':
-                'show': yes
-                'text': "Found #{total} results"
-                'type': 'success'
+        if total > size
+            state.attr('text', "Top results out of #{total} matches")
+        else
+            if total is 1
+                state.attr('text', '1 Result')
+            else
+                state.attr('text', "#{total} Results")
 
         # Save them on results.
         results
         .attr('total', total)
         .attr('docs', docs)
+    
+    # We have no results.
+    noResults: ->
+        state.attr('text', 'No results found')
+        # Clear results.
+        results.attr('total', 0)
+    
+    # Something bad.
+    badRequest: (text='Error') ->
+        state.attr('text', text)
+        # Clear results.
+        results.attr('total', 0)
 
 # New global state instance.
 state = new State
-    'alert':
-        'show': yes
-        'text': 'Search ready'
-
-# Notifications.
-Notification = can.Component.extend
-
-    tag: 'app-notification'
-
-    template: require './templates/notification'
-
-    events:
-        'a.close click': ->
-            state.attr { 'alert': 'show': no }
+    'text': 'Search ready'
 
 # Search form.
 Search = can.Component.extend
@@ -180,7 +151,6 @@ Result = can.Component.extend
             { day, month, year } = do published
             [ day, month, year ].join(' ')
 
-
         # Is publication out yet?
         isPublished: (published, opts) ->
             { day, month, year } = do published
@@ -215,6 +185,8 @@ Results = can.Component.extend
 
     template: require './templates/results'
 
+    scope: -> { state, 'results': '@' }
+
 # The app herself.
 App = can.Component.extend
     
@@ -231,7 +203,8 @@ module.exports = (opts) ->
         (query, cb) ->            
             client.search({
                 index, type,
-                'body':
+                'body': {
+                    size,
                     'query':
                         'multi_match': {
                             query,
@@ -245,6 +218,7 @@ module.exports = (opts) ->
                         'fields':
                             'title': {}
                             'abstract': {}
+                }
             }).then (res) ->
                 # 2xx?
                 return cb 'Error' unless /2../.test res.status.status
@@ -262,4 +236,4 @@ module.exports = (opts) ->
     $(opts.el).html can.view.mustache layout
 
     # Manually change the query to init the search.
-    query '(breast size OR exercise) AND breast cancer'
+    query opts.query or '' # '' is the default...
