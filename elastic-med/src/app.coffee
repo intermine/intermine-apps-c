@@ -185,8 +185,6 @@ Results = can.Component.extend
 
     template: require './templates/results'
 
-    scope: -> { state, 'results': '@' }
-
 # The app herself.
 App = can.Component.extend
     

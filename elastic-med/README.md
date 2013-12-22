@@ -12,3 +12,4 @@
 * If many names, skip the middle people (like in Micklem Site)
 * Have a minified build
 * [autocomplete](http://www.elasticsearch.org/blog/you-complete-me/)
+* pagination

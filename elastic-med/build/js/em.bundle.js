@@ -53497,13 +53497,7 @@ var colorbrewer = {YlGn: {
       
       Results = can.Component.extend({
         tag: 'app-results',
-        template: require('./templates/results'),
-        scope: function() {
-          return {
-            state: state,
-            'results': '@'
-          };
-        }
+        template: require('./templates/results')
       });
       
       App = can.Component.extend({
