@@ -11,5 +11,6 @@
 * Route to a document page for a detail when having an abstract.
 * If many names, skip the middle people (like in Micklem Site)
 * Have a minified build
-* [autocomplete](http://www.elasticsearch.org/blog/you-complete-me/)
+* [autocomplete](http://www.elasticsearch.org/blog/you-complete-me/) on keywords rather then all text
 * pagination
+* connection fail on bad index, type or service but no error message

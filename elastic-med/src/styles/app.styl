@@ -22,6 +22,9 @@ ul
     h1
         font-weight: bold
 
+.button
+    user-select: none
+
 .alert-box
     p
         margin: 0
@@ -134,4 +137,12 @@ ul.results
                 font-size: 11px
                 line-height: 1
                 border-radius: 2px
-                box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12)
+                box-shadow: inset 0 -1px 0 rgba(0,0,0,0.12)
+                border: 1px solid rgba(0,0,0,0.25)
+                user-select: none
+
+                &.dark
+                    color: rgba(0,0,0,0.5)
+
+                &.light
+                    color: rgba(255,255,255,0.75)

@@ -3,9 +3,14 @@ colors = colorbrewer.YlOrRd[9]
 # The "allowed" ranges for scores.
 min = 0.2 ; max = 2.5
 # Convert input domain to an output color range.
-colorize = d3.scale.linear()
-.domain(d3.range(min, max, (max - min) / (colors.length - 1)))
-.range(colors)
+colorize = do ->
+    # Colorizing function.
+    fn = d3.scale.linear()
+    .domain(d3.range(min, max, (max - min) / (colors.length - 1)))
+    .range(colors)
+    # Return memoized function that trims score and then returns a color.
+    _.memoize (score) ->
+        fn Math.max min, Math.min max, score
 
 # Will be the ejs client search handler.
 search = can.compute(null)
@@ -120,15 +125,17 @@ Label = can.Component.extend
     template: require './templates/label'
 
     helpers:
-        # Calculate a color for a score.
-        color: (score) ->
+        # Calculate the background color for a score.
+        bg: (score) ->
+            colorize do score
+
+        # Calculate the foreground CSS class for a score.
+        fg: (score) ->
             # The background.
-            bg = colorize Math.max min, Math.min max, do score
+            bg = colorize do score
             # Base foreground on the lightness of the background.
             { l } = d3.hsl(bg)
-            fg = if l < 0.5 then '#FFF' else '#222'
-            # Return the "style" string.
-            "background-color:#{bg};color:#{fg}"
+            if l < 0.5 then 'light' else 'dark'
 
         # Provide a "nice" score value.
         round: (score) ->
@@ -161,6 +168,9 @@ Result = can.Component.extend
 
         # Author name.
         author: (ctx) ->
+            # Collective name.
+            return collective if collective = ctx.collectivename
+            # Person name.
             ctx.forename + ' ' + ctx.lastname
 
         # Merge text and highlighted terms together.
@@ -177,6 +187,13 @@ Result = can.Component.extend
                 field.value = field.value.replace text, snip
             # Return the new text.
             field.value
+
+        # Format a hint trimming it.
+        hint: (text, length) ->
+            return text if (text = (do text)) < length
+            for word, i in (words = text.split(' '))
+                length -= word.length
+                return words[0..i].join(' ') + ' ...' unless length > 0 
 
 # Search results.
 Results = can.Component.extend

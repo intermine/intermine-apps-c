@@ -5,7 +5,11 @@
 
     <ul class="authors">
         {{ #authors }}
+        {{ #if affiliation }}
+        <li><span class="hint--top" data-hint="{{ hint affiliation 30 }}">{{ author this }}</span></li>
+        {{ else }}
         <li>{{ author this }}</li>
+        {{ /if }}
         {{ /authors }}
     </ul>
 
@@ -33,6 +37,6 @@
 {{ #abstract }}
 <div class="preview highlight">
     {{{ highlight abstract }}}
-    <div class="fa fa-search"></div>
+    <div class="fa fa-eye"></div>
 </div>
 {{ /abstract }}

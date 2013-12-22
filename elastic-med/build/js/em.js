@@ -219,7 +219,13 @@
       
       max = 2.5;
       
-      colorize = d3.scale.linear().domain(d3.range(min, max, (max - min) / (colors.length - 1))).range(colors);
+      colorize = (function() {
+        var fn;
+        fn = d3.scale.linear().domain(d3.range(min, max, (max - min) / (colors.length - 1))).range(colors);
+        return _.memoize(function(score) {
+          return fn(Math.max(min, Math.min(max, score)));
+        });
+      })();
       
       search = can.compute(null);
       
@@ -325,12 +331,18 @@
         tag: 'app-label',
         template: require('./templates/label'),
         helpers: {
-          color: function(score) {
-            var bg, fg, l;
-            bg = colorize(Math.max(min, Math.min(max, score())));
+          bg: function(score) {
+            return colorize(score());
+          },
+          fg: function(score) {
+            var bg, l;
+            bg = colorize(score());
             l = d3.hsl(bg).l;
-            fg = l < 0.5 ? '#FFF' : '#222';
-            return "background-color:" + bg + ";color:" + fg;
+            if (l < 0.5) {
+              return 'light';
+            } else {
+              return 'dark';
+            }
           },
           round: function(score) {
             return Math.round(100 * score());
@@ -362,6 +374,10 @@
             return opts.fn(this);
           },
           author: function(ctx) {
+            var collective;
+            if (collective = ctx.collectivename) {
+              return collective;
+            }
             return ctx.forename + ' ' + ctx.lastname;
           },
           highlight: function(field) {
@@ -377,6 +393,20 @@
               field.value = field.value.replace(text, snip);
             }
             return field.value;
+          },
+          hint: function(text, length) {
+            var i, word, words, _i, _len, _ref;
+            if ((text = text()) < length) {
+              return text;
+            }
+            _ref = (words = text.split(' '));
+            for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+              word = _ref[i];
+              length -= word.length;
+              if (!(length > 0)) {
+                return words.slice(0, +i + 1 || 9e9).join(' ') + ' ...';
+              }
+            }
           }
         }
       });
@@ -456,7 +486,7 @@
     // label.mustache
     root.require.register('em/src/templates/label.js', function(exports, require, module) {
     
-      module.exports = ["<span class=\"score\" style=\"{{ color score }}\">{{ round score }}</span>"].join("\n");
+      module.exports = ["<span class=\"score {{ fg score }}\" style=\"background-color:{{ bg score }}\">{{ round score }}</span>"].join("\n");
     });
 
     
@@ -477,7 +507,7 @@
     // result.mustache
     root.require.register('em/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        <li>{{ author this }}</li>","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","    <div class=\"fa fa-search\"></div>","</div>","{{ /abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","    <div class=\"fa fa-eye\"></div>","</div>","{{ /abstract }}"].join("\n");
     });
 
     
@@ -491,7 +521,7 @@
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">Search</a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"><span> Search","        </a>","    </div>","</div>"].join("\n");
     });
   })();
 
