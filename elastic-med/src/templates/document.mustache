@@ -1,6 +1,8 @@
 <div class="body">
-    <app-label></app-label>
-    <h4 class="highlight">{{{ highlight title }}}</h4>
+    <div class="title">
+        <app-label></app-label>
+        <h4 class="highlight">{{{ highlight title }}}</h4>
+    </div>
 
     <ul class="authors">
         {{ #authors }}
@@ -32,6 +34,8 @@
     </div>
     {{ /id.doi }}
 </div>
+
+<code>"{{ showAbstract }}"</code>
 
 {{ #abstract }}
 <a class="preview" href="{{ link oid }}">

@@ -1,7 +1,7 @@
-body{background:#efefef;color:#333;border-top:6px solid #f8af2d}
+body{background:#efefef url("../img/bg.png");color:#333}
 h1,h2,h3,h4,h5,h6,p,li,input[type="text"],.button{font-family:'Source Sans Pro',sans-serif}
 ul{list-style-type:none}
-.box{padding:20px;width:960px;margin:0 auto;margin-top:20px;margin-bottom:20px;background:#fff;}
+.box{padding:20px;width:960px;margin:0 auto;margin-top:20px;margin-bottom:20px;background:#fff;-webkit-box-shadow:0 1px 3px rgba(65,55,45,0.3);box-shadow:0 1px 3px rgba(65,55,45,0.3);}
 .box h1{font-weight:bold}
 .button{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
 .alert-box p{margin:0;font-size:14px}

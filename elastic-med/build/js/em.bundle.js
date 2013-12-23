@@ -53543,6 +53543,10 @@ var colorbrewer = {YlGn: {
       Document = can.Component.extend({
         tag: 'app-document',
         template: require('./templates/document'),
+        scope: {
+          showAbstract: '@',
+          showKeywords: false
+        },
         helpers: {
           ago: function(published) {
             var day, month, year, _ref;
@@ -53695,7 +53699,7 @@ var colorbrewer = {YlGn: {
     // document.mustache
     root.require.register('em/src/templates/document.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <app-label></app-label>","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ /abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","<code>\"{{ showAbstract }}\"</code>","","{{ #abstract }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ /abstract }}"].join("\n");
     });
 
     
@@ -53737,7 +53741,7 @@ var colorbrewer = {YlGn: {
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
+      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document showAbstract=\"test\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
     });
 
     

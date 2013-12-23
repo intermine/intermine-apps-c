@@ -220,6 +220,13 @@ Document = can.Component.extend
 
     template: require './templates/document'
 
+    # http://canjs.com/docs/can.Component.prototype.scope.html#section_Valuespassedfromattributes
+    scope:
+        # Show abstract in the document?
+        showAbstract: '@'
+        # TODO: Show keywords?
+        showKeywords: no
+
     helpers:
         # Published ago & format date.
         ago: (published) ->
