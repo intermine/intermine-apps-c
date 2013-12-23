@@ -38,9 +38,9 @@ query.bind 'change', (ev, q) ->
         return do state.noResults unless total = hits.total
 
         # Format the results.
-        docs = _.map hits.hits, ({ _score, _source, highlight }) ->
-            # Add the score.
-            _source.score = _score
+        docs = _.map hits.hits, ({ _score, _id, _source, highlight }) ->
+            # Add the score and object id.
+            _source.score = _score ; _source.oid = _id
             # Map the highlights in.
             for key, value of _source when key in [ 'title', 'abstract' ]
                 _source[key] = { value, 'highlights': highlight?[key] or [] }
@@ -193,7 +193,11 @@ Result = can.Component.extend
             return text if (text = (do text)) < length
             for word, i in (words = text.split(' '))
                 length -= word.length
-                return words[0..i].join(' ') + ' ...' unless length > 0 
+                return words[0..i].join(' ') + ' ...' unless length > 0
+
+        # Link to document detail.
+        link: (oid) ->
+            can.route.url 'oid': do oid
 
 # Search results.
 Results = can.Component.extend
@@ -202,12 +206,25 @@ Results = can.Component.extend
 
     template: require './templates/results'
 
+    scope: -> { state, results }
+
 # The app herself.
 App = can.Component.extend
     
     tag: 'app'
 
-    scope: -> { state, results }
+# Router switching between pages.
+Routing = can.Control
+
+    # Index.
+    route: ->
+        template = require './templates/page-index'
+        @element.html can.view.mustache template
+
+    # TODO: Document detail.
+    'doc/:oid route': ({ oid }) ->
+        template = require './templates/page-doc'
+        @element.html can.view.mustache template
 
 module.exports = (opts) ->
     search do ->
@@ -250,7 +267,13 @@ module.exports = (opts) ->
 
     # Setup the UI.
     layout = require './templates/layout'
-    $(opts.el).html can.view.mustache layout
+    (el = $(opts.el)).html can.view.mustache layout
 
-    # Manually change the query to init the search.
-    query opts.query or '' # '' is the default...
+    # Can route.
+    new Routing(el.find('.page-content'))
+    do can.route.ready
+
+    # Have we launched on the index?
+    if can.route.current('')
+        # Manually change the query to init the search.
+        query opts.query or '' # '' is the default...

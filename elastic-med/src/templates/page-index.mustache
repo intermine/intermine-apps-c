@@ -1,0 +1,2 @@
+<app-search></app-search>
+<app-results></app-results>

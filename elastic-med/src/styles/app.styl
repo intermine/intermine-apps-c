@@ -1,5 +1,7 @@
 @import 'nib'
 
+$width = 960px
+
 body
     background: #efefef
     color: #333
@@ -13,7 +15,7 @@ ul
 
 .box
     padding: 20px
-    width: 960px
+    width: $width
     margin: 0 auto
     margin-top: 20px
     margin-bottom: 20px
@@ -49,48 +51,51 @@ ul.results
                 padding: 0 2px
                 margin: 0 -2px
 
-        .preview, .body
+        .abstract, .body
             margin: 20px 0
 
-        .preview
-            border: 1px solid #AAA
-            box-shadow: 2px 2px 0 #E0E0E0
-            cursor:pointer
-            background: #FFF
-            width: 60px
-            height: 75px
-            padding: 8px
-            font-size: 4px
-            vertical-align: top
-            overflow: hidden
-            position: relative
-            line-height: 5px
-            text-align: justify
-            float: left
+        a.preview
+            text-decoration: none
+            color: inherit
 
-            &:hover
-                .fa
-                    opacity: 1
-
-            &:after
-                content: ""
-                position: absolute
-                bottom: 0
-                left: 0
-                width: 100%
-                height: 8px
+            .abstract
+                border: 1px solid #AAA
+                box-shadow: 2px 2px 0 #E0E0E0
                 background: #FFF
+                width: 60px
+                height: 75px
+                padding: 8px
+                font-size: 4px
+                vertical-align: top
+                overflow: hidden
+                position: relative
+                line-height: 5px
+                text-align: justify
+                float: left
 
-            .fa
-                font-size: 16px
-                position: absolute
-                top: 0
-                left: 0
-                background: rgba(255,255,255,0.5)
-                padding: 29px 22px
-                z-index: 2
-                opacity: 0
-                transition: opacity 0.2s ease-in-out
+                &:hover
+                    .fa
+                        opacity: 1
+
+                &:after
+                    content: ""
+                    position: absolute
+                    bottom: 0
+                    left: 0
+                    width: 100%
+                    height: 8px
+                    background: #FFF
+
+                .fa
+                    font-size: 16px
+                    position: absolute
+                    top: 0
+                    left: 0
+                    background: rgba(255,255,255,0.5)
+                    padding: 29px 22px
+                    z-index: 2
+                    opacity: 0
+                    transition: opacity 0.2s ease-in-out
 
         .body
             width: 840px

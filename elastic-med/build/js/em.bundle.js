@@ -53325,7 +53325,7 @@ var colorbrewer = {YlGn: {
     // app.coffee
     root.require.register('em/src/app.js', function(exports, require, module) {
     
-      var App, Label, Result, Results, Search, State, colorize, colors, max, min, query, results, search, size, state;
+      var App, Label, Result, Results, Routing, Search, State, colorize, colors, max, min, query, results, search, size, state;
       
       colors = colorbrewer.YlOrRd[9];
       
@@ -53362,9 +53362,10 @@ var colorbrewer = {YlGn: {
             return state.noResults();
           }
           docs = _.map(hits.hits, function(_arg) {
-            var highlight, key, value, _score, _source;
-            _score = _arg._score, _source = _arg._source, highlight = _arg.highlight;
+            var highlight, key, value, _id, _score, _source;
+            _score = _arg._score, _id = _arg._id, _source = _arg._source, highlight = _arg.highlight;
             _source.score = _score;
+            _source.oid = _id;
             for (key in _source) {
               value = _source[key];
               if (key === 'title' || key === 'abstract') {
@@ -53521,17 +53522,18 @@ var colorbrewer = {YlGn: {
                 return words.slice(0, +i + 1 || 9e9).join(' ') + ' ...';
               }
             }
+          },
+          link: function(oid) {
+            return can.route.url({
+              'oid': oid()
+            });
           }
         }
       });
       
       Results = can.Component.extend({
         tag: 'app-results',
-        template: require('./templates/results')
-      });
-      
-      App = can.Component.extend({
-        tag: 'app',
+        template: require('./templates/results'),
         scope: function() {
           return {
             state: state,
@@ -53540,8 +53542,26 @@ var colorbrewer = {YlGn: {
         }
       });
       
+      App = can.Component.extend({
+        tag: 'app'
+      });
+      
+      Routing = can.Control({
+        route: function() {
+          var template;
+          template = require('./templates/page-index');
+          return this.element.html(can.view.mustache(template));
+        },
+        'doc/:oid route': function(_arg) {
+          var oid, template;
+          oid = _arg.oid;
+          template = require('./templates/page-doc');
+          return this.element.html(can.view.mustache(template));
+        }
+      });
+      
       module.exports = function(opts) {
-        var layout;
+        var el, layout;
         search((function() {
           var client, index, service, type;
           service = opts.service, index = opts.index, type = opts.type;
@@ -53580,8 +53600,12 @@ var colorbrewer = {YlGn: {
           };
         })());
         layout = require('./templates/layout');
-        $(opts.el).html(can.view.mustache(layout));
-        return query(opts.query || '');
+        (el = $(opts.el)).html(can.view.mustache(layout));
+        new Routing(el.find('.page-content'));
+        can.route.ready();
+        if (can.route.current('')) {
+          return query(opts.query || '');
+        }
       };
       
     });
@@ -53604,7 +53628,7 @@ var colorbrewer = {YlGn: {
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticMed</h2>","        <p>An example app searching through an example collection of cancer related publications.</p>","        <app-breadcrumbs></app-breadcrumbs>","        <app-search></app-search>","        <app-results></app-results>","    </div>","</app>"].join("\n");
+      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticMed</h2>","        <p>An example app searching through an example collection of cancer related publications.</p>","        <div class=\"page-content\"></div>","    </div>","</app>"].join("\n");
     });
 
     
@@ -53615,10 +53639,24 @@ var colorbrewer = {YlGn: {
     });
 
     
+    // page-doc.mustache
+    root.require.register('em/src/templates/page-doc.js', function(exports, require, module) {
+    
+      module.exports = ["Document"].join("\n");
+    });
+
+    
+    // page-index.mustache
+    root.require.register('em/src/templates/page-index.js', function(exports, require, module) {
+    
+      module.exports = ["<app-search></app-search>","<app-results></app-results>"].join("\n");
+    });
+
+    
     // result.mustache
     root.require.register('em/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<div class=\"preview highlight\">","    {{{ highlight abstract }}}","    <div class=\"fa fa-eye\"></div>","</div>","{{ /abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ /abstract }}"].join("\n");
     });
 
     
@@ -53632,7 +53670,7 @@ var colorbrewer = {YlGn: {
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"><span> Search","        </a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
     });
   })();
 
