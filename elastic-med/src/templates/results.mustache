@@ -1,11 +1,9 @@
-<h3>{{{ state.text }}}</h3>
-
-{{ #results.total }}
+{{ #total }}
 <ul class="results">
-    {{ #results.docs }}
-    <li class="result">
-        <app-result></app-result>
+    {{ #docs }}
+    <li class="document result">
+        <app-document></app-document>
     </li>
-    {{ /results.docs }}
+    {{ /docs }}
 </ul>
-{{ /results.total }}
+{{ /total }}

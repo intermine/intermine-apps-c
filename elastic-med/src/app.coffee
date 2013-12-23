@@ -12,14 +12,82 @@ colorize = do ->
     _.memoize (score) ->
         fn Math.max min, Math.min max, score
 
-# Will be the ejs client search handler.
-search = can.compute(null)
+# Elastic helper.
+ejs = new can.Map
+
+    # Needs to be initialized.
+    client: null
+    
+    index: null
+    
+    type: null
+
+    # Number of results to return.
+    size: 10
+
+    # Return a function doing the actual search.
+    search: (query, cb) ->
+        return cb 'Client is not setup' unless @client
+
+        @client.search({
+            @index, @type,
+            'body': {
+                @size,
+                'query':
+                    'multi_match': {
+                        query,
+                        'fields': [
+                            'title^2'
+                            'keywords^2'
+                            'abstract'
+                        ]
+                    }
+                'highlight':
+                    'fields':
+                        'title': {}
+                        'abstract': {}
+            }
+        
+        }).then (res) ->
+            # JSON?
+            try
+                body = JSON.parse res.body
+            catch e
+                return cb 'Malformed response'
+
+            docs = _.map body.hits.hits, ({ _score, _id, _source, highlight }) ->
+                # Add the score and object id.
+                _source.score = _score ; _source.oid = _id
+                # Map the highlights in.
+                for key, value of _source when key in [ 'title', 'abstract' ]
+                    _source[key] = { value, 'highlights': highlight?[key] or [] }
+                _source
+
+            # Return just the total count & the docs.
+            cb null, { docs, 'total': body.hits.total }
+        
+        # Trouble?
+        ,  cb
+
+    # Get a JSON document from index based on its id.
+    get: (id, cb) ->
+        return cb 'Client is not setup' unless @client
+
+        @client.get({ @index, @type, id }).then (res) ->
+            # JSON?
+            try
+                body = JSON.parse res.body
+            catch e
+                return cb 'Malformed response'
+
+            # Just the document source as a Map.
+            cb null, new can.Map _.extend body._source, { 'oid': body._id }
+        
+        # Trouble?
+        ,  cb
 
 # The default search query.
 query = can.compute('')
-
-# Number of documents to return.
-size = 10
 
 # Observe query changes to trigger a service search.
 query.bind 'change', (ev, q) ->
@@ -27,24 +95,15 @@ query.bind 'change', (ev, q) ->
     return unless q
 
     # Say we are doing the search.
-    do state.initSearch
+    do state.loading
 
-    # Is search setup?
-    (do search)? q, (err, hits) ->
+    # Use the client to do the search.
+    ejs.search q, (err, { total, docs }) ->
         # Trouble?
-        return do state.badRequest if err
+        return state.error err if err
 
         # No results?
-        return do state.noResults unless total = hits.total
-
-        # Format the results.
-        docs = _.map hits.hits, ({ _score, _id, _source, highlight }) ->
-            # Add the score and object id.
-            _source.score = _score ; _source.oid = _id
-            # Map the highlights in.
-            for key, value of _source when key in [ 'title', 'abstract' ]
-                _source[key] = { value, 'highlights': highlight?[key] or [] }
-            _source
+        return do state.noResults unless total
 
         # Has results.
         state.hasResults(total, docs)
@@ -61,15 +120,15 @@ results = new can.Map
 # State of the application.
 State = can.Map.extend
 
-    # Start a search.
-    initSearch: ->
-        state.attr('text', 'Searching &hellip;')
+    # Loading.
+    loading: ->
+        state.attr('text', 'Loading results &hellip;')
         # Clear results.
         results.attr('total', 0)
 
     # We have results.
     hasResults: (total, docs) ->
-        if total > size
+        if total > ejs.attr('size')
             state.attr('text', "Top results out of #{total} matches")
         else
             if total is 1
@@ -89,14 +148,27 @@ State = can.Map.extend
         results.attr('total', 0)
     
     # Something bad.
-    badRequest: (text='Error') ->
+    error: (err) ->
+        text = 'Error'
+        switch
+            when _.isString err
+                text = err
+            when _.isObject err and err.message
+                text = err.message
+
         state.attr('text', text)
         # Clear results.
         results.attr('total', 0)
 
 # New global state instance.
-state = new State
-    'text': 'Search ready'
+state = new State 'text': 'Search ready'
+
+# A helper to generate a link to an index or a document detail page.
+link = (oid) ->
+    # Index.
+    return '#!' unless oid
+    # Document.
+    can.route.url 'oid': do oid
 
 # Search form.
 Search = can.Component.extend
@@ -141,12 +213,12 @@ Label = can.Component.extend
         round: (score) ->
             Math.round 100 * do score
 
-# One result.
-Result = can.Component.extend
+# One document.
+Document = can.Component.extend
 
-    tag: 'app-result'
+    tag: 'app-document'
 
-    template: require './templates/result'
+    template: require './templates/document'
 
     helpers:
         # Published ago & format date.
@@ -173,18 +245,25 @@ Result = can.Component.extend
             # Person name.
             ctx.forename + ' ' + ctx.lastname
 
-        # Merge text and highlighted terms together.
+        # Merge text and highlighted terms together. Works in the results
+        #  and also on the document detail page.
         highlight: (field) ->
             # Get the values.
             field = do field
+
+            # Will this field have a highlight?
+            return field unless _.isObject field
+
             # Skip if we have nothing to highlight.
             return field.value unless field.highlights.length
+            
             # For each snippet...
             for snip in field.highlights
                 # Strip the tags from the snippet.
                 text = snip.replace /<\/?em>/g, ''
                 # ...replace the original with the snippet.
                 field.value = field.value.replace text, snip
+            
             # Return the new text.
             field.value
 
@@ -195,9 +274,16 @@ Result = can.Component.extend
                 length -= word.length
                 return words[0..i].join(' ') + ' ...' unless length > 0
 
-        # Link to document detail.
-        link: (oid) ->
-            can.route.url 'oid': do oid
+        link: link
+
+# Page title/status.
+Title = can.Component.extend
+
+    tag: 'app-title'
+
+    template: require './templates/title'
+
+    scope: -> state
 
 # Search results.
 Results = can.Component.extend
@@ -206,12 +292,14 @@ Results = can.Component.extend
 
     template: require './templates/results'
 
-    scope: -> { state, results }
+    scope: -> results
 
 # The app herself.
 App = can.Component.extend
     
     tag: 'app'
+
+    helpers: { link }
 
 # Router switching between pages.
 Routing = can.Control
@@ -221,49 +309,37 @@ Routing = can.Control
         template = require './templates/page-index'
         @element.html can.view.mustache template
 
-    # TODO: Document detail.
+    # Document detail.
     'doc/:oid route': ({ oid }) ->
         template = require './templates/page-doc'
-        @element.html can.view.mustache template
+
+        # Find the document.
+        doc = null
+        # Is it in results?
+        if (docs = results.attr('docs')).length
+            docs.each (obj) ->
+                # Found already?
+                return if doc
+                # Match on oid.
+                doc = obj if obj.attr('oid') is oid
+
+        # Found in results cache.
+        return @element.html can.view.mustache(template) doc if doc
+
+        # Say we are doing the search.
+        do state.loading
+        
+        # Get the document from the index.
+        ejs.get oid, (err, doc) =>
+            # Trouble? Not found etc.
+            return state.error err if err
+
+            @element.html can.view.mustache(template) doc
 
 module.exports = (opts) ->
-    search do ->
-        { service, index, type } = opts
-        # Create a new client.
-        client = new $.es.Client 'hosts': service
-        # Return a function doing the actual search.
-        (query, cb) ->            
-            client.search({
-                index, type,
-                'body': {
-                    size,
-                    'query':
-                        'multi_match': {
-                            query,
-                            'fields': [
-                                'title^2'
-                                'keywords^2'
-                                'abstract'
-                            ]
-                        }
-                    'highlight':
-                        'fields':
-                            'title': {}
-                            'abstract': {}
-                }
-            
-            }).then (res) ->
-                # JSON?
-                try
-                    body = JSON.parse res.body
-                catch e
-                    return cb 'Malformed response'
-
-                # Just the hits ma'am.
-                cb null, body.hits
-            
-            # Trouble?
-            ,  cb
+    { service, index, type } = opts
+    # Init the client.
+    ejs.attr { index, type, 'client': new $.es.Client 'hosts': service }
 
     # Setup the UI.
     layout = require './templates/layout'

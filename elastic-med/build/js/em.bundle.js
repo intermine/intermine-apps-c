@@ -53325,7 +53325,7 @@ var colorbrewer = {YlGn: {
     // app.coffee
     root.require.register('em/src/app.js', function(exports, require, module) {
     
-      var App, Label, Result, Results, Routing, Search, State, colorize, colors, max, min, query, results, search, size, state;
+      var App, Document, Label, Results, Routing, Search, State, Title, colorize, colors, ejs, link, max, min, query, results, state;
       
       colors = colorbrewer.YlOrRd[9];
       
@@ -53341,44 +53341,104 @@ var colorbrewer = {YlGn: {
         });
       })();
       
-      search = can.compute(null);
+      ejs = new can.Map({
+        client: null,
+        index: null,
+        type: null,
+        size: 10,
+        search: function(query, cb) {
+          if (!this.client) {
+            return cb('Client is not setup');
+          }
+          return this.client.search({
+            index: this.index,
+            type: this.type,
+            'body': {
+              size: this.size,
+              'query': {
+                'multi_match': {
+                  query: query,
+                  'fields': ['title^2', 'keywords^2', 'abstract']
+                }
+              },
+              'highlight': {
+                'fields': {
+                  'title': {},
+                  'abstract': {}
+                }
+              }
+            }
+          }).then(function(res) {
+            var body, docs, e;
+            try {
+              body = JSON.parse(res.body);
+            } catch (_error) {
+              e = _error;
+              return cb('Malformed response');
+            }
+            docs = _.map(body.hits.hits, function(_arg) {
+              var highlight, key, value, _id, _score, _source;
+              _score = _arg._score, _id = _arg._id, _source = _arg._source, highlight = _arg.highlight;
+              _source.score = _score;
+              _source.oid = _id;
+              for (key in _source) {
+                value = _source[key];
+                if (key === 'title' || key === 'abstract') {
+                  _source[key] = {
+                    value: value,
+                    'highlights': (highlight != null ? highlight[key] : void 0) || []
+                  };
+                }
+              }
+              return _source;
+            });
+            return cb(null, {
+              docs: docs,
+              'total': body.hits.total
+            });
+          }, cb);
+        },
+        get: function(id, cb) {
+          if (!this.client) {
+            return cb('Client is not setup');
+          }
+          return this.client.get({
+            index: this.index,
+            type: this.type,
+            id: id
+          }).then(function(res) {
+            var body, e;
+            try {
+              body = JSON.parse(res.body);
+            } catch (_error) {
+              e = _error;
+              return cb('Malformed response');
+            }
+            return cb(null, new can.Map(_.extend(body._source, {
+              'oid': body._id
+            })));
+          }, cb);
+        }
+      });
       
       query = can.compute('');
       
-      size = 10;
-      
       query.bind('change', function(ev, q) {
-        var _base;
         if (!q) {
           return;
         }
-        state.initSearch();
-        return typeof (_base = search()) === "function" ? _base(q, function(err, hits) {
+        state.loading();
+        return ejs.search(q, function(err, _arg) {
           var docs, total;
+          total = _arg.total, docs = _arg.docs;
           if (err) {
-            return state.badRequest();
+            return state.error(err);
           }
-          if (!(total = hits.total)) {
+          if (!total) {
             return state.noResults();
           }
-          docs = _.map(hits.hits, function(_arg) {
-            var highlight, key, value, _id, _score, _source;
-            _score = _arg._score, _id = _arg._id, _source = _arg._source, highlight = _arg.highlight;
-            _source.score = _score;
-            _source.oid = _id;
-            for (key in _source) {
-              value = _source[key];
-              if (key === 'title' || key === 'abstract') {
-                _source[key] = {
-                  value: value,
-                  'highlights': (highlight != null ? highlight[key] : void 0) || []
-                };
-              }
-            }
-            return _source;
-          });
           return state.hasResults(total, docs);
-        }) : void 0;
+        });
       });
       
       results = new can.Map({
@@ -53387,12 +53447,12 @@ var colorbrewer = {YlGn: {
       });
       
       State = can.Map.extend({
-        initSearch: function() {
-          state.attr('text', 'Searching &hellip;');
+        loading: function() {
+          state.attr('text', 'Loading results &hellip;');
           return results.attr('total', 0);
         },
         hasResults: function(total, docs) {
-          if (total > size) {
+          if (total > ejs.attr('size')) {
             state.attr('text', "Top results out of " + total + " matches");
           } else {
             if (total === 1) {
@@ -53407,9 +53467,15 @@ var colorbrewer = {YlGn: {
           state.attr('text', 'No results found');
           return results.attr('total', 0);
         },
-        badRequest: function(text) {
-          if (text == null) {
-            text = 'Error';
+        error: function(err) {
+          var text;
+          text = 'Error';
+          switch (false) {
+            case !_.isString(err):
+              text = err;
+              break;
+            case !_.isObject(err && err.message):
+              text = err.message;
           }
           state.attr('text', text);
           return results.attr('total', 0);
@@ -53419,6 +53485,15 @@ var colorbrewer = {YlGn: {
       state = new State({
         'text': 'Search ready'
       });
+      
+      link = function(oid) {
+        if (!oid) {
+          return '#!';
+        }
+        return can.route.url({
+          'oid': oid()
+        });
+      };
       
       Search = can.Component.extend({
         tag: 'app-search',
@@ -53465,9 +53540,9 @@ var colorbrewer = {YlGn: {
         }
       });
       
-      Result = can.Component.extend({
-        tag: 'app-result',
-        template: require('./templates/result'),
+      Document = can.Component.extend({
+        tag: 'app-document',
+        template: require('./templates/document'),
         helpers: {
           ago: function(published) {
             var day, month, year, _ref;
@@ -53498,6 +53573,9 @@ var colorbrewer = {YlGn: {
           highlight: function(field) {
             var snip, text, _i, _len, _ref;
             field = field();
+            if (!_.isObject(field)) {
+              return field;
+            }
             if (!field.highlights.length) {
               return field.value;
             }
@@ -53523,11 +53601,15 @@ var colorbrewer = {YlGn: {
               }
             }
           },
-          link: function(oid) {
-            return can.route.url({
-              'oid': oid()
-            });
-          }
+          link: link
+        }
+      });
+      
+      Title = can.Component.extend({
+        tag: 'app-title',
+        template: require('./templates/title'),
+        scope: function() {
+          return state;
         }
       });
       
@@ -53535,15 +53617,15 @@ var colorbrewer = {YlGn: {
         tag: 'app-results',
         template: require('./templates/results'),
         scope: function() {
-          return {
-            state: state,
-            results: results
-          };
+          return results;
         }
       });
       
       App = can.Component.extend({
-        tag: 'app'
+        tag: 'app',
+        helpers: {
+          link: link
+        }
       });
       
       Routing = can.Control({
@@ -53553,52 +53635,44 @@ var colorbrewer = {YlGn: {
           return this.element.html(can.view.mustache(template));
         },
         'doc/:oid route': function(_arg) {
-          var oid, template;
+          var doc, docs, oid, template,
+            _this = this;
           oid = _arg.oid;
           template = require('./templates/page-doc');
-          return this.element.html(can.view.mustache(template));
+          doc = null;
+          if ((docs = results.attr('docs')).length) {
+            docs.each(function(obj) {
+              if (doc) {
+                return;
+              }
+              if (obj.attr('oid') === oid) {
+                return doc = obj;
+              }
+            });
+          }
+          if (doc) {
+            return this.element.html(can.view.mustache(template)(doc));
+          }
+          state.loading();
+          return ejs.get(oid, function(err, doc) {
+            if (err) {
+              return state.error(err);
+            }
+            return _this.element.html(can.view.mustache(template)(doc));
+          });
         }
       });
       
       module.exports = function(opts) {
-        var el, layout;
-        search((function() {
-          var client, index, service, type;
-          service = opts.service, index = opts.index, type = opts.type;
-          client = new $.es.Client({
+        var el, index, layout, service, type;
+        service = opts.service, index = opts.index, type = opts.type;
+        ejs.attr({
+          index: index,
+          type: type,
+          'client': new $.es.Client({
             'hosts': service
-          });
-          return function(query, cb) {
-            return client.search({
-              index: index,
-              type: type,
-              'body': {
-                size: size,
-                'query': {
-                  'multi_match': {
-                    query: query,
-                    'fields': ['title^2', 'keywords^2', 'abstract']
-                  }
-                },
-                'highlight': {
-                  'fields': {
-                    'title': {},
-                    'abstract': {}
-                  }
-                }
-              }
-            }).then(function(res) {
-              var body, e;
-              try {
-                body = JSON.parse(res.body);
-              } catch (_error) {
-                e = _error;
-                return cb('Malformed response');
-              }
-              return cb(null, body.hits);
-            }, cb);
-          };
-        })());
+          })
+        });
         layout = require('./templates/layout');
         (el = $(opts.el)).html(can.view.mustache(layout));
         new Routing(el.find('.page-content'));
@@ -53618,17 +53692,24 @@ var colorbrewer = {YlGn: {
     });
 
     
+    // document.mustache
+    root.require.register('em/src/templates/document.js', function(exports, require, module) {
+    
+      module.exports = ["<div class=\"body\">","    <app-label></app-label>","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ /abstract }}"].join("\n");
+    });
+
+    
     // label.mustache
     root.require.register('em/src/templates/label.js', function(exports, require, module) {
     
-      module.exports = ["<span class=\"score {{ fg score }}\" style=\"background-color:{{ bg score }}\">{{ round score }}</span>"].join("\n");
+      module.exports = ["{{ #score }}","<span class=\"score {{ fg score }}\" style=\"background-color:{{ bg score }}\">{{ round score }}</span>","{{ /score }}"].join("\n");
     });
 
     
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2>ElasticMed</h2>","        <p>An example app searching through an example collection of cancer related publications.</p>","        <div class=\"page-content\"></div>","    </div>","</app>"].join("\n");
+      module.exports = ["<app>","    <div class=\"box\">","        <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","        <p>An example app searching through an example collection of cancer related publications.</p>","        <div class=\"page-content\"></div>","    </div>","</app>"].join("\n");
     });
 
     
@@ -53642,28 +53723,21 @@ var colorbrewer = {YlGn: {
     // page-doc.mustache
     root.require.register('em/src/templates/page-doc.js', function(exports, require, module) {
     
-      module.exports = ["Document"].join("\n");
+      module.exports = ["<app-title></app-title>","<div class=\"document detail\">","    <app-document></app-document>","</div>"].join("\n");
     });
 
     
     // page-index.mustache
     root.require.register('em/src/templates/page-index.js', function(exports, require, module) {
     
-      module.exports = ["<app-search></app-search>","<app-results></app-results>"].join("\n");
-    });
-
-    
-    // result.mustache
-    root.require.register('em/src/templates/result.js', function(exports, require, module) {
-    
-      module.exports = ["<div class=\"body\">","    <app-label></app-label>","","    <h4 class=\"highlight\">{{{ highlight title }}}</h4>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #abstract }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ /abstract }}"].join("\n");
+      module.exports = ["<app-search></app-search>","<app-title></app-title>","<app-results></app-results>"].join("\n");
     });
 
     
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["<h3>{{{ state.text }}}</h3>","","{{ #results.total }}","<ul class=\"results\">","    {{ #results.docs }}","    <li class=\"result\">","        <app-result></app-result>","    </li>","    {{ /results.docs }}","</ul>","{{ /results.total }}"].join("\n");
+      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
     });
 
     
@@ -53671,6 +53745,13 @@ var colorbrewer = {YlGn: {
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
       module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
+    });
+
+    
+    // title.mustache
+    root.require.register('em/src/templates/title.js', function(exports, require, module) {
+    
+      module.exports = ["<h3>{{{ text }}}</h3>"].join("\n");
     });
   })();
 
