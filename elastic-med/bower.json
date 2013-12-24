@@ -4,7 +4,7 @@
     "dependencies": {
         "jquery": "2.0.3",
         "lodash": "2.4.1",
-        "canjs": "2.0.3",
+        "canjs": "2.0.4",
         "elasticsearch": "http://cdn.intermine.org/js/elasticsearch.js/1.0.2/elasticsearch.jquery.js",
         "moment": "2.4.0",
         "d3": "3.3.13",

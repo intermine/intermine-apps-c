@@ -211,7 +211,269 @@
     // app.coffee
     root.require.register('em/src/app.js', function(exports, require, module) {
     
-      var App, Document, Label, Results, Routing, Search, State, Title, colorize, colors, ejs, link, max, min, query, results, state;
+      var Routing, ejs, helpers, query, render, results, state;
+      
+      results = require('./modules/results');
+      
+      state = require('./modules/state');
+      
+      ejs = require('./modules/ejs');
+      
+      query = require('./modules/query');
+      
+      render = require('./modules/render');
+      
+      helpers = require('./modules/helpers');
+      
+      Routing = can.Control({
+        init: function() {
+          var layout, name, _i, _len, _ref;
+          _ref = ['document', 'label', 'results', 'search', 'title'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            name = _ref[_i];
+            require("./components/" + name);
+          }
+          layout = require('./templates/layout');
+          return this.element.html(render(layout, helpers));
+        },
+        route: function() {
+          var template;
+          template = require('./templates/page/index');
+          return this.element.find('.page').html(can.view.mustache(template));
+        },
+        'doc/:oid route': function(_arg) {
+          var doc, docs, oid, template,
+            _this = this;
+          oid = _arg.oid;
+          template = require('./templates/page/detail');
+          doc = null;
+          if ((docs = results.attr('docs')).length) {
+            docs.each(function(obj) {
+              if (doc) {
+                return;
+              }
+              if (obj.attr('oid') === oid) {
+                return doc = obj;
+              }
+            });
+          }
+          if (doc) {
+            return this.element.find('.page').html(render(template, doc));
+          }
+          state.loading();
+          return ejs.get(oid, function(err, doc) {
+            if (err) {
+              return state.error(err);
+            }
+            return _this.element.find('.page').html(render(template, doc));
+          });
+        }
+      });
+      
+      module.exports = function(opts) {
+        var index, service, type;
+        service = opts.service, index = opts.index, type = opts.type;
+        ejs.attr({
+          index: index,
+          type: type,
+          'client': new $.es.Client({
+            'hosts': service
+          })
+        });
+        new Routing(opts.el);
+        can.route.ready();
+        if (can.route.current('')) {
+          return query(opts.query || '');
+        }
+      };
+      
+    });
+
+    
+    // document.coffee
+    root.require.register('em/src/components/document.js', function(exports, require, module) {
+    
+      var helpers;
+      
+      helpers = require('../modules/helpers');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-document',
+        template: require('../templates/document'),
+        scope: {
+          showAbstract: '@',
+          showKeywords: '@'
+        },
+        helpers: {
+          ago: function(published) {
+            var day, month, year, _ref;
+            _ref = published(), year = _ref.year, month = _ref.month, day = _ref.day;
+            return moment([year, month, day].join(' ')).fromNow();
+          },
+          date: function(published) {
+            var day, month, year, _ref;
+            _ref = published(), day = _ref.day, month = _ref.month, year = _ref.year;
+            return [day, month, year].join(' ');
+          },
+          isPublished: function(published, opts) {
+            var day, month, stamp, year, _ref;
+            _ref = published(), day = _ref.day, month = _ref.month, year = _ref.year;
+            stamp = +moment([day, month, year].join(' '));
+            if ((stamp || Infinity) > +(new Date)) {
+              return opts.inverse(this);
+            }
+            return opts.fn(this);
+          },
+          author: function(ctx) {
+            var collective;
+            if (collective = ctx.collectivename) {
+              return collective;
+            }
+            return ctx.forename + ' ' + ctx.lastname;
+          },
+          highlight: function(field) {
+            var snip, text, _i, _len, _ref;
+            field = field();
+            if (!_.isObject(field)) {
+              return field;
+            }
+            if (!field.highlights.length) {
+              return field.value;
+            }
+            _ref = field.highlights;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              snip = _ref[_i];
+              text = snip.replace(/<\/?em>/g, '');
+              field.value = field.value.replace(text, snip);
+            }
+            return field.value;
+          },
+          hint: function(text, length) {
+            var i, word, words, _i, _len, _ref;
+            if ((text = text()) < length) {
+              return text;
+            }
+            _ref = (words = text.split(' '));
+            for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+              word = _ref[i];
+              length -= word.length;
+              if (!(length > 0)) {
+                return words.slice(0, +i + 1 || 9e9).join(' ') + ' ...';
+              }
+            }
+          },
+          link: helpers.link
+        }
+      });
+      
+    });
+
+    
+    // label.coffee
+    root.require.register('em/src/components/label.js', function(exports, require, module) {
+    
+      var colorize;
+      
+      colorize = require('../modules/colorize');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-label',
+        template: require('../templates/label'),
+        helpers: {
+          bg: function(score) {
+            return colorize(score());
+          },
+          fg: function(score) {
+            var bg, l;
+            bg = colorize(score());
+            l = d3.hsl(bg).l;
+            if (l < 0.5) {
+              return 'light';
+            } else {
+              return 'dark';
+            }
+          },
+          round: function(score) {
+            return Math.round(100 * score());
+          }
+        }
+      });
+      
+    });
+
+    
+    // results.coffee
+    root.require.register('em/src/components/results.js', function(exports, require, module) {
+    
+      var results;
+      
+      results = require('../modules/results');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-results',
+        template: require('../templates/results'),
+        scope: function() {
+          return results;
+        }
+      });
+      
+    });
+
+    
+    // search.coffee
+    root.require.register('em/src/components/search.js', function(exports, require, module) {
+    
+      var query;
+      
+      query = require('../modules/query');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-search',
+        template: require('../templates/search'),
+        scope: function() {
+          return {
+            'query': {
+              'value': query
+            }
+          };
+        },
+        events: {
+          'a.button click': function() {
+            return query(this.element.find('input').val());
+          },
+          'input keyup': function(el, evt) {
+            if ((evt.keyCode || evt.which) === 13) {
+              return query(el.val());
+            }
+          }
+        }
+      });
+      
+    });
+
+    
+    // title.coffee
+    root.require.register('em/src/components/title.js', function(exports, require, module) {
+    
+      var state;
+      
+      state = require('../modules/state');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-title',
+        template: require('../templates/title'),
+        scope: function() {
+          return state;
+        }
+      });
+      
+    });
+
+    
+    // colorize.coffee
+    root.require.register('em/src/modules/colorize.js', function(exports, require, module) {
+    
+      var colors, max, min;
       
       colors = colorbrewer.YlOrRd[9];
       
@@ -219,7 +481,7 @@
       
       max = 2.5;
       
-      colorize = (function() {
+      module.exports = (function() {
         var fn;
         fn = d3.scale.linear().domain(d3.range(min, max, (max - min) / (colors.length - 1))).range(colors);
         return _.memoize(function(score) {
@@ -227,7 +489,13 @@
         });
       })();
       
-      ejs = new can.Map({
+    });
+
+    
+    // ejs.coffee
+    root.require.register('em/src/modules/ejs.js', function(exports, require, module) {
+    
+      module.exports = new can.Map({
         client: null,
         index: null,
         type: null,
@@ -307,6 +575,33 @@
         }
       });
       
+    });
+
+    
+    // helpers.coffee
+    root.require.register('em/src/modules/helpers.js', function(exports, require, module) {
+    
+      exports.link = function(oid) {
+        if (!oid) {
+          return '#!';
+        }
+        return can.route.url({
+          'oid': oid()
+        });
+      };
+      
+    });
+
+    
+    // query.coffee
+    root.require.register('em/src/modules/query.js', function(exports, require, module) {
+    
+      var ejs, query, state;
+      
+      ejs = require('./ejs');
+      
+      state = require('./state');
+      
       query = can.compute('');
       
       query.bind('change', function(ev, q) {
@@ -327,10 +622,43 @@
         });
       });
       
-      results = new can.Map({
+      module.exports = query;
+      
+    });
+
+    
+    // render.coffee
+    root.require.register('em/src/modules/render.js', function(exports, require, module) {
+    
+      module.exports = function(template, ctx) {
+        if (ctx == null) {
+          ctx = {};
+        }
+        return can.view.mustache(template)(ctx);
+      };
+      
+    });
+
+    
+    // results.coffee
+    root.require.register('em/src/modules/results.js', function(exports, require, module) {
+    
+      module.exports = new can.Map({
         'total': 0,
         'docs': []
       });
+      
+    });
+
+    
+    // state.coffee
+    root.require.register('em/src/modules/state.js', function(exports, require, module) {
+    
+      var State, ejs, results, state;
+      
+      results = require('./results');
+      
+      ejs = require('./ejs');
       
       State = can.Map.extend({
         loading: function() {
@@ -368,209 +696,9 @@
         }
       });
       
-      state = new State({
+      module.exports = state = new State({
         'text': 'Search ready'
       });
-      
-      link = function(oid) {
-        if (!oid) {
-          return '#!';
-        }
-        return can.route.url({
-          'oid': oid()
-        });
-      };
-      
-      Search = can.Component.extend({
-        tag: 'app-search',
-        template: require('./templates/search'),
-        scope: function() {
-          return {
-            'query': {
-              'value': query
-            }
-          };
-        },
-        events: {
-          'a.button click': function() {
-            return query(this.element.find('input').val());
-          },
-          'input keyup': function(el, evt) {
-            if ((evt.keyCode || evt.which) === 13) {
-              return query(el.val());
-            }
-          }
-        }
-      });
-      
-      Label = can.Component.extend({
-        tag: 'app-label',
-        template: require('./templates/label'),
-        helpers: {
-          bg: function(score) {
-            return colorize(score());
-          },
-          fg: function(score) {
-            var bg, l;
-            bg = colorize(score());
-            l = d3.hsl(bg).l;
-            if (l < 0.5) {
-              return 'light';
-            } else {
-              return 'dark';
-            }
-          },
-          round: function(score) {
-            return Math.round(100 * score());
-          }
-        }
-      });
-      
-      Document = can.Component.extend({
-        tag: 'app-document',
-        template: require('./templates/document'),
-        scope: {
-          showAbstract: '@',
-          showKeywords: false
-        },
-        helpers: {
-          ago: function(published) {
-            var day, month, year, _ref;
-            _ref = published(), year = _ref.year, month = _ref.month, day = _ref.day;
-            return moment([year, month, day].join(' ')).fromNow();
-          },
-          date: function(published) {
-            var day, month, year, _ref;
-            _ref = published(), day = _ref.day, month = _ref.month, year = _ref.year;
-            return [day, month, year].join(' ');
-          },
-          isPublished: function(published, opts) {
-            var day, month, stamp, year, _ref;
-            _ref = published(), day = _ref.day, month = _ref.month, year = _ref.year;
-            stamp = +moment([day, month, year].join(' '));
-            if ((stamp || Infinity) > +(new Date)) {
-              return opts.inverse(this);
-            }
-            return opts.fn(this);
-          },
-          author: function(ctx) {
-            var collective;
-            if (collective = ctx.collectivename) {
-              return collective;
-            }
-            return ctx.forename + ' ' + ctx.lastname;
-          },
-          highlight: function(field) {
-            var snip, text, _i, _len, _ref;
-            field = field();
-            if (!_.isObject(field)) {
-              return field;
-            }
-            if (!field.highlights.length) {
-              return field.value;
-            }
-            _ref = field.highlights;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              snip = _ref[_i];
-              text = snip.replace(/<\/?em>/g, '');
-              field.value = field.value.replace(text, snip);
-            }
-            return field.value;
-          },
-          hint: function(text, length) {
-            var i, word, words, _i, _len, _ref;
-            if ((text = text()) < length) {
-              return text;
-            }
-            _ref = (words = text.split(' '));
-            for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-              word = _ref[i];
-              length -= word.length;
-              if (!(length > 0)) {
-                return words.slice(0, +i + 1 || 9e9).join(' ') + ' ...';
-              }
-            }
-          },
-          link: link
-        }
-      });
-      
-      Title = can.Component.extend({
-        tag: 'app-title',
-        template: require('./templates/title'),
-        scope: function() {
-          return state;
-        }
-      });
-      
-      Results = can.Component.extend({
-        tag: 'app-results',
-        template: require('./templates/results'),
-        scope: function() {
-          return results;
-        }
-      });
-      
-      App = can.Component.extend({
-        tag: 'app',
-        helpers: {
-          link: link
-        }
-      });
-      
-      Routing = can.Control({
-        route: function() {
-          var template;
-          template = require('./templates/page-index');
-          return this.element.html(can.view.mustache(template));
-        },
-        'doc/:oid route': function(_arg) {
-          var doc, docs, oid, template,
-            _this = this;
-          oid = _arg.oid;
-          template = require('./templates/page-doc');
-          doc = null;
-          if ((docs = results.attr('docs')).length) {
-            docs.each(function(obj) {
-              if (doc) {
-                return;
-              }
-              if (obj.attr('oid') === oid) {
-                return doc = obj;
-              }
-            });
-          }
-          if (doc) {
-            return this.element.html(can.view.mustache(template)(doc));
-          }
-          state.loading();
-          return ejs.get(oid, function(err, doc) {
-            if (err) {
-              return state.error(err);
-            }
-            return _this.element.html(can.view.mustache(template)(doc));
-          });
-        }
-      });
-      
-      module.exports = function(opts) {
-        var el, index, layout, service, type;
-        service = opts.service, index = opts.index, type = opts.type;
-        ejs.attr({
-          index: index,
-          type: type,
-          'client': new $.es.Client({
-            'hosts': service
-          })
-        });
-        layout = require('./templates/layout');
-        (el = $(opts.el)).html(can.view.mustache(layout));
-        new Routing(el.find('.page-content'));
-        can.route.ready();
-        if (can.route.current('')) {
-          return query(opts.query || '');
-        }
-      };
       
     });
 
@@ -599,7 +727,7 @@
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<app>","    <div class=\"box\">","        <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","        <p>An example app searching through an example collection of cancer related publications.</p>","        <div class=\"page-content\"></div>","    </div>","</app>"].join("\n");
+      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>An example app searching through an example collection of cancer related publications.</p>","    <div class=\"page\"></div>","</div>"].join("\n");
     });
 
     
@@ -610,15 +738,15 @@
     });
 
     
-    // page-doc.mustache
-    root.require.register('em/src/templates/page-doc.js', function(exports, require, module) {
+    // detail.mustache
+    root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<app-title></app-title>","<div class=\"document detail\">","    <app-document></app-document>","</div>"].join("\n");
+      module.exports = ["<app-title></app-title>","<div class=\"document detail\">","    <app-document showAbstract=\"true\"></app-document>","</div>"].join("\n");
     });
 
     
-    // page-index.mustache
-    root.require.register('em/src/templates/page-index.js', function(exports, require, module) {
+    // index.mustache
+    root.require.register('em/src/templates/page/index.js', function(exports, require, module) {
     
       module.exports = ["<app-search></app-search>","<app-title></app-title>","<app-results></app-results>"].join("\n");
     });
@@ -627,7 +755,7 @@
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document showAbstract=\"test\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
+      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document showAbstract=\"false\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
     });
 
     
