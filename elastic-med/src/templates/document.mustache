@@ -35,13 +35,15 @@
     {{ /id.doi }}
 </div>
 
-<code>"{{ showAbstract }}"</code>
-
-{{ #abstract }}
+{{ #ifs linkToDetail }}
 <a class="preview" href="{{ link oid }}">
     <div class="abstract highlight">
         {{{ highlight abstract }}}
         <div class="fa fa-eye"></div>
     </div>
 </a>
-{{ /abstract }}
+{{ else }}
+<div class="abstract highlight">
+    {{{ highlight abstract }}}
+</div>
+{{ /ifs }}

@@ -23,9 +23,7 @@ ul{list-style-type:none}
 .document .body .score.light{color:rgba(255,255,255,0.75)}
 .document.detail .body .score{margin-top:5px}
 .document.detail .body .journal{margin:10px 0}
-.document.detail a.preview{cursor:default;color:inherit;}
-.document.detail a.preview .abstract{line-height:1.5}
-.document.detail a.preview .fa{display:none}
+.document.detail .abstract{line-height:1.5}
 ul.results{margin:0;}
 ul.results li.document.result:not(:last-child){border-bottom:1px dashed #ccc}
 ul.results li.document.result .body{width:840px;float:right;font-size:12px;}

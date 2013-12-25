@@ -239,7 +239,7 @@
         route: function() {
           var template;
           template = require('./templates/page/index');
-          return this.element.find('.page').html(can.view.mustache(template));
+          return this.render(template, {});
         },
         'doc/:oid route': function(_arg) {
           var doc, docs, oid, template,
@@ -258,15 +258,18 @@
             });
           }
           if (doc) {
-            return this.element.find('.page').html(render(template, doc));
+            return this.render(template, doc);
           }
           state.loading();
           return ejs.get(oid, function(err, doc) {
             if (err) {
               return state.error(err);
             }
-            return _this.element.find('.page').html(render(template, doc));
+            return _this.render(template, doc);
           });
+        },
+        render: function(template, ctx) {
+          return this.element.find('.page').html(render(template, ctx));
         }
       });
       
@@ -293,16 +296,11 @@
     // document.coffee
     root.require.register('em/src/components/document.js', function(exports, require, module) {
     
-      var helpers;
-      
-      helpers = require('../modules/helpers');
-      
       module.exports = can.Component.extend({
         tag: 'app-document',
         template: require('../templates/document'),
         scope: {
-          showAbstract: '@',
-          showKeywords: '@'
+          linkToDetail: '@'
         },
         helpers: {
           ago: function(published) {
@@ -361,8 +359,7 @@
                 return words.slice(0, +i + 1 || 9e9).join(' ') + ' ...';
               }
             }
-          },
-          link: helpers.link
+          }
         }
       });
       
@@ -581,7 +578,9 @@
     // helpers.coffee
     root.require.register('em/src/modules/helpers.js', function(exports, require, module) {
     
-      exports.link = function(oid) {
+      var ifs, link;
+      
+      exports.link = link = function(oid) {
         if (!oid) {
           return '#!';
         }
@@ -589,6 +588,21 @@
           'oid': oid()
         });
       };
+      
+      exports.ifs = ifs = function(value, opts) {
+        if (_.isFunction(value)) {
+          value = value();
+        }
+        if (value === 'true') {
+          return opts.fn(this);
+        } else {
+          return opts.inverse(this);
+        }
+      };
+      
+      Mustache.registerHelper('link', link);
+      
+      Mustache.registerHelper('ifs', ifs);
       
     });
 
@@ -713,7 +727,7 @@
     // document.mustache
     root.require.register('em/src/templates/document.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","<code>\"{{ showAbstract }}\"</code>","","{{ #abstract }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ /abstract }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #ifs linkToDetail }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ else }}","<div class=\"abstract highlight\">","    {{{ highlight abstract }}}","</div>","{{ /ifs }}"].join("\n");
     });
 
     
@@ -741,7 +755,7 @@
     // detail.mustache
     root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<app-title></app-title>","<div class=\"document detail\">","    <app-document showAbstract=\"true\"></app-document>","</div>"].join("\n");
+      module.exports = ["<app-title></app-title>","<div class=\"document detail\">","    <app-document link-to-detail=\"false\"></app-document>","</div>"].join("\n");
     });
 
     
@@ -755,7 +769,7 @@
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document showAbstract=\"false\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
+      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document link-to-detail=\"true\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
     });
 
     

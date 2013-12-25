@@ -21,7 +21,7 @@ Routing = can.Control
     # Index.
     route: ->
         template = require './templates/page/index'
-        @element.find('.page').html can.view.mustache template
+        @render(template, {})
 
     # Document detail.
     'doc/:oid route': ({ oid }) ->
@@ -38,7 +38,7 @@ Routing = can.Control
                 doc = obj if obj.attr('oid') is oid
 
         # Found in results cache.
-        return @element.find('.page').html render(template, doc) if doc
+        return @render(template, doc) if doc
 
         # Say we are doing the search.
         do state.loading
@@ -48,7 +48,11 @@ Routing = can.Control
             # Trouble? Not found etc.
             return state.error err if err
 
-            @element.find('.page').html render template, doc
+            @render(template, doc)
+    
+    # Rende a page.
+    render: (template, ctx) ->
+        @element.find('.page').html render template, ctx
 
 module.exports = (opts) ->
     { service, index, type } = opts
