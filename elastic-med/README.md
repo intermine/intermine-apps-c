@@ -13,5 +13,3 @@
 * pagination
 * scroll down to the document in question when coming back to search results
 * show title of the paper in the `<title/>`
-* separate out state from title message
-* do not wrap preview in link when showing on detail page; probably have separate components as we want to show keywords on the detail page as well

@@ -53556,7 +53556,6 @@ var colorbrewer = {YlGn: {
           if (doc) {
             return this.render(template, doc);
           }
-          state.loading();
           return ejs.get(oid, function(err, doc) {
             if (err) {
               return state.error(err);
@@ -53565,7 +53564,7 @@ var colorbrewer = {YlGn: {
           });
         },
         render: function(template, ctx) {
-          return this.element.find('.page').html(render(template, ctx));
+          return this.element.find('.content').html(render(template, ctx));
         }
       });
       
@@ -53972,10 +53971,11 @@ var colorbrewer = {YlGn: {
       
       State = can.Map.extend({
         loading: function() {
-          state.attr('text', 'Loading results &hellip;');
+          state.attr('text', 'Loading results &hellip;').attr('class', 'info');
           return results.attr('total', 0);
         },
         hasResults: function(total, docs) {
+          state.attr('class', 'info');
           if (total > ejs.attr('size')) {
             state.attr('text', "Top results out of " + total + " matches");
           } else {
@@ -53988,7 +53988,7 @@ var colorbrewer = {YlGn: {
           return results.attr('total', total).attr('docs', docs);
         },
         noResults: function() {
-          state.attr('text', 'No results found');
+          state.attr('text', 'No results found').attr('class', 'info');
           return results.attr('total', 0);
         },
         error: function(err) {
@@ -54001,13 +54001,14 @@ var colorbrewer = {YlGn: {
             case !_.isObject(err && err.message):
               text = err.message;
           }
-          state.attr('text', text);
+          state.attr('text', text).attr('class', 'alert');
           return results.attr('total', 0);
         }
       });
       
       module.exports = state = new State({
-        'text': 'Search ready'
+        'text': 'Search ready',
+        'class': 'info'
       });
       
     });
@@ -54037,7 +54038,7 @@ var colorbrewer = {YlGn: {
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>An example app searching through an example collection of cancer related publications.</p>","    <div class=\"page\"></div>","</div>"].join("\n");
+      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>An example app searching through an example collection of cancer related publications.</p>","    <div class=\"content\"></div>","</div>"].join("\n");
     });
 
     
@@ -54051,14 +54052,14 @@ var colorbrewer = {YlGn: {
     // detail.mustache
     root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<app-title></app-title>","<div class=\"document detail\">","    <app-document link-to-detail=\"false\"></app-document>","</div>"].join("\n");
+      module.exports = ["<div class=\"page detail\">","    <app-title></app-title>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\"></app-document>","    </div>","<div>"].join("\n");
     });
 
     
     // index.mustache
     root.require.register('em/src/templates/page/index.js', function(exports, require, module) {
     
-      module.exports = ["<app-search></app-search>","<app-title></app-title>","<app-results></app-results>"].join("\n");
+      module.exports = ["<div class=\"page index\">","    <app-search></app-search>","    <app-title></app-title>","    <app-results></app-results>","</div>"].join("\n");
     });
 
     
@@ -54079,7 +54080,7 @@ var colorbrewer = {YlGn: {
     // title.mustache
     root.require.register('em/src/templates/title.js', function(exports, require, module) {
     
-      module.exports = ["<h3>{{{ text }}}</h3>"].join("\n");
+      module.exports = ["<h3 class=\"{{ class }}\">{{{ text }}}</h3>"].join("\n");
     });
   })();
 

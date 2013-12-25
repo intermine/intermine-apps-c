@@ -39,9 +39,6 @@ Routing = can.Control
 
         # Found in results cache.
         return @render(template, doc) if doc
-
-        # Say we are doing the search.
-        do state.loading
         
         # Get the document from the index.
         ejs.get oid, (err, doc) =>
@@ -52,7 +49,8 @@ Routing = can.Control
     
     # Rende a page.
     render: (template, ctx) ->
-        @element.find('.page').html render template, ctx
+        @element.find('.content')
+        .html(render(template, ctx))
 
 module.exports = (opts) ->
     { service, index, type } = opts
