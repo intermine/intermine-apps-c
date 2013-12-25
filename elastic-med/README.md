@@ -1,13 +1,5 @@
 #elastic-med [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
-##Todo
+An example app searching through an example collection of cancer related publications using [ElasticSearch](http://www.elasticsearch.org/) service.
 
-* Show example syntax
-* Show similar matches to the one we are clicking on
-* Split into separate files
-* Add documentation; in fact write the files in literate coffeescript.
-* Breadcrumbs showing past few queries or show them in a sidebar if too wide.
-* If many names, skip the middle people (like in Micklem Site)
-* Have a minified build
-* [autocomplete](http://www.elasticsearch.org/blog/you-complete-me/) on keywords rather then all text
-* pagination
+![image](https://raw.github.com/intermine/intermine-apps-c/master/elastic-med/example.png)

@@ -51,14 +51,33 @@ module.exports = (grunt) ->
                 expand: yes
                 flatten: yes
 
+        uglify:
+            scripts:
+                files:
+                    'build/js/em.min.js': 'build/js/em.js'
+                    'build/js/em.bundle.min.js': 'build/js/em.bundle.js'
+
+        cssmin:
+            combine:
+                files:
+                    'build/css/em.bundle.min.css': 'build/css/em.bundle.css'
+                    'build/css/em.min.css': 'build/css/em.css'
+
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-contrib-copy')
+    grunt.loadNpmTasks('grunt-contrib-uglify')
+    grunt.loadNpmTasks('grunt-contrib-cssmin')
 
     grunt.registerTask('default', [
         'apps_c'
         'stylus'
         'concat'
         'copy'
+    ])
+
+    grunt.registerTask('minify', [
+        'uglify'
+        'cssmin'
     ])
