@@ -239,13 +239,18 @@
         route: function() {
           var template;
           template = require('./templates/page/index');
-          return this.render(template, {});
+          return this.render(template, {}, 'ElasticMed');
         },
         'doc/:oid route': function(_arg) {
-          var doc, docs, oid, template,
+          var doc, docs, fin, oid,
             _this = this;
           oid = _arg.oid;
-          template = require('./templates/page/detail');
+          fin = function(doc) {
+            var template, title;
+            template = require('./templates/page/detail');
+            title = doc.attr('title').value;
+            return _this.render(template, doc, "" + title + " - ElasticMed");
+          };
           doc = null;
           if ((docs = results.attr('docs')).length) {
             docs.each(function(obj) {
@@ -258,17 +263,18 @@
             });
           }
           if (doc) {
-            return this.render(template, doc);
+            return fin(doc);
           }
           return ejs.get(oid, function(err, doc) {
             if (err) {
               return state.error(err);
             }
-            return _this.render(template, doc);
+            return fin(doc);
           });
         },
-        render: function(template, ctx) {
-          return this.element.find('.content').html(render(template, ctx));
+        render: function(template, ctx, title) {
+          this.element.find('.content').html(render(template, ctx));
+          return document.title = title;
         }
       });
       

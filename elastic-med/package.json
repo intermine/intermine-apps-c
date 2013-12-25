@@ -1,6 +1,6 @@
 {
     "name": "elastic-med",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "devDependencies": {
         "bower": "~1.2.7",
         "grunt": "~0.4.1",

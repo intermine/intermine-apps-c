@@ -21,11 +21,14 @@ Routing = can.Control
     # Index.
     route: ->
         template = require './templates/page/index'
-        @render(template, {})
+        @render(template, {}, 'ElasticMed')
 
     # Document detail.
     'doc/:oid route': ({ oid }) ->
-        template = require './templates/page/detail'
+        fin = (doc) =>
+            template = require './templates/page/detail'
+            title    = doc.attr('title').value
+            @render template, doc, "#{title} - ElasticMed"
 
         # Find the document.
         doc = null
@@ -38,19 +41,20 @@ Routing = can.Control
                 doc = obj if obj.attr('oid') is oid
 
         # Found in results cache.
-        return @render(template, doc) if doc
+        return fin(doc) if doc
         
         # Get the document from the index.
-        ejs.get oid, (err, doc) =>
+        ejs.get oid, (err, doc) ->
             # Trouble? Not found etc.
             return state.error err if err
-
-            @render(template, doc)
+            fin(doc)
     
-    # Rende a page.
-    render: (template, ctx) ->
+    # Render a page. Update the page title.
+    render: (template, ctx, title) ->
         @element.find('.content')
         .html(render(template, ctx))
+        # Update title.
+        document.title = title
 
 module.exports = (opts) ->
     { service, index, type } = opts
