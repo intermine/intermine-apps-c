@@ -1,5 +1,7 @@
-results = require './results'
-ejs     = require './ejs'
+results  = require './results'
+ejs      = require './ejs'
+
+Document = require '../models/document'
 
 # State of the application.
 State = can.Map.extend
@@ -10,6 +12,7 @@ State = can.Map.extend
         .attr('text', 'Loading results &hellip;')
         .attr('class', 'info')
         # Clear results.
+        do results.attr('docs').destroy
         results.attr('total', 0)
 
     # We have results.
@@ -24,17 +27,22 @@ State = can.Map.extend
             else
                 state.attr('text', "#{total} Results")
 
-        # Save them on results.
+        # Destroy previous results.
+        do results.attr('docs').destroy
+
+        # Save the results.
         results
         .attr('total', total)
-        .attr('docs', docs)
+        .attr('docs', new Document.List(docs))
     
     # We have no results.
     noResults: ->
         state
         .attr('text', 'No results found')
         .attr('class', 'info')
+        
         # Clear results.
+        do results.attr('docs').destroy
         results.attr('total', 0)
 
     # Something bad.
@@ -49,7 +57,9 @@ State = can.Map.extend
         state
         .attr('text', text)
         .attr('class', 'alert')
+        
         # Clear results.
+        do results.attr('docs').destroy
         results.attr('total', 0)
 
 # New global state instance.

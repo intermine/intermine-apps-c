@@ -11,5 +11,4 @@
 * Have a minified build
 * [autocomplete](http://www.elasticsearch.org/blog/you-complete-me/) on keywords rather then all text
 * pagination
-* scroll down to the document in question when coming back to search results
 * show title of the paper in the `<title/>`

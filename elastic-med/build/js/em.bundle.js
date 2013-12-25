@@ -53762,6 +53762,60 @@ var colorbrewer = {YlGn: {
     });
 
     
+    // document.coffee
+    root.require.register('em/src/models/document.js', function(exports, require, module) {
+    
+      var Document, db,
+        __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+      
+      db = window.localStorage;
+      
+      module.exports = Document = can.Model.extend({});
+      
+      Document.List = Document.List.extend({
+        dbName: 'elastic-med',
+        keys: null,
+        init: function(docs, load) {
+          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1, _results;
+          if (load == null) {
+            load = false;
+          }
+          item = db.getItem(this.dbName);
+          this.keys = (item && item.split(',')) || [];
+          if (load && this.keys.length) {
+            _ref = this.keys;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              key = _ref[_i];
+              _results.push(this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key))));
+            }
+            return _results;
+          } else {
+            for (_j = 0, _len1 = docs.length; _j < _len1; _j++) {
+              doc = docs[_j];
+              db.setItem("" + this.dbName + "-" + doc.oid, JSON.stringify(doc));
+              if (_ref1 = doc.oid, __indexOf.call(this.keys, _ref1) < 0) {
+                this.keys.push(doc.oid);
+              }
+            }
+            return db.setItem(this.dbName, this.keys.join(','));
+          }
+        },
+        destroy: function() {
+          var key, _i, _len, _ref;
+          _ref = this.keys;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            key = _ref[_i];
+            db.removeItem("" + this.dbName + "-" + key);
+          }
+          db.removeItem(this.dbName);
+          return this.keys = [];
+        }
+      });
+      
+    });
+
+    
     // colorize.coffee
     root.require.register('em/src/modules/colorize.js', function(exports, require, module) {
     
@@ -53952,9 +54006,13 @@ var colorbrewer = {YlGn: {
     // results.coffee
     root.require.register('em/src/modules/results.js', function(exports, require, module) {
     
+      var Document;
+      
+      Document = require('../models/document');
+      
       module.exports = new can.Map({
         'total': 0,
-        'docs': []
+        'docs': new Document.List([], true)
       });
       
     });
@@ -53963,15 +54021,18 @@ var colorbrewer = {YlGn: {
     // state.coffee
     root.require.register('em/src/modules/state.js', function(exports, require, module) {
     
-      var State, ejs, results, state;
+      var Document, State, ejs, results, state;
       
       results = require('./results');
       
       ejs = require('./ejs');
       
+      Document = require('../models/document');
+      
       State = can.Map.extend({
         loading: function() {
           state.attr('text', 'Loading results &hellip;').attr('class', 'info');
+          results.attr('docs').destroy();
           return results.attr('total', 0);
         },
         hasResults: function(total, docs) {
@@ -53985,10 +54046,12 @@ var colorbrewer = {YlGn: {
               state.attr('text', "" + total + " Results");
             }
           }
-          return results.attr('total', total).attr('docs', docs);
+          results.attr('docs').destroy();
+          return results.attr('total', total).attr('docs', new Document.List(docs));
         },
         noResults: function() {
           state.attr('text', 'No results found').attr('class', 'info');
+          results.attr('docs').destroy();
           return results.attr('total', 0);
         },
         error: function(err) {
@@ -54002,6 +54065,7 @@ var colorbrewer = {YlGn: {
               text = err.message;
           }
           state.attr('text', text).attr('class', 'alert');
+          results.attr('docs').destroy();
           return results.attr('total', 0);
         }
       });
