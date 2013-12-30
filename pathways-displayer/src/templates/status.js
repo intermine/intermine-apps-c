@@ -1,0 +1,1 @@
+module.exports = '<span>Querying <% console.log("FML: " + friendlyMines.length) %> mines.';

@@ -1,0 +1,16 @@
+{
+  "name": "PathwaysDisplayer",
+  "version": "0.4.3",
+  "devDependencies": {
+    "bower": "~1.2.7",
+    "grunt": "~0.4.1",
+    "grunt-apps-c": "0.1.7",
+    "coffee-script": "1.6.3",
+    "mocha": "~1.12.0",
+    "grunt-contrib-jshint": "~0.7.2",
+    "grunt-css-prefix": "~0.2.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script --reporter spec --ui exports --bail"
+  }
+}

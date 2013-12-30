@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Pathways Displayer</title>
+
+    
+    <link rel="stylesheet" type="text/css" href="pathways-displayer.css">
+
+
+
+
+</head>
+
+    <h2>Pathways Displayer</h2>
+    <div id="pathwaysappcontainer"></div>
+    
+   <script src="app.bundle.js"></script>
+
+    
+
+    <script>
+
+
+            require('PathwaysDisplayer')(
+            {
+
+                friendlyMines: {
+                    
+                    "ZFINMine":"zebrafishmine.org",
+                    "YeastMine":"yeastmine.yeastgenome.org/yeastmine",
+                    "MouseMine":"www.mousemine.org/mousemine",
+                    "metabolicMine":"www.metabolicmine.org/beta",
+                    "RatMine":"ratmine.mcw.edu/ratmine",
+                    "modMine":"http://intermine.modencode.org/query",
+                    "WormMine":"www.wormbase.org/tools/wormmine",
+                    "FlyMine":"www.flymine.org/release-38.0"
+                },
+                gene: "FBgn0005558",
+                target: "#pathwaysappcontainer",
+
+            });
+
+    </script>
+
+
+
+
+
+
+
+</body>
+</html>
