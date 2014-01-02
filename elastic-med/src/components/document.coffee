@@ -51,10 +51,10 @@ module.exports = can.Component.extend
                 # Strip the tags from the snippet.
                 text = snip.replace /<\/?em>/g, ''
                 # ...replace the original with the snippet.
-                field.value = field.value.replace text, snip
+                highlighted = field.value.replace text, snip
             
             # Return the new text.
-            field.value
+            highlighted
 
         # Format a hint trimming it.
         hint: (text, length) ->

@@ -53631,7 +53631,7 @@ var colorbrewer = {YlGn: {
             return ctx.forename + ' ' + ctx.lastname;
           },
           highlight: function(field) {
-            var snip, text, _i, _len, _ref;
+            var highlighted, snip, text, _i, _len, _ref;
             field = field();
             if (!_.isObject(field)) {
               return field;
@@ -53643,9 +53643,9 @@ var colorbrewer = {YlGn: {
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               snip = _ref[_i];
               text = snip.replace(/<\/?em>/g, '');
-              field.value = field.value.replace(text, snip);
+              highlighted = field.value.replace(text, snip);
             }
-            return field.value;
+            return highlighted;
           },
           hint: function(text, length) {
             var i, word, words, _i, _len, _ref;
