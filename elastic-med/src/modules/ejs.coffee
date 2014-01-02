@@ -71,3 +71,23 @@ module.exports = new can.Map
         
         # Trouble?
         ,  cb
+
+    # Find documents with a similar text.
+    suggest: (text, cb) ->
+        return cb 'Client is not setup' unless @client
+
+        body = 'completion': { text, 'term': { 'field': 'title' } }
+
+        @client.suggest({ @index, body }).then (res) ->
+            # JSON?
+            try
+                body = JSON.parse res.body
+            catch e
+                return cb 'Malformed response'
+
+            # Return results for just one word.
+            for { text, options } in body.completion
+                return cb null, options
+
+        # Trouble?
+        , cb

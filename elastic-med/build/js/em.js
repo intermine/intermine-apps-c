@@ -425,9 +425,11 @@
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var query;
+      var ejs, query;
       
       query = require('../modules/query');
+      
+      ejs = require('../modules/ejs');
       
       module.exports = can.Component.extend({
         tag: 'app-search',
@@ -444,9 +446,23 @@
             return query(this.element.find('input').val());
           },
           'input keyup': function(el, evt) {
-            if ((evt.keyCode || evt.which) === 13) {
-              return query(el.val());
+            var value;
+            value = el.val();
+            if (!value.length) {
+              return;
             }
+            if ((evt.keyCode || evt.which) === 13) {
+              return query(value);
+            }
+            if (value.slice(-1).match(/\s/)) {
+              return;
+            }
+            return ejs.suggest(value.split(/\s+/).pop(), function(err, suggestions) {
+              if (err) {
+                return;
+              }
+              return console.log(_.pluck(suggestions, 'text'));
+            });
           }
         }
       });
@@ -627,6 +643,37 @@
             return cb(null, new can.Map(_.extend(body._source, {
               'oid': body._id
             })));
+          }, cb);
+        },
+        suggest: function(text, cb) {
+          var body;
+          if (!this.client) {
+            return cb('Client is not setup');
+          }
+          body = {
+            'completion': {
+              text: text,
+              'term': {
+                'field': 'title'
+              }
+            }
+          };
+          return this.client.suggest({
+            index: this.index,
+            body: body
+          }).then(function(res) {
+            var e, options, _i, _len, _ref, _ref1;
+            try {
+              body = JSON.parse(res.body);
+            } catch (_error) {
+              e = _error;
+              return cb('Malformed response');
+            }
+            _ref = body.completion;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              _ref1 = _ref[_i], text = _ref1.text, options = _ref1.options;
+              return cb(null, options);
+            }
           }, cb);
         }
       });
