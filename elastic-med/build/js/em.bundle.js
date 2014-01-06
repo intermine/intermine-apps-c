@@ -53721,11 +53721,13 @@ var colorbrewer = {YlGn: {
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var ejs, query;
+      var ejs, query, suggestion;
       
       query = require('../modules/query');
       
       ejs = require('../modules/ejs');
+      
+      suggestion = can.compute(query());
       
       module.exports = can.Component.extend({
         tag: 'app-search',
@@ -53734,6 +53736,9 @@ var colorbrewer = {YlGn: {
           return {
             'query': {
               'value': query
+            },
+            'suggestion': {
+              'value': suggestion
             }
           };
         },
@@ -53741,9 +53746,16 @@ var colorbrewer = {YlGn: {
           'a.button click': function() {
             return query(this.element.find('input').val());
           },
-          'input keyup': function(el, evt) {
-            var value;
-            value = el.val();
+          'input.text keydown': function(el, evt) {
+            if ((evt.keyCode || evt.which) !== 9) {
+              return;
+            }
+            el.val(suggestion());
+            return evt.preventDefault();
+          },
+          'input.text keyup': function(el, evt) {
+            var last, value;
+            suggestion(value = el.val());
             if (!value.length) {
               return;
             }
@@ -53753,11 +53765,27 @@ var colorbrewer = {YlGn: {
             if (value.slice(-1).match(/\s/)) {
               return;
             }
-            return ejs.suggest(value.split(/\s+/).pop(), function(err, suggestions) {
+            return ejs.suggest((last = value.split(/\s+/).pop()), function(err, suggs) {
+              var sugg;
               if (err) {
                 return;
               }
-              return console.log(_.pluck(suggestions, 'text'));
+              if (!suggs[last]) {
+                return;
+              }
+              if (!(sugg = (function() {
+                var text, _i, _len, _ref;
+                _ref = suggs[last];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  text = _ref[_i].text;
+                  if (!text.indexOf(last)) {
+                    return text;
+                  }
+                }
+              })())) {
+                return;
+              }
+              return suggestion(value.slice(0, value.lastIndexOf(last)) + sugg);
             });
           }
         }
@@ -53958,18 +53986,20 @@ var colorbrewer = {YlGn: {
             index: this.index,
             body: body
           }).then(function(res) {
-            var e, options, _i, _len, _ref, _ref1;
+            var e, map, options, _i, _len, _ref, _ref1;
             try {
               body = JSON.parse(res.body);
             } catch (_error) {
               e = _error;
               return cb('Malformed response');
             }
+            map = {};
             _ref = body.completion;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               _ref1 = _ref[_i], text = _ref1.text, options = _ref1.options;
-              return cb(null, options);
+              map[text] = options;
             }
+            return cb(null, map);
           }, cb);
         }
       });
@@ -54190,7 +54220,7 @@ var colorbrewer = {YlGn: {
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns\">","        <input type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ suggestion.value }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
     });
 
     

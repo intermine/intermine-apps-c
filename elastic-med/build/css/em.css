@@ -5,6 +5,8 @@ ul{list-style-type:none}
 .box h1{font-weight:bold}
 .button{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
 .alert-box p{margin:0;font-size:14px}
+.search input.auto{color:#a6a6a6}
+.search input.text{position:absolute;top:0;left:0;background:transparent}
 .document:after{clear:both;display:block;content:""}
 .document .highlight em{font-style:normal;background:rgba(255,255,0,0.5);padding:0 2px;margin:0 -2px}
 .document .abstract,.document .body{margin:20px 0}

@@ -85,9 +85,11 @@ module.exports = new can.Map
             catch e
                 return cb 'Malformed response'
 
-            # Return results for just one word.
-            for { text, options } in body.completion
-                return cb null, options
+            # Map to word-suggestions pairs.
+            map = {}
+            ( map[text] = options for { text, options } in body.completion )
+            
+            return cb null, map
 
         # Trouble?
         , cb
