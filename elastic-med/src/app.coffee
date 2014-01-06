@@ -6,13 +6,21 @@ render  = require './modules/render'
 
 helpers = require './modules/helpers'
 
+components = [
+    'document'
+    'label'
+    'results'
+    'search'
+    'title'
+    'more'
+]
+
 # Router switching between pages.
 Routing = can.Control
 
     init: ->
         # Load the components.
-        for name in [ 'document', 'label', 'results', 'search', 'title' ]
-            require "./components/#{name}"
+        ( require "./components/#{name}" for name in components )
 
         # Setup the UI.
         layout = require './templates/layout'

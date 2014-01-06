@@ -9,4 +9,4 @@ module.exports = new can.Map
     # The array with top documents. Will init the docs
     #  from localStorage if they are present which is
     #  used when visiting a document detail.
-    'docs': new Document.List([], yes)
+    'docs': new Document.List([ ], yes)

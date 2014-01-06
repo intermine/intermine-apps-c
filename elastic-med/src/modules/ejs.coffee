@@ -72,7 +72,7 @@ module.exports = new can.Map
         # Trouble?
         ,  cb
 
-    # Find documents with a similar text.
+    # Suggest similar looking terms (used in auto-complete).
     suggest: (text, cb) ->
         return cb 'Client is not setup' unless @client
 
@@ -90,6 +90,32 @@ module.exports = new can.Map
             ( map[text] = options for { text, options } in body.completion )
             
             return cb null, map
+
+        # Trouble?
+        , cb
+
+    # Give us more documents like this one.
+    more: (id, cb) ->
+        return cb 'Client is not setup' unless @client
+
+        @client.mlt({
+            @index, @type, id, @size,
+            # Match on title and keywords.
+            'mlt_fields': 'title,keywords'
+            # How many terms have to match in order to consider the
+            #  document a match.
+            'percentTermsToMatch': 0.1
+        }).then (res) ->
+            # JSON?
+            try
+                body = JSON.parse res.body
+            catch e
+                return cb 'Malformed response'
+
+            # Return remapped hits.
+            cb null, _.map body.hits.hits, ({ _id, _score, _source }) ->
+                _source.oid = _id ; _source.score = _score
+                _source
 
         # Trouble?
         , cb

@@ -211,7 +211,7 @@
     // app.coffee
     root.require.register('em/src/app.js', function(exports, require, module) {
     
-      var Routing, ejs, helpers, query, render, results, state;
+      var Routing, components, ejs, helpers, query, render, results, state;
       
       results = require('./modules/results');
       
@@ -225,12 +225,13 @@
       
       helpers = require('./modules/helpers');
       
+      components = ['document', 'label', 'results', 'search', 'title', 'more'];
+      
       Routing = can.Control({
         init: function() {
-          var layout, name, _i, _len, _ref;
-          _ref = ['document', 'label', 'results', 'search', 'title'];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            name = _ref[_i];
+          var layout, name, _i, _len;
+          for (_i = 0, _len = components.length; _i < _len; _i++) {
+            name = components[_i];
             require("./components/" + name);
           }
           layout = require('./templates/layout');
@@ -404,6 +405,50 @@
     });
 
     
+    // more.coffee
+    root.require.register('em/src/components/more.js', function(exports, require, module) {
+    
+      var docs, ejs, working;
+      
+      ejs = require('../modules/ejs');
+      
+      docs = new can.List([]);
+      
+      working = can.compute(false);
+      
+      module.exports = can.Component.extend({
+        tag: 'app-more',
+        template: require('../templates/more'),
+        scope: function(obj, parent, element) {
+          working(true);
+          docs.replace([]);
+          ejs.more(parent.attr('oid'), function(err, list) {
+            return setTimeout(function() {
+              working(false);
+              if (err) {
+                return;
+              }
+              return docs.replace(list);
+            }, 3e3);
+          });
+          return {
+            docs: docs
+          };
+        },
+        helpers: {
+          isWorking: function(opts) {
+            if (working()) {
+              return opts.fn(this);
+            } else {
+              return opts.inverse(this);
+            }
+          }
+        }
+      });
+      
+    });
+
+    
     // results.coffee
     root.require.register('em/src/components/results.js', function(exports, require, module) {
     
@@ -414,8 +459,15 @@
       module.exports = can.Component.extend({
         tag: 'app-results',
         template: require('../templates/results'),
-        scope: function() {
-          return results;
+        scope: function(obj, parent, element) {
+          var docs;
+          if ((docs = parent.attr('docs'))) {
+            return {
+              docs: docs
+            };
+          } else {
+            return results;
+          }
         }
       });
       
@@ -701,6 +753,34 @@
             }
             return cb(null, map);
           }, cb);
+        },
+        more: function(id, cb) {
+          if (!this.client) {
+            return cb('Client is not setup');
+          }
+          return this.client.mlt({
+            index: this.index,
+            type: this.type,
+            id: id,
+            size: this.size,
+            'mlt_fields': 'title,keywords',
+            'percentTermsToMatch': 0.1
+          }).then(function(res) {
+            var body, e;
+            try {
+              body = JSON.parse(res.body);
+            } catch (_error) {
+              e = _error;
+              return cb('Malformed response');
+            }
+            return cb(null, _.map(body.hits.hits, function(_arg) {
+              var _id, _score, _source;
+              _id = _arg._id, _score = _arg._score, _source = _arg._source;
+              _source.oid = _id;
+              _source.score = _score;
+              return _source;
+            }));
+          }, cb);
         }
       });
       
@@ -893,6 +973,13 @@
     });
 
     
+    // more.mustache
+    root.require.register('em/src/templates/more.js', function(exports, require, module) {
+    
+      module.exports = ["{{ #isWorking }}","<h5>Looking for similar documents <span class=\"fa fa-spinner\"></span></h5>","{{ /isWorking }}","","{{ #if docs.length }}","<h4>Similar documents</h4>","<app-results></app-results>","{{ /if }}"].join("\n");
+    });
+
+    
     // notification.mustache
     root.require.register('em/src/templates/notification.js', function(exports, require, module) {
     
@@ -903,7 +990,7 @@
     // detail.mustache
     root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"page detail\">","    <app-title></app-title>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\"></app-document>","    </div>","<div>"].join("\n");
+      module.exports = ["<div class=\"page detail\">","    <app-title></app-title>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\"></app-document>","    </div>","    <app-more></app-more>","<div>"].join("\n");
     });
 
     
@@ -917,7 +1004,7 @@
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document link-to-detail=\"true\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
+      module.exports = ["{{ #if docs.length }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document link-to-detail=\"true\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /if }}"].join("\n");
     });
 
     
