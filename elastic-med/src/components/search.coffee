@@ -1,9 +1,6 @@
 query = require '../modules/query'
 ejs   = require '../modules/ejs'
 
-# Last word autocomplete suggestion.
-suggestion = can.compute do query
-
 # Search form.
 module.exports = can.Component.extend
 
@@ -11,33 +8,30 @@ module.exports = can.Component.extend
 
     template: require '../templates/search'
 
-    scope: ->
-        # A bit of an ugly syntax...
-        'query':      { 'value': query }
-        'suggestion': { 'value': suggestion }
+    scope: -> { query }
 
     events:
-        # Button click:
+        # Search button click does the search immediately:
         'a.button click': ->
-            query do @element.find('input').val
+            query.attr 'current', do @element.find('input').val
         
-        # Tab autocomplete.
+        # Tab autocomplete the suggestion.
         'input.text keydown': (el, evt) ->
             # Tab key?
             return unless (evt.keyCode or evt.which) is 9
             # Inject the new text.
-            el.val do suggestion
+            el.val query.attr('suggestion')
             # Prevent default event.
             do evt.preventDefault
 
         # Input field keypress.
         'input.text keyup': (el, evt) ->
             # Get the value and set autocomplete to it.
-            suggestion value = do el.val
+            query.attr 'suggestion', value = do el.val
             # Return on empty.
             return unless value.length
             # Update query on Enter keypress.
-            return query value if (evt.keyCode or evt.which) is 13
+            return query.attr('current', value) if (evt.keyCode or evt.which) is 13
             
             # On a space now?
             return if value[-1..].match /\s/
@@ -53,4 +47,8 @@ module.exports = can.Component.extend
                         return text unless text.indexOf last
 
                 # Autocomplete our query.
-                suggestion value[0...value.lastIndexOf(last)] + sugg
+                query.attr 'suggestion', value[0...value.lastIndexOf(last)] + sugg
+
+        # Clicking on breadcrumbs changes current (and suggested) query.
+        '.breadcrumbs a click': (el) ->
+            query.attr 'current', do el.text

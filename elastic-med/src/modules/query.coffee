@@ -2,12 +2,17 @@ ejs   = require './ejs'
 state = require './state'
 
 # The default search query.
-query = can.compute('')
+query = new can.Map
+    
+    'current': ''
+
+    'history': [ ]
 
 # Observe query changes to trigger a service search.
-query.bind 'change', (ev, q) ->
-    # Empty query?
-    return unless q
+query.bind 'current', (ev, q) ->
+    # Push query at the head of the history and limit to 3 results.
+    (history = @attr('history')[0...2]).splice(0, 0, q)
+    @attr 'history', history
 
     # Say we are doing the search.
     do state.loading
@@ -22,5 +27,8 @@ query.bind 'change', (ev, q) ->
 
         # Has results.
         state.hasResults(total, docs)
+
+    # Mirror as a suggestion.
+    @attr 'suggestion', q
 
 module.exports = query

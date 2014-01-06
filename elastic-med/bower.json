@@ -1,6 +1,6 @@
 {
     "name": "elastic-med",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "dependencies": {
         "jquery": "2.0.3",
         "lodash": "2.4.1",

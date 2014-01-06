@@ -21,7 +21,8 @@ module.exports = (grunt) ->
                     # Vendor dependencies.
                     'vendor/jquery/jquery.js'
                     'vendor/lodash/dist/lodash.js'
-                    'vendor/canjs/can.jquery.js'
+                    'vendor/canjs/can.jquery-2.js'
+                    'vendor/canjs/can.map.setter.js'
                     'vendor/elasticsearch/index.js'
                     'vendor/moment/moment.js'
                     'vendor/colorbrewer/colorbrewer.js'

@@ -22688,7 +22688,69 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     })(__m2, __m27, __m8);
 
     window['can'] = __m4;
-})();;/*! elasticsearch - v1.0.2 - 2013-12-19
+})();;/*!
+ * CanJS - 2.0.4
+ * http://canjs.us/
+ * Copyright (c) 2013 Bitovi
+ * Mon, 23 Dec 2013 19:49:29 GMT
+ * Licensed MIT
+ * Includes: can/map/setter
+ * Download from: http://canjs.com
+ */
+(function(can) {
+
+    can.classize = function(s, join) {
+        // this can be moved out ..
+        // used for getter setter
+        var parts = s.split(can.undHash),
+            i = 0;
+        for (; i < parts.length; i++) {
+            parts[i] = can.capitalize(parts[i]);
+        }
+
+        return parts.join(join || '');
+    }
+
+    var classize = can.classize,
+        proto = can.Map.prototype,
+        old = proto.__set;
+
+    proto.__set = function(prop, value, current, success, error) {
+        // check if there's a setter
+        var cap = classize(prop),
+            setName = "set" + cap,
+            errorCallback = function(errors) {
+                var stub = error && error.call(self, errors);
+
+                // if 'setter' is on the page it will trigger
+                // the error itself and we dont want to trigger
+                // the event twice. :)
+                if (stub !== false) {
+                    can.trigger(self, "error", [prop, errors], true);
+                }
+
+                return false;
+            },
+            self = this;
+
+        // if we have a setter
+        if (this[setName] &&
+            // call the setter, if returned value is undefined,
+            // this means the setter is async so we 
+            // do not call update property and return right away
+            (value = this[setName](value, function(value) {
+                        old.call(self, prop, value, current, success, errorCallback)
+                    },
+                    errorCallback)) === undefined) {
+            return;
+        }
+
+        old.call(self, prop, value, current, success, errorCallback);
+
+        return this;
+    };
+    return can.Map;
+})(can);;/*! elasticsearch - v1.0.2 - 2013-12-19
  * http://elasticsearch.github.io/elasticsearch-js/
  * Copyright (c) 2013 Elasticsearch BV; Licensed Apache 2.0 */
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -53587,7 +53649,7 @@ var colorbrewer = {YlGn: {
         new Routing(opts.el);
         can.route.ready();
         if (can.route.current('')) {
-          return query(opts.query || '');
+          return query.attr('current', opts.query || '');
         }
       };
       
@@ -53721,46 +53783,39 @@ var colorbrewer = {YlGn: {
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var ejs, query, suggestion;
+      var ejs, query;
       
       query = require('../modules/query');
       
       ejs = require('../modules/ejs');
-      
-      suggestion = can.compute(query());
       
       module.exports = can.Component.extend({
         tag: 'app-search',
         template: require('../templates/search'),
         scope: function() {
           return {
-            'query': {
-              'value': query
-            },
-            'suggestion': {
-              'value': suggestion
-            }
+            query: query
           };
         },
         events: {
           'a.button click': function() {
-            return query(this.element.find('input').val());
+            return query.attr('current', this.element.find('input').val());
           },
           'input.text keydown': function(el, evt) {
             if ((evt.keyCode || evt.which) !== 9) {
               return;
             }
-            el.val(suggestion());
+            el.val(query.attr('suggestion'));
             return evt.preventDefault();
           },
           'input.text keyup': function(el, evt) {
             var last, value;
-            suggestion(value = el.val());
+            query.attr('suggestion', value = el.val());
             if (!value.length) {
               return;
             }
             if ((evt.keyCode || evt.which) === 13) {
-              return query(value);
+              return query.attr('current', value);
             }
             if (value.slice(-1).match(/\s/)) {
               return;
@@ -53785,8 +53840,11 @@ var colorbrewer = {YlGn: {
               })())) {
                 return;
               }
-              return suggestion(value.slice(0, value.lastIndexOf(last)) + sugg);
+              return query.attr('suggestion', value.slice(0, value.lastIndexOf(last)) + sugg);
             });
+          },
+          '.breadcrumbs a click': function(el) {
+            return query.attr('current', el.text());
           }
         }
       });
@@ -54048,14 +54106,17 @@ var colorbrewer = {YlGn: {
       
       state = require('./state');
       
-      query = can.compute('');
+      query = new can.Map({
+        'current': '',
+        'history': []
+      });
       
-      query.bind('change', function(ev, q) {
-        if (!q) {
-          return;
-        }
+      query.bind('current', function(ev, q) {
+        var history;
+        (history = this.attr('history').slice(0, 2)).splice(0, 0, q);
+        this.attr('history', history);
         state.loading();
-        return ejs.search(q, function(err, _arg) {
+        ejs.search(q, function(err, _arg) {
           var docs, total;
           total = _arg.total, docs = _arg.docs;
           if (err) {
@@ -54066,6 +54127,7 @@ var colorbrewer = {YlGn: {
           }
           return state.hasResults(total, docs);
         });
+        return this.attr('suggestion', q);
       });
       
       module.exports = query;
@@ -54220,7 +54282,7 @@ var colorbrewer = {YlGn: {
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ suggestion.value }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ query.suggestion }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.current }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
     });
 
     

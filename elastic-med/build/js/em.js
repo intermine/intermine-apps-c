@@ -291,7 +291,7 @@
         new Routing(opts.el);
         can.route.ready();
         if (can.route.current('')) {
-          return query(opts.query || '');
+          return query.attr('current', opts.query || '');
         }
       };
       
@@ -425,46 +425,39 @@
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var ejs, query, suggestion;
+      var ejs, query;
       
       query = require('../modules/query');
       
       ejs = require('../modules/ejs');
-      
-      suggestion = can.compute(query());
       
       module.exports = can.Component.extend({
         tag: 'app-search',
         template: require('../templates/search'),
         scope: function() {
           return {
-            'query': {
-              'value': query
-            },
-            'suggestion': {
-              'value': suggestion
-            }
+            query: query
           };
         },
         events: {
           'a.button click': function() {
-            return query(this.element.find('input').val());
+            return query.attr('current', this.element.find('input').val());
           },
           'input.text keydown': function(el, evt) {
             if ((evt.keyCode || evt.which) !== 9) {
               return;
             }
-            el.val(suggestion());
+            el.val(query.attr('suggestion'));
             return evt.preventDefault();
           },
           'input.text keyup': function(el, evt) {
             var last, value;
-            suggestion(value = el.val());
+            query.attr('suggestion', value = el.val());
             if (!value.length) {
               return;
             }
             if ((evt.keyCode || evt.which) === 13) {
-              return query(value);
+              return query.attr('current', value);
             }
             if (value.slice(-1).match(/\s/)) {
               return;
@@ -489,8 +482,11 @@
               })())) {
                 return;
               }
-              return suggestion(value.slice(0, value.lastIndexOf(last)) + sugg);
+              return query.attr('suggestion', value.slice(0, value.lastIndexOf(last)) + sugg);
             });
+          },
+          '.breadcrumbs a click': function(el) {
+            return query.attr('current', el.text());
           }
         }
       });
@@ -752,14 +748,17 @@
       
       state = require('./state');
       
-      query = can.compute('');
+      query = new can.Map({
+        'current': '',
+        'history': []
+      });
       
-      query.bind('change', function(ev, q) {
-        if (!q) {
-          return;
-        }
+      query.bind('current', function(ev, q) {
+        var history;
+        (history = this.attr('history').slice(0, 2)).splice(0, 0, q);
+        this.attr('history', history);
         state.loading();
-        return ejs.search(q, function(err, _arg) {
+        ejs.search(q, function(err, _arg) {
           var docs, total;
           total = _arg.total, docs = _arg.docs;
           if (err) {
@@ -770,6 +769,7 @@
           }
           return state.hasResults(total, docs);
         });
+        return this.attr('suggestion', q);
       });
       
       module.exports = query;
@@ -924,7 +924,7 @@
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ suggestion.value }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ query.suggestion }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.current }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
     });
 
     
