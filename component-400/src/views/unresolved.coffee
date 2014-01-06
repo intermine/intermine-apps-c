@@ -4,13 +4,9 @@ class UnresolvedView extends View
 
     template: require '../templates/unresolved'
 
-    constructor: ->
-        super
+    render: ->
         @el.addClass 'unresolved section'
 
-    render: ->
-        @el.html @template { @collection }
-
-        @
+        super
 
 module.exports = UnresolvedView

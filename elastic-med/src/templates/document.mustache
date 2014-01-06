@@ -1,0 +1,49 @@
+<div class="body">
+    <div class="title">
+        <app-label></app-label>
+        <h4 class="highlight">{{{ highlight title }}}</h4>
+    </div>
+
+    <ul class="authors">
+        {{ #authors }}
+        {{ #if affiliation }}
+        <li><span class="hint--top" data-hint="{{ hint affiliation 30 }}">{{ author this }}</span></li>
+        {{ else }}
+        <li>{{ author this }}</li>
+        {{ /if }}
+        {{ /authors }}
+    </ul>
+
+    <em class="journal">in {{ journal }}</em>
+
+    {{ #isPublished issue.published }}
+    <div class="meta hint--top" data-hint="{{ date issue.published }}">Published {{ ago issue.published }}</div>
+    {{ else }}
+    <div class="meta">In print</div>
+    {{ /isPublished }}
+
+    {{ #id.pubmed }}
+    <div class="meta">
+    PubMed: <a target="new" href="http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}">{{ id.pubmed }}</a>
+    </div>
+    {{ /id.pubmed }}
+    
+    {{ #id.doi }}
+    <div class="meta">
+    DOI: <a target="new" href="http://dx.doi.org/{{ id.doi }}">{{ id.doi }}</a>
+    </div>
+    {{ /id.doi }}
+</div>
+
+{{ #ifs linkToDetail }}
+<a class="preview" href="{{ link oid }}">
+    <div class="abstract highlight">
+        {{{ highlight abstract }}}
+        <div class="fa fa-eye"></div>
+    </div>
+</a>
+{{ else }}
+<div class="abstract highlight">
+    {{{ highlight abstract }}}
+</div>
+{{ /ifs }}

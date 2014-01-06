@@ -1,0 +1,1 @@
+module.exports = '<table id="pathways-displayer-loading"><tr><td><div style="float: left;" class="loading-spinner"></div><div style="float: left; padding-left: 5px">Querying mines...</div></td></tr></table>';

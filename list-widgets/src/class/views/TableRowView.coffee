@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 TablePopoverView = require './TablePopoverView'
 
 class TableRowView extends Backbone.View

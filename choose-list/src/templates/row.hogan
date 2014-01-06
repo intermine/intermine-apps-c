@@ -1,0 +1,18 @@
+<td><input type="checkbox" {{#selected}}checked="checked"{{/selected}}/></td>
+<td>
+    <ul class="tags">
+        {{#tags}}
+            <li data-model="{{id}}" data-slug="{{slug}}">
+                <span class="color" style="
+                    {{#color}}
+                        background-color:{{background}};
+                        border-color:{{border}};
+                    {{/color}}
+                "></span>
+            </li>
+        {{/tags}}
+    </ul>
+    <span class="title">{{name}}</span>
+    <span class="description">{{description}}</span>
+</td>
+<td><span class="created" title="{{prettyDate}}">{{timeAgo}}</span></td>

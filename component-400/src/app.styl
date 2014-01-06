@@ -1,3 +1,7 @@
+@import 'nib'
+
+$blue = #2ba6cb
+
 h2
     font-size: 20px
     display: inline-block
@@ -12,33 +16,43 @@ a
 
 .help, .help-flyout
     cursor: pointer
+    content: "i"
+    padding: 0 4px
+    font-size: 12px
+    line-height: 14px
+    text-align: center
+    color: #fff
+    background: $blue
+    display: inline-block
+    font-family: serif
+    font-weight: bold
+    font-style: italic
+    text-transform: lowercase
+    vertical-align: middle
+
+    // Reset for hint.css
+    &:after, &:before, .flyout
+        font-style: normal
+        text-transform: none
+        white-space: pre
+        text-align: left
+        // not ideal, change with "default" when implemented
+        font-family: sans-serif
+
+.help-flyout
     position: relative
 
-    &:before
-        content: "?"
-        width: 14px
-        height: 14px
-        font-size: 12px
-        font-weight: bold
-        line-height: 14px
-        text-align: center
-        color: #fff
-        background: #2ba6cb
-        display: inline-block
-
-    .tooltip
-        display: block
-        font-size: 12px !important
-        white-space: nowrap
-        top: -30px
-        left: -2px
-
     .flyout
+        position: absolute
         color: #333
         font-weight: normal
         top: -20px
         left: 20px
-
+        // otherwise border won't show
+        width: auto
+        // Override foundation
+        padding: 2px
+        
         tr
             td:first-child
                 text-transform: capitalize
@@ -52,12 +66,14 @@ a
 
     header
         margin-bottom: 10px
-        vertical-align: middle
         line-height: 37px
 
         .button
             margin-left: 10px
             float: right
+
+        *
+            vertical-align: middle
 
 .header
     header
@@ -88,6 +104,10 @@ a
         margin-bottom: 10px
 
 table.striped
+    thead
+        th            
+            .help
+                margin-bottom: 2px
     tbody
         td.odd
             background: #f9f9f9
@@ -96,26 +116,47 @@ table.striped
             background: #fff
 
 .summary
+    header
+        .help.right
+            margin: 7px 0 0 10px
+
     dl.tabs
         dd
             a
                 text-transform: capitalize
 
-ul.pagination
-    text-align: center
-    margin-bottom: 20px
-
-    li
-        display: inline-block
-        float: none
-
 ul.inline
     list-style: none
     padding: 0
     margin: 0
+    display: inline-block
 
     li
         display: inline-block
 
         &:not(:last-child):after
             content: ", "
+
+div.paginator
+
+    .dropdown
+        &.secondary::after
+            border-color: #1d1d1d transparent transparent transparent
+
+
+        ul
+            top: 27px
+            width: 0
+
+    ul.pagination
+        text-align: left
+        margin-bottom: 20px
+
+        li
+            display: inline-block
+            margin-left: 0
+            float: left
+            user-select: none
+
+            &.arrow:not(.unavailable)
+                background: lighten($blue, 90%)

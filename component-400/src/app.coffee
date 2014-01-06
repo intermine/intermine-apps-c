@@ -1,8 +1,8 @@
 { mori } = require './modules/deps'
 
-mediator   = require './modules/mediator'
-AppView    = require './views/app'
-Collection = require './models/collection'
+mediator = require './modules/mediator'
+AppView  = require './views/app'
+Database = require './models/database'
 
 module.exports = (opts) ->
     throw 'Provide your own callback function' unless opts.cb
@@ -10,18 +10,18 @@ module.exports = (opts) ->
     # Plug-in our own formatter?
     require('./modules/formatter').primary = opts.formatter if opts.formatter
 
-    # Parse the input data.
-    collection = new Collection opts.data or []
+    # Init the database.
+    db = new Database opts.data or []
 
     # Clicking on individual objects.
     mediator.on 'object:click', opts.portal or ( -> ), @
     # Save this list, continue.
     mediator.on 'app:save', ->
         # Convert our set into an Array.
-        opts.cb null, mori.into_array collection.selected
+        opts.cb mori.into_array db.selected
     , @
 
-    new AppView {
-        'el': opts.target or 'body'
-        collection
-    }
+    new AppView { 'el': opts.target or 'body', db }
+
+    # Call me to return the currently selected items.
+    -> mori.into_array db.selected

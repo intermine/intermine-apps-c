@@ -3,54 +3,58 @@
 mediator = require '../modules/mediator'
 View     = require '../modules/view'
 
+tooltips = require '../models/tooltips'
+
 HeaderView          = require './header'
 DuplicatesTableView = require './duplicates'
 UnresolvedView      = require './unresolved'
 SummaryView         = require './summary'
 HeaderView          = require './header'
-TooltipView         = require './tooltip'
 
 class AppView extends View
 
     autoRender: yes
 
+    template: require '../templates/app'
+
     events:
-        'mouseover .help': 'toggleTooltip'
-        'mouseout  .help': 'toggleTooltip'
+        # Tooltip text.
+        'mouseover .help': 'addTooltip'
 
     render: ->
-        # Render the header.
-        @el.append (new HeaderView({ 'collection': @collection })).render().el
+        super
 
-        { data, dict } = @collection
+        # Render the header.
+        @el.append (new HeaderView({
+            'db': @options.db
+        })).render().el
 
         # Render the duplicates?
-        @el.append((new DuplicatesTableView({
-            collection # does not need to be filtered, instantiating one class only
-        })).render().el) if (collection = data.matches.DUPLICATE or []).length
+        if (collection = @options.db.duplicates).length
+            @el.append (new DuplicatesTableView({
+                collection
+            })).render().el
 
-        # Summary overview?
-        @el.append((new SummaryView({
-            'collection': data.matches # needs to be filtered
-        })).render().el)
+        # Summary overview.
+        @el.append (new SummaryView({
+            'matches': @options.db.matches
+        })).render().el
 
         # No matches?
-        @el.append ((new UnresolvedView({
-            'collection': data.unresolved
-        })).render().el) if data.unresolved.length
+        if (collection = @options.db.data.unresolved).length
+            @el.append (new UnresolvedView({
+                collection
+            })).render().el
 
         @
 
-    # Toggle a tooltip.
-    toggleTooltip: (ev) ->
-        switch ev.type
-            when 'mouseover'
-                id = (target = $(ev.target)).data('id')
-                @views.push view = new TooltipView({ 'model': { id } })
-                target.append view.render().el
-            
-            when 'mouseout'
-                # Only tooltips are in the list.
-                ( do view.dispose for view in @views )
+    # Add tooltip text for hint.css
+    addTooltip: (ev) ->
+        target = $ ev.target
+        
+        target.addClass 'hint--bounce'
+        
+        # Populate the text.
+        ev.target.setAttribute 'data-hint', tooltips[target.data('id')]
 
 module.exports = AppView

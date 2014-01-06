@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="large-4 columns" data-view="tags"></div>
+    <div class="large-8 columns">
+        <table>
+            <thead>
+                <tr>
+                    <th class="minimal"></th>
+                    <th data-sort="title"><a>Title</a></th>
+                    <th class="minimal" data-sort="timestamp"><a>Created</a></th>
+                </tr>
+            </thead>
+            <tbody data-view="rows"></tbody>
+        </table>
+
+        <div class="pagination-centered" data-view="pagination"></div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <button id="submit" class="disabled">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

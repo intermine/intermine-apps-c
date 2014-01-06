@@ -1,3 +1,4 @@
+{ $, saveAs } = require '../deps'
 ### Create file download with custom content.###
 
 # Generate and download a file from a string.

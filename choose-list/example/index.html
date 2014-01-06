@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>component-400</title>
+    
+    <link href="app.bundle.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="app.bundle.js"></script>
+
+    <style>
+    #target { width: 700px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <div id="target"></div>
+    <script>
+        $(function() {
+            var opts = {
+                // Pass the following to the App from the client.
+                'mine': 'http://www.flymine.org/query/', // which mine to connect to
+                'token': 'n1s3AaY1DcXbj3X740S5qbAMzYU', // token so we can access private lists
+                // Provided input, if any.
+                'provided': {
+                    'selected': 'demo-list', // a name of the list that is to be "highlighted"
+                    'hidden': [ 'temp' ] // hide lists tagged with this label
+                },
+                // A callback called at least once.
+                cb: function(err, working, list) {
+                    // Has error happened?
+                    if (err) throw err;
+                    // Are you working?
+                    console.log('working:', working);
+                    // Are you done? Dump the list then.
+                    console.log('list:', list);
+                }
+            };
+            // Require.
+            var App = require('choose-list');
+            // Initialize.
+            var app = new App(opts);
+            // Render to a target.
+            app.render('body');
+        });
+    </script>
+</body>
+</html>

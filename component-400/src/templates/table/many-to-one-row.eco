@@ -5,9 +5,12 @@
                 <li><%- item %></li>
             <% end %>
         </ul>
+        <% if @input.length isnt 1: %>
+            <span data-id="5" class="help">i</span>
+        <% end %>
     </td>
 <% end %>
 <td>
     <a><%- @matched %></a>
-    <span class="help-flyout"></span>
+    <span class="help-flyout">i</span>
 </td>

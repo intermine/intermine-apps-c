@@ -6,5 +6,5 @@
 <% end %>
 <td>
     <a><%- @matched %></a>
-    <span class="help-flyout"></span>
+    <span class="help-flyout">i</span>
 </td>

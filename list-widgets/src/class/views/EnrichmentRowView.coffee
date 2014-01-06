@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 EnrichmentPopoverView = require './EnrichmentPopoverView'
 
 class EnrichmentRowView extends Backbone.View

@@ -1,3 +1,5 @@
+{ $, Backbone } = require '../../deps'
+
 ### Table Widget table row matches box.###
 
 class TablePopoverView extends Backbone.View

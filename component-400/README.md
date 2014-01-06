@@ -18,15 +18,14 @@ Visualizes the result of an InterMine ID Resolution job.
         //  differently.
         $.getJSON('data.json', function(data) {
             // Require the app and execute it passing the following opts...
+            // Returns a function that can be called to retrieve the currently selected items.
             require('component-400')({
                 // The data payload. You can see example in `example/data.json`.
                 'data': data,
                 // The target string, defaults to the <body/> element.
                 'target': '#target',
                 // Callback once the user is happy with the selection.
-                cb: function(err, selected) {
-                    // Also called when there is a problem of some sort.
-                    if (err) throw err;
+                cb: function(selected) {
                     // Has a list of internal InterMine IDs.
                     console.log(selected);
                 },
@@ -56,18 +55,18 @@ $ npm install
 $ grunt
 ```
 
+Or if you are watching:
+
+```bash
+$ watch --color grunt build
+```
+
 ##Dependencies
 
-The following can be fetched using [Bower](http://bower.io/):
+Fetch them using [Bower](http://bower.io/):
 
+```bash
+$ bower install
 ```
-component-400
-├── FileSaver#d8c81c105f
-├── backbone-events#fe7c8de59f
-├── csv#0.1.2
-├── foundation3#e-tag:cbd43d4a2
-├── jquery#2.0.3
-├── lodash#2.2.1
-├── queue-async#1.0.4
-└── setimmediate#1.0.1
-```
+
+If you are having throuble with [mori](https://github.com/swannodette/mori) make sure you have `Java` installed.

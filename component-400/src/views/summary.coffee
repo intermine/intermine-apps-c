@@ -1,17 +1,10 @@
-{ _, csv, saveAs } = require '../modules/deps'
+{ _, saveAs } = require '../modules/deps'
 
 mediator   = require '../modules/mediator'
 formatter  = require '../modules/formatter'
+csv        = require '../modules/csv'
 View       = require '../modules/view'
 Table      = require './table'
-Collection = require '../models/collection'
-
-# Translations.
-dict =
-    'MATCH': 'direct hit'
-    'TYPE_CONVERTED': 'converted type'
-    'OTHER': 'synonym'
-    'WILDCARD': 'wildcard'
 
 # Show summary of all but matches and duplicates.
 class SummaryView extends View
@@ -21,20 +14,35 @@ class SummaryView extends View
     events:
         'click .button.download': 'download'
 
+    # Can we download using Blob?
+    canDownload: no
+
     constructor: ->
         super
-        @el.addClass 'summary section'
+
+        # Check for Blob support.
+        try @canDownload = !!new Blob()
 
     render: ->
-        @el.html do @template
+        @el.addClass 'summary section'
 
+        @el.html @template { @canDownload }
+
+        # Refs.
         tabs    = @el.find '.tabs'
         content = @el.find '.tabs-content'
 
-        isFirst = yes
-        for reason, collection of @collection when reason isnt 'DUPLICATE' and collection.length
-            # Switcher.
-            @views.push view = new TabSwitcherView { 'model': { 'name': dict[reason]  }, reason }
+        showFirstTab = _.once (reason) -> mediator.trigger 'tab:switch', reason
+
+        for { name, collection, reason } in @options.matches when reason isnt 'UNRESOLVED'
+            # Tab switcher.
+            @views.push view = new TabSwitcherView {
+                'model': {
+                    name,
+                    'reason': do reason.toLowerCase
+                },
+                reason
+            }
             tabs.append view.render().el
             
             # Content in two types of tables.
@@ -43,33 +51,38 @@ class SummaryView extends View
             content.append view.render().el
 
             # Show the first one by default.
-            mediator.trigger('tab:switch', reason) and isFirst = false if isFirst
+            showFirstTab reason
 
         @
 
     # Saves the summary into a file.
-    # TODO: show matches in download
     download: ->
         columns = null ; rows = []
 
-        adder = (match, input) ->
+        adder = (match, input, count) ->
             [ columns, row ] = formatter.csv match, columns
-            rows.push [ input, reason ].concat row
-        
-        for reason, collection of @collection when reason isnt 'DUPLICATE' and collection.length
-            for item in collection
-                # Many to one relationships.
-                if reason is 'MATCH'
-                    ( adder(item, input) for input in item.input )
-                # One to many relationships.
-                else
-                    ( adder(match, item.input) for match in item.matches )
+            # Merge the columns in a row.
+            rows.push [ input, reason, count ].concat row
 
-        columns = [ 'input', 'reason' ].concat columns
+        for { collection, reason } in @options.matches
+            for item in collection
+                switch reason
+                    # Many to one relationships.
+                    when 'MATCH'
+                        ( adder(item, input, 1) for input in item.input )
+                    # Plain unresolved collection.
+                    when 'UNRESOLVED'
+                        rows.push [ item, reason, 0 ]
+                    # One to many relationships.
+                    else
+                        for match in item.matches
+                            adder match, item.input, item.matches.length
+
+        columns = [ 'input', 'reason', 'matches' ].concat columns
 
         # Converted to a csv string.
-        converted = csv _.map rows, (row) ->
-            _.zipObject columns, row
+        converted = csv.save [ columns ].concat rows
+
         # Make into a Blob.
         blob = new Blob [ converted ], { 'type': 'text/csv;charset=utf-8' }
         # Save it.

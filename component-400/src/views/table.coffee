@@ -51,7 +51,7 @@ class OneToManyTableView extends View
 
     constructor: ->
         super
-
+        
         # A single identifier can match multiple objects (apparently).
         # Also cache some stats to go through a range of items faster.
         @pagin = new Paginator 'total': do =>

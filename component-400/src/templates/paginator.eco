@@ -1,27 +1,52 @@
-<% if @pages > 1: %>
-    <ul class="pagination">
-        <% if @current is 0: %>
-            <li class="unavailable arrow"><a>&laquo;</a></li>
+<!-- does it make sense to show a perPage switcher? -->
+<% if @total > 5: %>
+    <div class="small button dropdown secondary right">
+        <%= @perPage %> rows per page
+        <ul class="no-hover">
+            <% for n in [ 5, 10, 20, 50, 100 ] when n <= @total: %>
+                <% if n isnt @perPage: %>
+                    <li data-action="resize" data-n="<%= n %>">
+                        <a>Show <%= n %> rows</a>
+                    </li>
+                <% end %>
+            <% end %>
+            <!-- show all rows? -->
+            <% if @total <= 50 and @total isnt @perPage: %>
+                <li class="divider"></li>
+                <li data-action="resize" data-n="<%= @total %>">
+                    <a>Show all rows</a>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+<% end %>
+
+<!-- do we need to show a paginator? -->
+<ul class="pagination">
+    <% if @pages > 1: %>
+        <li class="unavailable"><a>Page <%= @current %> of <%= @pages %></a></li>
+        <% if @current is 1: %>
+            <li class="unavailable arrow"><a>&lsaquo;</a></li>
         <% else: %>
-            <li class="arrow" data-action="prev"><a>&laquo;</a></li>
+            <li class="arrow" data-action="prev" title="Previous"><a>&lsaquo;</a></li>
         <% end %>
 
         <% for page in @range: %>
             <% if page is null: %>
                 <li class="unavailable"><a>&hellip;</a></li>
             <% else: %>
-                <% if page is @current + 1: %>
-                    <li data-action="switch" data-page="<%= page - 1 %>" class="current"><a><%= page %></a></li>
-                <% else: %>
-                    <li data-action="switch" data-page="<%= page - 1 %>"><a><%= page %></a></li>
-                <% end %>
+                <li data-action="select" data-n="<%= page %>"
+                    <% if page is @current: %>
+                        class="current"
+                    <% end %>
+                ><a><%= page %></a></li>
             <% end %>
         <% end %>
 
-        <% if @current + 1 is @pages: %>
-            <li class="unavailable arrow"><a>&raquo;</a></li>
+        <% if @current is @pages: %>
+            <li class="unavailable arrow"><a>&rsaquo;</a></li>
         <% else: %>
-            <li class="arrow" data-action="next"><a>&raquo;</a></li>
+            <li class="arrow" data-action="next" title="Next"><a>&rsaquo;</a></li>
         <% end %>
-    </ul>
-<% end %>
+    <% end %>
+</ul>

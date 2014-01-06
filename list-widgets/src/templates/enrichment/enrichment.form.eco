@@ -14,7 +14,7 @@
         <label>Max p-value</label>
         <select name="pValue" class="span2">
             <% for p in @pValues: %>
-                <option value="<%= p %>" <%= 'selected="selected"' if @options.pValue is p %>>
+                <option value="<%= p %>" <%= 'selected="selected"' if parseFloat(@options.pValue) is parseFloat(p) %>>
                     <%= p %>
                 </option>
             <% end %>

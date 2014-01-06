@@ -1,0 +1,1 @@
+module.exports = "<table><tr><td>No pathways found.</td></tr></table>";
