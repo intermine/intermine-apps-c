@@ -28,7 +28,4 @@ query.bind 'current', (ev, q) ->
         # Has results.
         state.hasResults(total, docs)
 
-    # Mirror as a suggestion.
-    @attr 'suggestion', q
-
 module.exports = query

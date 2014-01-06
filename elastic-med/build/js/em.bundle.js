@@ -53835,18 +53835,24 @@ var colorbrewer = {YlGn: {
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var ejs, query;
+      var ejs, query, suggestions;
       
       query = require('../modules/query');
       
       ejs = require('../modules/ejs');
+      
+      suggestions = new can.Map({
+        'px': 0,
+        'list': []
+      });
       
       module.exports = can.Component.extend({
         tag: 'app-search',
         template: require('../templates/search'),
         scope: function() {
           return {
-            query: query
+            query: query,
+            suggestions: suggestions
           };
         },
         events: {
@@ -53861,38 +53867,34 @@ var colorbrewer = {YlGn: {
             return evt.preventDefault();
           },
           'input.text keyup': function(el, evt) {
-            var last, value;
-            query.attr('suggestion', value = el.val());
-            if (!value.length) {
+            var caret, value, word;
+            if (!(value = el.val()).length) {
               return;
             }
             if ((evt.keyCode || evt.which) === 13) {
               return query.attr('current', value);
             }
-            if (value.slice(-1).match(/\s/)) {
+            caret = el.prop('selectionStart');
+            if (value.slice(Math.max(caret - 1, 0), +caret + 1 || 9e9).match(/^\s+$/)) {
               return;
             }
-            return ejs.suggest((last = value.split(/\s+/).pop()), function(err, suggs) {
-              var sugg;
+            word = '';
+            try {
+              word += value.slice(0, caret).match(/([^\s]+)$/)[1];
+            } catch (_error) {}
+            try {
+              word += value.slice(caret).match(/(^[^\s]+)/)[1];
+            } catch (_error) {}
+            suggestions.attr('px', this.element.find('.faux').text(value.slice(0, caret).replace(/\s/g, "\u00a0")).outerWidth());
+            return ejs.suggest(word, function(err, suggs) {
+              var words;
               if (err) {
                 return;
               }
-              if (!suggs[last]) {
+              if (!(words = suggs[word])) {
                 return;
               }
-              if (!(sugg = (function() {
-                var text, _i, _len, _ref;
-                _ref = suggs[last];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  text = _ref[_i].text;
-                  if (!text.indexOf(last)) {
-                    return text;
-                  }
-                }
-              })())) {
-                return;
-              }
-              return query.attr('suggestion', value.slice(0, value.lastIndexOf(last)) + sugg);
+              return suggestions.attr('list', _.map(words, 'text'));
             });
           },
           '.breadcrumbs a click': function(el) {
@@ -54196,7 +54198,7 @@ var colorbrewer = {YlGn: {
         (history = this.attr('history').slice(0, 2)).splice(0, 0, q);
         this.attr('history', history);
         state.loading();
-        ejs.search(q, function(err, _arg) {
+        return ejs.search(q, function(err, _arg) {
           var docs, total;
           total = _arg.total, docs = _arg.docs;
           if (err) {
@@ -54207,7 +54209,6 @@ var colorbrewer = {YlGn: {
           }
           return state.hasResults(total, docs);
         });
-        return this.attr('suggestion', q);
       });
       
       module.exports = query;
@@ -54327,7 +54328,7 @@ var colorbrewer = {YlGn: {
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>An example app searching through an example collection of cancer related publications.</p>","    <div class=\"content\"></div>","</div>"].join("\n");
+      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>ElasticSearch through a collection of cancer related publications from PubMed. Use <kbd>Tab</kbd> to autocomplete or <kbd>Enter</kbd> to search.</p>","    <div class=\"content\"></div>","</div>"].join("\n");
     });
 
     
@@ -54369,7 +54370,7 @@ var colorbrewer = {YlGn: {
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ query.suggestion }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.current }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <div class=\"faux\"></div>","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.current }}\">","        {{ #if suggestions.list.length }}","        <ul class=\"suggestions\" style=\"left:{{ suggestions.px }}px\">","        {{ #suggestions.list }}","            <li>{{ . }}</li>","        {{ /suggestions.list }}","        </ul>","        {{ /if }}","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
     });
 
     

@@ -1,7 +1,14 @@
 <div class="row collapse">
     <div class="large-10 columns search">
-        <input class="auto" type="text" placeholder="" value="{{ query.suggestion }}">
+        <div class="faux"></div>
         <input class="text" type="text" placeholder="Query..." value="{{ query.current }}">
+        {{ #if suggestions.list.length }}
+        <ul class="suggestions" style="left:{{ suggestions.px }}px">
+        {{ #suggestions.list }}
+            <li>{{ . }}</li>
+        {{ /suggestions.list }}
+        </ul>
+        {{ /if }}
     </div>
     <div class="large-2 columns">
         <a class="button secondary postfix">
