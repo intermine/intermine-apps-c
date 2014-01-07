@@ -33,6 +33,14 @@
     DOI: <a target="{{ id.doi }}" href="http://dx.doi.org/{{ id.doi }}">{{ id.doi }}</a>
     </div>
     {{ /id.doi }}
+
+    {{ #ifs showKeywords }}
+    <ul class="keywords">
+    {{ #keywords }}
+        <li><a><span class="secondary label">{{ . }}</span></a></li>
+    {{ /keywords }}
+    </ul>
+    {{ /ifs }}
 </div>
 
 {{ #ifs linkToDetail }}
