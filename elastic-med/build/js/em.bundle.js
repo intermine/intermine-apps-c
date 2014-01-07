@@ -53607,7 +53607,9 @@ var colorbrewer = {YlGn: {
           fin = function(doc) {
             var template, title;
             template = require('./templates/page/detail');
-            title = doc.attr('title').value;
+            if (_.isObject(title = doc.attr('title'))) {
+              title = title.value;
+            }
             return _this.render(template, doc, "" + title + " - ElasticMed");
           };
           doc = null;
@@ -53835,16 +53837,84 @@ var colorbrewer = {YlGn: {
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var ejs, query, suggestions;
+      var autocomplete, ejs, findActive, query, suggest, suggestions;
       
       query = require('../modules/query');
       
       ejs = require('../modules/ejs');
       
       suggestions = new can.Map({
+        'value': '',
+        'caret': 0,
         'px': 0,
-        'list': []
+        'list': [],
+        setList: function(words) {
+          return _.map(words, function(_arg, i) {
+            var text;
+            text = _arg.text;
+            return {
+              text: text,
+              'active': !i
+            };
+          });
+        }
       });
+      
+      findActive = function(s, i) {
+        var active;
+        if (!(active = s.attr('active'))) {
+          return;
+        }
+        s.attr('active', false);
+        return true;
+      };
+      
+      autocomplete = function(word, el) {
+        var caret, l, pos, r, value;
+        value = el.val();
+        caret = el.prop('selectionStart');
+        l = value.slice(0, caret).replace(/([^\s]+)$/, '^');
+        r = value.slice(caret).replace(/(^[^\s]+)/, '^');
+        value = (l + r).replace(/\^+/, "" + word + "^");
+        el.val(value.replace('^', ''));
+        pos = value.indexOf('^');
+        return el[0].setSelectionRange(pos, pos);
+      };
+      
+      suggest = function(el, evt) {
+        var caret, key, value, word;
+        if (!(value = el.val()).length) {
+          return;
+        }
+        if ((key = evt.keyCode || evt.which) === 13) {
+          return query.attr('current', value);
+        }
+        if (key === 9 || key === 38 || key === 40) {
+          return;
+        }
+        caret = el.prop('selectionStart');
+        if (value.slice(Math.max(caret - 1, 0), +caret + 1 || 9e9).match(/^\s+$/)) {
+          return suggestions.attr('list', []);
+        }
+        word = '';
+        try {
+          word += value.slice(0, caret).match(/([^\s]+)$/)[1];
+        } catch (_error) {}
+        try {
+          word += value.slice(caret).match(/(^[^\s]+)/)[1];
+        } catch (_error) {}
+        suggestions.attr('px', this.element.find('.faux').text(value.slice(0, caret).replace(/\s/g, "\u00a0")).outerWidth());
+        return ejs.suggest(word, function(err, res) {
+          var words;
+          if (err) {
+            return;
+          }
+          if (!(words = res[word])) {
+            return;
+          }
+          return suggestions.attr('list', words);
+        });
+      };
       
       module.exports = can.Component.extend({
         tag: 'app-search',
@@ -53859,44 +53929,75 @@ var colorbrewer = {YlGn: {
           'a.button click': function() {
             return query.attr('current', this.element.find('input').val());
           },
-          'input.text keydown': function(el, evt) {
-            if ((evt.keyCode || evt.which) !== 9) {
+          '.suggestions li mouseover': function(el, evt) {
+            var list, text;
+            if (!(list = suggestions.attr('list')).length) {
               return;
             }
-            el.val(query.attr('suggestion'));
-            return evt.preventDefault();
-          },
-          'input.text keyup': function(el, evt) {
-            var caret, value, word;
-            if (!(value = el.val()).length) {
-              return;
-            }
-            if ((evt.keyCode || evt.which) === 13) {
-              return query.attr('current', value);
-            }
-            caret = el.prop('selectionStart');
-            if (value.slice(Math.max(caret - 1, 0), +caret + 1 || 9e9).match(/^\s+$/)) {
-              return;
-            }
-            word = '';
-            try {
-              word += value.slice(0, caret).match(/([^\s]+)$/)[1];
-            } catch (_error) {}
-            try {
-              word += value.slice(caret).match(/(^[^\s]+)/)[1];
-            } catch (_error) {}
-            suggestions.attr('px', this.element.find('.faux').text(value.slice(0, caret).replace(/\s/g, "\u00a0")).outerWidth());
-            return ejs.suggest(word, function(err, suggs) {
-              var words;
-              if (err) {
+            _.find(list, findActive);
+            text = el.find('a').text();
+            return _.find(list, function(s, i) {
+              if (s.attr('text') !== text) {
                 return;
               }
-              if (!(words = suggs[word])) {
-                return;
-              }
-              return suggestions.attr('list', _.map(words, 'text'));
+              return s.attr('active', true);
             });
           },
+          '.suggestions li click': function(el, evt) {
+            var input;
+            input = this.element.find('input.text');
+            autocomplete(el.find('a').text(), input);
+            suggestions.attr('list', []);
+            return input.focus();
+          },
+          'input.text keydown': function(el, evt) {
+            var arrow, item, key, list, word;
+            arrow = function(key) {
+              var current, list;
+              if (!(list = suggestions.attr('list')).length) {
+                return;
+              }
+              switch (key) {
+                case 38:
+                  current = _.findIndex(list, findActive) || 0;
+                  if ((current -= 1) < 0) {
+                    current = list.length - 1;
+                  }
+                  break;
+                case 40:
+                  current = _.findIndex(list, findActive);
+                  if (_.isUndefined(current)) {
+                    current = list.length - 1;
+                  }
+                  if ((current += 1) === list.length) {
+                    current = 0;
+                  }
+              }
+              list[current].attr('active', true);
+              return evt.preventDefault();
+            };
+            switch (key = evt.keyCode || evt.which) {
+              case 9:
+                if (!(list = suggestions.attr('list')).length) {
+                  return;
+                }
+                if (!(item = _.find(list, findActive))) {
+                  return;
+                }
+                word = item.attr('text');
+                autocomplete(word, el);
+                suggestions.attr('list', []);
+                return evt.preventDefault();
+              case 38:
+              case 40:
+                return arrow(key);
+              case 27:
+                suggestions.attr('list', []);
+                return el.blur();
+            }
+          },
+          'input.text keyup': suggest,
+          'input.text click': suggest,
           '.breadcrumbs a click': function(el) {
             return query.attr('current', el.text());
           }
@@ -54003,6 +54104,10 @@ var colorbrewer = {YlGn: {
     // ejs.coffee
     root.require.register('em/src/modules/ejs.js', function(exports, require, module) {
     
+      var cache;
+      
+      cache = {};
+      
       module.exports = new can.Map({
         client: null,
         index: null,
@@ -54086,6 +54191,9 @@ var colorbrewer = {YlGn: {
           if (!this.client) {
             return cb('Client is not setup');
           }
+          if (text in cache) {
+            return cb(null, cache[text]);
+          }
           body = {
             'completion': {
               text: text,
@@ -54111,6 +54219,7 @@ var colorbrewer = {YlGn: {
               _ref1 = _ref[_i], text = _ref1.text, options = _ref1.options;
               map[text] = options;
             }
+            cache[text] = map;
             return cb(null, map);
           }, cb);
         },
@@ -54314,7 +54423,7 @@ var colorbrewer = {YlGn: {
     // document.mustache
     root.require.register('em/src/templates/document.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #ifs linkToDetail }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ else }}","<div class=\"abstract highlight\">","    {{{ highlight abstract }}}","</div>","{{ /ifs }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"{{ id.pubmed }}\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"{{ id.doi }}\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #ifs linkToDetail }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ else }}","<div class=\"abstract highlight\">","    {{{ highlight abstract }}}","</div>","{{ /ifs }}"].join("\n");
     });
 
     
@@ -54328,7 +54437,7 @@ var colorbrewer = {YlGn: {
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>ElasticSearch through a collection of cancer related publications from PubMed. Use <kbd>Tab</kbd> to autocomplete or <kbd>Enter</kbd> to search.</p>","    <div class=\"content\"></div>","</div>"].join("\n");
+      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <div class=\"content\"></div>","</div>"].join("\n");
     });
 
     
@@ -54356,7 +54465,7 @@ var colorbrewer = {YlGn: {
     // index.mustache
     root.require.register('em/src/templates/page/index.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"page index\">","    <app-search></app-search>","    <app-title></app-title>","    <app-results></app-results>","</div>"].join("\n");
+      module.exports = ["<p>ElasticSearch through a collection of cancer related publications from PubMed. Use <kbd>Tab</kbd> to autocomplete or <kbd>Enter</kbd> to search.</p>","<div class=\"page index\">","    <app-search></app-search>","    <app-title></app-title>","    <app-results></app-results>","</div>"].join("\n");
     });
 
     
@@ -54370,7 +54479,7 @@ var colorbrewer = {YlGn: {
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <div class=\"faux\"></div>","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.current }}\">","        {{ #if suggestions.list.length }}","        <ul class=\"suggestions\" style=\"left:{{ suggestions.px }}px\">","        {{ #suggestions.list }}","            <li>{{ . }}</li>","        {{ /suggestions.list }}","        </ul>","        {{ /if }}","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <div class=\"faux\"></div>","        <input class=\"text\" type=\"text\" maxlength=\"100\" placeholder=\"Query...\" value=\"{{ query.current }}\" autofocus>","        {{ #if suggestions.list.length }}","        <ul class=\"f-dropdown suggestions\" style=\"left:{{ suggestions.px }}px\">","        {{ #suggestions.list }}","            <li {{ #active }}class=\"active\"{{ /active }}>","                <a>{{ text }}</a>","            </li>","        {{ /suggestions.list }}","        </ul>","        {{ /if }}","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
     });
 
     

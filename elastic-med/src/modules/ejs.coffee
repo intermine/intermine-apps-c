@@ -1,3 +1,6 @@
+# Cache for useful things.
+cache = {}
+
 # Elastic helper.
 module.exports = new can.Map
 
@@ -76,6 +79,9 @@ module.exports = new can.Map
     suggest: (text, cb) ->
         return cb 'Client is not setup' unless @client
 
+        # In cache?
+        return cb(null, cache[text]) if text of cache
+
         body = 'completion': { text, 'term': { 'field': 'title' } }
 
         @client.suggest({ @index, body }).then (res) ->
@@ -89,6 +95,9 @@ module.exports = new can.Map
             map = {}
             ( map[text] = options for { text, options } in body.completion )
             
+            # Save to the cache.
+            cache[text] = map
+
             return cb null, map
 
         # Trouble?

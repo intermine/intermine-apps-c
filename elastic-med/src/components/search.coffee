@@ -3,11 +3,89 @@ ejs   = require '../modules/ejs'
 
 suggestions = new can.Map
 
+    # The value of the input field.
+    'value': ''
+
+    # Caret position.
+    'caret': 0
+
     # Position in px from left.
     'px': 0
 
     # List of suggestions.
     'list': []
+
+    # Pluck text from ejs words and inactivate all.
+    setList: (words) ->
+        _.map words, ({ text }, i) ->
+            { text, 'active': not i } # activate the first item
+
+# Callback for suggestions list deactivating an item.
+findActive = (s, i) ->
+    return unless active = s.attr 'active' # not active
+    s.attr 'active', no # deactivate
+    yes # found it
+
+# Autocomplete provided word at the current caret.
+autocomplete = (word, el) ->
+    # The input field value.
+    value = do el.val
+
+    # Caret position from left.
+    caret = el.prop 'selectionStart'
+
+    # Remove the previous word.
+    l = value[ 0...caret ].replace(/([^\s]+)$/, '^') # left
+    r = value[ caret...  ].replace(/(^[^\s]+)/, '^') # right
+
+    # Do the replacement.
+    value = (l + r).replace /\^+/, "#{word}^"
+
+    # Show the new string.
+    el.val value.replace '^', ''
+    
+    # Move the caret after the new word. Selection of 0.
+    pos = value.indexOf '^'
+    el[0].setSelectionRange pos, pos
+
+# Trigger suggestions on our word?
+suggest = (el, evt) ->
+    # Get the value; return on empty?
+    return unless (value = do el.val).length
+    
+    # Exit updating query on Enter keypress.
+    return query.attr('current', value) if (key = (evt.keyCode or evt.which)) is 13
+
+    # Do not do anything if we are a Tab or up or down arrow.
+    return if key in [ 9, 38, 40 ]
+
+    # Caret position from left.
+    caret = el.prop 'selectionStart'
+
+    # Exit clearing suggestions if only spaces around us.
+    if value[ Math.max(caret - 1, 0)..caret ].match /^\s+$/
+        return suggestions.attr('list', [])
+
+    # Which is the current word?
+    word = ''
+    try word += value[ 0...caret ].match(/([^\s]+)$/)[1] # left
+    try word += value[ caret...  ].match(/(^[^\s]+)/)[1] # right
+
+    # Determine position of caret in px.
+    suggestions.attr 'px', @element
+    .find('.faux')
+    # ...replace with &nbsp; to get a more accurate position.
+    .text(value[0...caret].replace(/\s/g, "\u00a0"))
+    .outerWidth()
+
+    # Otherwise try to autocomplete on the last word.
+    ejs.suggest word, (err, res) ->
+        # Ignore errors.
+        return if err
+        # Maybe only stopword so was skipped?
+        return unless words = res[word]
+        # Save as suggestions.
+        suggestions.attr 'list', words
 
 # Search form.
 module.exports = can.Component.extend
@@ -23,48 +101,99 @@ module.exports = can.Component.extend
         'a.button click': ->
             query.attr 'current', do @element.find('input').val
         
-        # TODO: Tab autocomplete the suggestion.
+        # Onhover suggestion highlight it.
+        '.suggestions li mouseover': (el, evt) ->
+            # No suggestions? How is that even possible???
+            return unless (list = suggestions.attr 'list').length
+
+            # Remove active status.
+            _.find list, findActive
+
+            # Activate our item.
+            text = do el.find('a').text
+            _.find list, (s, i) ->
+                # No match.
+                return unless s.attr('text') is text
+                # Activate.
+                s.attr 'active', yes
+
+        # Click a suggestion = autocomplete on this.
+        '.suggestions li click': (el, evt) ->
+            # Our input field.
+            input = @element.find 'input.text'
+
+            # Do the replacement.                    
+            autocomplete (do el.find('a').text), input
+
+            # Do not care about our list anymore.
+            suggestions.attr 'list', []
+
+            # Give our input field focus again.
+            do input.focus
+
+        # Tab and arrow keys for suggestions.
         'input.text keydown': (el, evt) ->
-            # Tab key?
-            return unless (evt.keyCode or evt.which) is 9
-            # Inject the new text.
-            el.val query.attr('suggestion')
-            # Prevent default event.
-            do evt.preventDefault
+            # An up or down arrow event?
+            arrow = (key) ->
+                # No suggestions?
+                return unless (list = suggestions.attr 'list').length
+                # Which direction?
+                switch key
+                    # Up.
+                    when 38
+                        # Which item are we on now?
+                        current = _.findIndex(list, findActive) or 0 # default to the first item
+                        # Move one up or jump to the end.
+                        current = list.length - 1 if (current -= 1) < 0
+                    when 40
+                        # Which item are we on now?
+                        current = _.findIndex(list, findActive)
+                        current = list.length - 1 if _.isUndefined current # default to the last item
+                        # Move one down or jump to the beginning.
+                        current = 0 if (current += 1) is list.length
 
-        # Input field keypress.
-        'input.text keyup': (el, evt) ->
-            # Get the value; return on empty?
-            return unless (value = do el.val).length
-            # Exit updating query on Enter keypress.
-            return query.attr('current', value) if (evt.keyCode or evt.which) is 13
+                # Activate the item.
+                list[current].attr 'active', yes
 
-            # Caret position from left.
-            caret = el.prop 'selectionStart'
+                # The buck stops here.
+                do evt.preventDefault
 
-            # Exit if only spaces around us.
-            return if value[ Math.max(caret - 1, 0)..caret ].match /^\s+$/
+            # Which key has been pressed down?
+            switch key = (evt.keyCode or evt.which)
+                # Tab key autocompletes the active word.
+                when 9
+                    # No suggestions?
+                    return unless (list = suggestions.attr 'list').length
+                                    
+                    # Which is the currently active word?
+                    return unless item = _.find(list, findActive)
 
-            # Which is the current word?
-            word = ''
-            try word += value[ 0...caret ].match(/([^\s]+)$/)[1] # left
-            try word += value[ caret...  ].match(/(^[^\s]+)/)[1] # right
+                    # Get the value to replace with.
+                    word = item.attr 'text'
 
-            # Determine position of caret in px.
-            suggestions.attr 'px', @element
-            .find('.faux')
-            # ...replace with &nbsp; to get a more accurate position.
-            .text(value[0...caret].replace(/\s/g, "\u00a0"))
-            .outerWidth()
+                    # Do the replacement.                    
+                    autocomplete word, el
 
-            # Otherwise try to autocomplete on the last word.
-            ejs.suggest word, (err, suggs) ->
-                # Ignore errors.
-                return if err
-                # Maybe only stopword so was skipped?
-                return unless words = suggs[word]
-                # Pluck the text saving as suggestions.
-                suggestions.attr 'list', _.map words, 'text'
+                    # Do not care about our list anymore.
+                    suggestions.attr 'list', []
+
+                    # The buck stops here.
+                    do evt.preventDefault
+
+                # Up or down arrow keys move around the suggestions list.
+                when 38, 40 then arrow key
+
+                # Escape key clears the suggestions.
+                when 27
+                    suggestions.attr 'list', []
+                    # ...and removes the focus.
+                    do el.blur
+
+        # Input field keypress triggers suggestions search.
+        'input.text keyup': suggest
+
+        # Clicking on input field should trigger suggestions search too.
+        'input.text click': suggest
 
         # Clicking on breadcrumbs changes the current query.
         '.breadcrumbs a click': (el) ->

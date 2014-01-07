@@ -43,14 +43,22 @@ ul
         border: 1px solid #FFF
         position: absolute
 
+    // .fa-dropdown
     .suggestions
         position: absolute
-        display: block
-        top: 37px
-        margin: 0
-        // Fix padding of faux.
-        margin-left: -8px
-        padding: 0
+        // Point to the caret.
+        top: 32px
+        // Fix padding of faux and the tip of dropdown.
+        margin-left: -24px
+
+        li
+            // Remove default highlight.
+            &:hover
+                background: inherit
+
+            // Explicitely activate.
+            &.active, &.hover
+                background: #eee
 
 .breadcrumbs
     li:first-child a

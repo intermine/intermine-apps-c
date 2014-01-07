@@ -1,11 +1,13 @@
 <div class="row collapse">
     <div class="large-10 columns search">
         <div class="faux"></div>
-        <input class="text" type="text" placeholder="Query..." value="{{ query.current }}">
+        <input class="text" type="text" maxlength="100" placeholder="Query..." value="{{ query.current }}" autofocus>
         {{ #if suggestions.list.length }}
-        <ul class="suggestions" style="left:{{ suggestions.px }}px">
+        <ul class="f-dropdown suggestions" style="left:{{ suggestions.px }}px">
         {{ #suggestions.list }}
-            <li>{{ . }}</li>
+            <li {{ #active }}class="active"{{ /active }}>
+                <a>{{ text }}</a>
+            </li>
         {{ /suggestions.list }}
         </ul>
         {{ /if }}

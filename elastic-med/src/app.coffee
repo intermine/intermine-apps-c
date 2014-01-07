@@ -35,7 +35,7 @@ Routing = can.Control
     'doc/:oid route': ({ oid }) ->
         fin = (doc) =>
             template = require './templates/page/detail'
-            title    = doc.attr('title').value
+            title = title.value if _.isObject title = doc.attr('title')
             @render template, doc, "#{title} - ElasticMed"
 
         # Find the document.

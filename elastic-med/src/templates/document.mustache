@@ -24,13 +24,13 @@
 
     {{ #id.pubmed }}
     <div class="meta">
-    PubMed: <a target="new" href="http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}">{{ id.pubmed }}</a>
+    PubMed: <a target="{{ id.pubmed }}" href="http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}">{{ id.pubmed }}</a>
     </div>
     {{ /id.pubmed }}
     
     {{ #id.doi }}
     <div class="meta">
-    DOI: <a target="new" href="http://dx.doi.org/{{ id.doi }}">{{ id.doi }}</a>
+    DOI: <a target="{{ id.doi }}" href="http://dx.doi.org/{{ id.doi }}">{{ id.doi }}</a>
     </div>
     {{ /id.doi }}
 </div>
