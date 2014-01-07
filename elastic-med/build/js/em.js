@@ -425,13 +425,11 @@
           working(true);
           docs.replace([]);
           ejs.more(parent.attr('oid'), function(err, list) {
-            return setTimeout(function() {
-              working(false);
-              if (err) {
-                return;
-              }
-              return docs.replace(list);
-            }, 3e3);
+            working(false);
+            if (err) {
+              return;
+            }
+            return docs.replace(list);
           });
           return {
             docs: docs
@@ -873,8 +871,7 @@
             index: this.index,
             type: this.type,
             id: id,
-            size: this.size,
-            'mlt_fields': 'title,keywords',
+            'mlt_fields': 'title',
             'percentTermsToMatch': 0.1
           }).then(function(res) {
             var body, e;

@@ -18,15 +18,12 @@ module.exports = can.Component.extend
         docs.replace [ ]
         # Init the search.
         ejs.more parent.attr('oid'), (err, list) ->
-            # Delay showing results.
-            setTimeout ->
-                working no
-                # Ignore errors.
-                return if err
+            working no
+            # Ignore errors.
+            return if err
 
-                # Update the suggestions List.
-                docs.replace list
-            , 3e3
+            # Update the suggestions List.
+            docs.replace list
 
         # Observe our suggestions.
         { docs }

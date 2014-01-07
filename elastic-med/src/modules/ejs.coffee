@@ -36,7 +36,6 @@ module.exports = new can.Map
                         'title': {}
                         'abstract': {}
             }
-        
         }).then (res) ->
             # JSON?
             try
@@ -108,9 +107,9 @@ module.exports = new can.Map
         return cb 'Client is not setup' unless @client
 
         @client.mlt({
-            @index, @type, id, @size,
-            # Match on title and keywords.
-            'mlt_fields': 'title,keywords'
+            @index, @type, id,
+            # Match on title.
+            'mlt_fields': 'title'
             # How many terms have to match in order to consider the
             #  document a match.
             'percentTermsToMatch': 0.1
