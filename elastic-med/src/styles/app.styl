@@ -148,8 +148,9 @@ ul
 
 .page
     &.detail
-        h3.info
-            display: none
+        .state
+            h3:not(.info)
+                display: none
 
         .document
             .body
@@ -161,7 +162,15 @@ ul
 
             .abstract
                 line-height: 1.5
-            
+
+.state
+    h3
+        display: inline-block
+
+    .spinner
+        vertical-align: text-top
+        margin-left: 6px
+
 ul.results
     margin: 0
 

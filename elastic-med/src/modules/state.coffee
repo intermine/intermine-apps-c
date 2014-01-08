@@ -9,20 +9,22 @@ State = can.Map.extend
     # Loading.
     loading: ->
         state.attr
-            'text':  'Loading results &hellip;'
-            'class': 'info'
+            'text': 'Searching'
+            'type': 'load'
         
         # Clear results.
         do results.clear
 
     # We have results.
     hasResults: (total, docs) ->
-        state.attr('class', 'info')
-        # How many?
-        if total > ejs.size
-            state.attr 'text', "Top results out of #{total} matches"
-        else
-            state.attr 'text', if total is 1 then '1 Result' else "#{total} Results"
+        state.attr
+            'type': 'info'
+            'text': do ->
+                # How many?
+                if total > ejs.size
+                    "Top results out of #{total} matches"
+                else
+                    if total is 1 then '1 Result' else "#{total} Results"
 
         # Save the results.
         results.attr { total, 'docs': new Document.List(docs) }
@@ -30,8 +32,8 @@ State = can.Map.extend
     # We have no results.
     noResults: ->
         state.attr
-            'text':  'No results found'
-            'class': 'info'
+            'text': 'No results found'
+            'type': 'info'
         
         # Clear results.
         do results.clear
@@ -45,7 +47,7 @@ State = can.Map.extend
             when _.isObject err and err.message
                 text = err.message
 
-        state.attr { text, 'class': 'alert' }
+        state.attr { text, 'type': 'alert' }
         
         # Clear results.
         do results.clear
@@ -53,4 +55,4 @@ State = can.Map.extend
 # New global state instance.
 module.exports = state = new State
     'text': 'Search ready'
-    'class': 'info'
+    'type': 'info'

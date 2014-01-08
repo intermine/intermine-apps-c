@@ -14,7 +14,7 @@ module.exports = new can.Map
     # Number of results to return.
     size: 10
 
-    # Return a function doing the actual search.
+    # Do the actual search based on query provided.
     search: (query, cb) ->
         return cb 'Client is not setup' unless @client
 

@@ -225,7 +225,7 @@
       
       helpers = require('./modules/helpers');
       
-      components = ['document', 'label', 'results', 'search', 'title', 'more'];
+      components = ['document', 'label', 'results', 'search', 'state', 'more'];
       
       Routing = can.Control({
         init: function() {
@@ -657,18 +657,27 @@
     });
 
     
-    // title.coffee
-    root.require.register('em/src/components/title.js', function(exports, require, module) {
+    // state.coffee
+    root.require.register('em/src/components/state.js', function(exports, require, module) {
     
       var state;
       
       state = require('../modules/state');
       
       module.exports = can.Component.extend({
-        tag: 'app-title',
-        template: require('../templates/title'),
+        tag: 'app-state',
+        template: require('../templates/state'),
         scope: function() {
           return state;
+        },
+        helpers: {
+          isLoading: function(opts) {
+            if (state.attr('type') === 'load') {
+              return opts.fn(this);
+            } else {
+              return opts.inverse(this);
+            }
+          }
         }
       });
       
@@ -1031,18 +1040,26 @@
       State = can.Map.extend({
         loading: function() {
           state.attr({
-            'text': 'Loading results &hellip;',
-            'class': 'info'
+            'text': 'Searching',
+            'type': 'load'
           });
           return results.clear();
         },
         hasResults: function(total, docs) {
-          state.attr('class', 'info');
-          if (total > ejs.size) {
-            state.attr('text', "Top results out of " + total + " matches");
-          } else {
-            state.attr('text', total === 1 ? '1 Result' : "" + total + " Results");
-          }
+          state.attr({
+            'type': 'info',
+            'text': (function() {
+              if (total > ejs.size) {
+                return "Top results out of " + total + " matches";
+              } else {
+                if (total === 1) {
+                  return '1 Result';
+                } else {
+                  return "" + total + " Results";
+                }
+              }
+            })()
+          });
           return results.attr({
             total: total,
             'docs': new Document.List(docs)
@@ -1051,7 +1068,7 @@
         noResults: function() {
           state.attr({
             'text': 'No results found',
-            'class': 'info'
+            'type': 'info'
           });
           return results.clear();
         },
@@ -1067,7 +1084,7 @@
           }
           state.attr({
             text: text,
-            'class': 'alert'
+            'type': 'alert'
           });
           return results.clear();
         }
@@ -1075,7 +1092,7 @@
       
       module.exports = state = new State({
         'text': 'Search ready',
-        'class': 'info'
+        'type': 'info'
       });
       
     });
@@ -1112,14 +1129,14 @@
     // detail.mustache
     root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"page detail\">","    <app-title></app-title>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\" show-keywords=\"true\"></app-document>","    </div>","    <app-more></app-more>","<div>"].join("\n");
+      module.exports = ["<div class=\"page detail\">","    <app-state></app-state>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\" show-keywords=\"true\"></app-document>","    </div>","    <app-more></app-more>","<div>"].join("\n");
     });
 
     
     // index.mustache
     root.require.register('em/src/templates/page/index.js', function(exports, require, module) {
     
-      module.exports = ["<p>ElasticSearch through a collection of cancer related publications from PubMed. Use <kbd>Tab</kbd> to autocomplete or <kbd>Enter</kbd> to search.</p>","<div class=\"page index\">","    <app-search></app-search>","    <app-title></app-title>","    <app-results></app-results>","</div>"].join("\n");
+      module.exports = ["<p>ElasticSearch through a collection of cancer related publications from PubMed. Use <kbd>Tab</kbd> to autocomplete or <kbd>Enter</kbd> to search.</p>","<div class=\"page index\">","    <app-search></app-search>","    <app-state></app-state>","    <app-results></app-results>","</div>"].join("\n");
     });
 
     
@@ -1137,10 +1154,10 @@
     });
 
     
-    // title.mustache
-    root.require.register('em/src/templates/title.js', function(exports, require, module) {
+    // state.mustache
+    root.require.register('em/src/templates/state.js', function(exports, require, module) {
     
-      module.exports = ["<h3 class=\"{{ class }}\">{{{ text }}}</h3>"].join("\n");
+      module.exports = ["<div class=\"state\">","    <h3 class=\"{{ type }}\">{{ text }}</h3>","    {{ #isLoading }}","    <span class=\"fa fa-spinner spinner\"></span>","    {{ /isLoading }}","</div>"].join("\n");
     });
   })();
 

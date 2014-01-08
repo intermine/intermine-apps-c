@@ -11,7 +11,7 @@ components = [
     'label'
     'results'
     'search'
-    'title'
+    'state'
     'more'
 ]
 
