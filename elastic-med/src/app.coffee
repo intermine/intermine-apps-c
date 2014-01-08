@@ -64,8 +64,7 @@ Routing = can.Control
         # Update title.
         document.title = title
 
-module.exports = (opts) ->
-    { service, index, type } = opts
+module.exports = ({ service, index, type }) ->
     # Init the client.
     ejs.attr { index, type, 'client': new $.es.Client 'hosts': service }
 
