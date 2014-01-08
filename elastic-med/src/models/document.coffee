@@ -33,6 +33,11 @@ Document.List = Document.List.extend
             # Save all the keys at once.
             db.setItem @dbName, @keys.join(',')
 
+        # Destroy when navigating away.
+        window.onbeforeunload = =>
+            do @destroy
+            null
+
     # Clear all our documents from localStorage.
     destroy: ->
         # The items.
@@ -41,3 +46,5 @@ Document.List = Document.List.extend
         # And the keys.
         db.removeItem @dbName
         @keys = []
+
+        @

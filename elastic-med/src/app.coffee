@@ -64,9 +64,12 @@ Routing = can.Control
         # Update title.
         document.title = title
 
-module.exports = ({ service, index, type }) ->
-    # Init the client.
-    ejs.attr { index, type, 'client': new $.es.Client 'hosts': service }
+module.exports = (opts) ->
+    # Explode ejs options.
+    { service, index, type } = opts
+    
+    # Init the ejs client.
+    ejs.attr { index, type, 'client': new $.es.Client({ 'hosts': service }) }
 
     # Start routing.
     new Routing opts.el

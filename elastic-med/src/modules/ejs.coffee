@@ -1,5 +1,5 @@
 # Cache for useful things.
-cache = {}
+cache = new SimpleLRU 50
 
 # Elastic helper.
 module.exports = new can.Map
@@ -79,7 +79,7 @@ module.exports = new can.Map
         return cb 'Client is not setup' unless @client
 
         # In cache?
-        return cb(null, cache[text]) if text of cache
+        return cb(null, value) if value = cache.get(text)
 
         body = 'completion': { text, 'term': { 'field': 'title' } }
 
@@ -95,7 +95,7 @@ module.exports = new can.Map
             ( map[text] = options for { text, options } in body.completion )
             
             # Save to the cache.
-            cache[text] = map
+            cache.set text, map
 
             return cb null, map
 

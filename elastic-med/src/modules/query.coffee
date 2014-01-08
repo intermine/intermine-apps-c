@@ -4,14 +4,16 @@ state = require './state'
 # The default search query.
 query = new can.Map
     
+    # The current query.
     'current': ''
 
+    # Past queries, automatically set by observing `current`.
     'history': [ ]
 
 # Observe query changes to trigger a service search.
 query.bind 'current', (ev, q) ->
     # Push query at the head of the history and limit to 3 results.
-    (history = @attr('history')[0...2]).splice(0, 0, q)
+    (history = @history[0...2]).splice(0, 0, q)
     @attr 'history', history
 
     # Say we are doing the search.

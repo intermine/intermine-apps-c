@@ -27,6 +27,7 @@ module.exports = (grunt) ->
                     'vendor/moment/moment.js'
                     'vendor/colorbrewer/colorbrewer.js'
                     'vendor/d3/d3.js'
+                    'vendor/simple-lru/index.js'
                     # Our app.
                     'build/js/em.js'
                 ]

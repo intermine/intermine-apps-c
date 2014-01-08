@@ -18,7 +18,7 @@ module.exports = can.Component.extend
             # Change the query.
             query.attr 'current', do el.text
             # Redirect.
-            location.hash = '#!'
+            location.hash = can.route.url ''
 
     helpers:
         # Published ago & format date.

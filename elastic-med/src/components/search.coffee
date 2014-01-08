@@ -16,7 +16,7 @@ suggestions = new can.Map
 
 # Callback for suggestions list deactivating an item.
 findActive = (s, i) ->
-    return unless active = s.attr 'active' # not active
+    return unless active = s.active # not active
     s.attr 'active', no # deactivate
     yes # found it
 
@@ -26,21 +26,24 @@ autocomplete = (word, el) ->
     value = do el.val
 
     # Caret position from left.
-    caret = el.prop 'selectionStart'
+    caret = parseInt el.prop 'selectionStart'
 
-    # Remove the previous word.
-    l = value[ 0...caret ].replace(/([^\s]+)$/, '^') # left
-    r = value[ caret...  ].replace(/(^[^\s]+)/, '^') # right
+    # Find the beginning of the word to replace.
+    value[ 0...caret ].replace /([^\s]+)$/, (match, p, offset, string) ->
+        # Move caret to the left by match-many.
+        caret -= match.length
 
-    # Do the replacement.
-    value = (l + r).replace /\^+/, "#{word}^"
+    # Make the replacement.
+    value = value[ 0...caret ] + value[ caret...  ].replace /(^[^\s]+)/, word
+
+    # Move the caret to the end of the new word.
+    caret += word.length
 
     # Show the new string.
-    el.val value.replace '^', ''
+    el.val value
     
-    # Move the caret after the new word. Selection of 0.
-    pos = value.indexOf '^'
-    el[0].setSelectionRange pos, pos
+    # Selection of 0.
+    el[0].setSelectionRange caret, caret
 
 # Trigger suggestions on our word?
 suggest = (el, evt) ->
@@ -98,7 +101,7 @@ module.exports = can.Component.extend
         # Onhover suggestion highlight it.
         '.suggestions li mouseover': (el, evt) ->
             # No suggestions? How is that even possible???
-            return unless (list = suggestions.attr 'list').length
+            return unless (list = suggestions.list).length
 
             # Remove active status.
             _.find list, findActive
@@ -107,7 +110,7 @@ module.exports = can.Component.extend
             text = do el.find('a').text
             _.find list, (s, i) ->
                 # No match.
-                return unless s.attr('text') is text
+                return unless s.text is text
                 # Activate.
                 s.attr 'active', yes
 
@@ -130,7 +133,7 @@ module.exports = can.Component.extend
             # An up or down arrow event?
             arrow = (key) ->
                 # No suggestions?
-                return unless (list = suggestions.attr 'list').length
+                return unless (list = suggestions.list).length
                 # Which direction?
                 switch key
                     # Up.
@@ -157,13 +160,13 @@ module.exports = can.Component.extend
                 # Tab key autocompletes the active word.
                 when 9
                     # No suggestions?
-                    return unless (list = suggestions.attr 'list').length
+                    return unless (list = suggestions.list).length
                                     
                     # Which is the currently active word?
                     return unless item = _.find(list, findActive)
 
                     # Get the value to replace with.
-                    word = item.attr 'text'
+                    word = item.text
 
                     # Do the replacement.                    
                     autocomplete word, el

@@ -53356,7 +53356,314 @@ var colorbrewer = {YlGn: {
     return request.responseXML;
   });
   return d3;
-}();;(function() {
+}();;;(function () {
+  'use strict';
+
+  /**
+   * export SimpleLRU for CommonJS
+   */
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = SimpleLRU;
+  } else if (typeof window !== 'undefined') {
+    window.SimpleLRU = SimpleLRU;
+  }
+
+  SimpleLRU.version = '0.0.2';
+
+  /**
+   * Simple mixin utility
+   * @api private
+   */
+  function extend(obj1, obj2) {
+    for (var key in obj2) obj1[key] = obj2[key];
+  }
+
+  var nativeCreate = Object.create;
+
+  /**
+   * Object data store
+   * this is a `Object.create` fallback in order to support IE8
+   * @api private
+   */
+  var Data = (function () {
+    var Data, proto;
+
+    if (typeof nativeCreate === 'function') {
+      Data = function () {
+        this.data = nativeCreate(null);
+      };
+
+      proto = {
+        get: function (key) {
+          return this.data[key];
+        },
+        has: function (key) {
+          return !! this.data[key];
+        }
+      };
+
+    } else {
+      Data = function () {
+        this.data = {};
+      };
+
+      proto = {
+        get: function (key) {
+          if (this.has(key)) return this.data[key];
+        },
+        has: function (key) {
+          return Object.prototype.hasOwnProperty.call(this.data, key);
+        }
+      };
+    }
+
+    extend(proto, {
+      set: function (key, val) {
+        this.data[key] = val;
+      },
+      del: function (key) {
+        var val = this.get(key);
+        if (typeof val !== 'undefined') {
+          delete this.data[key];
+          return val;
+        }
+      }
+    });
+
+    extend(Data.prototype, proto);
+
+    return Data;
+  })();
+
+  /**
+   * Cache entry instance
+   *
+   * @param {String}
+   * @param {any}
+   * @param {Number}
+   * @api private
+   */
+  function Entry(key, val, index) {
+    this.key = key;
+    this.val = val;
+    this.index = index;
+  }
+
+  /**
+   * SimpleLRU constructor
+   * It holds following private properties. See `#reset()`
+   *
+   *   _byKey    {Data}    map by key
+   *   _byOrder  {Object}  map by recently used order
+   *   _head     {Number}  index of next entry
+   *   _tail     {Number}  index of least recently used cache item
+   *   _len      {Number}  total number of cache items
+   *
+   * `_tail` is an index of the least recently used cache item.
+   * `_head` is an index of the most recently used cache item *plus* one.
+   *
+   * @param {Number} max length of cache item
+   */
+  function SimpleLRU(max) {
+    if (typeof max !== 'number') throw new TypeError('max is requried');
+    this.max(max);
+    this.reset();
+  }
+
+  extend(SimpleLRU.prototype, {
+
+    /**
+     * Set cache by key
+     * @param {String} unique string key
+     * @param {String|Object|Number} any value
+     */
+    set: function (key, val) {
+      var entry = this._byKey.get(key);
+
+      // reuse entry if the key exists
+      if (entry) {
+        this._touch(entry);
+        entry.val = val;
+        return;
+      }
+
+      entry = new Entry(key, val, this._head++);
+      this._byKey.set(key, entry);
+      this._byOrder[entry.index] = entry;
+      this._len++;
+      this._trim();
+    },
+
+    /**
+     * delete cache by key
+     *
+     * @param {String}
+     * @return {String|Object|Number} cached value
+     */
+    del: function (key) {
+      var entry = this._byKey.del(key);
+      if (!entry) return;
+
+      delete this._byOrder[entry.index];
+      this._len--;
+
+      if (this._len === 0) {
+        this._head = this._tail = 0;
+      } else {
+        // update most index if it was most lecently used entry
+        if (entry.index === this._head - 1) this._pop();
+        // update least index if it was least lecently used entry
+        if (entry.index === this._tail) this._shift();
+      }
+
+      return entry.val;
+    },
+
+    /**
+     * get cache by key
+     *
+     * @param {String}
+     * @return {any} cache if it exists
+     */
+    get: function (key) {
+      var entry = this._byKey.get(key);
+      if (entry) {
+        this._touch(entry);
+        return entry.val;
+      }
+    },
+
+    /**
+     * get a cache by key without touching index
+     * @return {any}
+     */
+    peek: function (key) {
+      var entry = this._byKey.get(key);
+      if (entry) return entry.val;
+    },
+
+    /**
+     * see if key is exists or not
+     * @return {Boolean}
+     */
+    has: function (key) {
+      return this._byKey.has(key);
+    },
+
+    /**
+     * total number of cache
+     * @return {Number}
+     */
+    length: function () {
+      return this._len;
+    },
+
+    /**
+     * clear all stored cache
+     */
+    reset: function () {
+      this._byKey = new Data();
+      this._byOrder = nativeCreate ? nativeCreate(null) : {};
+      this._head = 0;
+      this._tail = 0;
+      this._len = 0;
+    },
+
+    /**
+     * Getter|Setter function of "max" option
+     * @param {Number} if setter
+     */
+    max: function (max) {
+      if (typeof max !== 'number') return this._max;
+      if (max < 1) throw new TypeError('max should be a positive number');
+      var shrink = (this._max || 0) > max;
+      this._max = max;
+      if (shrink) this._trim();
+    },
+
+    /**
+     * return array of keys in least recently used order
+     * @return {Array}
+     */
+    keys: function () {
+      var count = 0
+        , tail = this._tail
+        , head = this._head
+        , keys = new Array(this._len);
+
+      for (var i = tail; i < head; i++) {
+        var entry = this._byOrder[i];
+        if (entry) keys[count++] = entry.key;
+      }
+
+      return keys;
+    },
+
+    /**
+     * update least recently used index of an entry to "_head"
+     *
+     * @param {Entry}
+     * @api private
+     */
+    _touch: function (entry) {
+      // update most number to key
+      if (entry.index !== this._head - 1) {
+        var isTail = entry.index === this._tail;
+        delete this._byOrder[entry.index];
+        entry.index = this._head++;
+        this._byOrder[entry.index] = entry;
+        if (isTail) this._shift();
+      }
+    },
+
+    /**
+     * trim entries
+     * @api private
+     */
+    _trim: function () {
+      var max = this._max;
+      while (max < this._len) {
+        var tailEntry = this._byOrder[this._tail];
+        this.del(tailEntry.key);
+      }
+    },
+
+    /**
+     * update tail index
+     * @return {Entry|undefined}
+     * @api private
+     */
+    _shift: function () {
+      var tail = this._tail
+        , head = this._head;
+      for (var i = tail; i < head; i++) {
+        var entry = this._byOrder[i];
+        if (entry) {
+          this._tail = i;
+          return entry;
+        }
+      }
+    },
+
+    /**
+     * update head index
+     * @return {Entry|undefined}
+     * @api private
+     */
+    _pop: function () {
+      var tail = this._tail
+        , head = this._head;
+      for (var i = head - 1; i >= tail; i--) {
+        var headEntry = this._byOrder[i];
+        if (headEntry) {
+          this._head = i + 1;
+          return headEntry;
+        }
+      }
+    }
+  });
+
+})();;(function() {
   /**
    * Require the given path.
    *
@@ -53676,7 +53983,7 @@ var colorbrewer = {YlGn: {
         events: {
           '.keywords li a click': function(el, evt) {
             query.attr('current', el.text());
-            return location.hash = '#!';
+            return location.hash = can.route.url('');
           }
         },
         helpers: {
@@ -53853,8 +54160,6 @@ var colorbrewer = {YlGn: {
       ejs = require('../modules/ejs');
       
       suggestions = new can.Map({
-        'value': '',
-        'caret': 0,
         'px': 0,
         'list': [],
         setList: function(words) {
@@ -53871,7 +54176,7 @@ var colorbrewer = {YlGn: {
       
       findActive = function(s, i) {
         var active;
-        if (!(active = s.attr('active'))) {
+        if (!(active = s.active)) {
           return;
         }
         s.attr('active', false);
@@ -53879,15 +54184,16 @@ var colorbrewer = {YlGn: {
       };
       
       autocomplete = function(word, el) {
-        var caret, l, pos, r, value;
+        var caret, value;
         value = el.val();
-        caret = el.prop('selectionStart');
-        l = value.slice(0, caret).replace(/([^\s]+)$/, '^');
-        r = value.slice(caret).replace(/(^[^\s]+)/, '^');
-        value = (l + r).replace(/\^+/, "" + word + "^");
-        el.val(value.replace('^', ''));
-        pos = value.indexOf('^');
-        return el[0].setSelectionRange(pos, pos);
+        caret = parseInt(el.prop('selectionStart'));
+        value.slice(0, caret).replace(/([^\s]+)$/, function(match, p, offset, string) {
+          return caret -= match.length;
+        });
+        value = value.slice(0, caret) + value.slice(caret).replace(/(^[^\s]+)/, word);
+        caret += word.length;
+        el.val(value);
+        return el[0].setSelectionRange(caret, caret);
       };
       
       suggest = function(el, evt) {
@@ -53940,13 +54246,13 @@ var colorbrewer = {YlGn: {
           },
           '.suggestions li mouseover': function(el, evt) {
             var list, text;
-            if (!(list = suggestions.attr('list')).length) {
+            if (!(list = suggestions.list).length) {
               return;
             }
             _.find(list, findActive);
             text = el.find('a').text();
             return _.find(list, function(s, i) {
-              if (s.attr('text') !== text) {
+              if (s.text !== text) {
                 return;
               }
               return s.attr('active', true);
@@ -53963,7 +54269,7 @@ var colorbrewer = {YlGn: {
             var arrow, item, key, list, word;
             arrow = function(key) {
               var current, list;
-              if (!(list = suggestions.attr('list')).length) {
+              if (!(list = suggestions.list).length) {
                 return;
               }
               switch (key) {
@@ -53987,13 +54293,13 @@ var colorbrewer = {YlGn: {
             };
             switch (key = evt.keyCode || evt.which) {
               case 9:
-                if (!(list = suggestions.attr('list')).length) {
+                if (!(list = suggestions.list).length) {
                   return;
                 }
                 if (!(item = _.find(list, findActive))) {
                   return;
                 }
-                word = item.attr('text');
+                word = item.text;
                 autocomplete(word, el);
                 suggestions.attr('list', []);
                 return evt.preventDefault();
@@ -54048,7 +54354,8 @@ var colorbrewer = {YlGn: {
         dbName: 'elastic-med',
         keys: null,
         init: function(docs, load) {
-          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1, _results;
+          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1,
+            _this = this;
           if (load == null) {
             load = false;
           }
@@ -54056,12 +54363,10 @@ var colorbrewer = {YlGn: {
           this.keys = (item && item.split(',')) || [];
           if (load && this.keys.length) {
             _ref = this.keys;
-            _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               key = _ref[_i];
-              _results.push(this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key))));
+              this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key)));
             }
-            return _results;
           } else {
             for (_j = 0, _len1 = docs.length; _j < _len1; _j++) {
               doc = docs[_j];
@@ -54070,8 +54375,12 @@ var colorbrewer = {YlGn: {
                 this.keys.push(doc.oid);
               }
             }
-            return db.setItem(this.dbName, this.keys.join(','));
+            db.setItem(this.dbName, this.keys.join(','));
           }
+          return window.onbeforeunload = function() {
+            _this.destroy();
+            return null;
+          };
         },
         destroy: function() {
           var key, _i, _len, _ref;
@@ -54081,7 +54390,8 @@ var colorbrewer = {YlGn: {
             db.removeItem("" + this.dbName + "-" + key);
           }
           db.removeItem(this.dbName);
-          return this.keys = [];
+          this.keys = [];
+          return this;
         }
       });
       
@@ -54115,7 +54425,7 @@ var colorbrewer = {YlGn: {
     
       var cache;
       
-      cache = {};
+      cache = new SimpleLRU(50);
       
       module.exports = new can.Map({
         client: null,
@@ -54196,12 +54506,12 @@ var colorbrewer = {YlGn: {
           }, cb);
         },
         suggest: function(text, cb) {
-          var body;
+          var body, value;
           if (!this.client) {
             return cb('Client is not setup');
           }
-          if (text in cache) {
-            return cb(null, cache[text]);
+          if (value = cache.get(text)) {
+            return cb(null, value);
           }
           body = {
             'completion': {
@@ -54228,7 +54538,7 @@ var colorbrewer = {YlGn: {
               _ref1 = _ref[_i], text = _ref1.text, options = _ref1.options;
               map[text] = options;
             }
-            cache[text] = map;
+            cache.set(text, map);
             return cb(null, map);
           }, cb);
         },
@@ -54312,7 +54622,7 @@ var colorbrewer = {YlGn: {
       
       query.bind('current', function(ev, q) {
         var history;
-        (history = this.attr('history').slice(0, 2)).splice(0, 0, q);
+        (history = this.history.slice(0, 2)).splice(0, 0, q);
         this.attr('history', history);
         state.loading();
         return ejs.search(q, function(err, _arg) {
@@ -54355,7 +54665,18 @@ var colorbrewer = {YlGn: {
       
       module.exports = new can.Map({
         'total': 0,
-        'docs': new Document.List([], true)
+        'docs': new Document.List([], true),
+        clear: function() {
+          var _ref;
+          if ((_ref = this.docs) != null) {
+            _ref.destroy();
+          }
+          this.attr({
+            'total': 0,
+            'docs': null
+          });
+          return this;
+        }
       });
       
     });
@@ -54374,28 +54695,30 @@ var colorbrewer = {YlGn: {
       
       State = can.Map.extend({
         loading: function() {
-          state.attr('text', 'Loading results &hellip;').attr('class', 'info');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            'text': 'Loading results &hellip;',
+            'class': 'info'
+          });
+          return results.clear();
         },
         hasResults: function(total, docs) {
           state.attr('class', 'info');
-          if (total > ejs.attr('size')) {
+          if (total > ejs.size) {
             state.attr('text', "Top results out of " + total + " matches");
           } else {
-            if (total === 1) {
-              state.attr('text', '1 Result');
-            } else {
-              state.attr('text', "" + total + " Results");
-            }
+            state.attr('text', total === 1 ? '1 Result' : "" + total + " Results");
           }
-          results.attr('docs').destroy();
-          return results.attr('total', total).attr('docs', new Document.List(docs));
+          return results.attr({
+            total: total,
+            'docs': new Document.List(docs)
+          });
         },
         noResults: function() {
-          state.attr('text', 'No results found').attr('class', 'info');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            'text': 'No results found',
+            'class': 'info'
+          });
+          return results.clear();
         },
         error: function(err) {
           var text;
@@ -54407,9 +54730,11 @@ var colorbrewer = {YlGn: {
             case !_.isObject(err && err.message):
               text = err.message;
           }
-          state.attr('text', text).attr('class', 'alert');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            text: text,
+            'class': 'alert'
+          });
+          return results.clear();
         }
       });
       
@@ -54418,13 +54743,6 @@ var colorbrewer = {YlGn: {
         'class': 'info'
       });
       
-    });
-
-    
-    // breadcrumbs.mustache
-    root.require.register('em/src/templates/breadcrumbs.js', function(exports, require, module) {
-    
-      module.exports = ["<nav class=\"ink-navigation\">","    <ul class=\"breadcrumbs\">","        <li><a>Start</a></li>","        <li><a>Level 1</a></li>","        <li><a>Level 2</a></li>","        <li class=\"current\"><a>Current item</a></li>","    </ul>","</nav>"].join("\n");
     });
 
     
@@ -54453,13 +54771,6 @@ var colorbrewer = {YlGn: {
     root.require.register('em/src/templates/more.js', function(exports, require, module) {
     
       module.exports = ["{{ #isWorking }}","<h5>Looking for similar documents <span class=\"fa fa-spinner\"></span></h5>","{{ /isWorking }}","","{{ #if docs.length }}","<h4>Similar documents</h4>","<app-results></app-results>","{{ /if }}"].join("\n");
-    });
-
-    
-    // notification.mustache
-    root.require.register('em/src/templates/notification.js', function(exports, require, module) {
-    
-      module.exports = ["{{ #state.alert.show }}","<div class=\"alert-box {{ state.alert.type }}\">","    <p>{{{ state.alert.text }}}</p>","    <a class=\"close\">&times;</a>","</div>","{{ /state.alert.show }}"].join("\n");
     });
 
     

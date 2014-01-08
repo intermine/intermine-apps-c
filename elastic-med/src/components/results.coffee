@@ -10,7 +10,7 @@ module.exports = can.Component.extend
     # Watch docs or results.
     scope: (obj, parent, element) ->
         # Explicitely passed-in docs?
-        if (docs = parent.attr 'docs')
+        if (docs = parent.attr('docs'))
             { docs }
         # Query results set.
         else

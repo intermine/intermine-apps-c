@@ -318,7 +318,7 @@
         events: {
           '.keywords li a click': function(el, evt) {
             query.attr('current', el.text());
-            return location.hash = '#!';
+            return location.hash = can.route.url('');
           }
         },
         helpers: {
@@ -495,8 +495,6 @@
       ejs = require('../modules/ejs');
       
       suggestions = new can.Map({
-        'value': '',
-        'caret': 0,
         'px': 0,
         'list': [],
         setList: function(words) {
@@ -513,7 +511,7 @@
       
       findActive = function(s, i) {
         var active;
-        if (!(active = s.attr('active'))) {
+        if (!(active = s.active)) {
           return;
         }
         s.attr('active', false);
@@ -521,15 +519,16 @@
       };
       
       autocomplete = function(word, el) {
-        var caret, l, pos, r, value;
+        var caret, value;
         value = el.val();
-        caret = el.prop('selectionStart');
-        l = value.slice(0, caret).replace(/([^\s]+)$/, '^');
-        r = value.slice(caret).replace(/(^[^\s]+)/, '^');
-        value = (l + r).replace(/\^+/, "" + word + "^");
-        el.val(value.replace('^', ''));
-        pos = value.indexOf('^');
-        return el[0].setSelectionRange(pos, pos);
+        caret = parseInt(el.prop('selectionStart'));
+        value.slice(0, caret).replace(/([^\s]+)$/, function(match, p, offset, string) {
+          return caret -= match.length;
+        });
+        value = value.slice(0, caret) + value.slice(caret).replace(/(^[^\s]+)/, word);
+        caret += word.length;
+        el.val(value);
+        return el[0].setSelectionRange(caret, caret);
       };
       
       suggest = function(el, evt) {
@@ -582,13 +581,13 @@
           },
           '.suggestions li mouseover': function(el, evt) {
             var list, text;
-            if (!(list = suggestions.attr('list')).length) {
+            if (!(list = suggestions.list).length) {
               return;
             }
             _.find(list, findActive);
             text = el.find('a').text();
             return _.find(list, function(s, i) {
-              if (s.attr('text') !== text) {
+              if (s.text !== text) {
                 return;
               }
               return s.attr('active', true);
@@ -605,7 +604,7 @@
             var arrow, item, key, list, word;
             arrow = function(key) {
               var current, list;
-              if (!(list = suggestions.attr('list')).length) {
+              if (!(list = suggestions.list).length) {
                 return;
               }
               switch (key) {
@@ -629,13 +628,13 @@
             };
             switch (key = evt.keyCode || evt.which) {
               case 9:
-                if (!(list = suggestions.attr('list')).length) {
+                if (!(list = suggestions.list).length) {
                   return;
                 }
                 if (!(item = _.find(list, findActive))) {
                   return;
                 }
-                word = item.attr('text');
+                word = item.text;
                 autocomplete(word, el);
                 suggestions.attr('list', []);
                 return evt.preventDefault();
@@ -690,7 +689,8 @@
         dbName: 'elastic-med',
         keys: null,
         init: function(docs, load) {
-          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1, _results;
+          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1,
+            _this = this;
           if (load == null) {
             load = false;
           }
@@ -698,12 +698,10 @@
           this.keys = (item && item.split(',')) || [];
           if (load && this.keys.length) {
             _ref = this.keys;
-            _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               key = _ref[_i];
-              _results.push(this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key))));
+              this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key)));
             }
-            return _results;
           } else {
             for (_j = 0, _len1 = docs.length; _j < _len1; _j++) {
               doc = docs[_j];
@@ -712,8 +710,12 @@
                 this.keys.push(doc.oid);
               }
             }
-            return db.setItem(this.dbName, this.keys.join(','));
+            db.setItem(this.dbName, this.keys.join(','));
           }
+          return window.onbeforeunload = function() {
+            _this.destroy();
+            return null;
+          };
         },
         destroy: function() {
           var key, _i, _len, _ref;
@@ -723,7 +725,8 @@
             db.removeItem("" + this.dbName + "-" + key);
           }
           db.removeItem(this.dbName);
-          return this.keys = [];
+          this.keys = [];
+          return this;
         }
       });
       
@@ -757,7 +760,7 @@
     
       var cache;
       
-      cache = {};
+      cache = new SimpleLRU(50);
       
       module.exports = new can.Map({
         client: null,
@@ -838,12 +841,12 @@
           }, cb);
         },
         suggest: function(text, cb) {
-          var body;
+          var body, value;
           if (!this.client) {
             return cb('Client is not setup');
           }
-          if (text in cache) {
-            return cb(null, cache[text]);
+          if (value = cache.get(text)) {
+            return cb(null, value);
           }
           body = {
             'completion': {
@@ -870,7 +873,7 @@
               _ref1 = _ref[_i], text = _ref1.text, options = _ref1.options;
               map[text] = options;
             }
-            cache[text] = map;
+            cache.set(text, map);
             return cb(null, map);
           }, cb);
         },
@@ -954,7 +957,7 @@
       
       query.bind('current', function(ev, q) {
         var history;
-        (history = this.attr('history').slice(0, 2)).splice(0, 0, q);
+        (history = this.history.slice(0, 2)).splice(0, 0, q);
         this.attr('history', history);
         state.loading();
         return ejs.search(q, function(err, _arg) {
@@ -997,7 +1000,18 @@
       
       module.exports = new can.Map({
         'total': 0,
-        'docs': new Document.List([], true)
+        'docs': new Document.List([], true),
+        clear: function() {
+          var _ref;
+          if ((_ref = this.docs) != null) {
+            _ref.destroy();
+          }
+          this.attr({
+            'total': 0,
+            'docs': null
+          });
+          return this;
+        }
       });
       
     });
@@ -1016,28 +1030,30 @@
       
       State = can.Map.extend({
         loading: function() {
-          state.attr('text', 'Loading results &hellip;').attr('class', 'info');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            'text': 'Loading results &hellip;',
+            'class': 'info'
+          });
+          return results.clear();
         },
         hasResults: function(total, docs) {
           state.attr('class', 'info');
-          if (total > ejs.attr('size')) {
+          if (total > ejs.size) {
             state.attr('text', "Top results out of " + total + " matches");
           } else {
-            if (total === 1) {
-              state.attr('text', '1 Result');
-            } else {
-              state.attr('text', "" + total + " Results");
-            }
+            state.attr('text', total === 1 ? '1 Result' : "" + total + " Results");
           }
-          results.attr('docs').destroy();
-          return results.attr('total', total).attr('docs', new Document.List(docs));
+          return results.attr({
+            total: total,
+            'docs': new Document.List(docs)
+          });
         },
         noResults: function() {
-          state.attr('text', 'No results found').attr('class', 'info');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            'text': 'No results found',
+            'class': 'info'
+          });
+          return results.clear();
         },
         error: function(err) {
           var text;
@@ -1049,9 +1065,11 @@
             case !_.isObject(err && err.message):
               text = err.message;
           }
-          state.attr('text', text).attr('class', 'alert');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            text: text,
+            'class': 'alert'
+          });
+          return results.clear();
         }
       });
       
@@ -1060,13 +1078,6 @@
         'class': 'info'
       });
       
-    });
-
-    
-    // breadcrumbs.mustache
-    root.require.register('em/src/templates/breadcrumbs.js', function(exports, require, module) {
-    
-      module.exports = ["<nav class=\"ink-navigation\">","    <ul class=\"breadcrumbs\">","        <li><a>Start</a></li>","        <li><a>Level 1</a></li>","        <li><a>Level 2</a></li>","        <li class=\"current\"><a>Current item</a></li>","    </ul>","</nav>"].join("\n");
     });
 
     
@@ -1095,13 +1106,6 @@
     root.require.register('em/src/templates/more.js', function(exports, require, module) {
     
       module.exports = ["{{ #isWorking }}","<h5>Looking for similar documents <span class=\"fa fa-spinner\"></span></h5>","{{ /isWorking }}","","{{ #if docs.length }}","<h4>Similar documents</h4>","<app-results></app-results>","{{ /if }}"].join("\n");
-    });
-
-    
-    // notification.mustache
-    root.require.register('em/src/templates/notification.js', function(exports, require, module) {
-    
-      module.exports = ["{{ #state.alert.show }}","<div class=\"alert-box {{ state.alert.type }}\">","    <p>{{{ state.alert.text }}}</p>","    <a class=\"close\">&times;</a>","</div>","{{ /state.alert.show }}"].join("\n");
     });
 
     
