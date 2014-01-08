@@ -3,12 +3,6 @@ ejs   = require '../modules/ejs'
 
 suggestions = new can.Map
 
-    # The value of the input field.
-    'value': ''
-
-    # Caret position.
-    'caret': 0
-
     # Position in px from left.
     'px': 0
 
