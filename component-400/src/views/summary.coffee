@@ -2,6 +2,7 @@
 
 mediator   = require '../modules/mediator'
 formatter  = require '../modules/formatter'
+options    = require '../modules/options'
 csv        = require '../modules/csv'
 View       = require '../modules/view'
 Table      = require './table'
@@ -26,7 +27,7 @@ class SummaryView extends View
     render: ->
         @el.addClass 'summary section'
 
-        @el.html @template { @canDownload }
+        @el.html @template { @canDownload, 'options': do options.get }
 
         # Refs.
         tabs    = @el.find '.tabs'

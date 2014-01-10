@@ -1,9 +1,11 @@
 <header>
-    <% if @canDownload: %>
-        <span class="small download button">Download summary</span>
-    <% else: %>
-        <span data-id="noblob" class="help hint--left right">i</span>
-        <span class="small secondary disabled button">Download summary</span>
+    <% if @options.showDownloadSummary: %>
+        <% if @canDownload: %>
+            <span class="small download button">Download summary</span>
+        <% else: %>
+            <span data-id="noblob" class="help hint--left right">i</span>
+            <span class="small secondary disabled button">Download summary</span>
+        <% end %>
     <% end %>
     <h2>Summary</h2>
     <span data-id="2" class="help hint--right">i</span>

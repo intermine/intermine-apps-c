@@ -90,8 +90,15 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-contrib-cssmin')
     #grunt.loadNpmTasks('grunt-notify')
 
-    # Will build mori, prefix CSS & minify too.
+    # Use when watching...
     grunt.registerTask('default', [
+        'apps_c'
+        'stylus'
+        'concat'
+    ])
+    
+    # Will build mori, prefix CSS & minify too.
+    grunt.registerTask('minify', [
         'apps_c'
         'stylus'
         'shell'
@@ -99,11 +106,4 @@ module.exports = (grunt) ->
         'rework'
         'uglify'
         'cssmin'
-    ])
-
-    # Use when watching...
-    grunt.registerTask('build', [
-        'apps_c'
-        'stylus'
-        'concat'
     ])

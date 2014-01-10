@@ -211,21 +211,24 @@
     // app.coffee
     root.require.register('component-400/src/app.js', function(exports, require, module) {
     
-      var AppView, Database, mediator, mori;
+      var AppView, Database, mediator, mori, options;
       
       mori = require('./modules/deps').mori;
       
       mediator = require('./modules/mediator');
+      
+      options = require('./modules/options');
       
       AppView = require('./views/app');
       
       Database = require('./models/database');
       
       module.exports = function(opts) {
-        var db;
+        var db, el;
         if (!opts.cb) {
           throw 'Provide your own callback function';
         }
+        options.set(opts.options);
         if (opts.formatter) {
           require('./modules/formatter').primary = opts.formatter;
         }
@@ -234,8 +237,9 @@
         mediator.on('app:save', function() {
           return opts.cb(mori.into_array(db.selected));
         }, this);
+        el = opts.el || opts.target || 'body';
         new AppView({
-          'el': opts.target || 'body',
+          el: el,
           db: db
         });
         return function() {
@@ -523,6 +527,33 @@
       BackboneEvents = require('./deps').BackboneEvents;
       
       module.exports = _.extend({}, BackboneEvents);
+      
+    });
+
+    
+    // options.coffee
+    root.require.register('component-400/src/modules/options.js', function(exports, require, module) {
+    
+      var options;
+      
+      options = {
+        'showDownloadSummary': true
+      };
+      
+      module.exports = {
+        'set': function(key, value) {
+          if (_.isObject(key)) {
+            return _.extend(options, key);
+          }
+          return options[key] = value;
+        },
+        'get': function(key) {
+          if (key) {
+            return options[key];
+          }
+          return options;
+        }
+      };
       
     });
 
@@ -1258,10 +1289,14 @@
           (function() {
             __out.push('<header>\n    ');
           
-            if (this.canDownload) {
-              __out.push('\n        <span class="small download button">Download summary</span>\n    ');
-            } else {
-              __out.push('\n        <span data-id="noblob" class="help hint--left right">i</span>\n        <span class="small secondary disabled button">Download summary</span>\n    ');
+            if (this.options.showDownloadSummary) {
+              __out.push('\n        ');
+              if (this.canDownload) {
+                __out.push('\n            <span class="small download button">Download summary</span>\n        ');
+              } else {
+                __out.push('\n            <span data-id="noblob" class="help hint--left right">i</span>\n            <span class="small secondary disabled button">Download summary</span>\n        ');
+              }
+              __out.push('\n    ');
             }
           
             __out.push('\n    <h2>Summary</h2>\n    <span data-id="2" class="help hint--right">i</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
@@ -1961,7 +1996,7 @@
     // summary.coffee
     root.require.register('component-400/src/views/summary.js', function(exports, require, module) {
     
-      var SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, formatter, mediator, saveAs, _, _ref,
+      var SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, formatter, mediator, options, saveAs, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -1970,6 +2005,8 @@
       mediator = require('../modules/mediator');
       
       formatter = require('../modules/formatter');
+      
+      options = require('../modules/options');
       
       csv = require('../modules/csv');
       
@@ -1999,7 +2036,8 @@
           var Clazz, collection, content, name, reason, showFirstTab, tabs, view, _i, _len, _ref1, _ref2;
           this.el.addClass('summary section');
           this.el.html(this.template({
-            canDownload: this.canDownload
+            canDownload: this.canDownload,
+            'options': options.get()
           }));
           tabs = this.el.find('.tabs');
           content = this.el.find('.tabs-content');

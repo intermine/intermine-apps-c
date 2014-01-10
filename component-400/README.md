@@ -20,19 +20,14 @@ Visualizes the result of an InterMine ID Resolution job.
             // Require the app and execute it passing the following opts...
             // Returns a function that can be called to retrieve the currently selected items.
             require('component-400')({
-                // The data payload. You can see example in `example/data.json`.
+                // The data payload. You can see example in `./example/data.json`.
                 'data': data,
-                // The target string, defaults to the <body/> element.
-                'target': '#target',
+                // The target element selector, defaults to <body/>.
+                'el': '#target',
                 // Callback once the user is happy with the selection.
                 cb: function(selected) {
                     // Has a list of internal InterMine IDs.
                     console.log(selected);
-                },
-                // Optionally provide a formatter. What you return will represent a
-                //  symbol of some sort for a row of results.
-                formatter: function(model) {
-                    return 'NA'
                 },
                 // What to do when we click on one of the item/object links?
                 portal: function(object, el) {
@@ -40,6 +35,11 @@ Visualizes the result of an InterMine ID Resolution job.
                         symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
                         url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
                     console.log(url);
+                },
+                // User interface options.
+                'options': {
+                    // Show/hide a button to download the summary?
+                    'showDownloadSummary': true
                 }
             });
         })
