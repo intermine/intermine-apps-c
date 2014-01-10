@@ -3,6 +3,11 @@ ejs      = require './ejs'
 
 Document = require '../models/document'
 
+# The default state.
+init =
+    'text': 'Search ready'
+    'type': 'info'
+
 # State of the application.
 State = can.Map.extend
 
@@ -44,15 +49,17 @@ State = can.Map.extend
         switch
             when _.isString err
                 text = err
-            when _.isObject err and err.message
+            when _.isObject(err) and err.message
                 text = err.message
 
-        state.attr { text, 'type': 'alert' }
-        
+        state.attr { text, 'type': 'error' }
+
         # Clear results.
         do results.clear
 
 # New global state instance.
-module.exports = state = new State
-    'text': 'Search ready'
-    'type': 'info'
+module.exports = state = new State(init)
+
+# Reset error state when our route changes.
+can.route.bind 'route', ->
+    state.attr(init) if state.type is 'error'

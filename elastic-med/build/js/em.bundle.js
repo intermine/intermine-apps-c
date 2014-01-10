@@ -53914,6 +53914,9 @@ var colorbrewer = {YlGn: {
           fin = function(doc) {
             var template, title;
             template = require('./templates/page/detail');
+            if (!doc) {
+              return _this.render(template, {}, 'ElasticMed');
+            }
             if (_.isObject(title = doc.attr('title'))) {
               title = title.value;
             }
@@ -53935,7 +53938,7 @@ var colorbrewer = {YlGn: {
           }
           return ejs.get(oid, function(err, doc) {
             if (err) {
-              return state.error(err);
+              state.error(err.message);
             }
             return fin(doc);
           });
@@ -54694,13 +54697,18 @@ var colorbrewer = {YlGn: {
     // state.coffee
     root.require.register('em/src/modules/state.js', function(exports, require, module) {
     
-      var Document, State, ejs, results, state;
+      var Document, State, ejs, init, results, state;
       
       results = require('./results');
       
       ejs = require('./ejs');
       
       Document = require('../models/document');
+      
+      init = {
+        'text': 'Search ready',
+        'type': 'info'
+      };
       
       State = can.Map.extend({
         loading: function() {
@@ -54744,20 +54752,23 @@ var colorbrewer = {YlGn: {
             case !_.isString(err):
               text = err;
               break;
-            case !_.isObject(err && err.message):
+            case !(_.isObject(err) && err.message):
               text = err.message;
           }
           state.attr({
             text: text,
-            'type': 'alert'
+            'type': 'error'
           });
           return results.clear();
         }
       });
       
-      module.exports = state = new State({
-        'text': 'Search ready',
-        'type': 'info'
+      module.exports = state = new State(init);
+      
+      can.route.bind('route', function() {
+        if (state.type === 'error') {
+          return state.attr(init);
+        }
       });
       
     });
@@ -54794,7 +54805,7 @@ var colorbrewer = {YlGn: {
     // detail.mustache
     root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"page detail\">","    <app-state></app-state>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\" show-keywords=\"true\"></app-document>","    </div>","    <app-more></app-more>","<div>"].join("\n");
+      module.exports = ["<div class=\"page detail\">","    <app-state></app-state>","    {{ #oid }}","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\" show-keywords=\"true\"></app-document>","    </div>","    <app-more></app-more>","    {{ /oid }}","<div>"].join("\n");
     });
 
     

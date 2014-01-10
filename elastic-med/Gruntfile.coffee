@@ -42,6 +42,7 @@ module.exports = (grunt) ->
                     'vendor/hint.css/hint.css'
                     'vendor/font-awesome/css/font-awesome.css'
                     'src/styles/fonts.css'
+                    # Our app.
                     'build/css/em.css'
                 ]
                 dest: 'build/css/em.bundle.css'

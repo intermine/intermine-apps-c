@@ -30,7 +30,7 @@ ul{list-style-type:none}
 .document .keywords li{display:inline-block;}
 .document .keywords li span{opacity:.7;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";filter:alpha(opacity=70)}
 .document .keywords li:hover span{opacity:1;-ms-filter:none;filter:none}
-.page.detail .state h3:not(.info){display:none}
+.page.detail .state h3:not(.error){display:none}
 .page.detail .document .body .score{margin-top:5px}
 .page.detail .document .body .journal{margin:10px 0}
 .page.detail .document .abstract{line-height:1.5}

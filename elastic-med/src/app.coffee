@@ -35,6 +35,8 @@ Routing = can.Control
     'doc/:oid route': ({ oid }) ->
         fin = (doc) =>
             template = require './templates/page/detail'
+            return @render(template, {}, 'ElasticMed') unless doc
+
             title = title.value if _.isObject title = doc.attr('title')
             @render template, doc, "#{title} - ElasticMed"
 
@@ -50,12 +52,14 @@ Routing = can.Control
 
         # Found in results cache.
         return fin(doc) if doc
-        
+
         # Get the document from the index.
         ejs.get oid, (err, doc) ->
-            # Trouble? Not found etc.
-            return state.error err if err
-            fin(doc)
+            # Trouble?
+            state.error err.message if err
+            # Finish with either a document or nothing
+            #  in which case (error will be shown).
+            fin doc
     
     # Render a page. Update the page title.
     render: (template, ctx, title) ->
