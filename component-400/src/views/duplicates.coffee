@@ -2,9 +2,16 @@
 
 formatter  = require '../modules/formatter'
 mediator   = require '../modules/mediator'
+options    = require '../modules/options'
 View       = require '../modules/view'
 FlyoutView = require '../views/flyout'
 Table      = require '../views/table'
+
+# Which templates to use in tables?
+strategy = options.get 'matchViewStrategy'
+templates =
+    table: require '../templates/duplicates/table'
+    thead: require "../templates/duplicates/table-head-#{strategy}"
 
 Daddy = Table.TableRowView
 
@@ -29,8 +36,8 @@ class DuplicatesTableRowView extends Daddy
 
 class DuplicatesTableView extends Table.OtMTableView
 
-    # Provide custom template.
-    template: require '../templates/duplicates/table'
+    # Provide custom templates.
+    template: templates
 
     rowClass: DuplicatesTableRowView
 

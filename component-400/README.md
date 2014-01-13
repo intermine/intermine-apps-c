@@ -39,7 +39,11 @@ Visualizes the result of an InterMine ID Resolution job.
                 // User interface options.
                 'options': {
                     // Show/hide a button to download the summary?
-                    'showDownloadSummary': true
+                    'showDownloadSummary': true,
+                    // How do we show the matches?
+                    // [full] - show all summary fields in the table
+                    // [slim] - show only a symbol and provide more info in a popover
+                    'matchViewStrategy': 'full'
                 }
             });
         })

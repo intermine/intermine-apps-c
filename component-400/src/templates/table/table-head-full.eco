@@ -1,0 +1,9 @@
+<tr>
+    <th rowspan="2">Identifier you provided</th>
+    <th colspan="<%= @fields.length %>">Match <span data-id="matches" class="help hint--left">i</span></th>
+</tr>
+<tr>
+    <% for field in @fields: %>
+    <th data-key="<%= field.key %>"><%= field.name %></th>
+    <% end %>
+</tr>

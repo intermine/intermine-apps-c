@@ -27,19 +27,20 @@
                 // Callback once the user is happy with the selection.
                 cb: function(selected) {
                     // Has a list of internal InterMine IDs.
-                    console.log(selected);
+                    console.log('selected', selected);
                 },
                 // What to do when we click on one of the item/object links?
                 portal: function(object, el) {
-                    var type = object.object.type,
-                        symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
-                        url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
-                    console.log(url);
+                    console.log('portal', object);
                 },
                 // User interface options.
                 'options': {
                     // Show/hide a button to download the summary?
-                    'showDownloadSummary': true
+                    'showDownloadSummary': true,
+                    // How do we show the matches?
+                    // [full] - show all summary fields in the table
+                    // [slim] - show only a symbol and provide more info in a popover
+                    'matchViewStrategy': 'full'
                 }
             });
         })
