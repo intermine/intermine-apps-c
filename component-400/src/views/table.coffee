@@ -9,12 +9,6 @@ FlyoutView = require './flyout'
 
 slicer     = require '../modules/slicer'
 
-# Which templates to use in tables?
-strategy = options.get 'matchViewStrategy'
-templates =
-    table: require '../templates/table/table'
-    thead: require "../templates/table/table-head-#{strategy}"
-
 # For storing table & row columns.
 Fields = ->
     list = []
@@ -44,7 +38,6 @@ class TableRowView extends View
     constructor: ->
         super
 
-        # Display strategy.
         @strategy = options.get 'matchViewStrategy'
 
     render: ->
@@ -67,11 +60,20 @@ class TableRowView extends View
                 fields.push formatter.primary @model
 
         @el.html @template
+            # The actual cells/columns.
             'fields':  fields
-            'input':   @model.input
+            # The input identifier.
+            'input':   @options.input or @model.input
+            # Span of rows.
             'rowspan': @options.rowspan
+            # Type/class.
             'class':   @options.class
-            'options': { showFlyout }
+            # Show the flyout icon?
+            'showFlyout': showFlyout
+            # Are we selected?
+            'selected': @model.selected or no
+            # Are we continuing?
+            'continuing': @options.continuing or no
 
         @
 
@@ -90,10 +92,22 @@ class TableRowView extends View
     portal: (ev) ->
         mediator.trigger 'object:click', @model, ev.target
 
-# Paginated tables.
-class OneToManyTableView extends View
+# A generic class.
+class TableView extends View
 
-    template: templates
+    template:
+        table: require '../templates/table/table'
+        thead:
+            slim: require '../templates/table/table-head-slim'
+            full: require '../templates/table/table-head-full'
+
+    constructor: ->
+        super
+
+        @strategy = options.get 'matchViewStrategy'
+
+# Paginated tables.
+class OneToManyTableView extends TableView
 
     # Which class to use for the rows?
     rowClass: TableRowView
@@ -143,27 +157,29 @@ class OneToManyTableView extends View
         slicer.apply @, [ @collection ].concat @range, ({ input, matches }, begin, end) ->
             # Generate a slice of models.
             for j, model of matches[ begin..end ]
-                # The rest.
-                return @views.push view = new @rowClass({ model, fields }) unless j is '0'
-                # Leading row.
-                @views.push view = new @rowClass({
-                    model,
-                    fields,
-                    # How many rows do we cover?
-                    'rowspan': end - begin + 1
-                    # Override Foundation alternating colors.
-                    'class': [ 'even', 'odd' ][i % 2]
-                    # Continuing from previous page?
-                    'continuing': begin isnt 0
-                    # We always pass in arrays.
-                    'input': [ input ]
-                })
+                @views.push new @rowClass do ->
+                    # The other rows.
+                    return { model, fields } unless j is '0'
+                    # Leading row.
+                    {
+                        model,
+                        fields,
+                        # How many rows do we cover?
+                        'rowspan': end - begin + 1
+                        # Override Foundation alternating colors.
+                        'class': [ 'even', 'odd' ][i % 2]
+                        # Continuing from previous page?
+                        'continuing': begin isnt 0
+                        # We always pass in arrays.
+                        'input': [ input ]
+                    }
+                
                 # Give us a set of fields.
                 _.each _.keys(model.summary), fields.add
             i++
 
         # Render the head.
-        @el.find('thead').html @template.thead { fields }
+        @el.find('thead').html @template.thead[@strategy] { fields }
 
         # Render the rows.
         tbody = @el.find 'tbody'
@@ -174,9 +190,7 @@ class ManyToOneTableRowView extends TableRowView
 
     template: require '../templates/table/many-to-one-row'
 
-class ManyToOneTableView extends View
-
-    template: templates
+class ManyToOneTableView extends TableView
 
     # Which class to use for the rows?
     rowClass: ManyToOneTableRowView
@@ -222,7 +236,7 @@ class ManyToOneTableView extends View
             _.each _.keys(model.summary), fields.add
 
         # Render the head.
-        @el.find('thead').html @template.thead { fields }
+        @el.find('thead').html @template.thead[@strategy] { fields }
 
         # Render the rows.
         tbody = @el.find 'tbody'

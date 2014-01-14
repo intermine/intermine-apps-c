@@ -1,7 +1,7 @@
 # App options, configurable by the user.
 options =
-    'showDownloadSummary': yes
-    'matchViewStrategy':  'full'
+    'showDownloadSummary': yes   # yes | no
+    'matchViewStrategy':  'full' # 'full' | 'slim'
 
 module.exports =
     'set': (key, value) ->

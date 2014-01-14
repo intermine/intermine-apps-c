@@ -7,12 +7,6 @@ View       = require '../modules/view'
 FlyoutView = require '../views/flyout'
 Table      = require '../views/table'
 
-# Which templates to use in tables?
-strategy = options.get 'matchViewStrategy'
-templates =
-    table: require '../templates/duplicates/table'
-    thead: require "../templates/duplicates/table-head-#{strategy}"
-
 Daddy = Table.TableRowView
 
 class DuplicatesTableRowView extends Daddy
@@ -37,7 +31,11 @@ class DuplicatesTableRowView extends Daddy
 class DuplicatesTableView extends Table.OtMTableView
 
     # Provide custom templates.
-    template: templates
+    template:
+        table: require '../templates/duplicates/table'
+        thead:
+            slim: require '../templates/duplicates/table-head-slim'
+            full: require '../templates/duplicates/table-head-full'
 
     rowClass: DuplicatesTableRowView
 

@@ -27,14 +27,11 @@ Visualizes the result of an InterMine ID Resolution job.
                 // Callback once the user is happy with the selection.
                 cb: function(selected) {
                     // Has a list of internal InterMine IDs.
-                    console.log(selected);
+                    console.log('selected', selected);
                 },
                 // What to do when we click on one of the item/object links?
                 portal: function(object, el) {
-                    var type = object.object.type,
-                        symbol = escape(JSON.stringify(object.object.summary.symbol).slice(1, -1)),
-                        url = 'http://beta.flymine.org/beta/portal.do?externalids='+ symbol +'&class=' + type;
-                    console.log(url);
+                    console.log('portal', object);
                 },
                 // User interface options.
                 'options': {

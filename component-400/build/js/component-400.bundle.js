@@ -17018,7 +17018,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 __out.push('\n            <a>');
                 __out.push(field);
                 __out.push('</a>\n            ');
-                if (this.options.showFlyout) {
+                if (this.showFlyout) {
                   __out.push('\n                <span class="help-flyout">i</span>\n            ');
                 }
                 __out.push('\n        ');
@@ -17091,7 +17091,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           
             __out.push(__sanitize(this.fields.length));
           
-            __out.push('">Matches <span data-id="matches" class="help hint--left">i</span></th>\n    <th>Action <span data-id="add" class="help hint--left">i</span></th>\n</tr>\n<tr>\n    ');
+            __out.push('">Matches <span data-id="matches" class="help hint--left">i</span></th>\n    <th rowspan="2">Action <span data-id="add" class="help hint--left">i</span></th>\n</tr>\n<tr>\n    ');
           
             _ref = this.fields;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -17713,7 +17713,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 __out.push('\n            <a>');
                 __out.push(field);
                 __out.push('</a>\n            ');
-                if (this.options.showFlyout) {
+                if (this.showFlyout) {
                   __out.push('\n                <span class="help-flyout">i</span>\n            ');
                 }
                 __out.push('\n        ');
@@ -17798,7 +17798,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
                 __out.push('\n            <a>');
                 __out.push(field);
                 __out.push('</a>\n            ');
-                if (this.options.showFlyout) {
+                if (this.showFlyout) {
                   __out.push('\n                <span class="help-flyout">i</span>\n            ');
                 }
                 __out.push('\n        ');
@@ -18139,7 +18139,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // duplicates.coffee
     root.require.register('component-400/src/views/duplicates.js', function(exports, require, module) {
     
-      var Daddy, DuplicatesTableRowView, DuplicatesTableView, FlyoutView, Table, View, formatter, mediator, options, strategy, templates, _, _ref, _ref1,
+      var Daddy, DuplicatesTableRowView, DuplicatesTableView, FlyoutView, Table, View, formatter, mediator, options, _, _ref, _ref1,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -18156,13 +18156,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       FlyoutView = require('../views/flyout');
       
       Table = require('../views/table');
-      
-      strategy = options.get('matchViewStrategy');
-      
-      templates = {
-        table: require('../templates/duplicates/table'),
-        thead: require("../templates/duplicates/table-head-" + strategy)
-      };
       
       Daddy = Table.TableRowView;
       
@@ -18202,7 +18195,13 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           return _ref1;
         }
       
-        DuplicatesTableView.prototype.template = templates;
+        DuplicatesTableView.prototype.template = {
+          table: require('../templates/duplicates/table'),
+          thead: {
+            slim: require('../templates/duplicates/table-head-slim'),
+            full: require('../templates/duplicates/table-head-full')
+          }
+        };
       
         DuplicatesTableView.prototype.rowClass = DuplicatesTableRowView;
       
@@ -18671,7 +18670,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // table.coffee
     root.require.register('component-400/src/views/table.js', function(exports, require, module) {
     
-      var $, Fields, FlyoutView, ManyToOneTableRowView, ManyToOneTableView, OneToManyTableView, Paginator, TableRowView, View, formatter, mediator, options, slicer, strategy, templates, _, _ref, _ref1,
+      var $, Fields, FlyoutView, ManyToOneTableRowView, ManyToOneTableView, OneToManyTableView, Paginator, TableRowView, TableView, View, formatter, mediator, options, slicer, _, _ref, _ref1,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -18690,13 +18689,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       FlyoutView = require('./flyout');
       
       slicer = require('../modules/slicer');
-      
-      strategy = options.get('matchViewStrategy');
-      
-      templates = {
-        table: require('../templates/table/table'),
-        thead: require("../templates/table/table-head-" + strategy)
-      };
       
       Fields = function() {
         var list;
@@ -18755,12 +18747,12 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           }
           this.el.html(this.template({
             'fields': fields,
-            'input': this.model.input,
+            'input': this.options.input || this.model.input,
             'rowspan': this.options.rowspan,
             'class': this.options["class"],
-            'options': {
-              showFlyout: showFlyout
-            }
+            'showFlyout': showFlyout,
+            'selected': this.model.selected || false,
+            'continuing': this.options.continuing || false
           }));
           return this;
         };
@@ -18792,10 +18784,28 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       })(View);
       
+      TableView = (function(_super) {
+        __extends(TableView, _super);
+      
+        TableView.prototype.template = {
+          table: require('../templates/table/table'),
+          thead: {
+            slim: require('../templates/table/table-head-slim'),
+            full: require('../templates/table/table-head-full')
+          }
+        };
+      
+        function TableView() {
+          TableView.__super__.constructor.apply(this, arguments);
+          this.strategy = options.get('matchViewStrategy');
+        }
+      
+        return TableView;
+      
+      })(View);
+      
       OneToManyTableView = (function(_super) {
         __extends(OneToManyTableView, _super);
-      
-        OneToManyTableView.prototype.template = templates;
       
         OneToManyTableView.prototype.rowClass = TableRowView;
       
@@ -18837,30 +18847,32 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           fields = new Fields();
           i = 0;
           slicer.apply(this, [this.collection].concat(this.range, function(_arg, begin, end) {
-            var input, j, matches, model, view, _ref1;
+            var input, j, matches, model, _ref1;
             input = _arg.input, matches = _arg.matches;
             _ref1 = matches.slice(begin, +end + 1 || 9e9);
             for (j in _ref1) {
               model = _ref1[j];
-              if (j !== '0') {
-                return this.views.push(view = new this.rowClass({
+              this.views.push(new this.rowClass((function() {
+                if (j !== '0') {
+                  return {
+                    model: model,
+                    fields: fields
+                  };
+                }
+                return {
                   model: model,
-                  fields: fields
-                }));
-              }
-              this.views.push(view = new this.rowClass({
-                model: model,
-                fields: fields,
-                'rowspan': end - begin + 1,
-                'class': ['even', 'odd'][i % 2],
-                'continuing': begin !== 0,
-                'input': [input]
-              }));
+                  fields: fields,
+                  'rowspan': end - begin + 1,
+                  'class': ['even', 'odd'][i % 2],
+                  'continuing': begin !== 0,
+                  'input': [input]
+                };
+              })()));
               _.each(_.keys(model.summary), fields.add);
             }
             return i++;
           }));
-          this.el.find('thead').html(this.template.thead({
+          this.el.find('thead').html(this.template.thead[this.strategy]({
             fields: fields
           }));
           tbody = this.el.find('tbody');
@@ -18871,7 +18883,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
         return OneToManyTableView;
       
-      })(View);
+      })(TableView);
       
       ManyToOneTableRowView = (function(_super) {
         __extends(ManyToOneTableRowView, _super);
@@ -18889,8 +18901,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       ManyToOneTableView = (function(_super) {
         __extends(ManyToOneTableView, _super);
-      
-        ManyToOneTableView.prototype.template = templates;
       
         ManyToOneTableView.prototype.rowClass = ManyToOneTableRowView;
       
@@ -18929,7 +18939,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
             }));
             _.each(_.keys(model.summary), fields.add);
           }
-          this.el.find('thead').html(this.template.thead({
+          this.el.find('thead').html(this.template.thead[this.strategy]({
             fields: fields
           }));
           tbody = this.el.find('tbody');
@@ -18940,7 +18950,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
         return ManyToOneTableView;
       
-      })(View);
+      })(TableView);
       
       exports.TableRowView = TableRowView;
       

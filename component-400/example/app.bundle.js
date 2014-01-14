@@ -1,1 +1,1 @@
-../build/app.bundle.js
+../build/js/component-400.bundle.js

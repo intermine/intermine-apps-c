@@ -14,7 +14,7 @@
     <td>
         <% if field: %>
             <a><%- field %></a>
-            <% if @options.showFlyout: %>
+            <% if @showFlyout: %>
                 <span class="help-flyout">i</span>
             <% end %>
         <% end %>
