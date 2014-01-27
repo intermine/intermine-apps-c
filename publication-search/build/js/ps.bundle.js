@@ -29730,13 +29730,15 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
     // app.coffee
     root.require.register('ps/src/app.js', function(exports, require, module) {
     
-      var components, imjs, layout, query, render;
+      var components, imjs, layout, query, render, state;
       
       render = require('./modules/render');
       
       query = require('./modules/query');
       
       imjs = require('./modules/imjs');
+      
+      state = require('./modules/state');
       
       layout = require('./templates/layout');
       
@@ -29748,12 +29750,18 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
           name = components[_i];
           require("./components/" + name);
         }
+        $(opts.el).html(render(layout));
+        if (!opts.mine) {
+          return state.attr({
+            'type': 'warning',
+            'text': 'Mine is not set'
+          });
+        }
         imjs.attr({
           'client': new intermine.Service({
             'root': opts.mine
           })
         });
-        $(opts.el).html(render(layout));
         if (q = opts.symbol) {
           return query(q);
         }
