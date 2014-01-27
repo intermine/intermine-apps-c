@@ -5,6 +5,7 @@ imjs    = require './modules/imjs'
 layout  = require './templates/layout'
 
 components = [
+    'alert'
     'search'
     'table'
 ]

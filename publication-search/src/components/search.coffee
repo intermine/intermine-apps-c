@@ -8,3 +8,8 @@ module.exports = can.Component.extend
     template: require '../templates/search'
 
     scope: -> { 'query': { 'value': query } }
+
+    events:
+        'input keyup': (el, evt) ->
+            if (evt.keyCode or evt.which) is 13
+                query do el.val

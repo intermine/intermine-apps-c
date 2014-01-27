@@ -1,5 +1,8 @@
 @import 'nib'
 
+body
+    padding: 20px
+
 table
     width: 100%
 
@@ -9,3 +12,13 @@ table
                 &:after
                     content: ", "
                     display: inline-block
+
+        .label
+            padding: 0 4px
+            line-height: 16px
+
+        &.title
+            width: 40%
+
+        &.nowrap
+            white-space: nowrap

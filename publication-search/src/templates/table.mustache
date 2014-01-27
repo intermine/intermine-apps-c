@@ -6,19 +6,28 @@
             <th>Author(s)</th>
             <th>Journal</th>
             <th>Year</th>
+            <th>Match</th>
         </tr>
     </thead>
     <tbody>
     {{ #pubs }}
         <tr>
-            <td>{{ title }}</td>
+            <td class="title">
+                <a target="_{{ pubMedId }}" href="http://www.ncbi.nlm.nih.gov/pubmed/{{ pubMedId }}">{{ title }}</a>
+            </td>
             <td>
             {{ #authors }}
-                <span class="author">{{ . }}</span>
+                <span class="author">{{ name }}</span>
             {{ /authors }}
             </td>
             <td>{{ journal }}</td>
             <td>{{ year }}</td>
+            <td class="nowrap">
+                <a target="_{{ id }}" href="http://www.mousemine.org/mousemine/report.do?id={{ id }}">
+                    {{ symbol }}
+                </a>
+                <span class="label">{{ type }}</span>
+            </td>
         </tr>
     {{ /pubs }}
     </tbody>

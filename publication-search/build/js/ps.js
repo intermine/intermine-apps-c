@@ -222,7 +222,7 @@
       
       layout = require('./templates/layout');
       
-      components = ['search', 'table'];
+      components = ['alert', 'search', 'table'];
       
       module.exports = function(opts) {
         var name, q, _i, _len;
@@ -243,6 +243,23 @@
       
     });
 
+    // alert.coffee
+    root.require.register('ps/src/components/alert.js', function(exports, require, module) {
+    
+      var state;
+      
+      state = require('../modules/state');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-alert',
+        template: require('../templates/alert'),
+        scope: function() {
+          return state;
+        }
+      });
+      
+    });
+
     // search.coffee
     root.require.register('ps/src/components/search.js', function(exports, require, module) {
     
@@ -259,6 +276,13 @@
               'value': query
             }
           };
+        },
+        events: {
+          'input keyup': function(el, evt) {
+            if ((evt.keyCode || evt.which) === 13) {
+              return query(el.val());
+            }
+          }
         }
       });
       
@@ -289,13 +313,13 @@
       var query;
       
       query = {
-        'select': ['Gene.publications.title', 'Gene.publications.year', 'Gene.publications.journal', 'Gene.publications.pubMedId', 'Gene.publications.authors.name'],
+        'select': ['Publication.title', 'Publication.year', 'Publication.journal', 'Publication.pubMedId', 'Publication.authors.name', 'Publication.bioEntities.symbol', 'Publication.bioEntities.id'],
         'orderBy': [
           {
-            'Gene.publications.firstAuthor': 'ASC'
+            'Publication.title': 'ASC'
           }
         ],
-        'joins': ['Gene.publications.authors']
+        'joins': ['Publication.authors']
       };
       
       module.exports = new can.Map({
@@ -307,9 +331,8 @@
           return this.client.query(_.extend({}, query, {
             'where': [
               {
-                'path': 'Gene.symbol',
+                'path': 'Publication.bioEntities.symbol',
                 'op': 'CONTAINS',
-                'code': 'A',
                 'value': symbol
               }
             ]
@@ -318,10 +341,23 @@
               return cb(err);
             }
             return q.tableRows(function(err, res) {
+              var remap;
               if (err) {
                 return cb(err);
               }
-              return console.log(res);
+              remap = function(rows) {
+                var type;
+                type = null;
+                return _.extend(_.zipObject(_.map(rows, function(row) {
+                  if (row.column === 'Publication.bioEntities.id') {
+                    type = row["class"];
+                  }
+                  return [row.column.split('.').pop(), row.rows ? _.map(row.rows, remap) : row.value];
+                })), {
+                  type: type
+                });
+              };
+              return cb(null, _.map(res, remap));
             });
           });
         }
@@ -339,19 +375,40 @@
     // query.coffee
     root.require.register('ps/src/modules/query.js', function(exports, require, module) {
     
-      var imjs, pubs, query;
+      var gid, imjs, pubs, query, state;
       
       pubs = require('./pubs');
       
       imjs = require('./imjs');
       
+      state = require('./state');
+      
       query = can.compute('');
       
-      query.bind('change', function(ev, q) {
-        return imjs.search('brca', function(err, res) {
-          if (err) {
+      gid = 0;
       
+      query.bind('change', function(ev, q) {
+        var id;
+        state.attr({
+          'type': 'info',
+          'text': 'Searching &hellip;'
+        });
+        id = ++gid;
+        return imjs.search(q, function(err, res) {
+          if (id < gid) {
+            return;
           }
+          if (err) {
+            return state.attr({
+              'type': 'warning',
+              'Oops &hellip': 'Oops &hellip'
+            });
+          }
+          state.attr({
+            'type': 'success',
+            'text': "Found " + res.length + " results"
+          });
+          return pubs.replace(res);
         });
       });
       
@@ -371,22 +428,38 @@
       
     });
 
+    // state.coffee
+    root.require.register('ps/src/modules/state.js', function(exports, require, module) {
+    
+      module.exports = new can.Map({
+        'type': 'info',
+        'text': 'Search is ready'
+      });
+      
+    });
+
+    // alert.mustache
+    root.require.register('ps/src/templates/alert.js', function(exports, require, module) {
+    
+      module.exports = ["<div class=\"alert-box {{ type }}\">","    {{{ text }}}.","</div>"].join("\n");
+    });
+
     // layout.mustache
     root.require.register('ps/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"small-2 columns\">","        <span class=\"prefix\">Search:</span>","    </div>","    <div class=\"small-10 columns\">","        <app-search></app-search>","    </div>","</div>","","<div class=\"row collapse\">","    <div class=\"small-12 columns\">","        <app-table></app-table>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"small-2 columns\">","        <span class=\"prefix\">Search:</span>","    </div>","    <div class=\"small-10 columns\">","        <app-search></app-search>","    </div>","</div>","","<div class=\"row collapse\">","    <div class=\"small-12 columns\">","        <app-alert></app-alert>","    </div>","</div>","","<div class=\"row collapse\">","    <div class=\"small-12 columns\">","        <app-table></app-table>","    </div>","</div>"].join("\n");
     });
 
     // search.mustache
     root.require.register('ps/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<input type=\"text\" placeholder=\"Brca\" value=\"{{ query.value }}\" autofocus>"].join("\n");
+      module.exports = ["<input type=\"text\" placeholder=\"e.g. brca, gamma\" value=\"{{ query.value }}\" autofocus>"].join("\n");
     });
 
     // table.mustache
     root.require.register('ps/src/templates/table.js', function(exports, require, module) {
     
-      module.exports = ["{{ #if pubs.length }}","<table>","    <thead>","        <tr>","            <th>Title</th>","            <th>Author(s)</th>","            <th>Journal</th>","            <th>Year</th>","        </tr>","    </thead>","    <tbody>","    {{ #pubs }}","        <tr>","            <td>{{ title }}</td>","            <td>","            {{ #authors }}","                <span class=\"author\">{{ . }}</span>","            {{ /authors }}","            </td>","            <td>{{ journal }}</td>","            <td>{{ year }}</td>","        </tr>","    {{ /pubs }}","    </tbody>","</table>","{{ /if }}"].join("\n");
+      module.exports = ["{{ #if pubs.length }}","<table>","    <thead>","        <tr>","            <th>Title</th>","            <th>Author(s)</th>","            <th>Journal</th>","            <th>Year</th>","            <th>Match</th>","        </tr>","    </thead>","    <tbody>","    {{ #pubs }}","        <tr>","            <td class=\"title\">","                <a target=\"_{{ pubMedId }}\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ pubMedId }}\">{{ title }}</a>","            </td>","            <td>","            {{ #authors }}","                <span class=\"author\">{{ name }}</span>","            {{ /authors }}","            </td>","            <td>{{ journal }}</td>","            <td>{{ year }}</td>","            <td class=\"nowrap\">","                <a target=\"_{{ id }}\" href=\"http://www.mousemine.org/mousemine/report.do?id={{ id }}\">","                    {{ symbol }}","                </a>","                <span class=\"label\">{{ type }}</span>","            </td>","        </tr>","    {{ /pubs }}","    </tbody>","</table>","{{ /if }}"].join("\n");
     });
   })();
 
