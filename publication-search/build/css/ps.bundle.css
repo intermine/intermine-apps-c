@@ -4906,3 +4906,5 @@ th.hide-for-touch {
 .touch th.show-for-touch {
   display: table-cell !important; }
 
+table{width:100%;}
+table td .author:not(:last-child):after{content:", ";display:inline-block}

@@ -1,1 +1,11 @@
 @import 'nib'
+
+table
+    width: 100%
+
+    td
+        .author
+            &:not(:last-child)
+                &:after
+                    content: ", "
+                    display: inline-block

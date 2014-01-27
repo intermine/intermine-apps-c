@@ -29516,7 +29516,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
 
 }).call(this);
 
-})(window.intermine);;(function() {
+})(window.intermine);;// A standalone CommonJS loader.
+(function(root) {
   /**
    * Require the given path.
    *
@@ -29528,7 +29529,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
     var resolved = require.resolve(path);
 
     // lookup failed
-    if (null === resolved) {
+    if (!resolved) {
       orig = orig || path;
       parent = parent || 'root';
       var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
@@ -29716,32 +29717,166 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
     return localRequire;
   };
 
-  // Global on server, window in browser.
-  var root = this;
-
   // Do we already have require loader?
   root.require = (typeof root.require !== 'undefined') ? root.require : require;
+
+})(this);
+// Concat modules and export them as an app.
+(function(root) {
 
   // All our modules will use global require.
   (function() {
     
-    
     // app.coffee
     root.require.register('ps/src/app.js', function(exports, require, module) {
     
-      var render;
+      var components, imjs, layout, query, render;
       
       render = require('./modules/render');
       
-      module.exports = function() {
-        var template;
-        template = require('./templates/layout');
-        return $('body').html(render(template));
+      query = require('./modules/query');
+      
+      imjs = require('./modules/imjs');
+      
+      layout = require('./templates/layout');
+      
+      components = ['search', 'table'];
+      
+      module.exports = function(opts) {
+        var name, q, _i, _len;
+        for (_i = 0, _len = components.length; _i < _len; _i++) {
+          name = components[_i];
+          require("./components/" + name);
+        }
+        imjs.attr({
+          'client': new intermine.Service({
+            'root': opts.mine
+          })
+        });
+        $(opts.el).html(render(layout));
+        if (q = opts.symbol) {
+          return query(q);
+        }
       };
       
     });
 
+    // search.coffee
+    root.require.register('ps/src/components/search.js', function(exports, require, module) {
     
+      var query;
+      
+      query = require('../modules/query');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-search',
+        template: require('../templates/search'),
+        scope: function() {
+          return {
+            'query': {
+              'value': query
+            }
+          };
+        }
+      });
+      
+    });
+
+    // table.coffee
+    root.require.register('ps/src/components/table.js', function(exports, require, module) {
+    
+      var pubs;
+      
+      pubs = require('../modules/pubs');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-table',
+        template: require('../templates/table'),
+        scope: function() {
+          return {
+            pubs: pubs
+          };
+        }
+      });
+      
+    });
+
+    // imjs.coffee
+    root.require.register('ps/src/modules/imjs.js', function(exports, require, module) {
+    
+      var query;
+      
+      query = {
+        'select': ['Gene.publications.title', 'Gene.publications.year', 'Gene.publications.journal', 'Gene.publications.pubMedId', 'Gene.publications.authors.name'],
+        'orderBy': [
+          {
+            'Gene.publications.firstAuthor': 'ASC'
+          }
+        ],
+        'joins': ['Gene.publications.authors']
+      };
+      
+      module.exports = new can.Map({
+        client: null,
+        search: function(symbol, cb) {
+          if (!this.client) {
+            return cb('Client is not setup');
+          }
+          return this.client.query(_.extend({}, query, {
+            'where': [
+              {
+                'path': 'Gene.symbol',
+                'op': 'CONTAINS',
+                'code': 'A',
+                'value': symbol
+              }
+            ]
+          }), function(err, q) {
+            if (err) {
+              return cb(err);
+            }
+            return q.tableRows(function(err, res) {
+              if (err) {
+                return cb(err);
+              }
+              return console.log(res);
+            });
+          });
+        }
+      });
+      
+    });
+
+    // pubs.coffee
+    root.require.register('ps/src/modules/pubs.js', function(exports, require, module) {
+    
+      module.exports = new can.List([]);
+      
+    });
+
+    // query.coffee
+    root.require.register('ps/src/modules/query.js', function(exports, require, module) {
+    
+      var imjs, pubs, query;
+      
+      pubs = require('./pubs');
+      
+      imjs = require('./imjs');
+      
+      query = can.compute('');
+      
+      query.bind('change', function(ev, q) {
+        return imjs.search('brca', function(err, res) {
+          if (err) {
+      
+          }
+        });
+      });
+      
+      module.exports = query;
+      
+    });
+
     // render.coffee
     root.require.register('ps/src/modules/render.js', function(exports, require, module) {
     
@@ -29754,11 +29889,22 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
     });
 
-    
     // layout.mustache
     root.require.register('ps/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"small-3 columns\">","        <span class=\"prefix\">Search:</span>","    </div>","    <div class=\"small-9 columns\">","        <input type=\"text\" placeholder=\"micklem g\">","    </div>","</div>","","<div class=\"row collapse\">","    <div class=\"small-12 columns\">","        <table>","            <thead>","                <tr>","                    <th></th>","                    <th></th>","                    <th></th>","                </tr>","            </thead>","            <tbody>","                <tr>","                    <td></td>","                    <td></td>","                    <td></td>","                </tr>","            </tbody>","        </table>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"small-2 columns\">","        <span class=\"prefix\">Search:</span>","    </div>","    <div class=\"small-10 columns\">","        <app-search></app-search>","    </div>","</div>","","<div class=\"row collapse\">","    <div class=\"small-12 columns\">","        <app-table></app-table>","    </div>","</div>"].join("\n");
+    });
+
+    // search.mustache
+    root.require.register('ps/src/templates/search.js', function(exports, require, module) {
+    
+      module.exports = ["<input type=\"text\" placeholder=\"Brca\" value=\"{{ query.value }}\" autofocus>"].join("\n");
+    });
+
+    // table.mustache
+    root.require.register('ps/src/templates/table.js', function(exports, require, module) {
+    
+      module.exports = ["{{ #if pubs.length }}","<table>","    <thead>","        <tr>","            <th>Title</th>","            <th>Author(s)</th>","            <th>Journal</th>","            <th>Year</th>","        </tr>","    </thead>","    <tbody>","    {{ #pubs }}","        <tr>","            <td>{{ title }}</td>","            <td>","            {{ #authors }}","                <span class=\"author\">{{ . }}</span>","            {{ /authors }}","            </td>","            <td>{{ journal }}</td>","            <td>{{ year }}</td>","        </tr>","    {{ /pubs }}","    </tbody>","</table>","{{ /if }}"].join("\n");
     });
   })();
 
@@ -29790,4 +29936,5 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
   
   root.require.alias("ps/src/app.js", "ps/index.js");
   
-})();
+
+})(this);

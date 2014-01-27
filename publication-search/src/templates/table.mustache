@@ -1,0 +1,26 @@
+{{ #if pubs.length }}
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Journal</th>
+            <th>Year</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{ #pubs }}
+        <tr>
+            <td>{{ title }}</td>
+            <td>
+            {{ #authors }}
+                <span class="author">{{ . }}</span>
+            {{ /authors }}
+            </td>
+            <td>{{ journal }}</td>
+            <td>{{ year }}</td>
+        </tr>
+    {{ /pubs }}
+    </tbody>
+</table>
+{{ /if }}
