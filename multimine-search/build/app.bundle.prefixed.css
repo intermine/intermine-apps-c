@@ -1,0 +1,218 @@
+.-im-pathways-displayer body {
+  /*background: #1a1a1a;*/
+}
+
+.-im-pathways-displayer #pathwaysappcontainer {
+  display: block;
+  height: 300px;
+}
+
+.-im-pathways-displayer #pathwaysappcontainer h4 {
+  padding-top: 11px;
+}
+
+.-im-pathways-displayer #pathwaysappcontainer .pwayMain {
+  /*height: 200px;*/
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.-im-pathways-displayer #pathwaysappcontainer .pwayMain table {
+  border-collapse: collapse;
+  width: 100%;
+  z-index: 0;
+}
+
+.-im-pathways-displayer #pathwaysappcontainer .pwayResults tr:hover td {
+  background-color: #FFF3D3;
+}
+
+/*
+
+#pathwaysappcontainer .pwayMain .pwayResults tr {
+  background-color: white;
+}*/
+
+.-im-pathways-displayer #pathwaysappcontainer .pwayMain .pwayResults tr.highlighted {
+  background-color: #FFF3D3;
+}
+
+/*
+#pathwaysappcontainer .pwayMain td {
+  padding: 2px;
+  border: 1px solid #bdbdbd;
+}*/
+
+/*
+#pathwaysappcontainer thead tr th {
+  padding: 5px;
+  background: black;
+  color: white;
+}*/
+
+/*
+#pwayResultsId thead {
+  border: none;
+  padding: 0;
+}*/
+
+/*
+#pathwaysappcontainer .pwayMain .hit {
+  padding: 5px;
+  border: 1px solid #bdbdbd;
+}*/
+
+/*
+#pathwaysappcontainer .pwayDetails {
+
+  border: 1px solid #bdbdbd;
+  padding: 10px 5px 10px 5px;
+  background: white;
+  color: black;
+
+
+}*/
+
+/*
+#pathwaysappcontainer .pwayDetails a {
+  color: orange;
+}*/
+
+/*
+#pathwaysappcontainer .pwayHeaders {
+  border: 1px solid #bdbdbd;
+  font-size: 14px;
+  padding: 5px;
+  background: black;
+  color: white;
+  display: block;
+}*/
+
+.-im-pathways-displayer .circle {
+  border-radius: 50%;
+  width: 9px;
+  height: 9px;
+  background: orange;
+  margin: auto;
+  vertical-align: top;
+  /* width and height can be anything, as long as they're equal */
+}
+
+.-im-pathways-displayer .clickable:hover {
+  cursor: pointer;
+}
+
+.-im-pathways-displayer .dataPane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #FFF3D3;
+  color: black;
+  text-align: center;
+  /*padding-left: 5px;*/
+  width: 0px;
+  /*height: 200px;*/
+  -webkit-transition: width 0.25s;
+  text-align: left;
+  /*
+  -webkit-box-shadow: -3px 0px 5px rgba(50, 50, 50, 0.35);
+  -moz-box-shadow:    -3px 0px 5px rgba(50, 50, 50, 0.35);
+  box-shadow:         -3px 0px 5px rgba(50, 50, 50, 0.35);
+  */
+  /*z-index: 2;*/
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.-im-pathways-displayer .active {
+  width: 50%;
+  visibility: visible;
+  border-left: 1px solid #bdbdbd;
+  -webkit-transition: width 0.25s;
+  /*
+    -webkit-box-shadow: -3px 0px 5px rgba(50, 50, 50, 0.35);
+  -moz-box-shadow:    -3px 0px 5px rgba(50, 50, 50, 0.35);
+  box-shadow:         -3px 0px 5px rgba(50, 50, 50, 0.35);*/
+}
+
+/*
+.dataPane ul {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}*/
+
+/*
+.dataPane h2 {
+  font-size: 14px;
+}*/
+
+.-im-pathways-displayer .flyin {
+  -webkit-transition: opacity 400ms linear, width 80ms ease-in-out, right 200ms ease-out;
+}
+
+.-im-pathways-displayer .somethingdataPane:hover {
+  visibility: visible;
+  right: 0px;
+  width: 50%;
+}
+
+.-im-pathways-displayer .pwayWrapper {
+  position: relative;
+  /*height: 200px;*/
+}
+
+.-im-pathways-displayer table.detailsTable {
+  width: 100%;
+}
+
+/*
+table.detailsTable td {
+  padding: 5px;
+}*/
+
+/*
+table.detailsTable th {
+  font-size: 18px;
+  text-align: center;
+}*/
+
+.-im-pathways-displayer #pwayResultsContainer {
+  overflow: auto;
+  overflow-x: hidden;
+  max-height: 250px;
+}
+
+.-im-pathways-displayer #pwayResultsId {
+  /*height: 100px;*/
+}
+
+.-im-pathways-displayer .innerDetailsContainer {
+  padding: 0px 10px 0px 10px;
+}
+
+.-im-pathways-displayer #statusBar {
+  border: 1px solid #bdbdbd;
+  font-size: 10px;
+  padding: 2px;
+  /*background: black;*/
+  /*color: white;*/
+}
+
+.-im-pathways-displayer .hidden {
+  display: none;
+  color: green;
+}
+
+.-im-pathways-displayer ul.inline {
+  display: inline;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.-im-pathways-displayer ul.inline li {
+  display: inline;
+}

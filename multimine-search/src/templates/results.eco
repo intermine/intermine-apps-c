@@ -1,0 +1,7 @@
+<ul>
+
+	<% console.log "results obj from templte: ", @results %>
+	<% for result in @results: %>
+		<li><span>Type: </span><%= result.type %></li>
+	<% end %>
+</ul>

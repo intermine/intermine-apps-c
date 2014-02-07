@@ -1,0 +1,20 @@
+<td class="TypeColumn">
+	<a href="<%= @result.mineBase %>report.do?id=<%= @result.id %>" target="_blank"><%= @result.type %></a>
+</td>
+<td>
+	<ul>
+		<% for key, value of @result.fields: %>
+			<li><strong><%= "#{key}: "%></strong><%= "#{value}" %></li>
+		<% end %>
+	</ul>
+</td>
+<td class="Organism">
+	<%= @result.fields["organism.shortName"] %>
+</td>
+<td class="RelevanceColumn">
+	<% percentage = (@result.relevance / 1) * 100 %>
+	<div class="progress" style="width:<%= percentage %>%"></div>
+</td>
+<td class="SourceColumn">
+	<span><%= @result.mineName %></span>
+</td>

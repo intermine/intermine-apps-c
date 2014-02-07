@@ -2619,7 +2619,7 @@
         }
         (function() {
           (function() {
-            __out.push('<a class="btn btn-small view">View</a>\n<a class="btn btn-small export">Download</a>');
+            __out.push('<a class="btn btn-small view">View3</a>\n<a class="btn btn-small export">Download3</a>');
           
           }).call(this);
           
@@ -2871,7 +2871,7 @@
         }
         (function() {
           (function() {
-            __out.push('<div class="header">\n    <h3>');
+            __out.push('<div class="header">\n    <p>Tabs will go here</p>\n    <h3>');
           
             if (this.title) {
               __out.push(__sanitize(this.title));
@@ -2888,11 +2888,11 @@
             if (this.notAnalysed) {
               __out.push('\n        <p>Number of ');
               __out.push(__sanitize(this.type));
-              __out.push('s in this list not analysed in this widget: <a>');
+              __out.push('s in this list not analysed in this widgetssssss: <a>');
               __out.push(__sanitize(this.notAnalysed));
               __out.push('</a></p>\n    ');
             } else {
-              __out.push('\n        <p>All items in your list have been analysed.</p>\n    ');
+              __out.push('\n        <p>All items in your list have been analysed2.</p>\n    ');
             }
           
             __out.push('\n\n    <div class="form">\n        <!-- enrichment.form.eco -->\n    </div>\n\n    <div class="actions" style="padding:10px 0">\n        <!-- actions.eco -->\n    </div>\n</div>\n<div class="content">\n    <!-- enrichment.table.eco -->\n</div>');
@@ -4344,24 +4344,22 @@
         @param {Object} opts Config just like imjs consumes e.g. `{ "root": "", "token": "" }`
         */
       
-        function Widgets() {
-          var opts;
-          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (typeof opts[0] === 'string') {
-            this.root = opts[0];
-            this.token = opts[1] || '';
+        function Widgets(arg0, arg1) {
+          var serviceOpts, _ref1;
+          if (typeof arg0 === 'string') {
+            this.root = arg0;
+            this.token = arg1;
+            serviceOpts = {
+              root: this.root,
+              token: this.token
+            };
           } else {
-            if (opts[0].root != null) {
-              this.root = opts[0].root;
-            } else {
-              throw Error('You need to set the `root` parameter pointing to the mine\'s service');
+            _ref1 = serviceOpts = arg0, this.root = _ref1.root, this.token = _ref1.token;
+            if (!this.root) {
+              throw new Error('You need to set the `root` parameter pointing to the mine\'s service');
             }
-            this.token = opts[0].token;
           }
-          this.imjs = new intermine.Service({
-            root: this.root,
-            token: this.token
-          });
+          this.imjs = new intermine.Service(serviceOpts);
           this.lists = this.imjs.fetchLists();
         }
       
