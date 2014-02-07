@@ -16186,7 +16186,8 @@ r("mori.zip.leftmost",function(a){var b=Q.c(a,0,null),c=Q.c(a,1,null),c=xc(c)?T.
 r("mori.zip.insert_right",function(a,b){var c=Q.c(a,0,null),d=Q.c(a,1,null),d=xc(d)?T.a(cc,d):d,e=R.a(d,cg);if(null==d)throw"Insert at top";return N(X([c,S.e(d,cg,K(b,e),I([gg,!0],0))]),hc(a))});r("mori.zip.replace",Pg);r("mori.zip.edit",Qg);r("mori.zip.insert_child",function(a,b){return Pg(a,Jg(a,Gg(a),K(b,Ig(a))))});r("mori.zip.append_child",function(a,b){return Pg(a,Jg(a,Gg(a),fd.a(Ig(a),X([b]))))});
 r("mori.zip.next",function(a){if(Ob.a(hg,a.b?a.b(1):a.call(null,1)))return a;var b;b=Hg(a);b=t(b)?Kg(a):b;if(t(b))return b;b=Mg(a);if(t(b))return b;for(;;)if(t(Lg(a))){b=Mg(Lg(a));if(t(b))return b;a=Lg(a)}else return X([Gg(a),hg])});r("mori.zip.prev",function(a){var b=Og(a);if(t(b))for(a=b;;)if(b=Hg(a),b=t(b)?Kg(a):b,t(b))a=Ng(b);else return a;else return Lg(a)});r("mori.zip.is_end",function(a){return Ob.a(hg,a.b?a.b(1):a.call(null,1))});
 r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc,b):b,c=R.a(b,ig),d=R.a(b,eg),e=R.a(b,dg),g=R.a(b,cg);if(null==b)throw"Remove at top";if(0<O(c))for(a=N(X([Ra(c),S.e(b,ig,Sa(c),I([gg,!0],0))]),hc(a));;)if(b=Hg(a),b=t(b)?Kg(a):b,t(b))a=Ng(b);else return a;else return N(X([Jg(a,Ra(e),g),t(d)?S.c(d,gg,!0):d]),hc(a))});r("mori.mutable.thaw",function(a){return ub(a)});r("mori.mutable.freeze",hd);r("mori.mutable.conj",function(a,b){return vb(a,b)});r("mori.mutable.assoc",id);r("mori.mutable.dissoc",function(a,b){return yb(a,b)});r("mori.mutable.pop",function(a){return zb(a)});r("mori.mutable.disj",function(a,b){return Ab(a,b)});;return this.mori;}.call({});});
-;(function() {
+;// A standalone CommonJS loader.
+(function(root) {
   /**
    * Require the given path.
    *
@@ -16198,7 +16199,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     var resolved = require.resolve(path);
 
     // lookup failed
-    if (null === resolved) {
+    if (!resolved) {
       orig = orig || path;
       parent = parent || 'root';
       var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
@@ -16386,11 +16387,12 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     return localRequire;
   };
 
-  // Global on server, window in browser.
-  var root = this;
-
   // Do we already have require loader?
   root.require = (typeof root.require !== 'undefined') ? root.require : require;
+
+})(this);
+// Concat modules and export them as an app.
+(function(root) {
 
   // All our modules will use global require.
   (function() {
@@ -19022,4 +19024,5 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
   
   root.require.alias("component-400/src/app.js", "component-400/index.js");
   
-})();
+
+})(this);
