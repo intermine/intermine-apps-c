@@ -1,3 +1,6 @@
+# Cache for useful things.
+cache = new SimpleLRU 50
+
 # Elastic helper.
 module.exports = new can.Map
 
@@ -11,7 +14,7 @@ module.exports = new can.Map
     # Number of results to return.
     size: 10
 
-    # Return a function doing the actual search.
+    # Do the actual search based on query provided.
     search: (query, cb) ->
         return cb 'Client is not setup' unless @client
 
@@ -33,7 +36,6 @@ module.exports = new can.Map
                         'title': {}
                         'abstract': {}
             }
-        
         }).then (res) ->
             # JSON?
             try
@@ -72,9 +74,12 @@ module.exports = new can.Map
         # Trouble?
         ,  cb
 
-    # Find documents with a similar text.
+    # Suggest similar looking terms (used in auto-complete).
     suggest: (text, cb) ->
         return cb 'Client is not setup' unless @client
+
+        # In cache?
+        return cb(null, value) if value = cache.get(text)
 
         body = 'completion': { text, 'term': { 'field': 'title' } }
 
@@ -89,7 +94,36 @@ module.exports = new can.Map
             map = {}
             ( map[text] = options for { text, options } in body.completion )
             
+            # Save to the cache.
+            cache.set text, map
+
             return cb null, map
+
+        # Trouble?
+        , cb
+
+    # Give us more documents like this one.
+    more: (id, cb) ->
+        return cb 'Client is not setup' unless @client
+
+        @client.mlt({
+            @index, @type, id,
+            # Match on title.
+            'mlt_fields': 'title'
+            # How many terms have to match in order to consider the
+            #  document a match.
+            'percentTermsToMatch': 0.1
+        }).then (res) ->
+            # JSON?
+            try
+                body = JSON.parse res.body
+            catch e
+                return cb 'Malformed response'
+
+            # Return remapped hits.
+            cb null, _.map body.hits.hits, ({ _id, _score, _source }) ->
+                _source.oid = _id ; _source.score = _score
+                _source
 
         # Trouble?
         , cb

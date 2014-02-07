@@ -16186,7 +16186,8 @@ r("mori.zip.leftmost",function(a){var b=Q.c(a,0,null),c=Q.c(a,1,null),c=xc(c)?T.
 r("mori.zip.insert_right",function(a,b){var c=Q.c(a,0,null),d=Q.c(a,1,null),d=xc(d)?T.a(cc,d):d,e=R.a(d,cg);if(null==d)throw"Insert at top";return N(X([c,S.e(d,cg,K(b,e),I([gg,!0],0))]),hc(a))});r("mori.zip.replace",Pg);r("mori.zip.edit",Qg);r("mori.zip.insert_child",function(a,b){return Pg(a,Jg(a,Gg(a),K(b,Ig(a))))});r("mori.zip.append_child",function(a,b){return Pg(a,Jg(a,Gg(a),fd.a(Ig(a),X([b]))))});
 r("mori.zip.next",function(a){if(Ob.a(hg,a.b?a.b(1):a.call(null,1)))return a;var b;b=Hg(a);b=t(b)?Kg(a):b;if(t(b))return b;b=Mg(a);if(t(b))return b;for(;;)if(t(Lg(a))){b=Mg(Lg(a));if(t(b))return b;a=Lg(a)}else return X([Gg(a),hg])});r("mori.zip.prev",function(a){var b=Og(a);if(t(b))for(a=b;;)if(b=Hg(a),b=t(b)?Kg(a):b,t(b))a=Ng(b);else return a;else return Lg(a)});r("mori.zip.is_end",function(a){return Ob.a(hg,a.b?a.b(1):a.call(null,1))});
 r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc,b):b,c=R.a(b,ig),d=R.a(b,eg),e=R.a(b,dg),g=R.a(b,cg);if(null==b)throw"Remove at top";if(0<O(c))for(a=N(X([Ra(c),S.e(b,ig,Sa(c),I([gg,!0],0))]),hc(a));;)if(b=Hg(a),b=t(b)?Kg(a):b,t(b))a=Ng(b);else return a;else return N(X([Jg(a,Ra(e),g),t(d)?S.c(d,gg,!0):d]),hc(a))});r("mori.mutable.thaw",function(a){return ub(a)});r("mori.mutable.freeze",hd);r("mori.mutable.conj",function(a,b){return vb(a,b)});r("mori.mutable.assoc",id);r("mori.mutable.dissoc",function(a,b){return yb(a,b)});r("mori.mutable.pop",function(a){return zb(a)});r("mori.mutable.disj",function(a,b){return Ab(a,b)});;return this.mori;}.call({});});
-;(function() {
+;// A standalone CommonJS loader.
+(function(root) {
   /**
    * Require the given path.
    *
@@ -16198,7 +16199,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     var resolved = require.resolve(path);
 
     // lookup failed
-    if (null === resolved) {
+    if (!resolved) {
       orig = orig || path;
       parent = parent || 'root';
       var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
@@ -16386,11 +16387,12 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     return localRequire;
   };
 
-  // Global on server, window in browser.
-  var root = this;
-
   // Do we already have require loader?
   root.require = (typeof root.require !== 'undefined') ? root.require : require;
+
+})(this);
+// Concat modules and export them as an app.
+(function(root) {
 
   // All our modules will use global require.
   (function() {
@@ -16399,21 +16401,24 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // app.coffee
     root.require.register('component-400/src/app.js', function(exports, require, module) {
     
-      var AppView, Database, mediator, mori;
+      var AppView, Database, mediator, mori, options;
       
       mori = require('./modules/deps').mori;
       
       mediator = require('./modules/mediator');
+      
+      options = require('./modules/options');
       
       AppView = require('./views/app');
       
       Database = require('./models/database');
       
       module.exports = function(opts) {
-        var db;
+        var db, el;
         if (!opts.cb) {
           throw 'Provide your own callback function';
         }
+        options.set(opts.options);
         if (opts.formatter) {
           require('./modules/formatter').primary = opts.formatter;
         }
@@ -16422,8 +16427,9 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         mediator.on('app:save', function() {
           return opts.cb(mori.into_array(db.selected));
         }, this);
+        el = opts.el || opts.target || 'body';
         new AppView({
-          'el': opts.target || 'body',
+          el: el,
           db: db
         });
         return function() {
@@ -16684,19 +16690,19 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           return [columns, row];
         },
         'flyout': function(model) {
-          var format, k, v, _ref, _results;
-          format = function(text) {
-            return text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase();
-          };
+          var k, v, _ref, _results;
           _ref = model.summary;
           _results = [];
           for (k in _ref) {
             v = _ref[k];
             if (v) {
-              _results.push([format(k), v]);
+              _results.push([this.field(k), v]);
             }
           }
           return _results;
+        },
+        'field': function(text) {
+          return text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase();
         }
       };
       
@@ -16711,6 +16717,34 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       BackboneEvents = require('./deps').BackboneEvents;
       
       module.exports = _.extend({}, BackboneEvents);
+      
+    });
+
+    
+    // options.coffee
+    root.require.register('component-400/src/modules/options.js', function(exports, require, module) {
+    
+      var options;
+      
+      options = {
+        'showDownloadSummary': true,
+        'matchViewStrategy': 'full'
+      };
+      
+      module.exports = {
+        'set': function(key, value) {
+          if (_.isObject(key)) {
+            return _.extend(options, key);
+          }
+          return options[key] = value;
+        },
+        'get': function(key) {
+          if (key) {
+            return options[key];
+          }
+          return options;
+        }
+      };
       
     });
 
@@ -16960,6 +16994,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
+            var field, _i, _len, _ref;
+          
             if (this.input) {
               __out.push('\n    <td rowspan="');
               __out.push(__sanitize(this.rowspan));
@@ -16974,17 +17010,155 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
               __out.push('\n    </td>\n');
             }
           
-            __out.push('\n<td>\n    <a>');
+            __out.push('\n');
           
-            __out.push(this.matched);
+            _ref = this.fields;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              field = _ref[_i];
+              __out.push('\n    <td>\n        ');
+              if (field) {
+                __out.push('\n            <a>');
+                __out.push(field);
+                __out.push('</a>\n            ');
+                if (this.showFlyout) {
+                  __out.push('\n                <span class="help-flyout">i</span>\n            ');
+                }
+                __out.push('\n        ');
+              }
+              __out.push('\n    </td>\n');
+            }
           
-            __out.push('</a>\n    <span class="help-flyout">i</span>\n</td>\n');
+            __out.push('\n');
           
             if (this.selected) {
               __out.push('\n    <td><span class="tiny secondary button">Remove</span></td>\n');
             } else {
               __out.push('\n    <td><span class="tiny success button">Add</span></td>\n');
             }
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // table-head-full.eco
+    root.require.register('component-400/src/templates/duplicates/table-head-full.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            var field, _i, _len, _ref;
+          
+            __out.push('<tr>\n    <th rowspan="2">Identifier you provided</th>\n    <th colspan="');
+          
+            __out.push(__sanitize(this.fields.length));
+          
+            __out.push('">Matches <span data-id="matches" class="help hint--left">i</span></th>\n    <th rowspan="2">Action <span data-id="add" class="help hint--left">i</span></th>\n</tr>\n<tr>\n    ');
+          
+            _ref = this.fields;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              field = _ref[_i];
+              __out.push('\n    <th data-key="');
+              __out.push(__sanitize(field.key));
+              __out.push('">');
+              __out.push(__sanitize(field.name));
+              __out.push('</th>\n    ');
+            }
+          
+            __out.push('\n</tr>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // table-head-slim.eco
+    root.require.register('component-400/src/templates/duplicates/table-head-slim.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<tr>\n    <th>Identifier you provided <span data-id="provided" class="help hint--right">i</span></a></th>\n    <th>Matches <span data-id="matches" class="help hint--left">i</span></th>\n    <th>Action <span data-id="add" class="help hint--left">i</span></th>\n</tr>');
           
           }).call(this);
           
@@ -17446,10 +17620,14 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           (function() {
             __out.push('<header>\n    ');
           
-            if (this.canDownload) {
-              __out.push('\n        <span class="small download button">Download summary</span>\n    ');
-            } else {
-              __out.push('\n        <span data-id="noblob" class="help hint--left right">i</span>\n        <span class="small secondary disabled button">Download summary</span>\n    ');
+            if (this.options.showDownloadSummary) {
+              __out.push('\n        ');
+              if (this.canDownload) {
+                __out.push('\n            <span class="small download button">Download summary</span>\n        ');
+              } else {
+                __out.push('\n            <span data-id="noblob" class="help hint--left right">i</span>\n            <span class="small secondary disabled button">Download summary</span>\n        ');
+              }
+              __out.push('\n    ');
             }
           
             __out.push('\n    <h2>Summary</h2>\n    <span data-id="2" class="help hint--right">i</span>\n</header>\n<dl class="tabs contained"></dl>\n<ul class="tabs-content contained"></ul>');
@@ -17505,7 +17683,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
-            var item, _i, _len, _ref;
+            var field, item, _i, _j, _len, _len1, _ref, _ref1;
           
             if (this.input) {
               __out.push('\n    <td rowspan="');
@@ -17527,11 +17705,23 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
               __out.push('\n    </td>\n');
             }
           
-            __out.push('\n<td>\n    <a>');
+            __out.push('\n');
           
-            __out.push(this.matched);
-          
-            __out.push('</a>\n    <span class="help-flyout">i</span>\n</td>');
+            _ref1 = this.fields;
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              field = _ref1[_j];
+              __out.push('\n    <td>\n        ');
+              if (field) {
+                __out.push('\n            <a>');
+                __out.push(field);
+                __out.push('</a>\n            ');
+                if (this.showFlyout) {
+                  __out.push('\n                <span class="help-flyout">i</span>\n            ');
+                }
+                __out.push('\n        ');
+              }
+              __out.push('\n    </td>\n');
+            }
           
           }).call(this);
           
@@ -17584,6 +17774,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
+            var field, _i, _len, _ref;
+          
             if (this.input) {
               __out.push('\n    <td rowspan="');
               __out.push(__sanitize(this.rowspan));
@@ -17598,11 +17790,147 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
               __out.push('\n    </td>\n');
             }
           
-            __out.push('\n<td>\n    <a>');
+            __out.push('\n');
           
-            __out.push(this.matched);
+            _ref = this.fields;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              field = _ref[_i];
+              __out.push('\n    <td>\n        ');
+              if (field) {
+                __out.push('\n            <a>');
+                __out.push(field);
+                __out.push('</a>\n            ');
+                if (this.showFlyout) {
+                  __out.push('\n                <span class="help-flyout">i</span>\n            ');
+                }
+                __out.push('\n        ');
+              }
+              __out.push('\n    </td>\n');
+            }
           
-            __out.push('</a>\n    <span class="help-flyout">i</span>\n</td>');
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // table-head-full.eco
+    root.require.register('component-400/src/templates/table/table-head-full.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            var field, _i, _len, _ref;
+          
+            __out.push('<tr>\n    <th rowspan="2">Identifier you provided</th>\n    <th colspan="');
+          
+            __out.push(__sanitize(this.fields.length));
+          
+            __out.push('">Match <span data-id="matches" class="help hint--left">i</span></th>\n</tr>\n<tr>\n    ');
+          
+            _ref = this.fields;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              field = _ref[_i];
+              __out.push('\n    <th data-key="');
+              __out.push(__sanitize(field.key));
+              __out.push('">');
+              __out.push(__sanitize(field.name));
+              __out.push('</th>\n    ');
+            }
+          
+            __out.push('\n</tr>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // table-head-slim.eco
+    root.require.register('component-400/src/templates/table/table-head-slim.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<tr>\n    <th>Identifier you provided</th>\n    <th>Match <span data-id="matches" class="help hint--left">i</span></th>\n</tr>');
           
           }).call(this);
           
@@ -17655,7 +17983,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
         (function() {
           (function() {
-            __out.push('<div class="paginator"></div>\n\n<table class="striped">\n    <thead>\n        <tr>\n            <th>Identifier you provided</th>\n            <th>Match <span data-id="matches" class="help hint--left">i</span></th>\n        </tr>\n    </thead>\n    <tbody></tbody>\n</table>');
+            __out.push('<div class="paginator"></div>\n\n<table class="striped">\n    <thead></thead>\n    <tbody></tbody>\n</table>');
           
           }).call(this);
           
@@ -17813,7 +18141,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // duplicates.coffee
     root.require.register('component-400/src/views/duplicates.js', function(exports, require, module) {
     
-      var Daddy, DuplicatesTableRowView, DuplicatesTableView, FlyoutView, Table, View, formatter, mediator, _, _ref, _ref1,
+      var Daddy, DuplicatesTableRowView, DuplicatesTableView, FlyoutView, Table, View, formatter, mediator, options, _, _ref, _ref1,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -17822,6 +18150,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       formatter = require('../modules/formatter');
       
       mediator = require('../modules/mediator');
+      
+      options = require('../modules/options');
       
       View = require('../modules/view');
       
@@ -17867,7 +18197,13 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           return _ref1;
         }
       
-        DuplicatesTableView.prototype.template = require('../templates/duplicates/table');
+        DuplicatesTableView.prototype.template = {
+          table: require('../templates/duplicates/table'),
+          thead: {
+            slim: require('../templates/duplicates/table-head-slim'),
+            full: require('../templates/duplicates/table-head-full')
+          }
+        };
       
         DuplicatesTableView.prototype.rowClass = DuplicatesTableRowView;
       
@@ -18149,7 +18485,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // summary.coffee
     root.require.register('component-400/src/views/summary.js', function(exports, require, module) {
     
-      var SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, formatter, mediator, saveAs, _, _ref,
+      var SummaryView, TabMatchesTableView, TabSwitcherView, TabTableView, Table, View, csv, formatter, mediator, options, saveAs, _, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -18158,6 +18494,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       mediator = require('../modules/mediator');
       
       formatter = require('../modules/formatter');
+      
+      options = require('../modules/options');
       
       csv = require('../modules/csv');
       
@@ -18187,7 +18525,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           var Clazz, collection, content, name, reason, showFirstTab, tabs, view, _i, _len, _ref1, _ref2;
           this.el.addClass('summary section');
           this.el.html(this.template({
-            canDownload: this.canDownload
+            canDownload: this.canDownload,
+            'options': options.get()
           }));
           tabs = this.el.find('.tabs');
           content = this.el.find('.tabs-content');
@@ -18333,7 +18672,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     // table.coffee
     root.require.register('component-400/src/views/table.js', function(exports, require, module) {
     
-      var $, FlyoutView, ManyToOneTableRowView, ManyToOneTableView, OneToManyTableView, Paginator, TableRowView, View, formatter, mediator, slicer, _, _ref, _ref1, _ref2,
+      var $, Fields, FlyoutView, ManyToOneTableRowView, ManyToOneTableView, OneToManyTableView, Paginator, TableRowView, TableView, View, formatter, mediator, options, slicer, _, _ref, _ref1,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -18343,6 +18682,8 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       formatter = require('../modules/formatter');
       
+      options = require('../modules/options');
+      
       View = require('../modules/view');
       
       Paginator = require('./paginator');
@@ -18351,13 +18692,27 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       slicer = require('../modules/slicer');
       
+      Fields = function() {
+        var list;
+        list = [];
+        list.set = {};
+        list.add = function(key) {
+          var obj;
+          if (list.set[key]) {
+            return;
+          }
+          obj = {
+            key: key,
+            'name': formatter.field(key)
+          };
+          list.set[key] = obj;
+          return list.push(obj);
+        };
+        return list;
+      };
+      
       TableRowView = (function(_super) {
         __extends(TableRowView, _super);
-      
-        function TableRowView() {
-          _ref1 = TableRowView.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
       
         TableRowView.prototype.template = require('../templates/table/one-to-many-row');
       
@@ -18369,17 +18724,43 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
           'click a': 'portal'
         };
       
+        function TableRowView() {
+          TableRowView.__super__.constructor.apply(this, arguments);
+          this.strategy = options.get('matchViewStrategy');
+        }
+      
         TableRowView.prototype.render = function() {
-          var matched;
-          matched = formatter.primary(this.model);
-          this.el.html(this.template(_.extend({}, this.model, this.options, {
-            matched: matched
-          })));
+          var fields, key, showFlyout, _i, _len, _ref1;
+          fields = [];
+          showFlyout = true;
+          switch (this.strategy) {
+            case 'full':
+              if (this.options.fields) {
+                _ref1 = this.options.fields;
+                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                  key = _ref1[_i].key;
+                  fields.push(this.model.summary[key]);
+                }
+                showFlyout = false;
+              }
+              break;
+            case 'slim':
+              fields.push(formatter.primary(this.model));
+          }
+          this.el.html(this.template({
+            'fields': fields,
+            'input': this.options.input || this.model.input,
+            'rowspan': this.options.rowspan,
+            'class': this.options["class"],
+            'showFlyout': showFlyout,
+            'selected': this.model.selected || false,
+            'continuing': this.options.continuing || false
+          }));
           return this;
         };
       
         TableRowView.prototype.toggleFlyout = function(ev) {
-          var view, _i, _len, _ref2, _results;
+          var view, _i, _len, _ref1, _results;
           switch (ev.type) {
             case 'mouseover':
               this.views.push(view = new FlyoutView({
@@ -18387,10 +18768,10 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
               }));
               return $(ev.target).append(view.render().el);
             case 'mouseout':
-              _ref2 = this.views;
+              _ref1 = this.views;
               _results = [];
-              for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-                view = _ref2[_i];
+              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                view = _ref1[_i];
                 _results.push(view.dispose());
               }
               return _results;
@@ -18405,10 +18786,28 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       })(View);
       
+      TableView = (function(_super) {
+        __extends(TableView, _super);
+      
+        TableView.prototype.template = {
+          table: require('../templates/table/table'),
+          thead: {
+            slim: require('../templates/table/table-head-slim'),
+            full: require('../templates/table/table-head-full')
+          }
+        };
+      
+        function TableView() {
+          TableView.__super__.constructor.apply(this, arguments);
+          this.strategy = options.get('matchViewStrategy');
+        }
+      
+        return TableView;
+      
+      })(View);
+      
       OneToManyTableView = (function(_super) {
         __extends(OneToManyTableView, _super);
-      
-        OneToManyTableView.prototype.template = require('../templates/table/table');
       
         OneToManyTableView.prototype.rowClass = TableRowView;
       
@@ -18436,56 +18835,64 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         OneToManyTableView.prototype.render = function() {
-          this.el.html(this.template());
+          this.el.html(this.template.table());
           this.el.find('.paginator').html(this.pagin.render().el);
           return this;
         };
       
         OneToManyTableView.prototype.renderPage = function(aRng, bRng) {
-          var i, tbody, view, _i, _len, _ref2;
-          tbody = this.el.find('tbody');
+          var fields, i, tbody;
           this.range = [aRng, bRng];
-          _ref2 = this.views;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            view = _ref2[_i];
-            view.dispose();
+          while (this.views.length) {
+            this.views.pop().dispose();
           }
+          fields = new Fields();
           i = 0;
-          return slicer.apply(this, [this.collection].concat(this.range, function(_arg, begin, end) {
-            var input, j, matches, model, _ref3;
+          slicer.apply(this, [this.collection].concat(this.range, function(_arg, begin, end) {
+            var input, j, matches, model, _ref1;
             input = _arg.input, matches = _arg.matches;
-            _ref3 = matches.slice(begin, +end + 1 || 9e9);
-            for (j in _ref3) {
-              model = _ref3[j];
-              if (j === '0') {
-                this.views.push(view = new this.rowClass({
+            _ref1 = matches.slice(begin, +end + 1 || 9e9);
+            for (j in _ref1) {
+              model = _ref1[j];
+              this.views.push(new this.rowClass((function() {
+                if (j !== '0') {
+                  return {
+                    model: model,
+                    fields: fields
+                  };
+                }
+                return {
+                  model: model,
+                  fields: fields,
                   'rowspan': end - begin + 1,
                   'class': ['even', 'odd'][i % 2],
                   'continuing': begin !== 0,
-                  'input': [input],
-                  model: model
-                }));
-              } else {
-                this.views.push(view = new this.rowClass({
-                  model: model
-                }));
-              }
-              tbody.append(view.render().el);
+                  'input': [input]
+                };
+              })()));
+              _.each(_.keys(model.summary), fields.add);
             }
             return i++;
           }));
+          this.el.find('thead').html(this.template.thead[this.strategy]({
+            fields: fields
+          }));
+          tbody = this.el.find('tbody');
+          return _.each(this.views, function(view) {
+            return tbody.append(view.render().el);
+          });
         };
       
         return OneToManyTableView;
       
-      })(View);
+      })(TableView);
       
       ManyToOneTableRowView = (function(_super) {
         __extends(ManyToOneTableRowView, _super);
       
         function ManyToOneTableRowView() {
-          _ref2 = ManyToOneTableRowView.__super__.constructor.apply(this, arguments);
-          return _ref2;
+          _ref1 = ManyToOneTableRowView.__super__.constructor.apply(this, arguments);
+          return _ref1;
         }
       
         ManyToOneTableRowView.prototype.template = require('../templates/table/many-to-one-row');
@@ -18496,8 +18903,6 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
       
       ManyToOneTableView = (function(_super) {
         __extends(ManyToOneTableView, _super);
-      
-        ManyToOneTableView.prototype.template = require('../templates/table/table');
       
         ManyToOneTableView.prototype.rowClass = ManyToOneTableRowView;
       
@@ -18515,35 +18920,39 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
         }
       
         ManyToOneTableView.prototype.render = function() {
-          this.el.html(this.template());
+          this.el.html(this.template.table());
           this.el.find('.paginator').html(this.pagin.render().el);
           return this;
         };
       
         ManyToOneTableView.prototype.renderPage = function(aRng, bRng) {
-          var model, tbody, view, _i, _j, _len, _len1, _ref3, _ref4, _results;
-          tbody = this.el.find('tbody');
+          var fields, model, tbody, _i, _len, _ref2;
           this.range = [aRng, bRng];
-          _ref3 = this.views;
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            view = _ref3[_i];
-            view.dispose();
+          while (this.views.length) {
+            this.views.pop().dispose();
           }
-          _ref4 = this.collection.slice(aRng, +bRng + 1 || 9e9);
-          _results = [];
-          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
-            model = _ref4[_j];
-            this.views.push(view = new this.rowClass({
-              model: model
+          fields = new Fields();
+          _ref2 = this.collection.slice(aRng, +bRng + 1 || 9e9);
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            model = _ref2[_i];
+            this.views.push(new this.rowClass({
+              model: model,
+              fields: fields
             }));
-            _results.push(tbody.append(view.render().el));
+            _.each(_.keys(model.summary), fields.add);
           }
-          return _results;
+          this.el.find('thead').html(this.template.thead[this.strategy]({
+            fields: fields
+          }));
+          tbody = this.el.find('tbody');
+          return _.each(this.views, function(view) {
+            return tbody.append(view.render().el);
+          });
         };
       
         return ManyToOneTableView;
       
-      })(View);
+      })(TableView);
       
       exports.TableRowView = TableRowView;
       
@@ -18615,4 +19024,5 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
   
   root.require.alias("component-400/src/app.js", "component-400/index.js");
   
-})();
+
+})(this);

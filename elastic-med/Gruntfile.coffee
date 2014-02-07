@@ -21,11 +21,13 @@ module.exports = (grunt) ->
                     # Vendor dependencies.
                     'vendor/jquery/jquery.js'
                     'vendor/lodash/dist/lodash.js'
-                    'vendor/canjs/can.jquery.js'
+                    'vendor/canjs/can.jquery-2.js'
+                    'vendor/canjs/can.map.setter.js'
                     'vendor/elasticsearch/index.js'
                     'vendor/moment/moment.js'
                     'vendor/colorbrewer/colorbrewer.js'
                     'vendor/d3/d3.js'
+                    'vendor/simple-lru/index.js'
                     # Our app.
                     'build/js/em.js'
                 ]
@@ -40,6 +42,7 @@ module.exports = (grunt) ->
                     'vendor/hint.css/hint.css'
                     'vendor/font-awesome/css/font-awesome.css'
                     'src/styles/fonts.css'
+                    # Our app.
                     'build/css/em.css'
                 ]
                 dest: 'build/css/em.bundle.css'

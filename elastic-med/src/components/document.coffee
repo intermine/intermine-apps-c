@@ -1,3 +1,5 @@
+query = require '../modules/query'
+
 # One document.
 module.exports = can.Component.extend
 
@@ -8,6 +10,15 @@ module.exports = can.Component.extend
     scope:
         # Link to the detail from abstract.
         linkToDetail: '@'
+        # Show keywords, duh.
+        showKeywords: '@'
+
+    events:
+        '.keywords li a click': (el, evt) ->
+            # Change the query.
+            query.attr 'current', do el.text
+            # Redirect.
+            location.hash = can.route.url ''
 
     helpers:
         # Published ago & format date.

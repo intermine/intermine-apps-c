@@ -3,66 +3,63 @@ ejs      = require './ejs'
 
 Document = require '../models/document'
 
+# The default state.
+init =
+    'text': 'Search ready'
+    'type': 'info'
+
 # State of the application.
 State = can.Map.extend
 
     # Loading.
     loading: ->
-        state
-        .attr('text', 'Loading results &hellip;')
-        .attr('class', 'info')
+        state.attr
+            'text': 'Searching'
+            'type': 'load'
+        
         # Clear results.
-        do results.attr('docs').destroy
-        results.attr('total', 0)
+        do results.clear
 
     # We have results.
     hasResults: (total, docs) ->
-        state.attr('class', 'info')
-        # How many?
-        if total > ejs.attr('size')
-            state.attr('text', "Top results out of #{total} matches")
-        else
-            if total is 1
-                state.attr('text', '1 Result')
-            else
-                state.attr('text', "#{total} Results")
-
-        # Destroy previous results.
-        do results.attr('docs').destroy
+        state.attr
+            'type': 'info'
+            'text': do ->
+                # How many?
+                if total > ejs.size
+                    "Top results out of #{total} matches"
+                else
+                    if total is 1 then '1 Result' else "#{total} Results"
 
         # Save the results.
-        results
-        .attr('total', total)
-        .attr('docs', new Document.List(docs))
+        results.attr { total, 'docs': new Document.List(docs) }
     
     # We have no results.
     noResults: ->
-        state
-        .attr('text', 'No results found')
-        .attr('class', 'info')
+        state.attr
+            'text': 'No results found'
+            'type': 'info'
         
         # Clear results.
-        do results.attr('docs').destroy
-        results.attr('total', 0)
+        do results.clear
 
-    # Something bad.
+    # Something went wrong.
     error: (err) ->
         text = 'Error'
         switch
             when _.isString err
                 text = err
-            when _.isObject err and err.message
+            when _.isObject(err) and err.message
                 text = err.message
 
-        state
-        .attr('text', text)
-        .attr('class', 'alert')
-        
+        state.attr { text, 'type': 'error' }
+
         # Clear results.
-        do results.attr('docs').destroy
-        results.attr('total', 0)
+        do results.clear
 
 # New global state instance.
-module.exports = state = new State
-    'text': 'Search ready'
-    'class': 'info'
+module.exports = state = new State(init)
+
+# Reset error state when our route changes.
+can.route.bind 'route', ->
+    state.attr(init) if state.type is 'error'

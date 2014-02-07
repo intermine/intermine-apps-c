@@ -5,7 +5,7 @@ module.exports = (grunt) ->
         apps_c:
             commonjs:
                 src: [ 'src/**/*.{coffee,js,eco}' ]
-                dest: 'build/app.js'
+                dest: 'build/js/component-400.js'
                 options:
                     main: 'src/app.coffee'
                     name: 'component-400'
@@ -15,7 +15,7 @@ module.exports = (grunt) ->
                 options:
                     paths: [ 'src/app.styl' ]
                 files:
-                    'build/app.css': 'src/app.styl'
+                    'build/css/component-400.css': 'src/app.styl'
 
         shell:
             mori:
@@ -34,9 +34,9 @@ module.exports = (grunt) ->
                     'vendor/FileSaver/FileSaver.js'
                     'vendor/mori/mori.js' # is built in the `shell` task
                     # Our app with requirerer.
-                    'build/app.js'
+                    'build/js/component-400.js'
                 ]
-                dest: 'build/app.bundle.js'
+                dest: 'build/js/component-400.bundle.js'
                 options:
                     separator: ';' # we will minify...
 
@@ -46,22 +46,22 @@ module.exports = (grunt) ->
                     'vendor/foundation3/index.css'
                     'vendor/hint.css/hint.css'
                     # Our style.
-                    'build/app.css'
+                    'build/css/component-400.css'
                 ]
-                dest: 'build/app.bundle.css'
+                dest: 'build/css/component-400.bundle.css'
 
         rework:
             app:
-                src: [ 'build/app.css' ]
-                dest: 'build/app.prefixed.css'
+                src: [ 'build/css/component-400.css' ]
+                dest: 'build/css/component-400.prefixed.css'
                 options:
                     use: [
                         [ 'rework.prefixSelectors', '.-im-component400' ]
                     ]
 
             bundle:
-                src: [ 'build/app.bundle.css' ]
-                dest: 'build/app.bundle.prefixed.css'
+                src: [ 'build/css/component-400.bundle.css' ]
+                dest: 'build/css/component-400.bundle.prefixed.css'
                 options:
                     use: [
                         [ 'rework.prefixSelectors', '.-im-component400' ]
@@ -70,16 +70,16 @@ module.exports = (grunt) ->
         uglify:
             scripts:
                 files:
-                    'build/app.min.js': 'build/app.js'
-                    'build/app.bundle.min.js': 'build/app.bundle.js'
+                    'build/js/component-400.min.js': 'build/js/component-400.js'
+                    'build/js/component-400.bundle.min.js': 'build/js/component-400.bundle.js'
 
         cssmin:
             combine:
                 files:
-                    'build/app.bundle.min.css': 'build/app.bundle.css'
-                    'build/app.min.css': 'build/app.css'
-                    'build/app.bundle.prefixed.min.css': 'build/app.bundle.prefixed.css'
-                    'build/app.prefixed.min.css': 'build/app.prefixed.css'
+                    'build/css/component-400.bundle.min.css': 'build/css/component-400.bundle.css'
+                    'build/css/component-400.min.css': 'build/css/component-400.css'
+                    'build/css/component-400.bundle.prefixed.min.css': 'build/css/component-400.bundle.prefixed.css'
+                    'build/css/component-400.prefixed.min.css': 'build/css/component-400.prefixed.css'
 
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
@@ -90,8 +90,15 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-contrib-cssmin')
     #grunt.loadNpmTasks('grunt-notify')
 
-    # Will build mori, prefix CSS & minify too.
+    # Use when watching...
     grunt.registerTask('default', [
+        'apps_c'
+        'stylus'
+        'concat'
+    ])
+    
+    # Will build mori, prefix CSS & minify too.
+    grunt.registerTask('minify', [
         'apps_c'
         'stylus'
         'shell'
@@ -99,11 +106,4 @@ module.exports = (grunt) ->
         'rework'
         'uglify'
         'cssmin'
-    ])
-
-    # Use when watching...
-    grunt.registerTask('build', [
-        'apps_c'
-        'stylus'
-        'concat'
     ])

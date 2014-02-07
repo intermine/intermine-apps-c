@@ -211,7 +211,7 @@
     // app.coffee
     root.require.register('em/src/app.js', function(exports, require, module) {
     
-      var Routing, ejs, helpers, query, render, results, state;
+      var Routing, components, ejs, helpers, query, render, results, state;
       
       results = require('./modules/results');
       
@@ -225,12 +225,13 @@
       
       helpers = require('./modules/helpers');
       
+      components = ['document', 'label', 'results', 'search', 'state', 'more'];
+      
       Routing = can.Control({
         init: function() {
-          var layout, name, _i, _len, _ref;
-          _ref = ['document', 'label', 'results', 'search', 'title'];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            name = _ref[_i];
+          var layout, name, _i, _len;
+          for (_i = 0, _len = components.length; _i < _len; _i++) {
+            name = components[_i];
             require("./components/" + name);
           }
           layout = require('./templates/layout');
@@ -248,7 +249,12 @@
           fin = function(doc) {
             var template, title;
             template = require('./templates/page/detail');
-            title = doc.attr('title').value;
+            if (!doc) {
+              return _this.render(template, {}, 'ElasticMed');
+            }
+            if (_.isObject(title = doc.attr('title'))) {
+              title = title.value;
+            }
             return _this.render(template, doc, "" + title + " - ElasticMed");
           };
           doc = null;
@@ -267,7 +273,7 @@
           }
           return ejs.get(oid, function(err, doc) {
             if (err) {
-              return state.error(err);
+              state.error(err.message);
             }
             return fin(doc);
           });
@@ -291,7 +297,7 @@
         new Routing(opts.el);
         can.route.ready();
         if (can.route.current('')) {
-          return query(opts.query || '');
+          return query.attr('current', opts.query || '');
         }
       };
       
@@ -301,11 +307,22 @@
     // document.coffee
     root.require.register('em/src/components/document.js', function(exports, require, module) {
     
+      var query;
+      
+      query = require('../modules/query');
+      
       module.exports = can.Component.extend({
         tag: 'app-document',
         template: require('../templates/document'),
         scope: {
-          linkToDetail: '@'
+          linkToDetail: '@',
+          showKeywords: '@'
+        },
+        events: {
+          '.keywords li a click': function(el, evt) {
+            query.attr('current', el.text());
+            return location.hash = can.route.url('');
+          }
         },
         helpers: {
           ago: function(published) {
@@ -404,6 +421,48 @@
     });
 
     
+    // more.coffee
+    root.require.register('em/src/components/more.js', function(exports, require, module) {
+    
+      var docs, ejs, working;
+      
+      ejs = require('../modules/ejs');
+      
+      docs = new can.List([]);
+      
+      working = can.compute(false);
+      
+      module.exports = can.Component.extend({
+        tag: 'app-more',
+        template: require('../templates/more'),
+        scope: function(obj, parent, element) {
+          working(true);
+          docs.replace([]);
+          ejs.more(parent.attr('oid'), function(err, list) {
+            working(false);
+            if (err) {
+              return;
+            }
+            return docs.replace(list);
+          });
+          return {
+            docs: docs
+          };
+        },
+        helpers: {
+          isWorking: function(opts) {
+            if (working()) {
+              return opts.fn(this);
+            } else {
+              return opts.inverse(this);
+            }
+          }
+        }
+      });
+      
+    });
+
+    
     // results.coffee
     root.require.register('em/src/components/results.js', function(exports, require, module) {
     
@@ -414,8 +473,15 @@
       module.exports = can.Component.extend({
         tag: 'app-results',
         template: require('../templates/results'),
-        scope: function() {
-          return results;
+        scope: function(obj, parent, element) {
+          var docs;
+          if ((docs = parent.attr('docs'))) {
+            return {
+              docs: docs
+            };
+          } else {
+            return results;
+          }
         }
       });
       
@@ -425,72 +491,168 @@
     // search.coffee
     root.require.register('em/src/components/search.js', function(exports, require, module) {
     
-      var ejs, query, suggestion;
+      var autocomplete, ejs, findActive, query, suggest, suggestions;
       
       query = require('../modules/query');
       
       ejs = require('../modules/ejs');
       
-      suggestion = can.compute(query());
+      suggestions = new can.Map({
+        'px': 0,
+        'list': [],
+        setList: function(words) {
+          return _.map(words, function(_arg, i) {
+            var text;
+            text = _arg.text;
+            return {
+              text: text,
+              'active': !i
+            };
+          });
+        }
+      });
+      
+      findActive = function(s, i) {
+        var active;
+        if (!(active = s.active)) {
+          return;
+        }
+        s.attr('active', false);
+        return true;
+      };
+      
+      autocomplete = function(word, el) {
+        var caret, value;
+        value = el.val();
+        caret = parseInt(el.prop('selectionStart'));
+        value.slice(0, caret).replace(/([^\s]+)$/, function(match, p, offset, string) {
+          return caret -= match.length;
+        });
+        value = value.slice(0, caret) + value.slice(caret).replace(/(^[^\s]+)/, word);
+        caret += word.length;
+        el.val(value);
+        return el[0].setSelectionRange(caret, caret);
+      };
+      
+      suggest = function(el, evt) {
+        var caret, key, value, word;
+        if (!(value = el.val()).length) {
+          return;
+        }
+        if ((key = evt.keyCode || evt.which) === 13) {
+          return query.attr('current', value);
+        }
+        if (key === 9 || key === 38 || key === 40) {
+          return;
+        }
+        caret = el.prop('selectionStart');
+        if (value.slice(Math.max(caret - 1, 0), +caret + 1 || 9e9).match(/^\s+$/)) {
+          return suggestions.attr('list', []);
+        }
+        word = '';
+        try {
+          word += value.slice(0, caret).match(/([^\s]+)$/)[1];
+        } catch (_error) {}
+        try {
+          word += value.slice(caret).match(/(^[^\s]+)/)[1];
+        } catch (_error) {}
+        suggestions.attr('px', this.element.find('.faux').text(value.slice(0, caret).replace(/\s/g, "\u00a0")).outerWidth());
+        return ejs.suggest(word, function(err, res) {
+          var words;
+          if (err) {
+            return;
+          }
+          if (!(words = res[word])) {
+            return;
+          }
+          return suggestions.attr('list', words);
+        });
+      };
       
       module.exports = can.Component.extend({
         tag: 'app-search',
         template: require('../templates/search'),
         scope: function() {
           return {
-            'query': {
-              'value': query
-            },
-            'suggestion': {
-              'value': suggestion
-            }
+            query: query,
+            suggestions: suggestions
           };
         },
         events: {
           'a.button click': function() {
-            return query(this.element.find('input').val());
+            return query.attr('current', this.element.find('input').val());
+          },
+          '.suggestions li mouseover': function(el, evt) {
+            var list, text;
+            if (!(list = suggestions.list).length) {
+              return;
+            }
+            _.find(list, findActive);
+            text = el.find('a').text();
+            return _.find(list, function(s, i) {
+              if (s.text !== text) {
+                return;
+              }
+              return s.attr('active', true);
+            });
+          },
+          '.suggestions li click': function(el, evt) {
+            var input;
+            input = this.element.find('input.text');
+            autocomplete(el.find('a').text(), input);
+            suggestions.attr('list', []);
+            return input.focus();
           },
           'input.text keydown': function(el, evt) {
-            if ((evt.keyCode || evt.which) !== 9) {
-              return;
-            }
-            el.val(suggestion());
-            return evt.preventDefault();
-          },
-          'input.text keyup': function(el, evt) {
-            var last, value;
-            suggestion(value = el.val());
-            if (!value.length) {
-              return;
-            }
-            if ((evt.keyCode || evt.which) === 13) {
-              return query(value);
-            }
-            if (value.slice(-1).match(/\s/)) {
-              return;
-            }
-            return ejs.suggest((last = value.split(/\s+/).pop()), function(err, suggs) {
-              var sugg;
-              if (err) {
+            var arrow, item, key, list, word;
+            arrow = function(key) {
+              var current, list;
+              if (!(list = suggestions.list).length) {
                 return;
               }
-              if (!suggs[last]) {
-                return;
-              }
-              if (!(sugg = (function() {
-                var text, _i, _len, _ref;
-                _ref = suggs[last];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  text = _ref[_i].text;
-                  if (!text.indexOf(last)) {
-                    return text;
+              switch (key) {
+                case 38:
+                  current = _.findIndex(list, findActive) || 0;
+                  if ((current -= 1) < 0) {
+                    current = list.length - 1;
                   }
-                }
-              })())) {
-                return;
+                  break;
+                case 40:
+                  current = _.findIndex(list, findActive);
+                  if (_.isUndefined(current)) {
+                    current = list.length - 1;
+                  }
+                  if ((current += 1) === list.length) {
+                    current = 0;
+                  }
               }
-              return suggestion(value.slice(0, value.lastIndexOf(last)) + sugg);
-            });
+              list[current].attr('active', true);
+              return evt.preventDefault();
+            };
+            switch (key = evt.keyCode || evt.which) {
+              case 9:
+                if (!(list = suggestions.list).length) {
+                  return;
+                }
+                if (!(item = _.find(list, findActive))) {
+                  return;
+                }
+                word = item.text;
+                autocomplete(word, el);
+                suggestions.attr('list', []);
+                return evt.preventDefault();
+              case 38:
+              case 40:
+                return arrow(key);
+              case 27:
+                suggestions.attr('list', []);
+                return el.blur();
+            }
+          },
+          'input.text keyup': suggest,
+          'input.text click': suggest,
+          '.breadcrumbs a click': function(el) {
+            return query.attr('current', el.text());
           }
         }
       });
@@ -498,18 +660,27 @@
     });
 
     
-    // title.coffee
-    root.require.register('em/src/components/title.js', function(exports, require, module) {
+    // state.coffee
+    root.require.register('em/src/components/state.js', function(exports, require, module) {
     
       var state;
       
       state = require('../modules/state');
       
       module.exports = can.Component.extend({
-        tag: 'app-title',
-        template: require('../templates/title'),
+        tag: 'app-state',
+        template: require('../templates/state'),
         scope: function() {
           return state;
+        },
+        helpers: {
+          isLoading: function(opts) {
+            if (state.attr('type') === 'load') {
+              return opts.fn(this);
+            } else {
+              return opts.inverse(this);
+            }
+          }
         }
       });
       
@@ -530,7 +701,8 @@
         dbName: 'elastic-med',
         keys: null,
         init: function(docs, load) {
-          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1, _results;
+          var doc, item, key, _i, _j, _len, _len1, _ref, _ref1,
+            _this = this;
           if (load == null) {
             load = false;
           }
@@ -538,12 +710,10 @@
           this.keys = (item && item.split(',')) || [];
           if (load && this.keys.length) {
             _ref = this.keys;
-            _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               key = _ref[_i];
-              _results.push(this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key))));
+              this.push(JSON.parse(db.getItem("" + this.dbName + "-" + key)));
             }
-            return _results;
           } else {
             for (_j = 0, _len1 = docs.length; _j < _len1; _j++) {
               doc = docs[_j];
@@ -552,8 +722,12 @@
                 this.keys.push(doc.oid);
               }
             }
-            return db.setItem(this.dbName, this.keys.join(','));
+            db.setItem(this.dbName, this.keys.join(','));
           }
+          return window.onbeforeunload = function() {
+            _this.destroy();
+            return null;
+          };
         },
         destroy: function() {
           var key, _i, _len, _ref;
@@ -563,7 +737,8 @@
             db.removeItem("" + this.dbName + "-" + key);
           }
           db.removeItem(this.dbName);
-          return this.keys = [];
+          this.keys = [];
+          return this;
         }
       });
       
@@ -595,6 +770,10 @@
     // ejs.coffee
     root.require.register('em/src/modules/ejs.js', function(exports, require, module) {
     
+      var cache;
+      
+      cache = new SimpleLRU(50);
+      
       module.exports = new can.Map({
         client: null,
         index: null,
@@ -674,9 +853,12 @@
           }, cb);
         },
         suggest: function(text, cb) {
-          var body;
+          var body, value;
           if (!this.client) {
             return cb('Client is not setup');
+          }
+          if (value = cache.get(text)) {
+            return cb(null, value);
           }
           body = {
             'completion': {
@@ -703,7 +885,35 @@
               _ref1 = _ref[_i], text = _ref1.text, options = _ref1.options;
               map[text] = options;
             }
+            cache.set(text, map);
             return cb(null, map);
+          }, cb);
+        },
+        more: function(id, cb) {
+          if (!this.client) {
+            return cb('Client is not setup');
+          }
+          return this.client.mlt({
+            index: this.index,
+            type: this.type,
+            id: id,
+            'mlt_fields': 'title',
+            'percentTermsToMatch': 0.1
+          }).then(function(res) {
+            var body, e;
+            try {
+              body = JSON.parse(res.body);
+            } catch (_error) {
+              e = _error;
+              return cb('Malformed response');
+            }
+            return cb(null, _.map(body.hits.hits, function(_arg) {
+              var _id, _score, _source;
+              _id = _arg._id, _score = _arg._score, _source = _arg._source;
+              _source.oid = _id;
+              _source.score = _score;
+              return _source;
+            }));
           }, cb);
         }
       });
@@ -752,12 +962,15 @@
       
       state = require('./state');
       
-      query = can.compute('');
+      query = new can.Map({
+        'current': '',
+        'history': []
+      });
       
-      query.bind('change', function(ev, q) {
-        if (!q) {
-          return;
-        }
+      query.bind('current', function(ev, q) {
+        var history;
+        (history = this.history.slice(0, 2)).splice(0, 0, q);
+        this.attr('history', history);
         state.loading();
         return ejs.search(q, function(err, _arg) {
           var docs, total;
@@ -799,7 +1012,18 @@
       
       module.exports = new can.Map({
         'total': 0,
-        'docs': new Document.List([], true)
+        'docs': new Document.List([], true),
+        clear: function() {
+          var _ref;
+          if ((_ref = this.docs) != null) {
+            _ref.destroy();
+          }
+          this.attr({
+            'total': 0,
+            'docs': null
+          });
+          return this;
+        }
       });
       
     });
@@ -808,7 +1032,7 @@
     // state.coffee
     root.require.register('em/src/modules/state.js', function(exports, require, module) {
     
-      var Document, State, ejs, results, state;
+      var Document, State, ejs, init, results, state;
       
       results = require('./results');
       
@@ -816,30 +1040,45 @@
       
       Document = require('../models/document');
       
+      init = {
+        'text': 'Search ready',
+        'type': 'info'
+      };
+      
       State = can.Map.extend({
         loading: function() {
-          state.attr('text', 'Loading results &hellip;').attr('class', 'info');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            'text': 'Searching',
+            'type': 'load'
+          });
+          return results.clear();
         },
         hasResults: function(total, docs) {
-          state.attr('class', 'info');
-          if (total > ejs.attr('size')) {
-            state.attr('text', "Top results out of " + total + " matches");
-          } else {
-            if (total === 1) {
-              state.attr('text', '1 Result');
-            } else {
-              state.attr('text', "" + total + " Results");
-            }
-          }
-          results.attr('docs').destroy();
-          return results.attr('total', total).attr('docs', new Document.List(docs));
+          state.attr({
+            'type': 'info',
+            'text': (function() {
+              if (total > ejs.size) {
+                return "Top results out of " + total + " matches";
+              } else {
+                if (total === 1) {
+                  return '1 Result';
+                } else {
+                  return "" + total + " Results";
+                }
+              }
+            })()
+          });
+          return results.attr({
+            total: total,
+            'docs': new Document.List(docs)
+          });
         },
         noResults: function() {
-          state.attr('text', 'No results found').attr('class', 'info');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            'text': 'No results found',
+            'type': 'info'
+          });
+          return results.clear();
         },
         error: function(err) {
           var text;
@@ -848,34 +1087,32 @@
             case !_.isString(err):
               text = err;
               break;
-            case !_.isObject(err && err.message):
+            case !(_.isObject(err) && err.message):
               text = err.message;
           }
-          state.attr('text', text).attr('class', 'alert');
-          results.attr('docs').destroy();
-          return results.attr('total', 0);
+          state.attr({
+            text: text,
+            'type': 'error'
+          });
+          return results.clear();
         }
       });
       
-      module.exports = state = new State({
-        'text': 'Search ready',
-        'class': 'info'
+      module.exports = state = new State(init);
+      
+      can.route.bind('route', function() {
+        if (state.type === 'error') {
+          return state.attr(init);
+        }
       });
       
-    });
-
-    
-    // breadcrumbs.mustache
-    root.require.register('em/src/templates/breadcrumbs.js', function(exports, require, module) {
-    
-      module.exports = ["<nav class=\"ink-navigation\">","    <ul class=\"breadcrumbs\">","        <li><a>Start</a></li>","        <li><a>Level 1</a></li>","        <li><a>Level 2</a></li>","        <li class=\"current\"><a>Current item</a></li>","    </ul>","</nav>"].join("\n");
     });
 
     
     // document.mustache
     root.require.register('em/src/templates/document.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"new\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"new\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","</div>","","{{ #ifs linkToDetail }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ else }}","<div class=\"abstract highlight\">","    {{{ highlight abstract }}}","</div>","{{ /ifs }}"].join("\n");
+      module.exports = ["<div class=\"body\">","    <div class=\"title\">","        <app-label></app-label>","        <h4 class=\"highlight\">{{{ highlight title }}}</h4>","    </div>","","    <ul class=\"authors\">","        {{ #authors }}","        {{ #if affiliation }}","        <li><span class=\"hint--top\" data-hint=\"{{ hint affiliation 30 }}\">{{ author this }}</span></li>","        {{ else }}","        <li>{{ author this }}</li>","        {{ /if }}","        {{ /authors }}","    </ul>","","    <em class=\"journal\">in {{ journal }}</em>","","    {{ #isPublished issue.published }}","    <div class=\"meta hint--top\" data-hint=\"{{ date issue.published }}\">Published {{ ago issue.published }}</div>","    {{ else }}","    <div class=\"meta\">In print</div>","    {{ /isPublished }}","","    {{ #id.pubmed }}","    <div class=\"meta\">","    PubMed: <a target=\"{{ id.pubmed }}\" href=\"http://www.ncbi.nlm.nih.gov/pubmed/{{ id.pubmed }}\">{{ id.pubmed }}</a>","    </div>","    {{ /id.pubmed }}","    ","    {{ #id.doi }}","    <div class=\"meta\">","    DOI: <a target=\"{{ id.doi }}\" href=\"http://dx.doi.org/{{ id.doi }}\">{{ id.doi }}</a>","    </div>","    {{ /id.doi }}","","    {{ #ifs showKeywords }}","    <ul class=\"keywords\">","    {{ #keywords }}","        <li><a><span class=\"secondary label\">{{ . }}</span></a></li>","    {{ /keywords }}","    </ul>","    {{ /ifs }}","</div>","","{{ #ifs linkToDetail }}","<a class=\"preview\" href=\"{{ link oid }}\">","    <div class=\"abstract highlight\">","        {{{ highlight abstract }}}","        <div class=\"fa fa-eye\"></div>","    </div>","</a>","{{ else }}","<div class=\"abstract highlight\">","    {{{ highlight abstract }}}","</div>","{{ /ifs }}"].join("\n");
     });
 
     
@@ -889,49 +1126,49 @@
     // layout.mustache
     root.require.register('em/src/templates/layout.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <p>An example app searching through an example collection of cancer related publications.</p>","    <div class=\"content\"></div>","</div>"].join("\n");
+      module.exports = ["<div class=\"box\">","    <h2><a href=\"{{ link null }}\">ElasticMed</a></h2>","    <div class=\"content\"></div>","</div>"].join("\n");
     });
 
     
-    // notification.mustache
-    root.require.register('em/src/templates/notification.js', function(exports, require, module) {
+    // more.mustache
+    root.require.register('em/src/templates/more.js', function(exports, require, module) {
     
-      module.exports = ["{{ #state.alert.show }}","<div class=\"alert-box {{ state.alert.type }}\">","    <p>{{{ state.alert.text }}}</p>","    <a class=\"close\">&times;</a>","</div>","{{ /state.alert.show }}"].join("\n");
+      module.exports = ["{{ #isWorking }}","<h5>Looking for similar documents <span class=\"fa fa-spinner\"></span></h5>","{{ /isWorking }}","","{{ #if docs.length }}","<h4>Similar documents</h4>","<app-results></app-results>","{{ /if }}"].join("\n");
     });
 
     
     // detail.mustache
     root.require.register('em/src/templates/page/detail.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"page detail\">","    <app-title></app-title>","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\"></app-document>","    </div>","<div>"].join("\n");
+      module.exports = ["<div class=\"page detail\">","    <app-state></app-state>","    {{ #oid }}","    <div class=\"document detail\">","        <app-document link-to-detail=\"false\" show-keywords=\"true\"></app-document>","    </div>","    <app-more></app-more>","    {{ /oid }}","<div>"].join("\n");
     });
 
     
     // index.mustache
     root.require.register('em/src/templates/page/index.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"page index\">","    <app-search></app-search>","    <app-title></app-title>","    <app-results></app-results>","</div>"].join("\n");
+      module.exports = ["<p>ElasticSearch through a collection of cancer related publications from PubMed. Use <kbd>Tab</kbd> to autocomplete or <kbd>Enter</kbd> to search.</p>","<div class=\"page index\">","    <app-search></app-search>","    <app-state></app-state>","    <app-results></app-results>","</div>"].join("\n");
     });
 
     
     // results.mustache
     root.require.register('em/src/templates/results.js', function(exports, require, module) {
     
-      module.exports = ["{{ #total }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document link-to-detail=\"true\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /total }}"].join("\n");
+      module.exports = ["{{ #if docs.length }}","<ul class=\"results\">","    {{ #docs }}","    <li class=\"document result\">","        <app-document link-to-detail=\"true\" show-keywords=\"false\"></app-document>","    </li>","    {{ /docs }}","</ul>","{{ /if }}"].join("\n");
     });
 
     
     // search.mustache
     root.require.register('em/src/templates/search.js', function(exports, require, module) {
     
-      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <input class=\"auto\" type=\"text\" placeholder=\"\" value=\"{{ suggestion.value }}\">","        <input class=\"text\" type=\"text\" placeholder=\"Query...\" value=\"{{ query.value }}\">","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>"].join("\n");
+      module.exports = ["<div class=\"row collapse\">","    <div class=\"large-10 columns search\">","        <div class=\"faux\"></div>","        <input class=\"text\" type=\"text\" maxlength=\"100\" placeholder=\"Query...\" value=\"{{ query.current }}\" autofocus>","        {{ #if suggestions.list.length }}","        <ul class=\"f-dropdown suggestions\" style=\"left:{{ suggestions.px }}px\">","        {{ #suggestions.list }}","            <li {{ #active }}class=\"active\"{{ /active }}>","                <a>{{ text }}</a>","            </li>","        {{ /suggestions.list }}","        </ul>","        {{ /if }}","    </div>","    <div class=\"large-2 columns\">","        <a class=\"button secondary postfix\">","            <span class=\"fa fa-search\"></span> Search","        </a>","    </div>","</div>","{{ #if query.history.length }}","<div class=\"row collapse\">","    <h4>History</h4>","    <ul class=\"breadcrumbs\">","    {{ #query.history }}","        <li><a>{{ . }}</a></li>","    {{ /query.history }}","</div>","{{ /if }}"].join("\n");
     });
 
     
-    // title.mustache
-    root.require.register('em/src/templates/title.js', function(exports, require, module) {
+    // state.mustache
+    root.require.register('em/src/templates/state.js', function(exports, require, module) {
     
-      module.exports = ["<h3 class=\"{{ class }}\">{{{ text }}}</h3>"].join("\n");
+      module.exports = ["<div class=\"state\">","    <h3 class=\"{{ type }}\">{{ text }}</h3>","    {{ #isLoading }}","    <span class=\"fa fa-spinner spinner\"></span>","    {{ /isLoading }}","</div>"].join("\n");
     });
   })();
 

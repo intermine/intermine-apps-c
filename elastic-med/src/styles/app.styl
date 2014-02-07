@@ -33,15 +33,38 @@ ul
         font-size: 14px
 
 .search
-    input
-        &.auto
-            color: #a6a6a6
-        
-        &.text
-            position: absolute
-            top: 0
-            left: 0
-            background: transparent
+    // Make sure these match the input field style.
+    .faux
+        visibility: hidden
+        display: block
+        font-size: 14px
+        padding: 8px
+        font-family: 'Source Sans Pro', sans-serif
+        border: 1px solid #FFF
+        position: absolute
+
+    // .fa-dropdown
+    .suggestions
+        position: absolute
+        // Point to the caret.
+        top: 32px
+        // Fix padding of faux and the tip of dropdown.
+        margin-left: -24px
+
+        li
+            // Remove default highlight.
+            &:hover
+                background: inherit
+
+            // Explicitely activate.
+            &.active, &.hover
+                background: #eee
+
+.breadcrumbs
+    li:first-child a
+        cursor: default
+        color: #333
+        text-decoration: none
 
 .document
     &:after
@@ -110,10 +133,24 @@ ul
             &.light
                 color: rgba(255,255,255,0.75)
 
+    .keywords
+        margin: 12px 0 0 0
+
+        li
+            display: inline-block
+
+            span
+                opacity: 0.7
+
+            &:hover
+                span
+                    opacity: 1
+
 .page
     &.detail
-        h3.info
-            display: none
+        .state
+            h3:not(.error)
+                display: none
 
         .document
             .body
@@ -125,7 +162,15 @@ ul
 
             .abstract
                 line-height: 1.5
-            
+
+.state
+    h3
+        display: inline-block
+
+    .spinner
+        vertical-align: text-top
+        margin-left: 6px
+
 ul.results
     margin: 0
 
@@ -192,3 +237,39 @@ ul.results
                     z-index: 2
                     opacity: 0
                     transition: opacity 0.2s ease-in-out
+
+// Keyboard icon; see: http://askubuntu.com/
+kbd
+    background: #eee
+    border-style: solid
+    border-color: #ccc #aaa #888 #bbb
+    padding: 0.1em 0.6em
+    border: 1px solid #ccc
+    font-size: 11px
+    background: #f7f7f7
+    color: #333
+    box-shadow: 0 1px 0px rgba(0,0,0,0.2), 0 0 0 2px #fff inset
+    border-radius: 3px
+    display: inline-block
+    margin: 0 0.1em
+    text-shadow: 0 1px 0 #fff
+    line-height: 1.4
+    white-space: nowrap
+
+// Loading spinner.
+.fa-spinner
+    display: inline-block
+    animation: spin 2s infinite linear
+
+@-moz-keyframes spin {
+    from { -moz-transform: rotate(0deg) }
+    to { -moz-transform: rotate(360deg) }
+}
+@-webkit-keyframes spin {
+    from { -webkit-transform: rotate(0deg) }
+    to { -webkit-transform: rotate(360deg) }
+}
+@keyframes spin {
+    from { transform:rotate(0deg) }
+    to { transform:rotate(360deg) }
+}

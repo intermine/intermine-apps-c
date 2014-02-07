@@ -14,19 +14,36 @@
 <body>
     <div id="target"></div>
     <script>
+        // An example of fetching the results using JSON, yours will most likely work
+        //  differently.
         $.getJSON('data.json', function(data) {
-            var fn = require('component-400')({
+            // Require the app and execute it passing the following opts...
+            // Returns a function that can be called to retrieve the currently selected items.
+            require('component-400')({
+                // The data payload. You can see example in `./example/data.json`.
                 'data': data,
-                'target': '#target',
+                // The target element selector, defaults to <body/>.
+                'el': '#target',
+                // Callback once the user is happy with the selection.
                 cb: function(selected) {
-                    console.log(selected);
+                    // Has a list of internal InterMine IDs.
+                    console.log('selected', selected);
                 },
+                // What to do when we click on one of the item/object links?
                 portal: function(object, el) {
-                    console.log(arguments);
+                    console.log('portal', object);
+                },
+                // User interface options.
+                'options': {
+                    // Show/hide a button to download the summary?
+                    'showDownloadSummary': true,
+                    // How do we show the matches?
+                    // [full] - show all summary fields in the table
+                    // [slim] - show only a symbol and provide more info in a popover
+                    'matchViewStrategy': 'full'
                 }
             });
-            //console.log(fn());
-        });
+        })
     </script>
 </body>
 </html>

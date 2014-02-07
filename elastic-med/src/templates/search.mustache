@@ -1,7 +1,16 @@
 <div class="row collapse">
     <div class="large-10 columns search">
-        <input class="auto" type="text" placeholder="" value="{{ suggestion.value }}">
-        <input class="text" type="text" placeholder="Query..." value="{{ query.value }}">
+        <div class="faux"></div>
+        <input class="text" type="text" maxlength="100" placeholder="Query..." value="{{ query.current }}" autofocus>
+        {{ #if suggestions.list.length }}
+        <ul class="f-dropdown suggestions" style="left:{{ suggestions.px }}px">
+        {{ #suggestions.list }}
+            <li {{ #active }}class="active"{{ /active }}>
+                <a>{{ text }}</a>
+            </li>
+        {{ /suggestions.list }}
+        </ul>
+        {{ /if }}
     </div>
     <div class="large-2 columns">
         <a class="button secondary postfix">
@@ -9,3 +18,12 @@
         </a>
     </div>
 </div>
+{{ #if query.history.length }}
+<div class="row collapse">
+    <h4>History</h4>
+    <ul class="breadcrumbs">
+    {{ #query.history }}
+        <li><a>{{ . }}</a></li>
+    {{ /query.history }}
+</div>
+{{ /if }}

@@ -31,5 +31,9 @@ module.exports =
 
     # Provide a flyout summary of a model in question.
     'flyout': (model) ->
-        format = (text) -> text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase()
-        ( [ format(k), v ] for k, v of model.summary when v )
+        ( [ @field(k), v ] for k, v of model.summary when v )
+
+    # Format a field.
+    # TODO: use webconfig for this.
+    'field': (text) ->
+        text.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase()

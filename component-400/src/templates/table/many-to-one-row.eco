@@ -10,7 +10,13 @@
         <% end %>
     </td>
 <% end %>
-<td>
-    <a><%- @matched %></a>
-    <span class="help-flyout">i</span>
-</td>
+<% for field in @fields: %>
+    <td>
+        <% if field: %>
+            <a><%- field %></a>
+            <% if @showFlyout: %>
+                <span class="help-flyout">i</span>
+            <% end %>
+        <% end %>
+    </td>
+<% end %>

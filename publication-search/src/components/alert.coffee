@@ -1,10 +1,10 @@
 state = require '../modules/state'
 
-# Page title/status.
+# An alert.
 module.exports = can.Component.extend
 
-    tag: 'app-title'
+    tag: 'app-alert'
 
-    template: require '../templates/title'
+    template: require '../templates/alert'
 
     scope: -> state

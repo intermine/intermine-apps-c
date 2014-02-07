@@ -1,9 +1,9 @@
-{{ #total }}
+{{ #if docs.length }}
 <ul class="results">
     {{ #docs }}
     <li class="document result">
-        <app-document link-to-detail="true"></app-document>
+        <app-document link-to-detail="true" show-keywords="false"></app-document>
     </li>
     {{ /docs }}
 </ul>
-{{ /total }}
+{{ /if }}

@@ -1,11 +1,6 @@
 <div class="paginator"></div>
 
 <table class="striped">
-    <thead>
-        <tr>
-            <th>Identifier you provided</th>
-            <th>Match <span data-id="matches" class="help hint--left">i</span></th>
-        </tr>
-    </thead>
+    <thead></thead>
     <tbody></tbody>
 </table>

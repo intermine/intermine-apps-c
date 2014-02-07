@@ -1,0 +1,8 @@
+{{ #isWorking }}
+<h5>Looking for similar documents <span class="fa fa-spinner"></span></h5>
+{{ /isWorking }}
+
+{{ #if docs.length }}
+<h4>Similar documents</h4>
+<app-results></app-results>
+{{ /if }}

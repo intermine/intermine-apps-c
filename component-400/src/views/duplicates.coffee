@@ -2,6 +2,7 @@
 
 formatter  = require '../modules/formatter'
 mediator   = require '../modules/mediator'
+options    = require '../modules/options'
 View       = require '../modules/view'
 FlyoutView = require '../views/flyout'
 Table      = require '../views/table'
@@ -29,8 +30,12 @@ class DuplicatesTableRowView extends Daddy
 
 class DuplicatesTableView extends Table.OtMTableView
 
-    # Provide custom template.
-    template: require '../templates/duplicates/table'
+    # Provide custom templates.
+    template:
+        table: require '../templates/duplicates/table'
+        thead:
+            slim: require '../templates/duplicates/table-head-slim'
+            full: require '../templates/duplicates/table-head-full'
 
     rowClass: DuplicatesTableRowView
 
