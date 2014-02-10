@@ -21325,7 +21325,7 @@ var saveAs = saveAs
         }
         (function() {
           (function() {
-            __out.push('<a class="btn btn-small view">View</a>\n<a class="btn btn-small export">Download</a>');
+            __out.push('<a class="btn btn-small view">View3</a>\n<a class="btn btn-small export">Download3</a>');
           
           }).call(this);
           
@@ -21577,7 +21577,7 @@ var saveAs = saveAs
         }
         (function() {
           (function() {
-            __out.push('<div class="header">\n    <h3>');
+            __out.push('<div class="header">\n    <p>Tabs will go here</p>\n    <h3>');
           
             if (this.title) {
               __out.push(__sanitize(this.title));
@@ -21594,11 +21594,11 @@ var saveAs = saveAs
             if (this.notAnalysed) {
               __out.push('\n        <p>Number of ');
               __out.push(__sanitize(this.type));
-              __out.push('s in this list not analysed in this widget: <a>');
+              __out.push('s in this list not analysed in this widgetssssss: <a>');
               __out.push(__sanitize(this.notAnalysed));
               __out.push('</a></p>\n    ');
             } else {
-              __out.push('\n        <p>All items in your list have been analysed.</p>\n    ');
+              __out.push('\n        <p>All items in your list have been analysed2.</p>\n    ');
             }
           
             __out.push('\n\n    <div class="form">\n        <!-- enrichment.form.eco -->\n    </div>\n\n    <div class="actions" style="padding:10px 0">\n        <!-- actions.eco -->\n    </div>\n</div>\n<div class="content">\n    <!-- enrichment.table.eco -->\n</div>');

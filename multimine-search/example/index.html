@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>MultiMine</title>
+
+    
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+
+
+
+</head>
+
+
+<div class="wrapper">
+
+    <div class="searchContainer">
+        <img src="images/logo.png" />
+        <input id="textsearch" class="input" type="text" placeholder="e.g. zen, adh, CG2328, FBgn000099" name="term"><br>
+    </div>
+
+<!--
+    <div id="filters">
+        <button id="filterButton" type="button">Filter Genes</button>
+    </div>
+    -->
+
+    <div id="filter">
+    </div>
+
+    <div id="search-results">
+    </div>
+
+</div>
+
+
+
+
+
+
+    
+    
+   <script src="app.bundle.js"></script>
+
+    
+
+    <script>
+
+
+            require('MultiMine')(
+            {
+
+                friendlyMines: {
+                    
+                    "ZFINMine":"zebrafishmine.org",
+                    "YeastMine":"yeastmine.yeastgenome.org/yeastmine",
+                    "MouseMine":"www.mousemine.org/mousemine",
+                    "metabolicMine":"www.metabolicmine.org/beta",
+                    "RatMine":"ratmine.mcw.edu/ratmine",
+                    "modMine":"http://intermine.modencode.org/query",
+                    "WormMine":"www.wormbase.org/tools/wormmine",
+                    "FlyMine":"www.flymine.org/release-38.0"
+                },
+                gene: "FBgn0005558",
+                target: "#search-results",
+                input: "textsearch"
+
+            });
+
+    </script>
+
+
+
+
+
+
+
+</body>
+</html>
