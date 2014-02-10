@@ -1,11 +1,11 @@
 {
     "name": "list-widgets",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "dependencies": {
         "jquery": "2.0.3",
         "underscore": "1.5.2",
         "backbone": "1.1.0",
-        "imjs": "3.0.0",
+        "imjs": "3.2.1",
 
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
         "google": "https://www.google.com/jsapi",

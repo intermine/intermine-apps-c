@@ -11723,7 +11723,7 @@ google[z][t];0==a[r]("http:")&&(a=a[n](/^http:/,"https:"));$(a+"/stats?"+Z[B]("&
 google.loader.rfm({":search":{"versions":{":1":"1",":1.0":"1"},"path":"/api/search/1.0/65b21018ad4df09e3eb5a21326b72d0b/","js":"default+en.I.js","css":"default+en.css","properties":{":JSHash":"65b21018ad4df09e3eb5a21326b72d0b",":NoOldNames":false,":Version":"1.0"}},":language":{"versions":{":1":"1",":1.0":"1"},"path":"/api/language/1.0/f66252f80431973fa38526a329b0a47b/","js":"default+en.I.js","properties":{":JSHash":"f66252f80431973fa38526a329b0a47b",":Version":"1.0"}},":feeds":{"versions":{":1":"1",":1.0":"1"},"path":"/api/feeds/1.0/975cfa817ddcf5992ebfc12a1f34c97b/","js":"default+en.I.js","css":"default+en.css","properties":{":JSHash":"975cfa817ddcf5992ebfc12a1f34c97b",":Version":"1.0"}},":spreadsheets":{"versions":{":0":"1",":0.4":"1"},"path":"/api/spreadsheets/0.4/87ff7219e9f8a8164006cbf28d5e911a/","js":"default.I.js","properties":{":JSHash":"87ff7219e9f8a8164006cbf28d5e911a",":Version":"0.4"}},":ima":{"versions":{":3":"1",":3.0":"1"},"path":"/api/ima/3.0/28a914332232c9a8ac0ae8da68b1006e/","js":"default.I.js","properties":{":JSHash":"28a914332232c9a8ac0ae8da68b1006e",":Version":"3.0"}},":wave":{"versions":{":1":"1",":1.0":"1"},"path":"/api/wave/1.0/3b6f7573ff78da6602dda5e09c9025bf/","js":"default.I.js","properties":{":JSHash":"3b6f7573ff78da6602dda5e09c9025bf",":Version":"1.0"}},":annotations":{"versions":{":1":"1",":1.0":"1"},"path":"/api/annotations/1.0/bacce7b6155a1bbadda3c05d65391b22/","js":"default+en.I.js","properties":{":JSHash":"bacce7b6155a1bbadda3c05d65391b22",":Version":"1.0"}},":earth":{"versions":{":1":"1",":1.0":"1"},"path":"/api/earth/1.0/db22e5693e0a8de1f62f3536f5a8d7d3/","js":"default.I.js","properties":{":JSHash":"db22e5693e0a8de1f62f3536f5a8d7d3",":Version":"1.0"}},":picker":{"versions":{":1":"1",":1.0":"1"},"path":"/api/picker/1.0/1c635e91b9d0c082c660a42091913907/","js":"default.I.js","css":"default.css","properties":{":JSHash":"1c635e91b9d0c082c660a42091913907",":Version":"1.0"}}});
 google.loader.rpl({":scriptaculous":{"versions":{":1.8.3":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.9.0":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.2":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.1":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"}},"aliases":{":1.8":"1.8.3",":1":"1.9.0",":1.9":"1.9.0"}},":yui":{"versions":{":2.6.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.9.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.7.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.0r4":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.2r1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":3.3.0":{"uncompressed":"build/yui/yui.js","compressed":"build/yui/yui-min.js"}},"aliases":{":3":"3.3.0",":2":"2.9.0",":2.7":"2.7.0",":2.8.2":"2.8.2r1",":2.6":"2.6.0",":2.9":"2.9.0",":2.8":"2.8.2r1",":2.8.0":"2.8.0r4",":3.3":"3.3.0"}},":swfobject":{"versions":{":2.1":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"},":2.2":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"}},"aliases":{":2":"2.2"}},":webfont":{"versions":{":1.0.28":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.27":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.29":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.12":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.13":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.14":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.15":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.10":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.11":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.2":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.1":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.0":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.6":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.19":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.5":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.18":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.4":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.17":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.3":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.16":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.9":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.21":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.22":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.25":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.26":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.23":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.24":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"}},"aliases":{":1":"1.0.29",":1.0":"1.0.29"}},":ext-core":{"versions":{":3.1.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"},":3.0.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"}},"aliases":{":3":"3.1.0",":3.0":"3.0.0",":3.1":"3.1.0"}},":mootools":{"versions":{":1.3.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.3":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.4":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.5":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"}},"aliases":{":1":"1.1.2",":1.11":"1.1.1",":1.4":"1.4.2",":1.3":"1.3.2",":1.2":"1.2.5",":1.1":"1.1.2"}},":jqueryui":{"versions":{":1.8.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.15":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.14":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.13":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.12":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.11":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.10":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.17":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.16":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.6.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.9":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.7":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.8":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.5":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.6":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.4":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"}},"aliases":{":1.8":"1.8.17",":1.7":"1.7.3",":1.6":"1.6.0",":1":"1.8.17",":1.5":"1.5.3",":1.8.3":"1.8.4"}},":chrome-frame":{"versions":{":1.0.2":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.1":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.0":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"}},"aliases":{":1":"1.0.2",":1.0":"1.0.2"}},":jquery":{"versions":{":1.6.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.6":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"}},"aliases":{":1.7":"1.7.1",":1.6":"1.6.4",":1":"1.7.1",":1.5":"1.5.2",":1.4":"1.4.4",":1.3":"1.3.2",":1.2":"1.2.6"}},":dojo":{"versions":{":1.3.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.1.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.2":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.7.2":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.0":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.1":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.4.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"}},"aliases":{":1.7":"1.7.2",":1":"1.6.1",":1.6":"1.6.1",":1.5":"1.5.1",":1.4":"1.4.3",":1.3":"1.3.2",":1.2":"1.2.3",":1.1":"1.1.1"}},":prototype":{"versions":{":1.7.0.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.2":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.1.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.3":{"uncompressed":"prototype.js","compressed":"prototype.js"}},"aliases":{":1.7":"1.7.0.0",":1.6.1":"1.6.1.0",":1":"1.7.0.0",":1.6":"1.6.1.0",":1.7.0":"1.7.0.0",":1.6.0":"1.6.0.3"}}});
 }
-;/*! imjs - v3.0.0-rc - 2013-12-12 */
+;/*! imjs - v3.2.1 - 2013-12-16 */
 
 // This library is open source software according to the definition of the
 // GNU Lesser General Public Licence, Version 3, (LGPLv3) a copy of which is
@@ -11876,7 +11876,8 @@ google.loader.rpl({":scriptaculous":{"versions":{":1.8.3":{"uncompressed":"scrip
 
 }).call(this);
 
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.intermine=e():"undefined"!=typeof global?global.intermine=e():"undefined"!=typeof self&&(self.intermine=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (intermine) {
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.imjs=e():"undefined"!=typeof global?global.imjs=e():"undefined"!=typeof self&&(self.imjs=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 /*
 *  Base64 encode / decode
@@ -11964,8 +11965,6 @@ google.loader.rpl({":scriptaculous":{"versions":{":1.8.3":{"uncompressed":"scrip
 
 }).call(this);
 
-},{}],"./http":[function(require,module,exports){
-module.exports=require('zlU5Ni');
 },{}],"zlU5Ni":[function(require,module,exports){
 (function() {
   var ACCEPT_HEADER, CHARSET, CONVERTERS, IE_VERSION, PESKY_COMMA, Promise, URLENC, annotateError, check, error, httpinvoke, matches, merge, re, streaming, success, ua, utils, withCB, _ref;
@@ -12126,7 +12125,9 @@ module.exports=require('zlU5Ni');
 
 }).call(this);
 
-},{"./constants":2,"./promise":9,"./util":14,"httpinvoke":19}],5:[function(require,module,exports){
+},{"./constants":2,"./promise":9,"./util":14,"httpinvoke":19}],"./http":[function(require,module,exports){
+module.exports=require('zlU5Ni');
+},{}],5:[function(require,module,exports){
 (function() {
   var CategoryResults, IDResolutionJob, IdResults, ONE_MINUTE, concatMap, defer, difference, fold, funcutils, get, id, intermine, uniqBy, withCB,
     __hasProp = {}.hasOwnProperty,
@@ -14616,6 +14617,13 @@ module.exports=require('zlU5Ni');
       return "" + this.service.root + "query/results?" + (toQueryString(req));
     };
 
+    Query.prototype.needsAuthentication = function() {
+      return utils.any(this.constraints, function(c) {
+        var _ref;
+        return (_ref = c.op) === 'NOT IN' || _ref === 'IN';
+      });
+    };
+
     Query.prototype.fetchQID = function(cb) {
       return withCB(cb, this.service.post('queries', {
         query: this.toXML()
@@ -14669,6 +14677,8 @@ module.exports=require('zlU5Ni');
   union = fold(function(xs, ys) {
     return xs.concat(ys);
   });
+
+  Query.prototype.toString = Query.prototype.toXML;
 
   Query.ATTRIBUTE_OPS = union([Query.ATTRIBUTE_VALUE_OPS, Query.MULTIVALUE_OPS, Query.NULL_OPS]);
 
@@ -14779,7 +14789,7 @@ module.exports=require('zlU5Ni');
 
 },{"./util":14,"./xml":16}],11:[function(require,module,exports){
 (function() {
-  var CLASSKEYS, CLASSKEY_PATH, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDResolutionJob, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, NEEDS_AUTH, NO_AUTH, PATH_VALUES_PATH, PREF_PATH, Promise, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, RELEASES, RELEASE_PATH, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, base64, dejoin, error, get, getListFinder, http, intermine, invoke, map, merge, p, set, success, to_query_string, utils, version, withCB, _get_or_fetch, _i, _len, _ref,
+  var ALWAYS_AUTH, CLASSKEYS, CLASSKEY_PATH, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDResolutionJob, ID_RESOLUTION_PATH, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, NEEDS_AUTH, NO_AUTH, PATH_VALUES_PATH, PREF_PATH, Promise, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, RELEASES, RELEASE_PATH, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, USER_TOKENS, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, base64, dejoin, error, get, getListFinder, http, intermine, invoke, map, merge, p, set, success, to_query_string, utils, version, withCB, _get_or_fetch, _i, _j, _len, _len1, _ref, _ref1,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __slice = [].slice;
@@ -14802,13 +14812,13 @@ module.exports=require('zlU5Ni');
 
   utils = require('./util');
 
-  to_query_string = utils.querystring;
-
   http = require('./http');
 
-  intermine = exports;
+  to_query_string = utils.querystring;
 
   withCB = utils.withCB, map = utils.map, merge = utils.merge, get = utils.get, set = utils.set, invoke = utils.invoke, success = utils.success, error = utils.error, REQUIRES_VERSION = utils.REQUIRES_VERSION, dejoin = utils.dejoin;
+
+  intermine = exports;
 
   VERSIONS = {};
 
@@ -14864,16 +14874,36 @@ module.exports=require('zlU5Ni');
 
   PATH_VALUES_PATH = 'path/values';
 
+  USER_TOKENS = 'user/tokens';
+
+  ID_RESOLUTION_PATH = 'ids';
+
   NO_AUTH = {};
 
-  _ref = [VERSION_PATH, RELEASE_PATH, CLASSKEY_PATH, MODEL_PATH, SUMMARYFIELDS_PATH, QUICKSEARCH_PATH, PATH_VALUES_PATH];
+  _ref = [VERSION_PATH, RELEASE_PATH, CLASSKEY_PATH, WIDGETS_PATH, MODEL_PATH, SUMMARYFIELDS_PATH, QUICKSEARCH_PATH, PATH_VALUES_PATH];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     p = _ref[_i];
     NO_AUTH[p] = true;
   }
 
-  NEEDS_AUTH = function(path) {
-    return !NO_AUTH[path];
+  ALWAYS_AUTH = {};
+
+  _ref1 = [WHOAMI_PATH, PREF_PATH, LIST_OPERATION_PATHS, SUBTRACT_PATH, WITH_OBJ_PATH, ENRICHMENT_PATH, TEMPLATES_PATH, USER_TOKENS];
+  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+    p = _ref1[_j];
+    ALWAYS_AUTH[p] = true;
+  }
+
+  NEEDS_AUTH = function(path, q) {
+    if (NO_AUTH[path]) {
+      return false;
+    } else if (ALWAYS_AUTH[path]) {
+      return true;
+    } else if (!(q != null ? q.needsAuthentication : void 0)) {
+      return true;
+    } else {
+      return q.needsAuthentication();
+    }
   };
 
   HAS_PROTOCOL = /^https?:\/\//i;
@@ -14883,15 +14913,15 @@ module.exports=require('zlU5Ni');
   SUFFIX = "/service/";
 
   DEFAULT_ERROR_HANDLER = function(e) {
-    var f, _ref1;
-    f = (_ref1 = console.error) != null ? _ref1 : console.log;
+    var f, _ref2;
+    f = (_ref2 = console.error) != null ? _ref2 : console.log;
     return f(e);
   };
 
   _get_or_fetch = function(propName, store, path, key, cb) {
-    var opts, promise, root, useCache, value, _ref1;
+    var opts, promise, root, useCache, value, _ref2;
     root = this.root, useCache = this.useCache;
-    promise = (_ref1 = this[propName]) != null ? _ref1 : this[propName] = useCache && (value = store[root]) ? success(value) : (opts = {
+    promise = (_ref2 = this[propName]) != null ? _ref2 : this[propName] = useCache && (value = store[root]) ? success(value) : (opts = {
       type: 'GET',
       dataType: 'json',
       data: {
@@ -14928,15 +14958,15 @@ module.exports=require('zlU5Ni');
   };
 
   TO_NAMES = function(xs) {
-    var x, _j, _len1, _ref1, _ref2, _results;
+    var x, _k, _len2, _ref2, _ref3, _results;
     if (xs == null) {
       xs = [];
     }
-    _ref1 = (utils.isArray(xs) ? xs : [xs]);
+    _ref2 = (utils.isArray(xs) ? xs : [xs]);
     _results = [];
-    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-      x = _ref1[_j];
-      _results.push((_ref2 = x.name) != null ? _ref2 : x);
+    for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+      x = _ref2[_k];
+      _results.push((_ref3 = x.name) != null ? _ref3 : x);
     }
     return _results;
   };
@@ -14947,7 +14977,7 @@ module.exports=require('zlU5Ni');
     Service.prototype.doReq = http.doReq;
 
     function Service(_arg) {
-      var noCache, _ref1, _ref2,
+      var noCache, _ref2, _ref3,
         _this = this;
       this.root = _arg.root, this.token = _arg.token, this.errorHandler = _arg.errorHandler, this.DEBUG = _arg.DEBUG, this.help = _arg.help, noCache = _arg.noCache;
       this.connectAs = __bind(this.connectAs, this);
@@ -15020,10 +15050,10 @@ module.exports=require('zlU5Ni');
         this.root = this.root + SUFFIX;
       }
       this.root = this.root.replace(/ice$/, "ice/");
-      if ((_ref1 = this.errorHandler) == null) {
+      if ((_ref2 = this.errorHandler) == null) {
         this.errorHandler = DEFAULT_ERROR_HANDLER;
       }
-      if ((_ref2 = this.help) == null) {
+      if ((_ref3 = this.help) == null) {
         this.help = 'no.help.available@dev.null';
       }
       this.useCache = !noCache;
@@ -15044,7 +15074,7 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.makeRequest = function(method, path, data, cb, indiv) {
-      var dataType, errBack, opts, timeout, _ref1, _ref2, _ref3,
+      var dataType, errBack, opts, timeout, _ref2, _ref3, _ref4,
         _this = this;
       if (method == null) {
         method = 'GET';
@@ -15062,7 +15092,7 @@ module.exports=require('zlU5Ni');
         indiv = false;
       }
       if (utils.isArray(cb)) {
-        _ref1 = cb, cb = _ref1[0], errBack = _ref1[1];
+        _ref2 = cb, cb = _ref2[0], errBack = _ref2[1];
       }
       if (utils.isArray(data)) {
         data = utils.pairsToObj(data);
@@ -15073,7 +15103,7 @@ module.exports=require('zlU5Ni');
       data = utils.copy(data);
       dataType = this.getFormat(data.format);
       if (!http.supports(method)) {
-        _ref2 = [method, http.getMethod(method)], data.method = _ref2[0], method = _ref2[1];
+        _ref3 = [method, http.getMethod(method)], data.method = _ref3[0], method = _ref3[1];
       }
       opts = {
         data: data,
@@ -15087,7 +15117,7 @@ module.exports=require('zlU5Ni');
         opts.headers = utils.copy(data.headers);
         delete opts.data.headers;
       }
-      if (timeout = (_ref3 = data.timeout) != null ? _ref3 : this.timeout) {
+      if (timeout = (_ref4 = data.timeout) != null ? _ref4 : this.timeout) {
         opts.timeout = timeout;
         delete data.timeout;
       }
@@ -15099,8 +15129,11 @@ module.exports=require('zlU5Ni');
     Service.prototype.authorise = function(req) {
       var _this = this;
       return this.fetchVersion().then(function(version) {
-        var opts, pathAdditions, _ref1;
+        var opts, pathAdditions, _ref2, _ref3;
         opts = utils.copy(req);
+        if ((_ref2 = opts.headers) == null) {
+          opts.headers = {};
+        }
         opts.url = _this.root + opts.path;
         pathAdditions = [];
         if (version < 14) {
@@ -15110,11 +15143,8 @@ module.exports=require('zlU5Ni');
             opts.data.format = opts.dataType;
           }
         }
-        if ((_this.token != null) && NEEDS_AUTH(req.path)) {
+        if ((_this.token != null) && NEEDS_AUTH(req.path, (_ref3 = opts.data) != null ? _ref3.query : void 0)) {
           if (version >= 14) {
-            if ((_ref1 = opts.headers) == null) {
-              opts.headers = {};
-            }
             opts.headers.Authorization = "Token " + _this.token;
           } else if ('string' === typeof opts.data) {
             pathAdditions.push(['token', _this.token]);
@@ -15150,9 +15180,9 @@ module.exports=require('zlU5Ni');
         cb = (function() {});
       }
       return REQUIRES_VERSION(this, 9, function() {
-        var k, req, v, _ref1;
+        var k, req, v, _ref2;
         if (utils.isFunction(options)) {
-          _ref1 = [options, {}], cb = _ref1[0], options = _ref1[1];
+          _ref2 = [options, {}], cb = _ref2[0], options = _ref2[1];
         }
         if (typeof options === 'string') {
           req = {
@@ -15180,7 +15210,7 @@ module.exports=require('zlU5Ni');
         cb = (function() {});
       }
       return withCB(cb, !q ? error("Not enough arguments") : q.toPathString != null ? (p = q.isClass() ? q.append('id') : q, this.pathValues(p, 'count')) : q.toXML != null ? (req = {
-        query: q.toXML(),
+        query: q,
         format: 'jsoncount'
       }, this.post(QUERY_RESULTS_PATH, req).then(get('count'))) : typeof q === 'string' ? this.fetchModel().then(invoke('makePath', q.replace(/\.\*$/, '.id'))).then(this.count) : this.query(q).then(this.count));
     };
@@ -15196,9 +15226,9 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.lookup = function(type, term, context, cb) {
-      var _ref1;
+      var _ref2;
       if (utils.isFunction(context)) {
-        _ref1 = [null, context], context = _ref1[0], cb = _ref1[1];
+        _ref2 = [null, context], context = _ref2[0], cb = _ref2[1];
       }
       return withCB(cb, this.query({
         from: type,
@@ -15208,9 +15238,9 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.find = function(type, term, context, cb) {
-      var _ref1;
+      var _ref2;
       if (utils.isFunction(context)) {
-        _ref1 = [null, context], context = _ref1[0], cb = _ref1[1];
+        _ref2 = [null, context], context = _ref2[0], cb = _ref2[1];
       }
       return withCB(cb, this.lookup(type, term, context).then(function(found) {
         if (!(found != null) || found.length === 0) {
@@ -15244,13 +15274,13 @@ module.exports=require('zlU5Ni');
         typeConstraints = {};
       }
       return REQUIRES_VERSION(this, 6, function() {
-        var wanted, _pathValues, _ref1, _ref2;
+        var wanted, _pathValues, _ref2, _ref3;
         if (typeof typeConstraints === 'string') {
           wanted = typeConstraints;
           typeConstraints = {};
         }
         if (utils.isFunction(typeConstraints)) {
-          _ref1 = [cb, typeConstraints], typeConstraints = _ref1[0], cb = _ref1[1];
+          _ref2 = [cb, typeConstraints], typeConstraints = _ref2[0], cb = _ref2[1];
         }
         if (wanted !== 'count') {
           wanted = 'results';
@@ -15266,7 +15296,7 @@ module.exports=require('zlU5Ni');
           return _this.post(PATH_VALUES_PATH, req).then(get(wanted));
         };
         try {
-          return withCB(cb, _this.fetchModel().then(invoke('makePath', path, (_ref2 = path.subclasses) != null ? _ref2 : typeConstraints)).then(_pathValues));
+          return withCB(cb, _this.fetchModel().then(invoke('makePath', path, (_ref3 = path.subclasses) != null ? _ref3 : typeConstraints)).then(_pathValues));
         } catch (e) {
           return error(e);
         }
@@ -15274,7 +15304,7 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.doPagedRequest = function(q, path, page, format, cb) {
-      var req, _ref1,
+      var req, _ref2,
         _this = this;
       if (page == null) {
         page = {};
@@ -15284,10 +15314,10 @@ module.exports=require('zlU5Ni');
       }
       if (q.toXML != null) {
         if (utils.isFunction(page)) {
-          _ref1 = [page, {}], cb = _ref1[0], page = _ref1[1];
+          _ref2 = [page, {}], cb = _ref2[0], page = _ref2[1];
         }
         req = merge(page, {
-          query: q.toXML(),
+          query: q,
           format: format
         });
         return withCB(cb, this.post(path, req).then(get('results')));
@@ -15311,10 +15341,10 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.values = function(q, opts, cb) {
-      var resp, _ref1,
+      var resp, _ref2,
         _this = this;
       if (utils.isFunction(opts)) {
-        _ref1 = [opts, cb], cb = _ref1[0], opts = _ref1[1];
+        _ref2 = [opts, cb], cb = _ref2[0], opts = _ref2[1];
       }
       resp = !(q != null) ? error("No query term supplied") : (q.descriptors != null) || typeof q === 'string' ? this.pathValues(q, opts).then(map(get('value'))) : q.toXML != null ? q.views.length !== 1 ? error("Expected one column, got " + q.views.length) : this.rows(q, opts).then(map(get(0))) : this.query(q).then(function(query) {
         return _this.values(query, opts);
@@ -15345,10 +15375,10 @@ module.exports=require('zlU5Ni');
       return this.fetchVersion().then(function(v) {
         var fn;
         return withCB(cb, name && v < 13 ? error("Finding lists by name on the server requires version 13. This is only " + v) : (fn = function(ls) {
-          var data, _j, _len1, _results;
+          var data, _k, _len2, _results;
           _results = [];
-          for (_j = 0, _len1 = ls.length; _j < _len1; _j++) {
-            data = ls[_j];
+          for (_k = 0, _len2 = ls.length; _k < _len2; _k++) {
+            data = ls[_k];
             _results.push(new List(data, _this));
           }
           return _results;
@@ -15369,10 +15399,10 @@ module.exports=require('zlU5Ni');
       var fn,
         _this = this;
       fn = function(xs) {
-        var x, _j, _len1, _results;
+        var x, _k, _len2, _results;
         _results = [];
-        for (_j = 0, _len1 = xs.length; _j < _len1; _j++) {
-          x = xs[_j];
+        for (_k = 0, _len2 = xs.length; _k < _len2; _k++) {
+          x = xs[_k];
           _results.push(new List(x, _this));
         }
         return _results;
@@ -15381,16 +15411,16 @@ module.exports=require('zlU5Ni');
     };
 
     Service.prototype.combineLists = function(operation, options, cb) {
-      var description, lists, name, req, tags, _ref1, _ref2;
-      _ref1 = merge({
+      var description, lists, name, req, tags, _ref2, _ref3;
+      _ref2 = merge({
         lists: [],
         tags: []
-      }, options), name = _ref1.name, lists = _ref1.lists, tags = _ref1.tags, description = _ref1.description;
+      }, options), name = _ref2.name, lists = _ref2.lists, tags = _ref2.tags, description = _ref2.description;
       req = {
         name: name,
         description: description
       };
-      if ((_ref2 = req.description) == null) {
+      if ((_ref3 = req.description) == null) {
         req.description = "" + operation + " of " + (lists.join(', '));
       }
       req.tags = tags.join(';');
@@ -15457,8 +15487,8 @@ module.exports=require('zlU5Ni');
     Service.prototype.fetchWidgetMap = function(cb) {
       var _this = this;
       return REQUIRES_VERSION(this, 8, function() {
-        var _ref1;
-        return withCB(cb, ((_ref1 = _this.__wmap__) != null ? _ref1 : _this.__wmap__ = _this.fetchWidgets().then(toMapByName)));
+        var _ref2;
+        return withCB(cb, ((_ref2 = _this.__wmap__) != null ? _ref2 : _this.__wmap__ = _this.fetchWidgets().then(toMapByName)));
       });
     };
 
@@ -15552,7 +15582,7 @@ module.exports=require('zlU5Ni');
         var req;
         req = {
           type: 'POST',
-          url: _this.root + 'ids',
+          url: _this.root + ID_RESOLUTION_PATH,
           contentType: 'application/json',
           data: JSON.stringify(opts),
           dataType: 'json'
@@ -15724,6 +15754,8 @@ module.exports=require('zlU5Ni');
   intermine.Model = Model;
 
   intermine.Query = Query;
+
+  intermine.utils = utils;
 
   intermine.imjs = version;
 
@@ -15904,7 +15936,7 @@ module.exports=require('zlU5Ni');
 
 },{"./util":14}],14:[function(require,module,exports){
 (function() {
-  var Promise, REQUIRES, comp, curry, entities, error, flatten, fold, id, invoke, invokeWith, isArray, merge, pairFold, qsFromList, root, success, thenFold, _ref,
+  var Promise, REQUIRES, comp, curry, encode, entities, error, flatten, fold, id, invoke, invokeWith, isArray, merge, pairFold, qsFromList, root, success, thenFold, _ref,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty;
@@ -15923,6 +15955,10 @@ module.exports=require('zlU5Ni');
     return deferred;
   };
 
+  encode = function(x) {
+    return encodeURIComponent(String(x));
+  };
+
   qsFromList = function(pairs) {
     var pair;
     return ((function() {
@@ -15930,7 +15966,7 @@ module.exports=require('zlU5Ni');
       _results = [];
       for (_i = 0, _len = pairs.length; _i < _len; _i++) {
         pair = pairs[_i];
-        _results.push(pair.map(encodeURIComponent).join('='));
+        _results.push(pair.map(encode).join('='));
       }
       return _results;
     })()).join('&');
@@ -15938,6 +15974,9 @@ module.exports=require('zlU5Ni');
 
   root.querystring = function(obj) {
     var k, p, pairs, subList, sv, v;
+    if (!obj) {
+      return '';
+    }
     if (isArray(obj)) {
       pairs = obj.slice();
     } else {
@@ -16135,6 +16174,9 @@ module.exports=require('zlU5Ni');
     merger = fold(function(a, oldk, oldv) {
       var newk, newv, _ref1;
       _ref1 = f(oldk, oldv), newk = _ref1[0], newv = _ref1[1];
+      if (isArray(newv)) {
+        newv = newv.slice();
+      }
       a[newk] = newv;
       return a;
     });
@@ -16373,7 +16415,7 @@ module.exports=require('zlU5Ni');
 },{"./promise":9}],15:[function(require,module,exports){
 (function() {
 
-  exports.VERSION = '3.0.0-rc';
+  exports.VERSION = '3.2.1';
 
 }).call(this);
 
@@ -18424,7 +18466,30 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
 },{"__browserify_process":18}]},{},[11])
 (11)
 });
-;;/* FileSaver.js
+;
+(function() {
+  var expose, merge;
+
+  if (typeof imjs !== 'undefined') {
+    merge = imjs.utils.merge;
+    expose = function(name, thing) {
+      if ('function' === typeof define && define.amd) {
+        return define(name, [], thing);
+      } else {
+        return window[name] = thing;
+      }
+    };
+    expose('imjs', imjs);
+    if (typeof intermine === 'undefined') {
+      expose('intermine', imjs);
+    } else {
+      expose('intermine', merge(intermine, imjs));
+    }
+  }
+
+}).call(this);
+
+})(window.intermine);;/* FileSaver.js
  * A saveAs() FileSaver implementation.
  * 2013-01-23
  *
@@ -22985,24 +23050,22 @@ var saveAs = saveAs
         @param {Object} opts Config just like imjs consumes e.g. `{ "root": "", "token": "" }`
         */
       
-        function Widgets() {
-          var opts;
-          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (typeof opts[0] === 'string') {
-            this.root = opts[0];
-            this.token = opts[1] || '';
+        function Widgets(arg0, arg1) {
+          var serviceOpts, _ref1;
+          if (typeof arg0 === 'string') {
+            this.root = arg0;
+            this.token = arg1;
+            serviceOpts = {
+              root: this.root,
+              token: this.token
+            };
           } else {
-            if (opts[0].root != null) {
-              this.root = opts[0].root;
-            } else {
-              throw Error('You need to set the `root` parameter pointing to the mine\'s service');
+            _ref1 = serviceOpts = arg0, this.root = _ref1.root, this.token = _ref1.token;
+            if (!this.root) {
+              throw new Error('You need to set the `root` parameter pointing to the mine\'s service');
             }
-            this.token = opts[0].token;
           }
-          this.imjs = new intermine.Service({
-            root: this.root,
-            token: this.token
-          });
+          this.imjs = new intermine.Service(serviceOpts);
           this.lists = this.imjs.fetchLists();
         }
       
@@ -23089,38 +23152,61 @@ var saveAs = saveAs
       
       
         Widgets.prototype.all = function(type, bagName, el, widgetOptions) {
-          var _this = this;
+          var bag, error, show, _ref1,
+            _this = this;
           if (type == null) {
             type = "Gene";
           }
+          if (_.isObject(type)) {
+            _ref1 = type, type = _ref1.type, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions;
+          }
+          error = function(content) {
+            return $(el).html($('<div/>', {
+              'class': "alert alert-error",
+              'html': "" + content + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
+            }));
+          };
+          show = function(widgets, type) {
+            var target, w, widgetEl, _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = widgets.length; _i < _len; _i++) {
+              w = widgets[_i];
+              if (!(__indexOf.call(w.targets, type) >= 0)) {
+                continue;
+              }
+              widgetEl = w.name.replace(/[^-a-zA-Z0-9,&\s]+/ig, '').replace(/-/gi, "_").replace(/\s/gi, "-").toLowerCase();
+              $(el).append(target = $('<div/>', {
+                'id': widgetEl,
+                'class': "widget span6"
+              }));
+              _results.push(_this[w.widgetType](w.name, bagName, target, widgetOptions));
+            }
+            return _results;
+          };
           return $.ajax({
             'url': "" + this.root + "widgets",
             'dataType': 'jsonp',
-            success: function(response) {
-              var target, widget, widgetEl, _i, _len, _ref1, _results;
-              if (response.widgets) {
-                _ref1 = response.widgets;
-                _results = [];
-                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                  widget = _ref1[_i];
-                  if (!(__indexOf.call(widget.targets, type) >= 0)) {
-                    continue;
+            success: function(res) {
+              if (!res.widgets) {
+                return error('No widgets have been configured');
+              }
+              if (type) {
+                return show(res.widgets, type);
+              }
+              if (bag && _.isObject(bag)) {
+                return show(res.widgets, bag.type);
+              }
+              if (!type) {
+                return _this.imjs.fetchList(bagName, function(err, bag) {
+                  if (err) {
+                    return error(err);
                   }
-                  widgetEl = widget.name.replace(/[^-a-zA-Z0-9,&\s]+/ig, '').replace(/-/gi, "_").replace(/\s/gi, "-").toLowerCase();
-                  $(el).append(target = $('<div/>', {
-                    'id': widgetEl,
-                    'class': "widget span6"
-                  }));
-                  _results.push(_this[widget.widgetType](widget.name, bagName, target, widgetOptions));
-                }
-                return _results;
+                  return show(res.widgets, bag.type);
+                });
               }
             },
             error: function(xhr, opts, err) {
-              return $(el).html($('<div/>', {
-                'class': "alert alert-error",
-                'html': "" + xhr.statusText + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
-              }));
+              return error(xhr.statusText);
             }
           });
         };

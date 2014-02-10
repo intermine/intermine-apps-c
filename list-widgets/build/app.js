@@ -4344,24 +4344,22 @@
         @param {Object} opts Config just like imjs consumes e.g. `{ "root": "", "token": "" }`
         */
       
-        function Widgets() {
-          var opts;
-          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (typeof opts[0] === 'string') {
-            this.root = opts[0];
-            this.token = opts[1] || '';
+        function Widgets(arg0, arg1) {
+          var serviceOpts, _ref1;
+          if (typeof arg0 === 'string') {
+            this.root = arg0;
+            this.token = arg1;
+            serviceOpts = {
+              root: this.root,
+              token: this.token
+            };
           } else {
-            if (opts[0].root != null) {
-              this.root = opts[0].root;
-            } else {
-              throw Error('You need to set the `root` parameter pointing to the mine\'s service');
+            _ref1 = serviceOpts = arg0, this.root = _ref1.root, this.token = _ref1.token;
+            if (!this.root) {
+              throw new Error('You need to set the `root` parameter pointing to the mine\'s service');
             }
-            this.token = opts[0].token;
           }
-          this.imjs = new intermine.Service({
-            root: this.root,
-            token: this.token
-          });
+          this.imjs = new intermine.Service(serviceOpts);
           this.lists = this.imjs.fetchLists();
         }
       
@@ -4448,38 +4446,61 @@
       
       
         Widgets.prototype.all = function(type, bagName, el, widgetOptions) {
-          var _this = this;
+          var bag, error, show, _ref1,
+            _this = this;
           if (type == null) {
             type = "Gene";
           }
+          if (_.isObject(type)) {
+            _ref1 = type, type = _ref1.type, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions;
+          }
+          error = function(content) {
+            return $(el).html($('<div/>', {
+              'class': "alert alert-error",
+              'html': "" + content + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
+            }));
+          };
+          show = function(widgets, type) {
+            var target, w, widgetEl, _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = widgets.length; _i < _len; _i++) {
+              w = widgets[_i];
+              if (!(__indexOf.call(w.targets, type) >= 0)) {
+                continue;
+              }
+              widgetEl = w.name.replace(/[^-a-zA-Z0-9,&\s]+/ig, '').replace(/-/gi, "_").replace(/\s/gi, "-").toLowerCase();
+              $(el).append(target = $('<div/>', {
+                'id': widgetEl,
+                'class': "widget span6"
+              }));
+              _results.push(_this[w.widgetType](w.name, bagName, target, widgetOptions));
+            }
+            return _results;
+          };
           return $.ajax({
             'url': "" + this.root + "widgets",
             'dataType': 'jsonp',
-            success: function(response) {
-              var target, widget, widgetEl, _i, _len, _ref1, _results;
-              if (response.widgets) {
-                _ref1 = response.widgets;
-                _results = [];
-                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                  widget = _ref1[_i];
-                  if (!(__indexOf.call(widget.targets, type) >= 0)) {
-                    continue;
+            success: function(res) {
+              if (!res.widgets) {
+                return error('No widgets have been configured');
+              }
+              if (type) {
+                return show(res.widgets, type);
+              }
+              if (bag && _.isObject(bag)) {
+                return show(res.widgets, bag.type);
+              }
+              if (!type) {
+                return _this.imjs.fetchList(bagName, function(err, bag) {
+                  if (err) {
+                    return error(err);
                   }
-                  widgetEl = widget.name.replace(/[^-a-zA-Z0-9,&\s]+/ig, '').replace(/-/gi, "_").replace(/\s/gi, "-").toLowerCase();
-                  $(el).append(target = $('<div/>', {
-                    'id': widgetEl,
-                    'class': "widget span6"
-                  }));
-                  _results.push(_this[widget.widgetType](widget.name, bagName, target, widgetOptions));
-                }
-                return _results;
+                  return show(res.widgets, bag.type);
+                });
               }
             },
             error: function(xhr, opts, err) {
-              return $(el).html($('<div/>', {
-                'class': "alert alert-error",
-                'html': "" + xhr.statusText + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
-              }));
+              return error(xhr.statusText);
             }
           });
         };
