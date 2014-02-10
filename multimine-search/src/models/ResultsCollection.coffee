@@ -29,11 +29,18 @@ class ResultsCollection extends Backbone.Collection
 	filterType: (values) ->
 
 		console.log "filterType called with values ", values
+		# values = ["Publication", "Gene"]
 
 		results = this.models.filter (model) ->
-			model.get("type") is "Publication"
+			# console.log "VALUES", values
+			# model.get("type") is "Publication"
+			model.get("type") in values
 
 		results
+
+
+
+	#  model.set('show', model.get('type') in allowed) for model in collection.models )
 
 
 module.exports = ResultsCollection

@@ -1,6 +1,6 @@
 var AppView = require('./views/appview');
 var SecView = require('./views/SecondaryView');
-var Helper = require('./modules/helper');
+
 var $ = require('./modules/dependencies').$;
 
 module.exports = function(params) {

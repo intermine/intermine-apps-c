@@ -1,3 +1,5 @@
+mediator = require "./mediator"
+
 class MyHelper
 	# mediator = _.extend({}, Backbone.Events)
 	constructor: ->
@@ -13,7 +15,6 @@ class MyHelper
 		}
 
 		@globalFilter = []
-
 
 
 	calcStats: (responseArray) ->
@@ -53,8 +54,8 @@ class MyHelper
 			{name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
 			{name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
 			{name: "FlyMine", queryUrl: "http://www.flymine.org/query", baseUrl: "http://www.flymine.org/release-38.0/"},
-			{name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
-			{name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
+			# {name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
+			# {name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
 			# {name: "WormMine", queryUrl: "http://www.wormbase.org/tools/wormmine", baseUrl: "http://www.wormbase.org/tools/wormmine/"}
 		]
 		# Q.all(( @runOne(mineUrl, term, mineName) for mineName, mineUrl of listedMines ))
@@ -211,9 +212,22 @@ class MyHelper
 		  d.data.magnitude
 
 	callThisFunction: (d) ->
-		console.log "This was passed to me: ", d.data
+		
+		if d.toggled == false || d.toggled == undefined
+			d.toggled = true
+			console.log "calling mediator for ON", mediator
+			mediator.trigger "filter:apply", d.data[0]
+		else if d.toggled == true
+			d.toggled = false
+			console.log "calling mediator for OFF", mediator
+			mediator.trigger "filter:remove", d.data[0]
 
-	buildChartOrganisms: (myvalues) ->
+		console.log "d.toggled has been set to ", d.toggled
+
+		# Trigger our mediator to filter the data by type
+		# mediator.trigger "medTest", d.data[0]
+
+	buildChartOrganisms: (myvalues) ->     
 
 		# console.log "buildingChart23", JSON.stringify myvalues, null, 2
 		that = @
@@ -224,11 +238,11 @@ class MyHelper
 		  (if a > 90 then a - 180 else a)
 
 		canvasWidth = 300
-		canvasHeight = 300
+		canvasHeight = 200
 		outerRadius = 75
 		innerRadius = 30
-		w = 160
-		h = 160
+		w = 130
+		h = 130
 		r = Math.min(w, h) / 2
 		labelr = r
 		color = d3.scale.category20()
@@ -250,13 +264,26 @@ class MyHelper
 
 		arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice")
 			.on "click", (d)->
-				console.log "value", d3.select(this).classed("SOMETHING")
-				d3.select(this).classed("SOMETHING", true)
-				console.log "value2", d3.select(this).classed("SOMETHING")
-				d3.select(this).select("path").transition()
-					.duration(200)
-					.attr("d", arcOver)
-				that.callThisFunction d
+
+				# toggle the slice depending on its current state#
+				console.log "d.toggled is currently set to", d.toggled
+				if d.toggled == false || d.toggled == undefined
+					console.log "EXPANDING"
+					# console.log "value", d3.select(this).classed("SOMETHING")
+					d3.select(this).classed("SOMETHING", true)
+					# console.log "value2", d3.select(this).classed("SOMETHING")
+					d3.select(this).select("path").transition()
+						.duration(200)
+						.attr("d", arcOver)
+					# console.log "selected", d3.select(this)
+					that.callThisFunction d
+				else if d.toggled == true
+					console.log "SHRINKING"
+					d3.select(this).select("path").transition()
+						.duration(100)
+						.attr("d", arc)
+					that.callThisFunction d
+
 
 
 			.on "testing", (d)->

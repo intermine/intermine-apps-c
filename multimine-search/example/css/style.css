@@ -42,10 +42,10 @@ body {
 }
 .wrapper {
 	/* Center wrapper perfectly */
-	margin-top: 50px;
+
 	width: 100%;
 	text-align: center;
-	padding-top: 20px;
+
 }
 
 /* Toolbar ************************************/
@@ -75,7 +75,8 @@ body {
 }
 
 .hidden {
-	display: none;
+	/*display: none;*/
+	visibility: hidden;
 }
 
 
@@ -86,7 +87,7 @@ body {
 }
 table.ResultsTable {
 	border-collapse: collapse;
-	width: 800px;
+	width: 100%;
 	margin: 0 auto;
 	text-align: left;
 }

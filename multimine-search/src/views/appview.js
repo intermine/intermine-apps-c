@@ -7,6 +7,10 @@
   var ResultView = require("../views/ResultView");
   var ResultsTableView = require("../views/ResultsTableView");
   var searchResultsCollection = {};
+  var filterTypeArr = [];
+  var filterOrganism = [];
+
+  var myResultsCollection = new ResultsCollection();
 
   // The Application
   // --------------
@@ -42,11 +46,86 @@
 
       // Listen to our mediator for events
       mediator.on('column:add', this.addColumn, this);
+      mediator.on('filter:apply', this.applyFilter, this);
+      mediator.on('filter:remove', this.removeFilter, this);
+      mediator.on('medTest', this.test, this);
       
+    },
+
+    removeFilter: function(value) {
+
+      
+
+
+
+
+
+
+      _.each(myResultsCollection.models, function(aModel) {
+        console.log("nextModel", aModel);
+        aModel.set({show: false});
+      });
+
+      console.log("applyFilter called with ", value);
+      filterTypeArr = _.without(filterTypeArr, value);
+
+      var nResults = myResultsCollection.filterType(filterTypeArr);
+      console.log("filtered results", nResults);
+      _.each(nResults, function(aModel) {
+          console.log("nextModel2", aModel);
+          aModel.set({show: true});
+      });
+
+      console.log ("filterTypeArr is now ", filterTypeArr.length);
+
+      if (filterTypeArr.length < 1) {
+        console.log("SHOWING ALL ITEMS");
+        _.each(myResultsCollection.models, function(aModel) {
+          aModel.set({show: true});
+        });
+      }
+
+      
+
+
+    },
+
+    applyFilter: function(value) {
+
+      console.log("calling applyFilter with value");
+
+      _.each(myResultsCollection.models, function(aModel) {
+        //console.log("nextModel", aModel);
+        aModel.set({show: false});
+      });
+
+      console.log("applyFilter called with ", value);
+      filterTypeArr.push(value);
+
+      var nResults = myResultsCollection.filterType(filterTypeArr);
+      console.log("filtered results", nResults);
+      _.each(nResults, function(aModel) {
+          console.log("nextModel2", aModel);
+          aModel.set({show: true});
+      });
+
+    },
+
+    test: function(val) {
+      console.log("test called with ", val);
+      filterTypeArr.push(val);
+      var nResults = myResultsCollection.filterType(filterTypeArr);
+      console.log("filtered results", nResults);
+      _.each(nResults, function(aModel) {
+          console.log("nextModel2", aModel);
+          aModel.set({show: true});
+      });
     },
 
 
     rand: function() {
+
+      
 
       $("#filter").html("")
 
@@ -62,7 +141,7 @@
       .then(function(o) {
 
         // Build a collection
-        var myResultsCollection = new ResultsCollection();
+        // var myResultsCollection = new ResultsCollection();
 
         // Add our models to our collection
         _.each(o.results, function(x) {
@@ -109,9 +188,28 @@
         aHelper.buildChartOrganisms(pairs);
 
 
-        var third = myResultsCollection.at(3);
-        console.log("third model", third);
-        third.set({show: false});
+
+
+
+/*
+        var nResults = myResultsCollection.filterType("Something");
+        console.log("nResults", nResults);
+
+        _.each(nResults, function(aModel) {
+          console.log("nextModel", aModel);
+          aModel.set({show: true});
+        });
+
+        var thirdModel = myResultsCollection.at(3);
+        console.log("third model", thirdModel);
+
+        
+
+        var val = _.contains(myResultsCollection.models, thirdModel);
+        console.log("val", val);
+*/
+
+
 
 
 

@@ -21260,7 +21260,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     
       var AppView = require('./views/appview');
       var SecView = require('./views/SecondaryView');
-      var Helper = require('./modules/helper');
+      
       var $ = require('./modules/dependencies').$;
       
       module.exports = function(params) {
@@ -21354,7 +21354,8 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     
       var ResultModel, ResultsCollection, _ref,
         __hasProp = {}.hasOwnProperty,
-        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+        __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
       
       ResultModel = require('./ResultModel');
       
@@ -21388,7 +21389,8 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
           var results;
           console.log("filterType called with values ", values);
           results = this.models.filter(function(model) {
-            return model.get("type") === "Publication";
+            var _ref1;
+            return _ref1 = model.get("type"), __indexOf.call(values, _ref1) >= 0;
           });
           return results;
         };
@@ -21402,162 +21404,13 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     });
 
     
-    // pathwaycollection.js
-    root.require.register('MultiMine/src/models/pathwaycollection.js', function(exports, require, module) {
-    
-      var PathwayModel = require('./pathwaymodel');
-      
-        var PathwayCollection = Backbone.Collection.extend({
-      
-          model: PathwayModel,
-      
-          add: function(models) {
-      
-      
-            if (!_.isArray(models)) {
-              models = [models];
-            }
-      
-            // Step through the models and look for a duplicates by slug.
-            _.each(models, function(model) {
-      
-            	//console.log("Next model: " + JSON.stringify(model, null, 2));
-      
-              //model.url = aUrl;
-      
-      
-              var returned = this.findWhere({slug: this.toSlug(model.name)});
-      
-      
-         
-      
-              if (returned) {
-              //console.log("found");
-                //returned.updateData(model); 
-                //console.log('returned, ' + model.url);      
-              } else {
-              	//console.log(model.name);
-                Backbone.Collection.prototype.add.call(this, model);
-              }
-      
-            },this);
-          },
-      
-          comparator: function(pway) {
-              return pway.get('name');
-            },
-      
-         toSlug: function(text) {
-          return text.toString().toLowerCase().replace(/ /g,'-').replace(/[^\w-]+/g,'');
-        }
-      
-        });
-      
-      module.exports = new PathwayCollection();
-    });
-
-    
-    // pathwaymodel.js
-    root.require.register('MultiMine/src/models/pathwaymodel.js', function(exports, require, module) {
-    
-      var mediator = require('../modules/mediator');
-      
-      var PathwayModel = Backbone.Model.extend({
-      
-          initialize: function() {
-            //console.log("pathway model created");
-            this.shiftPathwayIdentifier();
-            this.set( {slug: this.toSlug(this.get('name')) });
-            this.shiftData();
-          },
-      
-          defaults: function() {
-            return {organisms: []};
-          },
-      
-          toSlug: function(text) {
-            return text.toString().toLowerCase().replace(/ /g,'-').replace(/[^\w-]+/g,'');
-          },
-      
-          shiftPathwayIdentifier: function() {
-            var pwayId = this.get('identifier');
-            var pwayObjId = this.get('objectId');
-            _.each(this.attributes.genes, function(o) {
-              o.pwayId = pwayId;
-              o.pathwayId = pwayObjId;
-            });
-          },
-      
-          shiftData: function() {
-            currentOrganisms = this.get("organisms");
-      
-            that = this;
-            _.each(this.get('genes'), function(o) {
-      
-               mediator.trigger('column:add', {taxonId: o.organism.taxonId, sName: o.organism.shortName});
-      
-              var found = _.findWhere(currentOrganisms, {taxonId: o.organism.taxonId});
-              // Did we find the organism in the pathway by taxonId?
-              if (!found) {
-                // push ourself onto the organism as an attribute
-                var geneData = _.omit(o, 'organism');
-                _.extend(geneData, {url: that.attributes.url});
-                geneArray = [geneData]
-                o.organism.genes = geneArray;
-                currentOrganisms.push(o.organism);
-              } else {
-                var geneData = _.omit(o, 'organism');
-                _.extend(geneData, {url: that.attributes.url});
-                found.genes.push(geneData);
-              }
-      
-            });
-            this.set({organisms: currentOrganisms});
-            this.unset('genes');
-          },
-      
-          updateData: function(jsonData) {
-      
-            currentOrganisms = this.get("organisms");
-      
-            _.each(jsonData.genes, function(o) {
-      
-              mediator.trigger('column:add', {taxonId: o.organism.taxonId, sName: o.organism.shortName});
-      
-              var found = _.findWhere(currentOrganisms, {taxonId: o.organism.taxonId});
-              // Did we find the organism in the pathway by taxonId?
-              if (!found) {
-                // copy our gene data to the organism
-                var geneData = _.omit(o, 'organism');
-                _.extend(geneData, {url: jsonData.url, pathwayId: jsonData.objectId});
-                geneArray = [geneData]
-                o.organism.genes = geneArray;
-                currentOrganisms.push(o.organism);
-              } else {
-                var geneData = _.omit(o, 'organism');
-                _.extend(geneData, {url: jsonData.url});
-                found.genes.push(geneData);
-              }
-      
-            });
-            this.set({organisms: currentOrganisms});
-            this.unset('genes');
-      
-          },
-      
-        });
-      
-      module.exports = PathwayModel;
-      
-      
-    });
-
-    
     // MyHelper.coffee
     root.require.register('MultiMine/src/modules/MyHelper.js', function(exports, require, module) {
     
-      var MyHelper,
+      var MyHelper, mediator,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+      
+      mediator = require("./mediator");
       
       MyHelper = (function() {
         function MyHelper() {
@@ -21624,14 +21477,6 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               name: "FlyMine",
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
-            }, {
-              name: "ZebraFishMine",
-              queryUrl: "http://www.zebrafishmine.org",
-              baseUrl: "http://www.zebrafishmine.org/"
-            }, {
-              name: "YeastMine",
-              queryUrl: "http://yeastmine.yeastgenome.org/yeastmine",
-              baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"
             }
           ];
           return Q.all((function() {
@@ -21769,7 +21614,16 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
         };
       
         MyHelper.prototype.callThisFunction = function(d) {
-          return console.log("This was passed to me: ", d.data);
+          if (d.toggled === false || d.toggled === void 0) {
+            d.toggled = true;
+            console.log("calling mediator for ON", mediator);
+            mediator.trigger("filter:apply", d.data[0]);
+          } else if (d.toggled === true) {
+            d.toggled = false;
+            console.log("calling mediator for OFF", mediator);
+            mediator.trigger("filter:remove", d.data[0]);
+          }
+          return console.log("d.toggled has been set to ", d.toggled);
         };
       
         MyHelper.prototype.buildChartOrganisms = function(myvalues) {
@@ -21786,11 +21640,11 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             }
           };
           canvasWidth = 300;
-          canvasHeight = 300;
+          canvasHeight = 200;
           outerRadius = 75;
           innerRadius = 30;
-          w = 160;
-          h = 160;
+          w = 130;
+          h = 130;
           r = Math.min(w, h) / 2;
           labelr = r;
           color = d3.scale.category20();
@@ -21803,11 +21657,17 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             return d[1];
           });
           arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice").on("click", function(d) {
-            console.log("value", d3.select(this).classed("SOMETHING"));
-            d3.select(this).classed("SOMETHING", true);
-            console.log("value2", d3.select(this).classed("SOMETHING"));
-            d3.select(this).select("path").transition().duration(200).attr("d", arcOver);
-            return that.callThisFunction(d);
+            console.log("d.toggled is currently set to", d.toggled);
+            if (d.toggled === false || d.toggled === void 0) {
+              console.log("EXPANDING");
+              d3.select(this).classed("SOMETHING", true);
+              d3.select(this).select("path").transition().duration(200).attr("d", arcOver);
+              return that.callThisFunction(d);
+            } else if (d.toggled === true) {
+              console.log("SHRINKING");
+              d3.select(this).select("path").transition().duration(100).attr("d", arc);
+              return that.callThisFunction(d);
+            }
           }).on("testing", function(d) {
             return d3.select(this).select("path").transition().duration(100).attr("d", arc);
           });
@@ -21879,238 +21739,6 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     
       var columns = [];
       exports.columns = columns;
-    });
-
-    
-    // helper.js
-    root.require.register('MultiMine/src/modules/helper.js', function(exports, require, module) {
-    
-      var $ = require('./dependencies').$;
-      var pwayCollection = require('../models/pathwaycollection.js');
-      var mediator = require('./mediator');
-      
-      
-       var launchAll = function(gene, url) {
-      
-      
-        ////console.log("launchAll has been called");
-      
-          /** Return a promise **/
-          //return function (genes) {
-      
-            /// Array to store our pathway
-            death = function(err) {
-              ////console.log("death: " + err);
-            }
-      
-            var promiseArray = [];
-      
-            // Step through or mines
-            for (mine in url) {
-              promiseArray.push(runOne(gene, url[mine], mine));
-            }
-      
-            // Return when all results have finished.
-      
-            return Q.all(promiseArray).fail(death);
-      
-          //}
-        }
-      
-        var runOne = function(gene, location, mine) {
-      
-      
-      
-          return Q.when(getHomologues([gene], location)).then(
-            function(returned) {
-              return getPathwaysByGene(location, returned, "collection");
-            },
-            function(e) {
-      
-              mediator.trigger('notify:minefail', {mine: mine, err: e});
-              throw e;
-            }
-          ).fail(error);
-      
-          function error (err) {
-      
-          }
-      
-      /*
-           return Q.when(getHomologues([gene], location))
-          .then(function(returned) {
-            return getPathwaysByGene(location, returned, "collection")
-          }).fail(error);
-      */
-              
-        }
-      
-        // :: (string, string) -> (Array<Gene>) -> Promise<Array<Record>>
-        var getPathwaysByGene = function(url, genes, pathwayCollection) { 
-      
-            var query, printRecords, getService, getData, error, fin, luString;
-      
-            // Build a lookup string from our array of genes:
-            luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
-      
-            ////console.log("luString: ", luString);
-      
-            // Build our query using our lookup string.
-            query = {"select":["Pathway.genes.primaryIdentifier","Pathway.genes.symbol","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
-      
-            // Build a query that gets us a list of gene for a given pathway
-           // geneQuery = {"select":["Pathway.genes.primaryIdentifier","Pathway.id","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
-      
-            /** Return an IMJS service. **/
-            getService = function (aUrl) {
-              //console.log("getService has been called in getPathwaysByGene");
-              return new IM.Service({root: aUrl});
-            };
-      
-            /** Return query results **/
-            getData = function (aService) {
-                ////console.log("------------------------getData has also been called");
-                return aService.records(query);
-            };
-      
-            /** Manipulate our results and add them to our collection. **/
-            makeModels = function () {
-      
-      
-              return function(pways) {
-      
-                _.map(pways, function(pathway) {
-                  pathway.url = url;
-                 
-                })
-      
-                 pwayCollection.add(pways);
-      
-                return pways;
-      
-              }
-      
-      
-            } // End makeModels
-      
-            // Return our error
-            error = function(err) {
-              //console.log("I have failed in getPathways, ", err);
-              throw new Error(err);
-            };
-      
-            // Wait for our results and then return them.
-            return Q(getService(url)).then(getData).then(makeModels()).fail(error);
-      
-          } // End function getPathwaysByGene
-      
-       // }
-      
-        /**
-        * Get a list of homologues for a given gene from a given mine.
-        **/
-        // :: (string, string) -> Promise<Array<Gene>>
-      var getHomologues = function(pIdentifier, url) {
-      
-          IM = intermine;
-      
-          var query, getService, getData, error, fin;
-      
-          // Build our query:
-          //var query = {"select":["Homologue.homologue.primaryIdentifier", "Homologue.homologue.symbol"],"orderBy":[{"Homologue.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Homologue.gene","op":"LOOKUP","value":pIdentifier}]};
-          // var query = {"select":["Homologue.homologue.primaryIdentifier", "Homologue.homologue.symbol"],"orderBy":[{"Homologue.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Homologue.gene","op":"LOOKUP","value":pIdentifier}]};
-          //var query = {"select":["Gene.homologues.homologue.primaryIdentifier","Gene.homologues.homologue.symbol"],"constraintLogic":"A and B","orderBy":[{"Gene.homologues.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Gene","op":"LOOKUP","code":"A","value":"eyeless"},{"path":"Gene.homologues.type","op":"=","code":"B","value":"orthologue"}]};
-          // Get our service.
-          // var query = {"select":["Gene.homologues.homologue.primaryIdentifier"],"constraintLogic":"A and B","orderBy":[{"Gene.homologues.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Gene","op":"LOOKUP","code":"A","value":"FBgn0005558","extraValue":""},{"path":"Gene.homologues.type","op":"=","code":"B","value":"orthologue"}]};
-          var query = {"select":["Gene.homologues.homologue.primaryIdentifier","Gene.homologues.homologue.symbol"],"constraintLogic":"A and B and C","orderBy":[{"Gene.homologues.homologue.primaryIdentifier":"ASC"}],"where":[{"path":"Gene","op":"LOOKUP","code":"A","value":pIdentifier,"extraValue":""},{"path":"Gene.homologues.type","op":"!=","code":"B","value":"paralogue"},{"path":"Gene.homologues.type","op":"!=","code":"C","value":"paralog"}]};
-          getService = function (aUrl) {
-      
-            //console.log("building service");
-            return new IM.Service({root: aUrl});
-      
-      
-          };
-      
-          // Run our query.
-          getData = function (aService) {
-      
-            var myModel = aService.fetchModel().then(function(model) {
-              console.log("MY MODEL: ", model);
-            });
-            
-              var aValue = aService.records(query);
-      
-              return aValue;
-          };
-      
-          // Deal with our results.
-          returnResults = function () {
-      
-            
-            return function (orgs) {
-      
-              if (orgs.length < 1) {
-                // no results, return
-                return [];
-              }
-      
-              // Return the homologue attribute of our results.
-            //var values = orgs.map(function(o) {
-              var values = orgs[0].homologues.map(function(o) {
-                return o.homologue
-                //return o.homologues.homologue
-              });
-      
-          
-      
-      
-              // Create a 'fake' gene that represents the primary identifier and add it to our results
-              var selfObject = new Object();
-              selfObject.primaryIdentifier = pIdentifier;
-              values.push(selfObject);
-      
-      
-              luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
-              /*_.each(values, function(gene) {
-                 console.log("primary identifier: " + gene.primaryIdentifier);
-              });*/
-      
-      
-              return values;
-            }
-          }
-          function error (err) {
-                //console.log("I have failed in getHomologues.", err);
-                throw new Error(err);
-          }
-      
-          // Return our results when finished
-          return Q(getService(url)).then(getData).then(returnResults()).fail(error);
-          //return Q(getService(url)).fail(error);
-        } // End getHomologues
-      
-        function dynamicSort(property) {
-          var sortOrder = 1;
-          if(property[0] === "-") {
-              sortOrder = -1;
-              property = property.substr(1);
-          }
-          return function (a,b) {
-              var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-              return result * sortOrder;
-          }
-        }
-      
-      /*
-        var d = Q.defer();
-        doSth.then(d.resolve, d.reject);
-        setTimeout(d.reject.bind(d, new Error("TIMEOUT")), 2000);
-        return d.promise;
-        */
-      
-      exports.getHomologues = getHomologues;
-      exports.launchAll = launchAll;
-      exports.dynamicSort = dynamicSort;
     });
 
     
@@ -23944,6 +23572,10 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
         var ResultView = require("../views/ResultView");
         var ResultsTableView = require("../views/ResultsTableView");
         var searchResultsCollection = {};
+        var filterTypeArr = [];
+        var filterOrganism = [];
+      
+        var myResultsCollection = new ResultsCollection();
       
         // The Application
         // --------------
@@ -23979,11 +23611,86 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
             // Listen to our mediator for events
             mediator.on('column:add', this.addColumn, this);
+            mediator.on('filter:apply', this.applyFilter, this);
+            mediator.on('filter:remove', this.removeFilter, this);
+            mediator.on('medTest', this.test, this);
             
+          },
+      
+          removeFilter: function(value) {
+      
+            
+      
+      
+      
+      
+      
+      
+            _.each(myResultsCollection.models, function(aModel) {
+              console.log("nextModel", aModel);
+              aModel.set({show: false});
+            });
+      
+            console.log("applyFilter called with ", value);
+            filterTypeArr = _.without(filterTypeArr, value);
+      
+            var nResults = myResultsCollection.filterType(filterTypeArr);
+            console.log("filtered results", nResults);
+            _.each(nResults, function(aModel) {
+                console.log("nextModel2", aModel);
+                aModel.set({show: true});
+            });
+      
+            console.log ("filterTypeArr is now ", filterTypeArr.length);
+      
+            if (filterTypeArr.length < 1) {
+              console.log("SHOWING ALL ITEMS");
+              _.each(myResultsCollection.models, function(aModel) {
+                aModel.set({show: true});
+              });
+            }
+      
+            
+      
+      
+          },
+      
+          applyFilter: function(value) {
+      
+            console.log("calling applyFilter with value");
+      
+            _.each(myResultsCollection.models, function(aModel) {
+              //console.log("nextModel", aModel);
+              aModel.set({show: false});
+            });
+      
+            console.log("applyFilter called with ", value);
+            filterTypeArr.push(value);
+      
+            var nResults = myResultsCollection.filterType(filterTypeArr);
+            console.log("filtered results", nResults);
+            _.each(nResults, function(aModel) {
+                console.log("nextModel2", aModel);
+                aModel.set({show: true});
+            });
+      
+          },
+      
+          test: function(val) {
+            console.log("test called with ", val);
+            filterTypeArr.push(val);
+            var nResults = myResultsCollection.filterType(filterTypeArr);
+            console.log("filtered results", nResults);
+            _.each(nResults, function(aModel) {
+                console.log("nextModel2", aModel);
+                aModel.set({show: true});
+            });
           },
       
       
           rand: function() {
+      
+            
       
             $("#filter").html("")
       
@@ -23999,7 +23706,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             .then(function(o) {
       
               // Build a collection
-              var myResultsCollection = new ResultsCollection();
+              // var myResultsCollection = new ResultsCollection();
       
               // Add our models to our collection
               _.each(o.results, function(x) {
@@ -24046,9 +23753,28 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               aHelper.buildChartOrganisms(pairs);
       
       
-              var third = myResultsCollection.at(3);
-              console.log("third model", third);
-              third.set({show: false});
+      
+      
+      
+      /*
+              var nResults = myResultsCollection.filterType("Something");
+              console.log("nResults", nResults);
+      
+              _.each(nResults, function(aModel) {
+                console.log("nextModel", aModel);
+                aModel.set({show: true});
+              });
+      
+              var thirdModel = myResultsCollection.at(3);
+              console.log("third model", thirdModel);
+      
+              
+      
+              var val = _.contains(myResultsCollection.models, thirdModel);
+              console.log("val", val);
+      */
+      
+      
       
       
       
