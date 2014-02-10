@@ -27,6 +27,7 @@ class EnrichmentPopoverView extends Backbone.View
             "description":      @description
             "descriptionLimit": @descriptionLimit
             "style":            @style or "width:300px;margin-left:-300px"
+            'canModify':        @widget.token?
 
         # PathQuery for matches values.
         pq = JSON.parse @response['pathQueryForMatches']

@@ -9,7 +9,9 @@
     <script>
     $(function() {
         var W = require('list-widgets'),
-            widgets = new W({ 'root': 'http://beta.flymine.org/beta/service/' });
+            widgets = new W({
+                'root': 'http://beta.flymine.org/beta/service/'
+            });
         widgets.all({
             'bagName': 'demo-list',
             'el': '#target'

@@ -1033,7 +1033,8 @@
           $(this.el).html(require('../../templates/popover/popover')({
             "description": this.description,
             "descriptionLimit": this.descriptionLimit,
-            "style": 'width:300px'
+            "style": 'width:300px',
+            'canModify': this.widget.token != null
           }));
           this.widget.queryRows(this.quickPq, this.renderValues);
           return this;
@@ -1581,7 +1582,8 @@
           $(this.el).html(require('../../templates/popover/popover')({
             "description": this.description,
             "descriptionLimit": this.descriptionLimit,
-            "style": this.style || "width:300px;margin-left:-300px"
+            "style": this.style || "width:300px;margin-left:-300px",
+            'canModify': this.widget.token != null
           }));
           pq = JSON.parse(this.response['pathQueryForMatches']);
           pq.where.push({
@@ -2204,7 +2206,8 @@
           $(this.el).html(require('../../templates/popover/popover')({
             'description': this.description,
             'descriptionLimit': this.descriptionLimit,
-            'style': this.style || "width:300px;margin-left:-300px"
+            'style': this.style || "width:300px;margin-left:-300px",
+            'canModify': this.widget.token != null
           }));
           this.pathQuery = JSON.parse(this.pathQuery);
           this.pathQuery.where.push({
@@ -2619,7 +2622,7 @@
         }
         (function() {
           (function() {
-            __out.push('<a class="btn btn-small view">View3</a>\n<a class="btn btn-small export">Download3</a>');
+            __out.push('<a class="btn btn-small view">View</a>\n<a class="btn btn-small export">Download</a>');
           
           }).call(this);
           
@@ -3686,7 +3689,13 @@
               __out.push('&hellip;');
             }
           
-            __out.push('\n        </h3>\n        <div class="popover-content">\n            <div class="values">\n                <!-- popover.values.eco -->\n            </div>\n            <div style="margin-top:10px">\n                <a class="btn btn-small btn-primary results">View results</a>\n                <a class="btn btn-small list">Create list</a>\n            </div>\n        </div>\n    </div>\n</div>');
+            __out.push('\n        </h3>\n        <div class="popover-content">\n            <div class="values">\n                <!-- popover.values.eco -->\n            </div>\n            <div style="margin-top:10px">\n                <a class="btn btn-small btn-primary results">View results</a>\n                ');
+          
+            if (this.canModify) {
+              __out.push('\n                <a class="btn btn-small list">Create list</a>\n                ');
+            }
+          
+            __out.push('\n            </div>\n        </div>\n    </div>\n</div>');
           
           }).call(this);
           

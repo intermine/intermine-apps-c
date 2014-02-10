@@ -27,6 +27,7 @@ class TablePopoverView extends Backbone.View
             'description':      @description
             'descriptionLimit': @descriptionLimit
             'style':            @style or "width:300px;margin-left:-300px"
+            'canModify':        @widget.token?
 
         # Modify JSON to constrain on these matches.
         @pathQuery = JSON.parse @pathQuery

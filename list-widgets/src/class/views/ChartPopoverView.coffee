@@ -27,6 +27,7 @@ class ChartPopoverView extends Backbone.View
             "description":      @description
             "descriptionLimit": @descriptionLimit
             "style":            'width:300px'
+            'canModify':        @widget.token?
 
         # Grab the data for this bar.
         @widget.queryRows @quickPq, @renderValues
