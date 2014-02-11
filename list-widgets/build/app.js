@@ -1469,13 +1469,13 @@
             v = o[k];
             this[k] = v;
           }
-          if (this.gene_length_correction !== null) {
+          if (this.gene_length_correction != null) {
             return this.render();
           }
         };
       
         EnrichmentLengthCorrectionView.prototype.render = function() {
-          $(this.el).append(require('../../templates/enrichment/enrichment.correction')(), this);
+          $(this.el).append(require('../../templates/enrichment/enrichment.correction')(this));
           return this;
         };
       
@@ -1492,13 +1492,7 @@
       
         EnrichmentLengthCorrectionView.prototype.toggleCull = function(e) {
           var el;
-          (el = $(e.target)).toggleClass('active').text(function() {
-            if (el.hasClass('active')) {
-              return 'Normalised';
-            } else {
-              return 'Normalise';
-            }
-          });
+          (el = $(e.target)).toggleClass('active');
           this.widget.widget.formOptions['gene_length_correction'] = el.hasClass('active');
           return this.widget.widget.render();
         };
