@@ -27,7 +27,9 @@ class TablePopoverView extends Backbone.View
             'description':      @description
             'descriptionLimit': @descriptionLimit
             'style':            @style or "width:300px;margin-left:-300px"
-            'canModify':        @widget.token?
+            'can':
+                'list':    @widget.token and @listCb
+                'results': @resultsCb
 
         # Modify JSON to constrain on these matches.
         @pathQuery = JSON.parse @pathQuery
@@ -55,6 +57,8 @@ class TablePopoverView extends Backbone.View
             'type':        @type
             'valuesLimit': @valuesLimit
             'size':        @size # size is the number of matches count we clicked on
+            'can':
+                'match': @matchCb
 
         # Now that the size has changed, adjust the popover.
         @adjustPopover()

@@ -1,1 +1,3 @@
+<% if @can.results: %>
 <a class="btn btn-small view-all">View in table</a>
+<% end %>

@@ -228,17 +228,11 @@
         __extends(ChartWidget, _super);
       
         ChartWidget.prototype.widgetOptions = {
-          "title": true,
-          "description": true,
-          matchCb: function(id, type) {
-            return typeof console !== "undefined" && console !== null ? console.log(id, type) : void 0;
-          },
-          resultsCb: function(pq) {
-            return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
-          },
-          listCb: function(pq) {
-            return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
-          }
+          'title': true,
+          'description': true,
+          'matchCb': false,
+          'resultsCb': false,
+          'listCb': false
         };
       
         ChartWidget.prototype.formOptions = {};
@@ -372,17 +366,11 @@
         __extends(EnrichmentWidget, _super);
       
         EnrichmentWidget.prototype.widgetOptions = {
-          "title": true,
-          "description": true,
-          matchCb: function(id, type) {
-            return typeof console !== "undefined" && console !== null ? console.log(id, type) : void 0;
-          },
-          resultsCb: function(pq) {
-            return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
-          },
-          listCb: function(pq) {
-            return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
-          }
+          'title': true,
+          'description': true,
+          'matchCb': false,
+          'resultsCb': false,
+          'listCb': false
         };
       
         EnrichmentWidget.prototype.formOptions = {
@@ -688,17 +676,11 @@
         __extends(TableWidget, _super);
       
         TableWidget.prototype.widgetOptions = {
-          "title": true,
-          "description": true,
-          matchCb: function(id, type) {
-            return typeof console !== "undefined" && console !== null ? console.log(id, type) : void 0;
-          },
-          resultsCb: function(pq) {
-            return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
-          },
-          listCb: function(pq) {
-            return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
-          }
+          'title': true,
+          'description': true,
+          'matchCb': false,
+          'resultsCb': false,
+          'listCb': false
         };
       
         TableWidget.prototype.spec = {
@@ -1034,7 +1016,10 @@
             "description": this.description,
             "descriptionLimit": this.descriptionLimit,
             "style": 'width:300px',
-            'canModify': this.widget.token != null
+            'can': {
+              'list': this.widget.token && this.listCb,
+              'results': this.resultsCb
+            }
           }));
           this.widget.queryRows(this.quickPq, this.renderValues);
           return this;
@@ -1059,7 +1044,10 @@
             'values': values,
             'type': this.type,
             'valuesLimit': this.valuesLimit,
-            'size': values.length
+            'size': values.length,
+            'can': {
+              'match': this.matchCb
+            }
           }));
         };
       
@@ -1241,7 +1229,11 @@
         };
       
         ChartView.prototype.renderToolbar = function() {
-          return $(this.el).find("div.actions").html(require('../../templates/chart/chart.actions')());
+          return $(this.el).find("div.actions").html(require('../../templates/chart/chart.actions')({
+            'can': {
+              'results': this.resultsCb
+            }
+          }));
         };
       
         ChartView.prototype.translate = function(response, series) {
@@ -1382,7 +1374,7 @@
           }
           pq.constraintLogic = ['A', '(' + orLogic.join(' OR ') + ')'].join(' AND ');
           pq.where = constraints;
-          if (code > 66) {
+          if (code > 66 && this.options.resultsCb) {
             return this.options.resultsCb(pq);
           }
         };
@@ -1407,6 +1399,9 @@
       
         ChartView.prototype.viewSeriesAction = function(pathQuery) {
           var field, i, pq, _ref2;
+          if (!this.options.resultsCb) {
+            return;
+          }
           pq = JSON.parse(pathQuery);
           _ref2 = pq.where;
           for (i in _ref2) {
@@ -1583,7 +1578,10 @@
             "description": this.description,
             "descriptionLimit": this.descriptionLimit,
             "style": this.style || "width:300px;margin-left:-300px",
-            'canModify': this.widget.token != null
+            'can': {
+              'list': this.widget.token && this.listCb,
+              'results': this.resultsCb
+            }
           }));
           pq = JSON.parse(this.response['pathQueryForMatches']);
           pq.where.push({
@@ -1618,7 +1616,10 @@
             'values': values,
             'type': this.response.type,
             'valuesLimit': this.valuesLimit,
-            'size': this.size
+            'size': this.size,
+            'can': {
+              'match': this.matchCb
+            }
           }));
           return this.adjustPopover();
         };
@@ -2207,7 +2208,10 @@
             'description': this.description,
             'descriptionLimit': this.descriptionLimit,
             'style': this.style || "width:300px;margin-left:-300px",
-            'canModify': this.widget.token != null
+            'can': {
+              'list': this.widget.token && this.listCb,
+              'results': this.resultsCb
+            }
           }));
           this.pathQuery = JSON.parse(this.pathQuery);
           this.pathQuery.where.push({
@@ -2238,7 +2242,10 @@
             'values': values,
             'type': this.type,
             'valuesLimit': this.valuesLimit,
-            'size': this.size
+            'size': this.size,
+            'can': {
+              'match': this.matchCb
+            }
           }));
           return this.adjustPopover();
         };
@@ -2675,7 +2682,9 @@
         }
         (function() {
           (function() {
-            __out.push('<a class="btn btn-small view-all">View in table</a>');
+            if (this.can.results) {
+              __out.push('\n<a class="btn btn-small view-all">View in table</a>\n');
+            }
           
           }).call(this);
           
@@ -2874,7 +2883,7 @@
         }
         (function() {
           (function() {
-            __out.push('<div class="header">\n    <p>Tabs will go here</p>\n    <h3>');
+            __out.push('<div class="header">\n    <h3>');
           
             if (this.title) {
               __out.push(__sanitize(this.title));
@@ -2891,11 +2900,11 @@
             if (this.notAnalysed) {
               __out.push('\n        <p>Number of ');
               __out.push(__sanitize(this.type));
-              __out.push('s in this list not analysed in this widgetssssss: <a>');
+              __out.push('s in this list not analysed in this widget: <a>');
               __out.push(__sanitize(this.notAnalysed));
               __out.push('</a></p>\n    ');
             } else {
-              __out.push('\n        <p>All items in your list have been analysed2.</p>\n    ');
+              __out.push('\n        <p>All items in your list have been analysed.</p>\n    ');
             }
           
             __out.push('\n\n    <div class="form">\n        <!-- enrichment.form.eco -->\n    </div>\n\n    <div class="actions" style="padding:10px 0">\n        <!-- actions.eco -->\n    </div>\n</div>\n<div class="content">\n    <!-- enrichment.table.eco -->\n</div>');
@@ -3689,9 +3698,15 @@
               __out.push('&hellip;');
             }
           
-            __out.push('\n        </h3>\n        <div class="popover-content">\n            <div class="values">\n                <!-- popover.values.eco -->\n            </div>\n            <div style="margin-top:10px">\n                <a class="btn btn-small btn-primary results">View results</a>\n                ');
+            __out.push('\n        </h3>\n        <div class="popover-content">\n            <div class="values">\n                Loading &hellip;\n                <!-- popover.values.eco -->\n            </div>\n            <div style="margin-top:10px">\n                ');
           
-            if (this.canModify) {
+            if (this.can.results) {
+              __out.push('\n                <a class="btn btn-small btn-primary results">View results</a>\n                ');
+            }
+          
+            __out.push('\n                ');
+          
+            if (this.can.list) {
               __out.push('\n                <a class="btn btn-small list">Create list</a>\n                ');
             }
           
@@ -3828,9 +3843,17 @@
             _ref = this.values.slice(0, +(this.valuesLimit - 1) + 1 || 9e9);
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               object = _ref[_i];
-              __out.push('\n    <a href="#" class="match">');
-              __out.push(__sanitize(object));
-              __out.push('</a>\n');
+              __out.push('\n    ');
+              if (this.can.match) {
+                __out.push('\n        <a href="#" class="match">');
+                __out.push(__sanitize(object));
+                __out.push('</a>\n    ');
+              } else {
+                __out.push('\n        <span>');
+                __out.push(__sanitize(object));
+                __out.push('</span>\n    ');
+              }
+              __out.push('\n');
             }
           
             __out.push('\n');
@@ -3838,8 +3861,6 @@
             if (this.values.length > this.valuesLimit) {
               __out.push('&hellip;');
             }
-          
-            __out.push('\n');
           
           }).call(this);
           
@@ -4333,7 +4354,6 @@
     root.require.register('list-widgets/src/widgets.js', function(exports, require, module) {
     
       var $, ChartWidget, EnrichmentWidget, TableWidget, Widgets, google, _ref,
-        __slice = [].slice,
         __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
       
       _ref = require('./deps'), $ = _ref.$, google = _ref.google;
@@ -4381,18 +4401,22 @@
         */
       
       
-        Widgets.prototype.chart = function() {
-          var opts,
-            _this = this;
-          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        Widgets.prototype.chart = function(id, bagName, el, widgetOptions) {
+          var _this = this;
           return google.load('visualization', '1.0', {
             packages: ['corechart'],
             callback: function() {
-              return (function(func, args, ctor) {
-                ctor.prototype = func.prototype;
-                var child = new ctor, result = func.apply(child, args);
-                return Object(result) === result ? result : child;
-              })(ChartWidget, [_this.imjs, _this.root, _this.token].concat(__slice.call(opts)), function(){});
+              var bag, opts, _ref1;
+              if (_.isObject(id)) {
+                _ref1 = id, id = _ref1.id, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions, opts = _ref1.opts;
+              }
+              if (opts) {
+                widgetOptions = opts;
+              }
+              if (bag && _.isObject(bag)) {
+                bagName = bag.name;
+              }
+              return new ChartWidget(_this.imjs, _this.root, _this.token, id, bagName, el, widgetOptions);
             }
           });
         };
@@ -4406,24 +4430,26 @@
         */
       
       
-        Widgets.prototype.enrichment = function() {
-          var done, error, opts,
-            _this = this;
-          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          done = function(lists) {
-            return (function(func, args, ctor) {
-              ctor.prototype = func.prototype;
-              var child = new ctor, result = func.apply(child, args);
-              return Object(result) === result ? result : child;
-            })(EnrichmentWidget, [_this.imjs, _this.root, _this.token, lists].concat(__slice.call(opts)), function(){});
-          };
-          error = function(err) {
+        Widgets.prototype.enrichment = function(id, bagName, el, widgetOptions) {
+          var _this = this;
+          return this.lists.then(function(lists) {
+            var bag, opts, _ref1;
+            if (_.isObject(id)) {
+              _ref1 = id, id = _ref1.id, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions, opts = _ref1.opts;
+            }
+            if (opts) {
+              widgetOptions = opts;
+            }
+            if (bag && _.isObject(bag)) {
+              bagName = bag.name;
+            }
+            return new EnrichmentWidget(_this.imjs, _this.root, _this.token, lists, id, bagName, el, widgetOptions);
+          }, function(err) {
             return $(opts[2]).html($('<div/>', {
               'class': "alert alert-error",
               'html': "" + errstatusText + " for <a href='" + _this.root + "widgets'>" + _this.root + "widgets</a>"
             }));
-          };
-          return this.lists.then(done, error);
+          });
         };
       
         /*
@@ -4435,14 +4461,18 @@
         */
       
       
-        Widgets.prototype.table = function() {
-          var opts;
-          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          return (function(func, args, ctor) {
-            ctor.prototype = func.prototype;
-            var child = new ctor, result = func.apply(child, args);
-            return Object(result) === result ? result : child;
-          })(TableWidget, [this.imjs, this.root, this.token].concat(__slice.call(opts)), function(){});
+        Widgets.prototype.table = function(id, bagName, el, widgetOptions) {
+          var bag, opts, _ref1;
+          if (_.isObject(id)) {
+            _ref1 = id, id = _ref1.id, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions, opts = _ref1.opts;
+          }
+          if (opts) {
+            widgetOptions = opts;
+          }
+          if (bag && _.isObject(bag)) {
+            bagName = bag.name;
+          }
+          return new TableWidget(this.imjs, this.root, this.token, id, bagName, el, widgetOptions);
         };
       
         /*
@@ -4455,13 +4485,16 @@
       
       
         Widgets.prototype.all = function(type, bagName, el, widgetOptions) {
-          var bag, error, show, _ref1,
+          var bag, error, opts, show, _ref1,
             _this = this;
           if (type == null) {
             type = "Gene";
           }
           if (_.isObject(type)) {
-            _ref1 = type, type = _ref1.type, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions;
+            _ref1 = type, type = _ref1.type, bag = _ref1.bag, bagName = _ref1.bagName, el = _ref1.el, widgetOptions = _ref1.widgetOptions, opts = _ref1.opts;
+          }
+          if (opts) {
+            widgetOptions = opts;
           }
           error = function(content) {
             return $(el).html($('<div/>', {

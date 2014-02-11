@@ -1,11 +1,10 @@
 <div class="header">
-    <p>Tabs will go here</p>
     <h3><%= @title if @title %></h3>
     <p><%- @description if @description %></p>
     <% if @notAnalysed: %>
-        <p>Number of <%= @type %>s in this list not analysed in this widgetssssss: <a><%= @notAnalysed %></a></p>
+        <p>Number of <%= @type %>s in this list not analysed in this widget: <a><%= @notAnalysed %></a></p>
     <% else: %>
-        <p>All items in your list have been analysed2.</p>
+        <p>All items in your list have been analysed.</p>
     <% end %>
 
     <div class="form">
