@@ -26,15 +26,45 @@ class ResultsCollection extends Backbone.Collection
 		# @collection.each (aModel) ->
 		# 	console.log "next model", aModel
 
-	filterType: (values) ->
+	filterType: (typevalues, organismvalues) ->
 
-		console.log "filterType called with values ", values
+		console.log "filterType called with values ", organismvalues
 		# values = ["Publication", "Gene"]
+		that = this
+
+
 
 		results = this.models.filter (model) ->
-			# console.log "VALUES", values
-			# model.get("type") is "Publication"
-			model.get("type") in values
+
+			fields = model.get("fields")
+			org = fields["organism.shortName"]
+
+			if organismvalues.length > 0 and typevalues.length < 1
+				org in organismvalues
+			else if organismvalues.length < 1 and typevalues.length > 0
+				model.get("type") in typevalues
+			else if organismvalues.length > 0 and typevalues.length > 0
+				org in organismvalues and model.get("type") in typevalues
+			# if organismvalues.length > 0 and typevalues.length > 0
+			# 	console.log "case1"
+			# 	model.get("type") in typevalues and fields["organism.shortName"] in organismvalues
+			# else if organismvalues isnt null and typevalues is null
+			# 	console.log "case 2"
+			# 	model.get("type") in typevalues
+			# else if organismvalues is null and typevalues isnt null
+			# 	console.log "case 3"
+			# 	fields["organism.shortName"] in organismvalues
+	
+
+
+
+
+			# #console.log "ATTRIBUTES", model.get("fields")[organism.shortName]
+			# # console.log "VALUES", values
+			# # model.get("type") is "Publication"
+			# model.get("type") in typevalues
+
+			
 
 		results
 

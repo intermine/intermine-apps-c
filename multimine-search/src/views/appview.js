@@ -8,7 +8,7 @@
   var ResultsTableView = require("../views/ResultsTableView");
   var searchResultsCollection = {};
   var filterTypeArr = [];
-  var filterOrganism = [];
+  var filterOrganismArr = [];
 
   var myResultsCollection = new ResultsCollection();
 
@@ -54,12 +54,8 @@
 
     removeFilter: function(value) {
 
-      
 
-
-
-
-
+      console.log("REMOVE FILTER CALLED");
 
       _.each(myResultsCollection.models, function(aModel) {
         console.log("nextModel", aModel);
@@ -67,9 +63,14 @@
       });
 
       console.log("applyFilter called with ", value);
-      filterTypeArr = _.without(filterTypeArr, value);
 
-      var nResults = myResultsCollection.filterType(filterTypeArr);
+      if (value[1] === "type") {
+        filterTypeArr = _.without(filterTypeArr, value[0]);
+      } else if (value[1] === "organism") {
+        filterOrganismArr = _.without(filterOrganismArr, value[0]);
+      }
+
+      var nResults = myResultsCollection.filterType(filterTypeArr, filterOrganismArr);
       console.log("filtered results", nResults);
       _.each(nResults, function(aModel) {
           console.log("nextModel2", aModel);
@@ -92,17 +93,22 @@
 
     applyFilter: function(value) {
 
-      console.log("calling applyFilter with value");
+      console.log("calling applyFilter with value", value);
 
+      // Hide all of our results:
       _.each(myResultsCollection.models, function(aModel) {
-        //console.log("nextModel", aModel);
         aModel.set({show: false});
       });
 
-      console.log("applyFilter called with ", value);
-      filterTypeArr.push(value);
+      console.log("applyFilter called with ", value[0]);
+      if (value[1] === "type") {
+        filterTypeArr.push(value[0]);
+      } else if (value[1] === "organism") {
+        filterOrganismArr.push(value[0]);
+      }
+      
 
-      var nResults = myResultsCollection.filterType(filterTypeArr);
+      var nResults = myResultsCollection.filterType(filterTypeArr, filterOrganismArr);
       console.log("filtered results", nResults);
       _.each(nResults, function(aModel) {
           console.log("nextModel2", aModel);
@@ -113,7 +119,7 @@
 
     test: function(val) {
       console.log("test called with ", val);
-      filterTypeArr.push(val);
+      filterTypeArr.push(val[0]);
       var nResults = myResultsCollection.filterType(filterTypeArr);
       console.log("filtered results", nResults);
       _.each(nResults, function(aModel) {
@@ -161,8 +167,7 @@
         that.$el.html(myResultsTableView.render().el);
 
         // var filteredResults = myResultsCollection.byType("Gene");
-        var newResults = myResultsCollection.filterType("one");
-        console.log("newResults", newResults);
+  
 
         // console.log("filtered results: ", filteredResults);
 
@@ -179,13 +184,13 @@
 
         var catPairs = _.pairs(o.facets.Category);
         // console.log("catPairs", catPairs);
-        aHelper.buildChartOrganisms(catPairs);
+        aHelper.buildChartOrganisms(catPairs, "type");
 
 
      
         var pairs = _.pairs(o.facets.organisms);
         console.log("pairs", pairs);
-        aHelper.buildChartOrganisms(pairs);
+        aHelper.buildChartOrganisms(pairs, "organism");
 
 
 

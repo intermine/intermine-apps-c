@@ -277,12 +277,23 @@
         };
       
         ResultModel.prototype.initialize = function() {
+          var fields, firstletter, neworganism, split;
+          fields = this.get("fields");
           if (this.get("relevance") > 1.0) {
             this.set({
               relevance: 1
             });
           }
-          return mediator.on('filter:show', this.filter);
+          mediator.on('filter:show', this.filter);
+          if (fields["organism.shortName"] === null || fields["organism.shortName"] === "" || fields["organism.shortName"] === void 0) {
+            if (fields["organism.name"] !== void 0) {
+              split = fields["organism.name"].split(" ");
+              firstletter = split[0].substring(0, 1);
+              neworganism = firstletter + ". " + split[1];
+              console.log("split values", firstletter);
+              return fields["organism.shortName"] = neworganism;
+            }
+          }
         };
       
         ResultModel.prototype.filter = function() {
@@ -340,12 +351,21 @@
           });
         };
       
-        ResultsCollection.prototype.filterType = function(values) {
-          var results;
-          console.log("filterType called with values ", values);
+        ResultsCollection.prototype.filterType = function(typevalues, organismvalues) {
+          var results, that;
+          console.log("filterType called with values ", organismvalues);
+          that = this;
           results = this.models.filter(function(model) {
-            var _ref1;
-            return _ref1 = model.get("type"), __indexOf.call(values, _ref1) >= 0;
+            var fields, org, _ref1, _ref2;
+            fields = model.get("fields");
+            org = fields["organism.shortName"];
+            if (organismvalues.length > 0 && typevalues.length < 1) {
+              return __indexOf.call(organismvalues, org) >= 0;
+            } else if (organismvalues.length < 1 && typevalues.length > 0) {
+              return _ref1 = model.get("type"), __indexOf.call(typevalues, _ref1) >= 0;
+            } else if (organismvalues.length > 0 && typevalues.length > 0) {
+              return __indexOf.call(organismvalues, org) >= 0 && (_ref2 = model.get("type"), __indexOf.call(typevalues, _ref2) >= 0);
+            }
           });
           return results;
         };
@@ -432,6 +452,14 @@
               name: "FlyMine",
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
+            }, {
+              name: "ZebraFishMine",
+              queryUrl: "http://www.zebrafishmine.org",
+              baseUrl: "http://www.zebrafishmine.org/"
+            }, {
+              name: "YeastMine",
+              queryUrl: "http://yeastmine.yeastgenome.org/yeastmine",
+              baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"
             }
           ];
           return Q.all((function() {
@@ -568,20 +596,21 @@
           });
         };
       
-        MyHelper.prototype.callThisFunction = function(d) {
+        MyHelper.prototype.callThisFunction = function(d, filter) {
+          console.log("CALL THIS FUNICTION", filter);
           if (d.toggled === false || d.toggled === void 0) {
             d.toggled = true;
             console.log("calling mediator for ON", mediator);
-            mediator.trigger("filter:apply", d.data[0]);
+            mediator.trigger("filter:apply", [d.data[0], filter]);
           } else if (d.toggled === true) {
             d.toggled = false;
             console.log("calling mediator for OFF", mediator);
-            mediator.trigger("filter:remove", d.data[0]);
+            mediator.trigger("filter:remove", [d.data[0], filter]);
           }
           return console.log("d.toggled has been set to ", d.toggled);
         };
       
-        MyHelper.prototype.buildChartOrganisms = function(myvalues) {
+        MyHelper.prototype.buildChartOrganisms = function(myvalues, filter) {
           var angle, arc, arcOver, arcs, canvasHeight, canvasWidth, color, dataSet, h, innerRadius, labelr, outerRadius, pie, r, that, vis, w;
           that = this;
           console.log("that", that);
@@ -617,11 +646,11 @@
               console.log("EXPANDING");
               d3.select(this).classed("SOMETHING", true);
               d3.select(this).select("path").transition().duration(200).attr("d", arcOver);
-              return that.callThisFunction(d);
+              return that.callThisFunction(d, filter);
             } else if (d.toggled === true) {
               console.log("SHRINKING");
               d3.select(this).select("path").transition().duration(100).attr("d", arc);
-              return that.callThisFunction(d);
+              return that.callThisFunction(d, filter);
             }
           }).on("testing", function(d) {
             return d3.select(this).select("path").transition().duration(100).attr("d", arc);
@@ -2528,7 +2557,7 @@
         var ResultsTableView = require("../views/ResultsTableView");
         var searchResultsCollection = {};
         var filterTypeArr = [];
-        var filterOrganism = [];
+        var filterOrganismArr = [];
       
         var myResultsCollection = new ResultsCollection();
       
@@ -2574,12 +2603,8 @@
       
           removeFilter: function(value) {
       
-            
       
-      
-      
-      
-      
+            console.log("REMOVE FILTER CALLED");
       
             _.each(myResultsCollection.models, function(aModel) {
               console.log("nextModel", aModel);
@@ -2587,9 +2612,14 @@
             });
       
             console.log("applyFilter called with ", value);
-            filterTypeArr = _.without(filterTypeArr, value);
       
-            var nResults = myResultsCollection.filterType(filterTypeArr);
+            if (value[1] === "type") {
+              filterTypeArr = _.without(filterTypeArr, value[0]);
+            } else if (value[1] === "organism") {
+              filterOrganismArr = _.without(filterOrganismArr, value[0]);
+            }
+      
+            var nResults = myResultsCollection.filterType(filterTypeArr, filterOrganismArr);
             console.log("filtered results", nResults);
             _.each(nResults, function(aModel) {
                 console.log("nextModel2", aModel);
@@ -2612,17 +2642,22 @@
       
           applyFilter: function(value) {
       
-            console.log("calling applyFilter with value");
+            console.log("calling applyFilter with value", value);
       
+            // Hide all of our results:
             _.each(myResultsCollection.models, function(aModel) {
-              //console.log("nextModel", aModel);
               aModel.set({show: false});
             });
       
-            console.log("applyFilter called with ", value);
-            filterTypeArr.push(value);
+            console.log("applyFilter called with ", value[0]);
+            if (value[1] === "type") {
+              filterTypeArr.push(value[0]);
+            } else if (value[1] === "organism") {
+              filterOrganismArr.push(value[0]);
+            }
+            
       
-            var nResults = myResultsCollection.filterType(filterTypeArr);
+            var nResults = myResultsCollection.filterType(filterTypeArr, filterOrganismArr);
             console.log("filtered results", nResults);
             _.each(nResults, function(aModel) {
                 console.log("nextModel2", aModel);
@@ -2633,7 +2668,7 @@
       
           test: function(val) {
             console.log("test called with ", val);
-            filterTypeArr.push(val);
+            filterTypeArr.push(val[0]);
             var nResults = myResultsCollection.filterType(filterTypeArr);
             console.log("filtered results", nResults);
             _.each(nResults, function(aModel) {
@@ -2681,8 +2716,7 @@
               that.$el.html(myResultsTableView.render().el);
       
               // var filteredResults = myResultsCollection.byType("Gene");
-              var newResults = myResultsCollection.filterType("one");
-              console.log("newResults", newResults);
+        
       
               // console.log("filtered results: ", filteredResults);
       
@@ -2699,13 +2733,13 @@
       
               var catPairs = _.pairs(o.facets.Category);
               // console.log("catPairs", catPairs);
-              aHelper.buildChartOrganisms(catPairs);
+              aHelper.buildChartOrganisms(catPairs, "type");
       
       
            
               var pairs = _.pairs(o.facets.organisms);
               console.log("pairs", pairs);
-              aHelper.buildChartOrganisms(pairs);
+              aHelper.buildChartOrganisms(pairs, "organism");
       
       
       
