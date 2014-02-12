@@ -126,7 +126,9 @@ class ChartView extends Backbone.View
 
     renderToolbar: =>
         $(@el).find("div.actions").html(
-            do require('../../templates/chart/chart.actions')
+            require('../../templates/chart/chart.actions')
+                'can':
+                    'results': @resultsCb
         )
 
     # Translate view series into PathQuery series (Expressed/Not Expressed into true/false).
@@ -272,7 +274,7 @@ class ChartView extends Backbone.View
         pq.where = constraints
 
         # In fact, we may only have one constraint... the bag.
-        if code > 66 then @options.resultsCb pq
+        @options.resultsCb(pq) if code > 66 and @options.resultsCb
 
     # View both series.
     viewAllAction: =>
@@ -290,6 +292,8 @@ class ChartView extends Backbone.View
 
     # Clicking on legend we call `resultsCb` constraining on '%series%'
     viewSeriesAction: (pathQuery) =>
+        return unless @options.resultsCb
+
         # Parse full PathQuery.
         pq = JSON.parse pathQuery
 
@@ -298,8 +302,8 @@ class ChartView extends Backbone.View
             if field?.value is '%category'
                 pq.where.splice i, 1
                 break
-
-        @options.resultsCb pq
+        
+        @options.resultsCb(pq)
 
     # On form select option change, set the new options and re-render.
     formAction: (e) =>

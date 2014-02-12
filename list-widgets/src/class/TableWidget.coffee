@@ -8,14 +8,11 @@ class TableWidget extends InterMineWidget
 
     # Default widget options that will be merged with user's values.
     widgetOptions:
-        "title":       true
-        "description": true
-        matchCb:       (id, type) ->
-            console?.log id, type
-        resultsCb:     (pq) ->
-            console?.log pq
-        listCb:        (pq) ->
-            console?.log pq
+        'title':       yes
+        'description': yes
+        'matchCb':     no
+        'resultsCb':   no
+        'listCb':      no
 
     # Spec for a successful and correct JSON response.
     spec:

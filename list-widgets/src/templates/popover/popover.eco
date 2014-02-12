@@ -7,11 +7,14 @@
         </h3>
         <div class="popover-content">
             <div class="values">
+                Loading &hellip;
                 <!-- popover.values.eco -->
             </div>
             <div style="margin-top:10px">
+                <% if @can.results: %>
                 <a class="btn btn-small btn-primary results">View results</a>
-                <% if @canModify: %>
+                <% end %>
+                <% if @can.list: %>
                 <a class="btn btn-small list">Create list</a>
                 <% end %>
             </div>

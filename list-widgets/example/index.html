@@ -10,25 +10,43 @@
     $(function() {
         var W = require('list-widgets'),
             widgets = new W({
-                'root': 'http://beta.flymine.org/beta/service/'
-            });
+                'root': 'http://www.flymine.org/query/service/'
+            }),
+            opts = {
+                matchCb: function() {
+                    console.log('matchCb');
+                },
+                listCb: function() {
+                    console.log('listCb');
+                },
+                resultsCb: function() {
+                    console.log('resultsCb');
+                }
+            };
+        
         widgets.all({
-            'bagName': 'demo-list',
-            'el': '#target'
+            'bagName': 'PL FlyAtlas_midgut_top',
+            'el': '#target',
+            'opts': opts
         });
-        // var opts = {
-        //     matchCb: function() {
-        //         console.log('matchCb');
-        //     },
-        //     listCb: function() {
-        //         console.log('listCb');
-        //     },
-        //     resultsCb: function() {
-        //         console.log('resultsCb');
-        //     }
-        // };
-        // widgets.enrichment('go_enrichment_for_gene', 'demo-list', '#target');
-        // widgets.chart('flyfish', 'demo-list', '#target', opts);
+        // widgets.chart({
+        //     'id': 'flyfish',
+        //     'bagName': 'PL FlyAtlas_midgut_top',
+        //     'el': '#target',
+        //     'opts': opts
+        // });
+        // widgets.enrichment({
+        //     'id': 'go_enrichment_for_gene',
+        //     'bagName': 'PL FlyAtlas_midgut_top',
+        //     'el': '#target',
+        //     'opts': opts
+        // });
+        // widgets.table({
+        //     'id': 'orthologues',
+        //     'bagName': 'PL FlyAtlas_midgut_top',
+        //     'el': '#target',
+        //     'opts': opts
+        // });
     });
     </script>
 </head>

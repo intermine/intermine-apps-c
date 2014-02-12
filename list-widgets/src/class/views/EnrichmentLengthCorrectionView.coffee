@@ -24,11 +24,11 @@ class EnrichmentLengthCorrectionView extends Backbone.View
     initialize: (o) ->
         @[k] = v for k, v of o
 
-        if @gene_length_correction isnt null then @render()
+        do @render if @gene_length_correction?
 
     render: =>
         # The wrapper.
-        $(@el).append do require('../../templates/enrichment/enrichment.correction'), @
+        $(@el).append require('../../templates/enrichment/enrichment.correction') @
 
         @
 
@@ -37,16 +37,16 @@ class EnrichmentLengthCorrectionView extends Backbone.View
             "title": 'What does "Normalise by length" mean?'
             "text":  @help
 
-    hideHelp: => $(@el).find('.hjalp').empty()
+    hideHelp: =>
+        do $(@el).find('.hjalp').empty
 
     toggleCull: (e) =>
         # Toggle the active status and text.
-        (el = $(e.target)).toggleClass('active').text ->
-            if el.hasClass('active') then 'Normalised' else 'Normalise'
+        (el = $(e.target)).toggleClass('active')
         # Set in form options.
         @widget.widget.formOptions['gene_length_correction'] = el.hasClass('active')
         # Re-render the widget.
-        @widget.widget.render()
+        do @widget.widget.render
 
     # Will throw an exception when PQ not valid.
     seeWhich: (e) =>
@@ -54,6 +54,6 @@ class EnrichmentLengthCorrectionView extends Backbone.View
         pq = JSON.parse @pathQueryGeneLengthNull
         @cb pq
         # Stop it.
-        e.preventDefault()
+        do e.preventDefault
 
 module.exports = EnrichmentLengthCorrectionView

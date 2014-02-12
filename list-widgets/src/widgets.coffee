@@ -23,7 +23,7 @@ class Widgets
             serviceOpts = {@root, @token}
         else
             # Assuming an object.
-            {@root, @token} = serviceOpts = arg0
+            { @root, @token } = serviceOpts = arg0
             unless @root
                 throw new Error 'You need to set the `root` parameter pointing to the mine\'s service'
 
@@ -40,12 +40,21 @@ class Widgets
     @param {jQuery selector} el Where to render the Widget to.
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
     ###
-    chart: (opts...) ->
+    chart: (id, bagName, el, widgetOptions) ->
         # Load Google Visualization.
         google.load 'visualization', '1.0',
             packages: [ 'corechart' ]
             callback: =>
-                new ChartWidget @imjs, @root, @token, opts...
+                # Passed in an object?
+                { id, bag, bagName, el, widgetOptions, opts } = id if _.isObject id
+
+                # New syntax?
+                widgetOptions = opts if opts
+
+                # Passed in a list?
+                bagName = bag.name if bag and _.isObject bag
+                
+                new ChartWidget @imjs, @root, @token, id, bagName, el, widgetOptions
     
     ###
     Enrichment Widget.
@@ -54,20 +63,23 @@ class Widgets
     @param {jQuery selector} el Where to render the Widget to.
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {}, "errorCorrection": "Holm-Bonferroni", "pValue": "0.05" }`
     ###
-    enrichment: (opts...) ->
-        done = (lists) =>
-            new EnrichmentWidget @imjs, @root, @token, lists, opts...
-            
-        # noLists = => $(opts[2]).html $ '<div/>',
-        #     'class': "alert alert-error"
-        #     'html':  "Problem fetching lists we have access to <a href='#{@root}lists'>#{@root}lists</a>"
+    enrichment: (id, bagName, el, widgetOptions) ->
+        @lists.then (lists) =>
+            # Passed in an object?
+            { id, bag, bagName, el, widgetOptions, opts } = id if _.isObject id
 
-        error = (err) =>
+            # New syntax?
+            widgetOptions = opts if opts
+
+            # Passed in a list?
+            bagName = bag.name if bag and _.isObject bag
+
+            new EnrichmentWidget @imjs, @root, @token, lists, id, bagName, el, widgetOptions
+
+        , (err) =>
             $(opts[2]).html $ '<div/>',
             'class': "alert alert-error"
             'html':  "#{errstatusText} for <a href='#{@root}widgets'>#{@root}widgets</a>"
-
-        @lists.then(done, error)
 
     ###
     Table Widget.
@@ -76,8 +88,17 @@ class Widgets
     @param {jQuery selector} el Where to render the Widget to.
     @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
     ###
-    table: (opts...) ->
-        new TableWidget @imjs, @root, @token, opts...
+    table: (id, bagName, el, widgetOptions) ->
+        # Passed in an object?
+        { id, bag, bagName, el, widgetOptions, opts } = id if _.isObject id
+
+        # New syntax?
+        widgetOptions = opts if opts
+
+        # Passed in a list?
+        bagName = bag.name if bag and _.isObject bag
+
+        new TableWidget @imjs, @root, @token, id, bagName, el, widgetOptions
 
     ###
     All available List Widgets.
@@ -88,7 +109,10 @@ class Widgets
     ###
     all: (type="Gene", bagName, el, widgetOptions) ->
         # Passed in an object?
-        { type, bag, bagName, el, widgetOptions } = type if _.isObject type
+        { type, bag, bagName, el, widgetOptions, opts } = type if _.isObject type
+
+        # New syntax?
+        widgetOptions = opts if opts
 
         # Trouble.
         error = (content) =>

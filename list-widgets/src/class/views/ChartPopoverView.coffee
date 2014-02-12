@@ -27,7 +27,9 @@ class ChartPopoverView extends Backbone.View
             "description":      @description
             "descriptionLimit": @descriptionLimit
             "style":            'width:300px'
-            'canModify':        @widget.token?
+            'can':
+                'list':    @widget.token and @listCb
+                'results': @resultsCb
 
         # Grab the data for this bar.
         @widget.queryRows @quickPq, @renderValues
@@ -47,6 +49,8 @@ class ChartPopoverView extends Backbone.View
             'type':        @type
             'valuesLimit': @valuesLimit
             'size':        values.length # size will be what quick pq gives us
+            'can':
+                'match': @matchCb
 
     # Onclick the individual match, execute the callback.
     matchAction: (e) =>

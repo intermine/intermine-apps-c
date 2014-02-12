@@ -19,7 +19,7 @@ class EnrichmentPopoverView extends Backbone.View
     initialize: (o) ->
         @[k] = v for k, v of o
 
-        @render()
+        do @render
 
     render: =>
         $(@el).css 'position':'relative'
@@ -27,7 +27,9 @@ class EnrichmentPopoverView extends Backbone.View
             "description":      @description
             "descriptionLimit": @descriptionLimit
             "style":            @style or "width:300px;margin-left:-300px"
-            'canModify':        @widget.token?
+            'can':
+                'list':    @widget.token and @listCb
+                'results': @resultsCb
 
         # PathQuery for matches values.
         pq = JSON.parse @response['pathQueryForMatches']
@@ -58,6 +60,8 @@ class EnrichmentPopoverView extends Backbone.View
             'type':        @response.type
             'valuesLimit': @valuesLimit
             'size':        @size # size is the number of matches count we clicked on
+            'can':
+                'match': @matchCb
 
         # Now that the size has changed, adjust the popover.
         @adjustPopover()
