@@ -3,7 +3,7 @@
 		<th>Type</th>
 		<th>Details</th>
 		<th>Organism</th>
-		<th>Relevance</th>
+		<!-- <th>Relevance</th> -->
 		<th>Source</th>
 	</tr>
 </thead>

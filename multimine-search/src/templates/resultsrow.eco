@@ -11,10 +11,10 @@
 <td class="Organism">
 	<%= @result.fields["organism.shortName"] %>
 </td>
-<td class="RelevanceColumn">
+<!-- <td class="RelevanceColumn">
 	<% percentage = (@result.relevance / 1) * 100 %>
 	<div class="progress" style="width:<%= percentage %>%"></div>
-</td>
+</td> -->
 <td class="SourceColumn">
 	<span><%= @result.mineName %></span>
 </td>

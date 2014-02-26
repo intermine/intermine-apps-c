@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>MultiMine</title>
+
+    
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/fontello.css">
+
+
+
+
+
+</head>
+
+
+<div class="wrapper">
+
+    <div class="searchContainer">
+        <img src="images/logo.png" />
+        <input id="textsearch" class="input" type="text" placeholder="e.g. zen, adh, CG2328, FBgn000099" name="term"><br>
+    </div>
+
+<!--
+    <div id="filters">
+        <button id="filterButton" type="button">Filter Genes</button>
+    </div>
+    -->
+
+
+
+    <div id="search-results">
+    </div>
+
+
+</div>
+
+
+
+
+<div class="toolbarLeft">
+
+
+    <div class="menutitle"><h4>Menu</h4></div>
+    <div class="floatright"><i id="clickable" class="icon-left-circle"></i></div>
+    <div class="clear"></div>
+
+    <h4>Search</h4>
+
+    <div class="centerwrapper">
+        <input id="textsearch" class="input" type="text" placeholder="e.g. zen" name="term">
+    </div>
+
+    <div id="filter"></div>
+
+    <h4>Data Types</h4>
+    <div id="datatypechart"></div>
+    <div id="CategoryFilterList"></div>
+    <h4>Organisms</h4>
+    <div id="organismchart"></div>
+    <div id="OrganismFilterList"></div>
+
+<!-- 
+
+    <ul id="typecategories"><li>item1</li></ul>
+
+    <ul>
+        <li><i class="icon-ok"></i>Gene (68)</li>
+        <li><i class="icon-ok"></i>Go Term (14)</li>
+        <li><i class="icon-ok"></i>Publication (33)</li>
+        <li><i class="icon-cancel-1">Pathway (19)</i></li>
+        <li><i class="icon-cancel-1">Protein (28)</i></li>
+        <li><i class="icon-cancel-1"></i>Author (17)</li>
+        <li><i class="icon-cancel-1"></i>Interaction Term (3)</li>
+    </ul>
+
+    <h4>Organisms</h4>
+    <div id="organismchart"></div>
+    <ul>
+        <li><i class="icon-cancel-1"></i>D. melanogaster</li>
+        <li><i class="icon-cancel-1"></i>C. elegans</li>
+        <li><i class="icon-ok"></i>D. grimshawi</li>
+        <li><i class="icon-cancel-1"></i>H. sapiens</li>
+    </ul> -->
+
+</div>
+
+
+
+
+
+
+    
+    
+   <script src="app.bundle.js"></script>
+
+    
+
+    <script>
+
+
+            require('MultiMine')(
+            {
+
+                friendlyMines: {
+                    
+                    "ZFINMine":"zebrafishmine.org",
+                    "YeastMine":"yeastmine.yeastgenome.org/yeastmine",
+                    "MouseMine":"www.mousemine.org/mousemine",
+                    "metabolicMine":"www.metabolicmine.org/beta",
+                    "RatMine":"ratmine.mcw.edu/ratmine",
+                    "modMine":"http://intermine.modencode.org/query",
+                    "WormMine":"www.wormbase.org/tools/wormmine",
+                    "FlyMine":"www.flymine.org/release-38.0"
+                },
+                gene: "FBgn0005558",
+                target: "#search-results",
+                input: "textsearch"
+
+            });
+
+    </script>
+
+
+
+
+
+
+
+</body>
+</html>
