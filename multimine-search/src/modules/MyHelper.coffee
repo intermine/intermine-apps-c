@@ -4,8 +4,8 @@ class MyHelper
 	# mediator = _.extend({}, Backbone.Events)
 	constructor: ->
 
-		@testjson = require './testjson'
-		@testjson = [@testjson]
+		# @testjson = require './testjson'
+		# @testjson = [@testjson]
 
 		@totalResults = {
 			facets:
@@ -15,6 +15,8 @@ class MyHelper
 		}
 
 		@globalFilter = []
+
+		@organismMap = {}
 
 
 	calcStats: (responseArray) ->
@@ -54,8 +56,8 @@ class MyHelper
 			{name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
 			{name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
 			{name: "FlyMine", queryUrl: "http://www.flymine.org/query", baseUrl: "http://www.flymine.org/release-38.0/"},
-			{name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
-			{name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
+			# {name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
+			# {name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
 			# {name: "WormMine", queryUrl: "http://www.wormbase.org/tools/wormmine", baseUrl: "http://www.wormbase.org/tools/wormmine/"}
 		]
 		# Q.all(( @runOne(mineUrl, term, mineName) for mineName, mineUrl of listedMines ))
@@ -68,20 +70,59 @@ class MyHelper
 			# @calcStats @testjson
 
 		.then (test) =>
-			# console.log "Returning final results", test
-			@totalResults
+			console.log "Returning final results", @totalResults
+			console.log "Returning organism results", @organismMap
+
+			
+
+
+			# Save organisms information to our results for easy filtering
+			for obj in @totalResults.results
+				fields = obj.fields
+
+				if fields["organism.name"] isnt undefined
+					# Search our map by organism.name
+					found = _.findWhere(@organismMap, {name: fields["organism.name"]})
+					console.log "found", found
+					obj.taxonId = found.taxonId
+					obj.genus = found.genus
+					obj.species = found.species
+					obj.organismName = found.name
+
+					console.log "Saving new item", obj
+
+				else if fields["organism.shortName"] isnt undefined
+					# Parse the species from our shortname
+					res = fields["organism.shortName"].split(" ")
+					parsedSpecies = res[1]
+					found = _.findWhere(@organismMap, {species: parsedSpecies})
+					console.log "found", found
+					obj.taxonId = found.taxonId
+					obj.genus = found.genus
+					obj.species = found.species
+					obj.organismName = found.name
+
+					console.log "Saving new item", obj
+
+				else
+					console.log "no match for obj", obj
+
+
+
+			result =
+				results: @totalResults
+				organisms: @organismMap
 
 	# Returns a promise to quicksearch a service for a term
 	runOne: (mineUrl, term, mineName, mineBase) ->
 
-		# console.log "**********************************************", mineName
-
 		def = Q.defer()
 
-		# console.log "querying mine... #{mineUrl} for #{term}"
 		service = new intermine.Service root: mineUrl
 		service.search(term).then (results) ->
-			# console.log "Raw results: ", results 
+
+			console.log "Raw results: ", results 
+
 			_.map results.results, (res) ->
 				res.mineUrl=mineUrl
 				res.mineName=mineName
@@ -90,6 +131,49 @@ class MyHelper
 			def.resolve results
 
 		def.promise
+
+		.then (results) ->
+
+			# Get the organism shortnames from our query
+			queryOrganismArray = []
+
+			for key, value of results.facets["organism.shortName"]
+				queryOrganismArray.push key
+
+			# Build a query to retrieve extended organism information
+
+			console.log "queryOrganismArray", queryOrganismArray
+
+			if queryOrganismArray.length > 0
+				organismQuery = {
+				  select: ["Organism.name","Organism.taxonId","Organism.genus","Organism.species"],
+				  where: {"Organism.shortName": queryOrganismArray}
+				}
+
+				# Run our organism query:
+				orgresults = service.records(organismQuery);
+
+			else
+
+				[]
+
+		.then (results) =>
+
+			console.log "ORGRESULTS", results
+			# Loop through the organisms in our results
+			for organism in results
+				if organism.taxonId of @organismMap
+					# We already have this organism
+					console.log "SKIPPING!!!!!!!!!!!"
+				else
+					# Add the organism to our organism map if it does not exist
+					@organismMap[organism.taxonId] = organism
+
+			console.log "can continue"
+
+		.then () ->
+
+			def.promise
 
 
 	sortData: (response) ->
@@ -239,12 +323,12 @@ class MyHelper
 		  a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90
 		  (if a > 90 then a - 180 else a)
 
-		canvasWidth = 300
-		canvasHeight = 200
-		outerRadius = 75
-		innerRadius = 30
-		w = 130
-		h = 130
+		canvasWidth = 100
+		canvasHeight = 100
+		outerRadius = 50
+		innerRadius = 25
+		w = 75
+		h = 75
 		r = Math.min(w, h) / 2
 		labelr = r
 		color = d3.scale.category20()
@@ -314,7 +398,7 @@ class MyHelper
 		  "translate(" + (x / h * labelr) + "," + (y / h * labelr) + ")"
 		).attr("dy", ".35em").attr("text-anchor", (d) ->
 		  (if (d.endAngle + d.startAngle) / 2 > Math.PI then "end" else "start")
-		).style("fill", "Black").style("font", "12px Arial").text (d, i) ->
+		).style("fill", "White").style("font", "12px Arial").text (d, i) ->
 		  dataSet[i][0]
 
 		arcs.filter((d) ->
@@ -325,6 +409,327 @@ class MyHelper
 		  "translate(" + arc.centroid(d) + ")rotate(" + 0 + ")"
 		).style("fill", "White").style("font", "bold 12px Arial").text (d) ->
 		  d.data[1]
+
+
+	buildBarChartNew: (dataset) ->
+
+		console.log "buildBarchart called with ", dataset
+
+		w = 200
+		h = 25
+
+		dataset2 = dataset
+
+		# dataset2 = [
+		# 	[1, 1]
+		# 	[2, 2]
+		# 	[3, 3]
+		# 	[4, 4]
+		# 	[5, 5]
+		# 	[6, 6]
+		# 	[7, 7]
+		# 	[8, 8]
+		# ]
+
+		xScale = d3.scale.ordinal().domain(d3.range(dataset2.length)).rangeRoundBands([
+		  0
+		  w
+		], 0.05)
+		yScale = d3.scale.linear().domain([
+		  0
+		  d3.max(dataset2, (d) ->
+		    d[1]
+		  )
+		]).range([
+		  0
+		  h
+		])
+
+
+
+		key = (d) ->
+		  console.log "D", d
+		  d[0]
+
+
+		#Create SVG element
+		svg = d3.select("#datatypechart").append("svg").attr("width", w).attr("height", h)
+
+		#Create bars
+
+		#Tooltip
+
+		#Get this bar's x/y values, then augment for the tooltip
+
+		#Update Tooltip Position & value
+		svg.selectAll("rect").data(dataset2).enter().append("rect").attr("x", (d, i) ->
+		  console.log "xScale", xScale i
+		  xScale i
+		).attr("y", (d) ->
+		  console.log "xScale", h - yScale(d[1])
+		  h - yScale(d[1])
+		).attr("width", xScale.rangeBand()).attr("height", (d) ->
+		  yScale d[1]
+		).attr("fill", "grey").on("mouseover", (d) ->
+		  xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2
+		  yPosition = parseFloat(d3.select(this).attr("y")) + 14
+		  d3.select("#tooltip").style("left", xPosition + "px").style("top", yPosition + "px").select("#value").text d[1]
+		  d3.select("#tooltip").classed "hidden", false
+		  return
+		).on "mouseout", ->
+		  
+		  #Remove the tooltip
+		  d3.select("#tooltip").classed "hidden", true
+		  return
+
+	buildBarChart: (dataset, location) ->
+
+		w = 200
+		h = 25
+
+
+
+		xScale = d3.scale.ordinal().domain(d3.range(dataset.length)).rangeRoundBands([
+		  0
+		  w
+		], 0.05)
+		yScale = d3.scale.linear().domain([
+		  0
+		  d3.max(dataset, (d) ->
+		    d.value
+		  )
+		]).range([
+		  0
+		  h
+		])
+
+
+
+		key = (d) ->
+		  d.key
+
+
+		#Create SVG element
+		svg = d3.select(location).append("svg").attr("width", w).attr("height", h)
+
+		#Create bars
+
+		#Tooltip
+
+		#Get this bar's x/y values, then augment for the tooltip
+
+		#Update Tooltip Position & value
+		svg.selectAll("rect").data(dataset, key).enter().append("rect").attr("x", (d, i) ->
+		  xScale i
+		).attr("y", (d) ->
+		  h - yScale(d.value)
+		).attr("width", xScale.rangeBand()).attr("height", (d) ->
+		  yScale d.value
+		).attr("id", (d) ->
+		  d.key
+		).attr("class", (d) ->
+		  "mychart"
+		).attr("fill", "grey").on("mouseover", (d) ->
+		  xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2
+		  yPosition = parseFloat(d3.select(this).attr("y")) + 14
+		  d3.select("#tooltip").style("left", xPosition + "px").style("top", yPosition + "px").select("#value").text d.value
+		  d3.select("#tooltip").classed "hidden", false
+		  return
+		).on "mouseout", ->
+		  
+		  #Remove the tooltip
+		  d3.select("#tooltip").classed "hidden", true
+		  return
+
+	buildLineChart: (dataset) ->
+
+
+
+		w = 200
+		h = 25
+
+
+
+		xScale = d3.scale.ordinal().domain(d3.range(dataset.length)).rangeRoundBands([
+		  0
+		  w
+		], 0.05)
+		yScale = d3.scale.linear().domain([
+		  0
+		  d3.max(dataset, (d) ->
+		    d.value
+		  )
+		]).range([
+		  0
+		  h
+		])
+
+
+
+		key = (d) ->
+		  d.key
+
+
+		#Create SVG element
+		svg = d3.select("#datatypechart").append("svg").attr("width", w).attr("height", h)
+
+		#Create bars
+
+		#Tooltip
+
+		#Get this bar's x/y values, then augment for the tooltip
+
+		#Update Tooltip Position & value
+		svg.selectAll("rect").data(dataset, key).enter().append("rect").attr("x", (d, i) ->
+		  console.log "D STANDS FOR", d
+		  xScale i
+		).attr("y", (d) ->
+		  h - yScale(d.value)
+		).attr("width", xScale.rangeBand()).attr("height", (d) ->
+		  yScale d.value
+		).attr("fill", "grey").on("mouseover", (d) ->
+		  xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2
+		  yPosition = parseFloat(d3.select(this).attr("y")) + 14
+		  d3.select("#tooltip").style("left", xPosition + "px").style("top", yPosition + "px").select("#value").text d.value
+		  d3.select("#tooltip").classed "hidden", false
+		  return
+		).on "mouseout", ->
+		  
+		  #Remove the tooltip
+		  d3.select("#tooltip").classed "hidden", true
+		  return
+
+	buildBarChart2: () ->
+
+		w = 200
+		h = 25
+		dataset = [
+		  {
+		    key: 0
+		    value: 5
+		  }
+		  {
+		    key: 1
+		    value: 10
+		  }
+		  {
+		    key: 2
+		    value: 13
+		  }
+		  {
+		    key: 3
+		    value: 19
+		  }
+		  {
+		    key: 4
+		    value: 21
+		  }
+		  {
+		    key: 5
+		    value: 25
+		  }
+		  {
+		    key: 6
+		    value: 22
+		  }
+		  {
+		    key: 7
+		    value: 18
+		  }
+		  {
+		    key: 8
+		    value: 15
+		  }
+		  {
+		    key: 9
+		    value: 13
+		  }
+		  {
+		    key: 10
+		    value: 11
+		  }
+		  {
+		    key: 11
+		    value: 12
+		  }
+		  {
+		    key: 12
+		    value: 15
+		  }
+		  {
+		    key: 13
+		    value: 20
+		  }
+		  {
+		    key: 14
+		    value: 18
+		  }
+		  {
+		    key: 15
+		    value: 17
+		  }
+		  {
+		    key: 16
+		    value: 16
+		  }
+		  {
+		    key: 17
+		    value: 18
+		  }
+		  {
+		    key: 18
+		    value: 23
+		  }
+		  {
+		    key: 19
+		    value: 25
+		  }
+		]
+		xScale = d3.scale.ordinal().domain(d3.range(dataset.length)).rangeRoundBands([
+		  0
+		  w
+		], 0.05)
+		yScale = d3.scale.linear().domain([
+		  0
+		  d3.max(dataset, (d) ->
+		    d.value
+		  )
+		]).range([
+		  0
+		  h
+		])
+		key = (d) ->
+		  d.key
+
+
+		#Create SVG element
+		svg = d3.select("#organismchart").append("svg").attr("width", w).attr("height", h)
+
+		#Create bars
+
+		#Tooltip
+
+		#Get this bar's x/y values, then augment for the tooltip
+
+		#Update Tooltip Position & value
+		svg.selectAll("rect").data(dataset, key).enter().append("rect").attr("x", (d, i) ->
+		  xScale i
+		).attr("y", (d) ->
+		  h - yScale(d.value)
+		).attr("width", xScale.rangeBand()).attr("height", (d) ->
+		  yScale d.value
+		).attr("fill", "grey").on("mouseover", (d) ->
+		  xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2
+		  yPosition = parseFloat(d3.select(this).attr("y")) + 14
+		  d3.select("#tooltip").style("left", xPosition + "px").style("top", yPosition + "px").select("#value").text d.value
+		  d3.select("#tooltip").classed "hidden", false
+		  return
+		).on "mouseout", ->
+		  
+		  #Remove the tooltip
+		  d3.select("#tooltip").classed "hidden", true
+		  return
+
 
 
 

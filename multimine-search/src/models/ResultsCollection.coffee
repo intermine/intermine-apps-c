@@ -10,6 +10,30 @@ class ResultsCollection extends Backbone.Collection
 	comparator: (mod) ->
 		return -mod.get "relevance"
 
+	# Accepts an object that is then used to filter this collection's models.
+	# Each value in the object's keys must be in an array, as each new key
+	# is treated as an "AND", and each array value is treated as an "OR"
+	filter: (filterObj) ->
+		# alert("myFilter has been called with")
+
+		filtered = this.models.filter (model) ->
+
+			console.log "filtering using", filterObj
+
+			for key, value of filterObj
+				
+				# console.log "key: #{key}, value: #{value}"
+				if (model.get(key)) not in value
+
+					console.log "disposing model", model
+					return false
+
+			return true
+
+					#console.log "found", model.get(key)
+
+		console.log "filtered models", filtered
+
 	byType: (name) ->
 		
 
@@ -28,7 +52,8 @@ class ResultsCollection extends Backbone.Collection
 
 	filterType: (typevalues, organismvalues) ->
 
-		console.log "filterType called with values ", organismvalues
+		console.log "filterType called with type values ", typevalues
+		console.log "filterType called with organism values ", organismvalues
 		# values = ["Publication", "Gene"]
 		that = this
 
@@ -37,14 +62,20 @@ class ResultsCollection extends Backbone.Collection
 		results = this.models.filter (model) ->
 
 			fields = model.get("fields")
-			org = fields["organism.shortName"]
+			# org = fields["organism.shortName"]
+			org = model.get("taxonId")
 
 			if organismvalues.length > 0 and typevalues.length < 1
-				org in organismvalues
+				console.log "case 1"
+				# org in organismvalues
 			else if organismvalues.length < 1 and typevalues.length > 0
 				model.get("type") in typevalues
 			else if organismvalues.length > 0 and typevalues.length > 0
-				org in organismvalues and model.get("type") in typevalues
+				console.log "HELLO", org
+				if org is undefined
+					model.get("type") in typevalues
+				else
+					org in organismvalues and model.get("type") in typevalues
 			# if organismvalues.length > 0 and typevalues.length > 0
 			# 	console.log "case1"
 			# 	model.get("type") in typevalues and fields["organism.shortName"] in organismvalues

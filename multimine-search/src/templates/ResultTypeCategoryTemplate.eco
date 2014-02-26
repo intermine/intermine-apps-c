@@ -1,0 +1,1 @@
+Result2: <%= @result.name %>
