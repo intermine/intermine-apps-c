@@ -17,7 +17,9 @@
 
   var OrganismItem = require("../models/OrganismItem");
   var OrganismCollection = require("../models/OrganismCollection");
-  var OrganismListView = require("../views/OrganismListView")
+  var OrganismListView = require("../views/OrganismListView");
+  var FilterGenusView = require("../views/FilterGenusView");
+  var FilterOrganismView = require("../views/FilterOrganismView");
 
 
 
@@ -285,7 +287,7 @@
       // Evaluate the results and render our items
       Q(someResults)
       .then(function(o) {
-        console.log("TOTALLED RESULTS", o);
+        console.log("TOTALLED RESULTSs", o);
         var myOrganisms = o.organisms
         var myResults = o.results
 
@@ -336,15 +338,29 @@
           }
          //console.log("next item", item);
         }
-        console.log("PLEASE LOOK FOR ME", organismCollection);
+        console.log("PLEASE LOOK FOR ME3", organismCollection);
+
+        var counted = _.countBy(organismCollection.models, function(model) {
+
+          return model.get("genus");
+
+
+        });
+
+        console.log("sorted", counted);
+
         // var organismFilterListView = new FilterListView({collection: organismFilterListCollection});
         var organismFilterListView = new OrganismListView({collection: organismCollection});
-        console.log("PLEASE LOOK FOR ME2");
+
+        
+
+      
+        console.log("PLEASE LOOK FOR ME21");
 
 
         console.log("populated organismCollection", organismCollection);
         $('#CategoryFilterList').append(categoryFilterListView.render().$el);
-        $('#OrganismFilterList').append(organismFilterListView.render().$el);
+        // $('#OrganismFilterList').append(organismFilterListView.render().$el);
 
         console.log("PRE MAP");
 
@@ -469,6 +485,32 @@
         console.log("collection", myResultsCollection);
 
         console.log("now doing some filtering");
+
+
+        grouped = organismCollection.groupBy (function(model) {
+          return model.get("genus");
+        });
+
+        //console.log("Grouped", grouped);
+
+        // for (var group in grouped) {
+        //   //console.log("group", grouped[group]);
+        //   var aGenus = new FilterGenusView({models: grouped[group], genus: group, collection: organismCollection});
+        //   aGenus.render();
+        // }
+
+        var orgView = new FilterOrganismView({collection: organismCollection});
+        console.log("Rendering orgView");
+        //console.log("renderedddddd", orgView.render().$el);
+
+        $('#OrganismFilterList').append(orgView.render().$el);
+
+        console.log("Done rendering orgView");
+
+        //var aGenus = new FilterGenusView({models: organismCollection.models, genus: "Drosophila"});
+        //aGenus.render();
+
+        console.log("done");
 
         var customFilter = {type: ["Protein", "RNAiResult", "Gene"], taxonId: [7237]};
         myResultsCollection.myFilter(customFilter);

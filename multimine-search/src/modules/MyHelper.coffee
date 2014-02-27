@@ -53,8 +53,8 @@ class MyHelper
 		  ModMine: "http://intermine.modencode.org/query"
 
 		friendlyMines = [
-			{name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
-			{name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
+			# {name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
+			# {name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
 			{name: "FlyMine", queryUrl: "http://www.flymine.org/query", baseUrl: "http://www.flymine.org/release-38.0/"},
 			# {name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
 			# {name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
@@ -152,6 +152,7 @@ class MyHelper
 
 				# Run our organism query:
 				orgresults = service.records(organismQuery);
+
 
 			else
 

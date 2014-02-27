@@ -8,6 +8,15 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/fontello.css">
 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+
+        <!-- the mousewheel plugin - optional to provide mousewheel support -->
+    <script type="text/javascript" src="jquery.mousewheel.js"></script>
+
+    <!-- the jScrollPane script -->
+    <script type="text/javascript" src="jquery.jscrollpane.min.js"></script>
+
 
 
 </head>
@@ -99,7 +108,11 @@
     </div>
     <div class="clear"></div>
   </div>
-
+<script>
+$(function() {
+    $('.toolbarLeft').jScrollPane();
+});
+</script>
 <!-- 
 
 <div class="toolbarLeft">

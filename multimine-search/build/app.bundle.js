@@ -21394,7 +21394,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
         };
       
         OrganismCollection.prototype.comparator = function(item) {
-          return -item.get("count");
+          return item.get("genus");
         };
       
         OrganismCollection.prototype.toggleAll = function(value) {
@@ -21649,6 +21649,11 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
           return -mod.get("relevance");
         };
       
+        ({
+          type: ["Publication", "Gene"],
+          genus: ["Drosphilia", "Homo"]
+        });
+      
         ResultsCollection.prototype.filter = function(filterObj) {
           var filtered;
           filtered = this.models.filter(function(model) {
@@ -21771,14 +21776,6 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
           };
           friendlyMines = [
             {
-              name: "MouseMine",
-              queryUrl: "www.mousemine.org/mousemine",
-              baseUrl: "http://www.mousemine.org/mousemine/"
-            }, {
-              name: "ModMine",
-              queryUrl: "http://intermine.modencode.org/query",
-              baseUrl: "http://intermine.modencode.org/release-32/"
-            }, {
               name: "FlyMine",
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
@@ -22325,6 +22322,63 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     });
 
     
+    // FilterGenusTemplate.eco
+    root.require.register('MultiMine/src/templates/FilterGenusTemplate.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<div><i class="icon-ok"></i>');
+          
+            __out.push(__sanitize(this.result.genus));
+          
+            __out.push('<i class="icon-down-circle showall expand"></i></div>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
     // FilterListItemOffTemplate.eco
     root.require.register('MultiMine/src/templates/FilterListItemOffTemplate.js', function(exports, require, module) {
     
@@ -22435,6 +22489,61 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             __out.push(__sanitize(this.result.count));
           
             __out.push(')');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // FilterSpeciesTemplate.eco
+    root.require.register('MultiMine/src/templates/FilterSpeciesTemplate.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<i class="icon-ok"></i>');
+          
+            __out.push(__sanitize(this.result.species));
           
           }).call(this);
           
@@ -22876,6 +22985,97 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     });
 
     
+    // FilterGenusView.coffee
+    root.require.register('MultiMine/src/views/FilterGenusView.js', function(exports, require, module) {
+    
+      var FilterGenusView, FilterSpeciesView, mediator, _ref,
+        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+        __hasProp = {}.hasOwnProperty,
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      mediator = require('../modules/mediator');
+      
+      FilterSpeciesView = require('./FilterSpeciesView');
+      
+      FilterGenusView = (function(_super) {
+        __extends(FilterGenusView, _super);
+      
+        function FilterGenusView() {
+          this.render = __bind(this.render, this);
+          _ref = FilterGenusView.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+      
+        FilterGenusView.prototype.tagName = "li";
+      
+        FilterGenusView.prototype.className = "expandable";
+      
+        FilterGenusView.prototype.template = require('../templates/FilterGenusTemplate');
+      
+        FilterGenusView.prototype.templateOff = require('../templates/FilterListItemOffTemplate');
+      
+        FilterGenusView.prototype.events = function() {
+          return {
+            "click .expand": "showChildren"
+          };
+        };
+      
+        FilterGenusView.prototype.showChildren = function() {
+          var content;
+          console.log(this.options.collection);
+          content = $(this.el).find('ul');
+          console.log("content", content);
+          return content.slideToggle(100, function() {
+            return console.log("sliding");
+          });
+        };
+      
+        FilterGenusView.prototype.filterAll = function() {
+          return console.log("this is me", this);
+        };
+      
+        FilterGenusView.prototype.initialize = function(attr) {
+          this.options = attr;
+          return console.log("FilterGenusView initialized", this);
+        };
+      
+        FilterGenusView.prototype.render = function() {
+          var nextModel, speciesView, ul, _i, _len, _ref1;
+          $(this.el).html(this.template({
+            result: this.options
+          }));
+          ul = $('<ul>');
+          ul.addClass("content");
+          _ref1 = this.options.models;
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            nextModel = _ref1[_i];
+            speciesView = new FilterSpeciesView({
+              model: nextModel
+            });
+            ul.append(speciesView.render().$el);
+          }
+          $(this.el).append(ul);
+          return this;
+        };
+      
+        FilterGenusView.prototype.moused = function() {
+          d3.selectAll(".mychart").style("fill", "#808080");
+          return d3.select("#" + this.model.get("name")).style("fill", "white");
+        };
+      
+        FilterGenusView.prototype.toggleMe = function() {
+          return console.log("clicked");
+        };
+      
+        return FilterGenusView;
+      
+      })(Backbone.View);
+      
+      module.exports = FilterGenusView;
+      
+    });
+
+    
     // FilterListItemView.coffee
     root.require.register('MultiMine/src/views/FilterListItemView.js', function(exports, require, module) {
     
@@ -23123,6 +23323,154 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     });
 
     
+    // FilterOrganismView.coffee
+    root.require.register('MultiMine/src/views/FilterOrganismView.js', function(exports, require, module) {
+    
+      var FilterGenusView, FilterOrganismView, mediator, _ref,
+        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+        __hasProp = {}.hasOwnProperty,
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      mediator = require('../modules/mediator');
+      
+      FilterGenusView = require('./FilterGenusView');
+      
+      FilterOrganismView = (function(_super) {
+        __extends(FilterOrganismView, _super);
+      
+        function FilterOrganismView() {
+          this.render = __bind(this.render, this);
+          _ref = FilterOrganismView.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+      
+        FilterOrganismView.prototype.tagName = "ul";
+      
+        FilterOrganismView.prototype.className = "expandable";
+      
+        FilterOrganismView.prototype.templateOff = require('../templates/FilterListItemOffTemplate');
+      
+        FilterOrganismView.prototype.events = function() {
+          return {
+            "click": "describe"
+          };
+        };
+      
+        FilterOrganismView.prototype.showChildren = function() {
+          var content;
+          console.log(this.options.collection);
+          content = $(this.el).find('ul');
+          console.log("content", content);
+          return content.slideToggle(100, function() {
+            return console.log("sliding");
+          });
+        };
+      
+        FilterOrganismView.prototype.describe = function() {
+          return console.log(this);
+        };
+      
+        FilterOrganismView.prototype.filterAll = function() {
+          return console.log("Toggling children.");
+        };
+      
+        FilterOrganismView.prototype.initialize = function(attr) {
+          this.options = attr;
+          return console.log("FilterOrganismView initialized", this);
+        };
+      
+        FilterOrganismView.prototype.render = function() {
+          var group, groups, nextGenus;
+          console.log("FilterOrganismView render called.");
+          groups = this.options.collection.groupBy(function(model) {
+            return model.get("genus");
+          });
+          for (group in groups) {
+            console.log("next group", groups[group]);
+            nextGenus = new FilterGenusView({
+              models: groups[group],
+              genus: group
+            });
+            $(this.el).append(nextGenus.render().$el);
+          }
+          console.log("my el from org view", $(this.el));
+          return this;
+        };
+      
+        FilterOrganismView.prototype.moused = function() {
+          d3.selectAll(".mychart").style("fill", "#808080");
+          return d3.select("#" + this.model.get("name")).style("fill", "white");
+        };
+      
+        FilterOrganismView.prototype.toggleMe = function() {
+          return console.log("clicked");
+        };
+      
+        return FilterOrganismView;
+      
+      })(Backbone.View);
+      
+      module.exports = FilterOrganismView;
+      
+    });
+
+    
+    // FilterSpeciesView.coffee
+    root.require.register('MultiMine/src/views/FilterSpeciesView.js', function(exports, require, module) {
+    
+      var FilterSpeciesView, mediator, _ref,
+        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+        __hasProp = {}.hasOwnProperty,
+        __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      
+      mediator = require('../modules/mediator');
+      
+      FilterSpeciesView = (function(_super) {
+        __extends(FilterSpeciesView, _super);
+      
+        function FilterSpeciesView() {
+          this.render = __bind(this.render, this);
+          _ref = FilterSpeciesView.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+      
+        FilterSpeciesView.prototype.tagName = "li";
+      
+        FilterSpeciesView.prototype.template = require('../templates/FilterSpeciesTemplate');
+      
+        FilterSpeciesView.prototype.events = function() {
+          return {
+            "click": "filterAll"
+          };
+        };
+      
+        FilterSpeciesView.prototype.filterAll = function() {
+          mediator.trigger("filter:remove", [this.model.get("taxonId"), "organism"]);
+          return console.log(this.model.get("species") + " has been clicked");
+        };
+      
+        FilterSpeciesView.prototype.initialize = function(attr) {
+          this.options = attr;
+          return console.log("FilterSpeciesView initialized", this);
+        };
+      
+        FilterSpeciesView.prototype.render = function() {
+          console.log("Rendering a FilterSpeciesView");
+          $(this.el).html(this.template({
+            result: this.model.toJSON()
+          }));
+          return this;
+        };
+      
+        return FilterSpeciesView;
+      
+      })(Backbone.View);
+      
+      module.exports = FilterSpeciesView;
+      
+    });
+
+    
     // OrganismListView.coffee
     root.require.register('MultiMine/src/views/OrganismListView.js', function(exports, require, module) {
     
@@ -23293,7 +23641,9 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
         var OrganismItem = require("../models/OrganismItem");
         var OrganismCollection = require("../models/OrganismCollection");
-        var OrganismListView = require("../views/OrganismListView")
+        var OrganismListView = require("../views/OrganismListView");
+        var FilterGenusView = require("../views/FilterGenusView");
+        var FilterOrganismView = require("../views/FilterOrganismView");
       
       
       
@@ -23561,7 +23911,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             // Evaluate the results and render our items
             Q(someResults)
             .then(function(o) {
-              console.log("TOTALLED RESULTS", o);
+              console.log("TOTALLED RESULTSs", o);
               var myOrganisms = o.organisms
               var myResults = o.results
       
@@ -23612,15 +23962,29 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
                 }
                //console.log("next item", item);
               }
-              console.log("PLEASE LOOK FOR ME", organismCollection);
+              console.log("PLEASE LOOK FOR ME3", organismCollection);
+      
+              var counted = _.countBy(organismCollection.models, function(model) {
+      
+                return model.get("genus");
+      
+      
+              });
+      
+              console.log("sorted", counted);
+      
               // var organismFilterListView = new FilterListView({collection: organismFilterListCollection});
               var organismFilterListView = new OrganismListView({collection: organismCollection});
-              console.log("PLEASE LOOK FOR ME2");
+      
+              
+      
+            
+              console.log("PLEASE LOOK FOR ME21");
       
       
               console.log("populated organismCollection", organismCollection);
               $('#CategoryFilterList').append(categoryFilterListView.render().$el);
-              $('#OrganismFilterList').append(organismFilterListView.render().$el);
+              // $('#OrganismFilterList').append(organismFilterListView.render().$el);
       
               console.log("PRE MAP");
       
@@ -23745,6 +24109,32 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               console.log("collection", myResultsCollection);
       
               console.log("now doing some filtering");
+      
+      
+              grouped = organismCollection.groupBy (function(model) {
+                return model.get("genus");
+              });
+      
+              //console.log("Grouped", grouped);
+      
+              // for (var group in grouped) {
+              //   //console.log("group", grouped[group]);
+              //   var aGenus = new FilterGenusView({models: grouped[group], genus: group, collection: organismCollection});
+              //   aGenus.render();
+              // }
+      
+              var orgView = new FilterOrganismView({collection: organismCollection});
+              console.log("Rendering orgView");
+              //console.log("renderedddddd", orgView.render().$el);
+      
+              $('#OrganismFilterList').append(orgView.render().$el);
+      
+              console.log("Done rendering orgView");
+      
+              //var aGenus = new FilterGenusView({models: organismCollection.models, genus: "Drosophila"});
+              //aGenus.render();
+      
+              console.log("done");
       
               var customFilter = {type: ["Protein", "RNAiResult", "Gene"], taxonId: [7237]};
               myResultsCollection.myFilter(customFilter);

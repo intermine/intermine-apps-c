@@ -13,6 +13,7 @@ class ResultsCollection extends Backbone.Collection
 	# Accepts an object that is then used to filter this collection's models.
 	# Each value in the object's keys must be in an array, as each new key
 	# is treated as an "AND", and each array value is treated as an "OR"
+	{type:["Publication", "Gene"], genus:["Drosphilia", "Homo"]}
 	filter: (filterObj) ->
 		# alert("myFilter has been called with")
 
@@ -28,7 +29,7 @@ class ResultsCollection extends Backbone.Collection
 					console.log "disposing model", model
 					return false
 
-			return true
+			true
 
 					#console.log "found", model.get(key)
 
