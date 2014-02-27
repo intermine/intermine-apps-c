@@ -1,0 +1,1 @@
+<div><i class="icon-ok"></i><%= @result.genus %><i class="icon-down-circle showall expand"></i></div>

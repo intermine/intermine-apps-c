@@ -11,7 +11,7 @@ class OrganismCollection extends Backbone.Collection
 	# 	-item.get("count")
 
 	comparator: (item) ->
-		-item.get("count")
+		item.get("genus")
 		# [item.get("count"), item.get("enabled")]
 
 	toggleAll: (value) ->

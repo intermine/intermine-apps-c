@@ -40,6 +40,19 @@ body {
 
 }
 
+.expandable .content {
+	display: none;
+}
+
+.expand {
+
+
+	padding: 6px 0 6px 12px;
+	margin-bottom: 1px;
+	font-weight: bold;
+		font-size: 12px;
+}
+
 .stats {
 	padding-bottom: 40px;
 }
@@ -145,7 +158,7 @@ box-shadow:         0px 3px 2px 0px rgba(50, 50, 50, 1);
 
 .toolbarLeft ul {
 	font-size: 12px;
-	color: white;
+
 	list-style-type: none;
 }
 
@@ -157,7 +170,27 @@ box-shadow:         0px 3px 2px 0px rgba(50, 50, 50, 1);
 	margin-bottom: 1px;
 	font-weight: bold;
 
+
+
 }
+
+.toolbarLeft ul li ul li {
+
+	/*border-top: 1px;*/
+	/*border-bottom: 1px solid #494949;;*/
+	border-bottom: 1px solid #494949;;
+	padding: 6px 20px 6px 20px;
+	margin-bottom: 1px;
+	font-weight: bold;
+	font-style: italic;
+
+}
+
+.toolbarLeft ul li ul li:last-child {
+	border: 0;
+	padding-bottom: 0px;
+}
+
 
 .toolbarLeft ul li:hover {
 	background-color: #eeeeee;
@@ -183,7 +216,7 @@ box-shadow:         0px 3px 2px 0px rgba(50, 50, 50, 1);
 	padding-right: 5px;
 }
 
-.toolbarLeft ul li:last-child {
+.toolbarLeft > ul > li:last-child {
 	border-bottom: 1px solid white;
 }
 
@@ -262,6 +295,15 @@ table.ResultsTable .RelevanceColumn {
 	font-size: 10px;
 	border: 0px solid;
 
+	padding: 3px;
+}
+
+.floatToRight {
+
+	float: right;
+	margin-right: 10px;
+
+	border: 0px solid;
 	padding: 3px;
 }
 
