@@ -123,6 +123,7 @@ body {
 	border-right: 1px solid white;
 	color: white;
 	height: 100%;
+	/*overflow:scroll;*/
 /*	-webkit-box-shadow: 6px 0px 13px 0px rgba(50, 50, 50, 0.25);
 	-moz-box-shadow:    6px 0px 13px 0px rgba(50, 50, 50, 0.25);
 	box-shadow:         6px 0px 13px 0px rgba(50, 50, 50, 0.25);*/

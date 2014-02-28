@@ -7,10 +7,35 @@ class FilterGenusView extends Backbone.View
 	className: "expandable"
 
 	template: require '../templates/FilterGenusTemplate'
-	templateOff: require '../templates/FilterListItemOffTemplate'
+	templateOff: require '../templates/FilterGenusOffTemplate'
+
+	enabled: true
 
 	events: ->
 		"click .expand": "showChildren"
+		"click": "toggle"
+
+	toggle: ->
+
+		if @enabled is true
+
+			console.log "Triggering filter:remove"
+
+			$(@el).html @templateOff {result: @options}
+			$(@el).addClass("off")
+			@enabled = false
+
+			mediator.trigger "filter:newremove", {genus: @options.genus}
+
+		else
+
+			console.log "Triggering filter:apply"
+			do @render
+			$(@el).removeClass("off")
+			@enabled = true
+
+
+			
 
 	# Filter our collection
 	showChildren: ->
@@ -40,7 +65,7 @@ class FilterGenusView extends Backbone.View
 	render: =>
 
 		# We have models for species, so we need create lists for them.
-
+		console.log "rendering"
 		$(@el).html @template {result: @options}
 
 		ul = $('<ul>')

@@ -3,20 +3,57 @@ ResultModel = require './ResultModel'
 class ResultsCollection extends Backbone.Collection
 
 	model: ResultModel
+	globalFilter: {}
+
 
 	initialize: ->
 		# console.log "ResultsCollection has been initialized"
 
+
+
 	comparator: (mod) ->
 		return -mod.get "relevance"
+
+	buildFilter: (filterObj) ->
+
+		obj = {}
+		# Build our list of types
+		types = _.countBy @models, (model) ->
+			model.get "type"
+
+		# Build our
+		genusGroups = _.groupBy @models, (item) ->
+			item.get "genus"
+
+		console.log "genusGroup", genusGroups
+
+		for genus of genusGroups
+			console.log "genus", genus
+
+			if genus isnt "undefined"
+				console.log "string undefined"
+
+				test = _.map genusGroups[genus], (model) ->
+					model.get "taxonId"
+				console.log "test", _.uniq(test)
+   
+  		# Build our list of organisms (genus and species)
+		@globalFilter.type = (prop for prop of types)
+
+
+
+		console.log "done with filter", @globalFilter
+
+
+		
+
 
 	# Accepts an object that is then used to filter this collection's models.
 	# Each value in the object's keys must be in an array, as each new key
 	# is treated as an "AND", and each array value is treated as an "OR"
-	{type:["Publication", "Gene"], genus:["Drosphilia", "Homo"]}
 	filter: (filterObj) ->
 		# alert("myFilter has been called with")
-
+		console.log "filter called with object: ", filterObj
 		filtered = this.models.filter (model) ->
 
 			console.log "filtering using", filterObj
@@ -33,7 +70,7 @@ class ResultsCollection extends Backbone.Collection
 
 					#console.log "found", model.get(key)
 
-		console.log "filtered models", filtered
+		filtered
 
 	byType: (name) ->
 		

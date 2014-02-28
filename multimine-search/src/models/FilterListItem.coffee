@@ -7,6 +7,7 @@ class FilterListItem extends Backbone.Model
 		type: "not specified"
 		enabled: true
 		count: 0
+		displayName: "tbd"
 		# class: "not specified"
 		# genus: "not specified"
 		# fullname: "not specified"
@@ -17,6 +18,19 @@ class FilterListItem extends Backbone.Model
 
 		# Tie our model to the mediator.
 		mediator.on 'filter:togglecategory', @get "enabled"
+
+		# Create our displayName
+		@set({displayName: unCamelCase(@get("name"))})
+
+	unCamelCase = (str) ->
+	  
+	  # insert a space between lower & upper
+	  
+	  # space before last upper in a sequence followed by lower
+	  
+	  # uppercase the first character
+	  str.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\b([A-Z]+)([A-Z])([a-z])/, "$1 $2$3").replace /^./, (str) ->
+	    str.toUpperCase()
 
 	# Toggle our ENABLED status
 	toggle: ->

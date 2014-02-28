@@ -54,7 +54,7 @@ class MyHelper
 
 		friendlyMines = [
 			# {name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
-			# {name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
+			{name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
 			{name: "FlyMine", queryUrl: "http://www.flymine.org/query", baseUrl: "http://www.flymine.org/release-38.0/"},
 			# {name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
 			# {name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
@@ -89,6 +89,9 @@ class MyHelper
 					obj.species = found.species
 					obj.organismName = found.name
 
+					obj.shortName = found.genus.charAt(0) + ". " + found.species
+
+
 					console.log "Saving new item", obj
 
 				else if fields["organism.shortName"] isnt undefined
@@ -101,6 +104,8 @@ class MyHelper
 					obj.genus = found.genus
 					obj.species = found.species
 					obj.organismName = found.name
+					obj.shortName = found.genus.charAt(0) + ". " + found.species
+
 
 					console.log "Saving new item", obj
 
