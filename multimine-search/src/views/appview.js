@@ -36,6 +36,7 @@
   var categoryFilterListCollection = new FilterListCollection();
   var organismFilterListCollection = new FilterListCollection();
 
+  var globalFilter = {};
 
 
   // The Application
@@ -94,6 +95,8 @@
       mediator.on('showAllDataTypes', this.showAllDataTypes, this);
       mediator.on('hideAllOrganisms', this.hideAllOrganisms, this);
       mediator.on('showAllOrganisms', this.showAllOrganisms, this);
+
+      mediator.on('filter:newremove', this.newremove, this);
       //this.rand();
 
 /*
@@ -146,6 +149,10 @@
 
 
       
+    },
+
+    newremove: function(data) {
+      alert(JSON.stringify(data));
     },
 
     hideAllDataTypes: function() {
@@ -291,30 +298,59 @@
         var myOrganisms = o.organisms
         var myResults = o.results
 
+        console.log("my results", myResults.results);
+
+        var countedTypes = _.countBy(myResults.results, function(result) {
+
+          return result.type;
+
+
+        });
+
+
         var o = o.results
+
+        var x = 1;
+        for(var propt in countedTypes){
+            var anotherModel = new FilterListItem({name: propt, count: countedTypes[propt] });
+
+
+            categoryFilterListCollection.add(anotherModel);
+
+            console.log("ANOTHER MODEL", anotherModel);
+            console.log(propt + ': ' + countedTypes[propt]);
+            filterTypeArr.push(propt);
+
+        }
+
+        // Build our filter object:
+
+
+
         // Build a collection
         // var myResultsCollection = new ResultsCollection();
 
         // Add our models to our collection
 
         // Build our collections of filters
-        console.log("Categories: ", o.facets.Category);
+
+
 
 
         // Create Views for our DATATYPES
         //var categoryFilterListCollection = new FilterListCollection();
-        var x = 1;
-        for(var propt in o.facets.Category){
-            var anotherModel = new FilterListItem({name: propt, count: o.facets.Category[propt] });
+        // var x = 1;
+        // for(var propt in o.facets.Category){
+        //     var anotherModel = new FilterListItem({name: propt, count: o.facets.Category[propt] });
 
 
-            categoryFilterListCollection.add(anotherModel);
+        //     categoryFilterListCollection.add(anotherModel);
 
-            console.log("ANOTHER MODEL", anotherModel);
-            console.log(propt + ': ' + o.facets.Category[propt]);
-            filterTypeArr.push(propt);
+        //     console.log("ANOTHER MODEL", anotherModel);
+        //     console.log(propt + ': ' + o.facets.Category[propt]);
+        //     filterTypeArr.push(propt);
 
-        }
+        // }
         var categoryFilterListView = new FilterListView({collection: categoryFilterListCollection, options: "test"});
 
         // Create Views for our ORGANISMS
@@ -513,18 +549,13 @@
         console.log("done");
 
         var customFilter = {type: ["Protein", "RNAiResult", "Gene"], taxonId: [7237]};
-        myResultsCollection.myFilter(customFilter);
+        var filtered = myResultsCollection.filter(customFilter);
+        console.log("final filtered", filtered);
+
+      myResultsCollection.buildFilter({});
 
 
-
-      var counted = _.countBy(myResultsCollection.models, function(model) {
-
-        return model.get("type");
-
-
-      });
-
-      console.log("counted", counted);
+      console.log("That's all, folks.");
 
 
 
@@ -552,7 +583,7 @@
 
 
 
-
+      
 
 
 /*

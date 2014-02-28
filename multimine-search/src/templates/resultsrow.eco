@@ -9,7 +9,7 @@
 	</ul>
 </td>
 <td class="Organism">
-	<%= @result.fields["organism.shortName"] %>
+	<%= @result.shortName %>
 </td>
 <!-- <td class="RelevanceColumn">
 	<% percentage = (@result.relevance / 1) * 100 %>

@@ -21330,6 +21330,8 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       mediator = require('../modules/mediator');
       
       FilterListItem = (function(_super) {
+        var unCamelCase;
+      
         __extends(FilterListItem, _super);
       
         function FilterListItem() {
@@ -21341,11 +21343,21 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
           name: "generic",
           type: "not specified",
           enabled: true,
-          count: 0
+          count: 0,
+          displayName: "tbd"
         };
       
         FilterListItem.prototype.initialize = function() {
-          return mediator.on('filter:togglecategory', this.get("enabled"));
+          mediator.on('filter:togglecategory', this.get("enabled"));
+          return this.set({
+            displayName: unCamelCase(this.get("name"))
+          });
+        };
+      
+        unCamelCase = function(str) {
+          return str.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\b([A-Z]+)([A-Z])([a-z])/, "$1 $2$3").replace(/^./, function(str) {
+            return str.toUpperCase();
+          });
         };
       
         FilterListItem.prototype.toggle = function() {
@@ -21643,19 +21655,48 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
         ResultsCollection.prototype.model = ResultModel;
       
+        ResultsCollection.prototype.globalFilter = {};
+      
         ResultsCollection.prototype.initialize = function() {};
       
         ResultsCollection.prototype.comparator = function(mod) {
           return -mod.get("relevance");
         };
       
-        ({
-          type: ["Publication", "Gene"],
-          genus: ["Drosphilia", "Homo"]
-        });
+        ResultsCollection.prototype.buildFilter = function(filterObj) {
+          var genus, genusGroups, obj, prop, test, types;
+          obj = {};
+          types = _.countBy(this.models, function(model) {
+            return model.get("type");
+          });
+          genusGroups = _.groupBy(this.models, function(item) {
+            return item.get("genus");
+          });
+          console.log("genusGroup", genusGroups);
+          for (genus in genusGroups) {
+            console.log("genus", genus);
+            if (genus !== "undefined") {
+              console.log("string undefined");
+              test = _.map(genusGroups[genus], function(model) {
+                return model.get("taxonId");
+              });
+              console.log("test", _.uniq(test));
+            }
+          }
+          this.globalFilter.type = (function() {
+            var _results;
+            _results = [];
+            for (prop in types) {
+              _results.push(prop);
+            }
+            return _results;
+          })();
+          return console.log("done with filter", this.globalFilter);
+        };
       
         ResultsCollection.prototype.filter = function(filterObj) {
           var filtered;
+          console.log("filter called with object: ", filterObj);
           filtered = this.models.filter(function(model) {
             var key, value, _ref1;
             console.log("filtering using", filterObj);
@@ -21668,7 +21709,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             }
             return true;
           });
-          return console.log("filtered models", filtered);
+          return filtered;
         };
       
         ResultsCollection.prototype.byType = function(name) {
@@ -21776,6 +21817,10 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
           };
           friendlyMines = [
             {
+              name: "ModMine",
+              queryUrl: "http://intermine.modencode.org/query",
+              baseUrl: "http://intermine.modencode.org/release-32/"
+            }, {
               name: "FlyMine",
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
@@ -21808,6 +21853,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
                 obj.genus = found.genus;
                 obj.species = found.species;
                 obj.organismName = found.name;
+                obj.shortName = found.genus.charAt(0) + ". " + found.species;
                 console.log("Saving new item", obj);
               } else if (fields["organism.shortName"] !== void 0) {
                 res = fields["organism.shortName"].split(" ");
@@ -21820,6 +21866,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
                 obj.genus = found.genus;
                 obj.species = found.species;
                 obj.organismName = found.name;
+                obj.shortName = found.genus.charAt(0) + ". " + found.species;
                 console.log("Saving new item", obj);
               } else {
                 console.log("no match for obj", obj);
@@ -22319,6 +22366,63 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
     
         var mediator = _.extend({}, Backbone.Events);
         module.exports = mediator;
+    });
+
+    
+    // FilterGenusOffTemplate.eco
+    root.require.register('MultiMine/src/templates/FilterGenusOffTemplate.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<div></i>');
+          
+            __out.push(__sanitize(this.result.genus));
+          
+            __out.push('<i class="icon-down-circle showall expand"></i></div>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
     });
 
     
@@ -22854,7 +22958,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
           
             __out.push('\n\t</ul>\n</td>\n<td class="Organism">\n\t');
           
-            __out.push(__sanitize(this.result.fields["organism.shortName"]));
+            __out.push(__sanitize(this.result.shortName));
           
             __out.push('\n</td>\n<!-- <td class="RelevanceColumn">\n\t');
           
@@ -23012,12 +23116,34 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
         FilterGenusView.prototype.template = require('../templates/FilterGenusTemplate');
       
-        FilterGenusView.prototype.templateOff = require('../templates/FilterListItemOffTemplate');
+        FilterGenusView.prototype.templateOff = require('../templates/FilterGenusOffTemplate');
+      
+        FilterGenusView.prototype.enabled = true;
       
         FilterGenusView.prototype.events = function() {
           return {
-            "click .expand": "showChildren"
+            "click .expand": "showChildren",
+            "click": "toggle"
           };
+        };
+      
+        FilterGenusView.prototype.toggle = function() {
+          if (this.enabled === true) {
+            console.log("Triggering filter:remove");
+            $(this.el).html(this.templateOff({
+              result: this.options
+            }));
+            $(this.el).addClass("off");
+            this.enabled = false;
+            return mediator.trigger("filter:newremove", {
+              genus: this.options.genus
+            });
+          } else {
+            console.log("Triggering filter:apply");
+            this.render();
+            $(this.el).removeClass("off");
+            return this.enabled = true;
+          }
         };
       
         FilterGenusView.prototype.showChildren = function() {
@@ -23041,6 +23167,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
         FilterGenusView.prototype.render = function() {
           var nextModel, speciesView, ul, _i, _len, _ref1;
+          console.log("rendering");
           $(this.el).html(this.template({
             result: this.options
           }));
@@ -23660,6 +23787,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
         var categoryFilterListCollection = new FilterListCollection();
         var organismFilterListCollection = new FilterListCollection();
       
+        var globalFilter = {};
       
       
         // The Application
@@ -23718,6 +23846,8 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             mediator.on('showAllDataTypes', this.showAllDataTypes, this);
             mediator.on('hideAllOrganisms', this.hideAllOrganisms, this);
             mediator.on('showAllOrganisms', this.showAllOrganisms, this);
+      
+            mediator.on('filter:newremove', this.newremove, this);
             //this.rand();
       
       /*
@@ -23770,6 +23900,10 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
       
             
+          },
+      
+          newremove: function(data) {
+            alert(JSON.stringify(data));
           },
       
           hideAllDataTypes: function() {
@@ -23915,30 +24049,59 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               var myOrganisms = o.organisms
               var myResults = o.results
       
+              console.log("my results", myResults.results);
+      
+              var countedTypes = _.countBy(myResults.results, function(result) {
+      
+                return result.type;
+      
+      
+              });
+      
+      
               var o = o.results
+      
+              var x = 1;
+              for(var propt in countedTypes){
+                  var anotherModel = new FilterListItem({name: propt, count: countedTypes[propt] });
+      
+      
+                  categoryFilterListCollection.add(anotherModel);
+      
+                  console.log("ANOTHER MODEL", anotherModel);
+                  console.log(propt + ': ' + countedTypes[propt]);
+                  filterTypeArr.push(propt);
+      
+              }
+      
+              // Build our filter object:
+      
+      
+      
               // Build a collection
               // var myResultsCollection = new ResultsCollection();
       
               // Add our models to our collection
       
               // Build our collections of filters
-              console.log("Categories: ", o.facets.Category);
+      
+      
       
       
               // Create Views for our DATATYPES
               //var categoryFilterListCollection = new FilterListCollection();
-              var x = 1;
-              for(var propt in o.facets.Category){
-                  var anotherModel = new FilterListItem({name: propt, count: o.facets.Category[propt] });
+              // var x = 1;
+              // for(var propt in o.facets.Category){
+              //     var anotherModel = new FilterListItem({name: propt, count: o.facets.Category[propt] });
       
       
-                  categoryFilterListCollection.add(anotherModel);
+              //     categoryFilterListCollection.add(anotherModel);
       
-                  console.log("ANOTHER MODEL", anotherModel);
-                  console.log(propt + ': ' + o.facets.Category[propt]);
-                  filterTypeArr.push(propt);
+              //     console.log("ANOTHER MODEL", anotherModel);
+              //     console.log(propt + ': ' + o.facets.Category[propt]);
+              //     filterTypeArr.push(propt);
       
-              }
+              // }
               var categoryFilterListView = new FilterListView({collection: categoryFilterListCollection, options: "test"});
       
               // Create Views for our ORGANISMS
@@ -24137,18 +24300,13 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               console.log("done");
       
               var customFilter = {type: ["Protein", "RNAiResult", "Gene"], taxonId: [7237]};
-              myResultsCollection.myFilter(customFilter);
+              var filtered = myResultsCollection.filter(customFilter);
+              console.log("final filtered", filtered);
+      
+            myResultsCollection.buildFilter({});
       
       
-      
-            var counted = _.countBy(myResultsCollection.models, function(model) {
-      
-              return model.get("type");
-      
-      
-            });
-      
-            console.log("counted", counted);
+            console.log("That's all, folks.");
       
       
       
@@ -24176,7 +24334,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
       
       
       
-      
+            
       
       
       /*
