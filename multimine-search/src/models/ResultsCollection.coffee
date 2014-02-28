@@ -27,15 +27,28 @@ class ResultsCollection extends Backbone.Collection
 
 		console.log "genusGroup", genusGroups
 
+		@globalFilter.genus = []
+
 		for genus of genusGroups
-			console.log "genus", genus
+			
 
 			if genus isnt "undefined"
-				console.log "string undefined"
+				console.log "genus", genus
+
+
+
+				# @globalFilter.genus[genus] = _.map genusGroups[genus], (model) ->
+				#  	model.get "taxonId"
 
 				test = _.map genusGroups[genus], (model) ->
-					model.get "taxonId"
+				 	model.get "taxonId"
+
+				 genusObj = {}
+				 genusObj[genus] = test
+
 				console.log "test", _.uniq(test)
+
+				@globalFilter.genus.push genusObj
    
   		# Build our list of organisms (genus and species)
 		@globalFilter.type = (prop for prop of types)

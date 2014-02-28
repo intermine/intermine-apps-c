@@ -619,7 +619,7 @@
         };
       
         ResultsCollection.prototype.buildFilter = function(filterObj) {
-          var genus, genusGroups, obj, prop, test, types;
+          var genus, genusGroups, genusObj, obj, prop, test, types;
           obj = {};
           types = _.countBy(this.models, function(model) {
             return model.get("type");
@@ -628,14 +628,17 @@
             return item.get("genus");
           });
           console.log("genusGroup", genusGroups);
+          this.globalFilter.genus = [];
           for (genus in genusGroups) {
-            console.log("genus", genus);
             if (genus !== "undefined") {
-              console.log("string undefined");
+              console.log("genus", genus);
               test = _.map(genusGroups[genus], function(model) {
                 return model.get("taxonId");
               });
+              genusObj = {};
+              genusObj[genus] = test;
               console.log("test", _.uniq(test));
+              this.globalFilter.genus.push(genusObj);
             }
           }
           this.globalFilter.type = (function() {
