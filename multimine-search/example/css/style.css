@@ -435,7 +435,7 @@ table.ResultsTable ul li:last-child:after { content: ""; }*/
     color: #666; 
     outline: none; 
     height:25px; 
-    width: 175px; 
+    width: 350px; 
     font-size: 16px;
     margin-top: 10px;
   } 
