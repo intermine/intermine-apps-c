@@ -9,11 +9,12 @@ class ResultView extends Backbone.View
 	template: require '../templates/resultsrow'
 
 	initialize: ->
-		this.model.on 'change:show', @toggleVisible, this
+		this.model.on 'change:enabled', @toggleVisible, this
 
 	toggleVisible: ->
+		console.log "CHANGING VISIBILITY"
 
-		$(@el).toggleClass 'hidden', !@model.get "show"
+		$(@el).toggleClass 'hidden', !@model.get "enabled"
 		
 	render: ->
 		#console.log "my model", do @model.toJSON

@@ -8,7 +8,7 @@ class FilterListView extends Backbone.View
 	initialize: ->
 
 		$(@el).mouseleave () ->
-			console.log "The mouse has left me."
+
 			mediator.trigger "charts:clear", {}
 
 		
@@ -16,7 +16,6 @@ class FilterListView extends Backbone.View
 
 		$el = $(@el)
 
-		console.log "Render has been called on FilterListView", @collection
 		@collection.each (nextModel) ->
 			itemView = new FilterListItemView({model: nextModel})
 			$el.append(itemView.render().$el)

@@ -19,54 +19,69 @@ class FilterGenusView extends Backbone.View
 
 		if @enabled is true
 
-			console.log "Triggering filter:remove"
 
 			$(@el).html @templateOff {result: @options}
 			$(@el).addClass("off")
 			@enabled = false
 
-			mediator.trigger "filter:newremove", {genus: @options.genus}
+			mediator.trigger "filter:removeGenus", {genus: @options.genus}
+			#mediator.trigger "filter:newremove", {genus: @options.genus}
 
 		else
 
-			console.log "Triggering filter:apply"
 			do @render
 			$(@el).removeClass("off")
 			@enabled = true
+			mediator.trigger "filter:addGenus", {genus: @options.genus}
 
-
-			
 
 	# Filter our collection
 	showChildren: ->
-		console.log @options.collection
+
 		content = $(@el).find('ul')
-		console.log "content", content
+
 
 			    # open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
 		content.slideToggle 100, () ->
-			console.log "sliding"
+
 
 
 
 
 	# Exposide the children to the DOM
 	filterAll: ->
-		console.log "this is me", @
+
 
 
 	initialize: (attr) ->
 		# Assume that we're being passed all models of the same genus!
 		@options = attr
-		console.log "FilterGenusView initialized", @
 
-		#@model.on('change:enabled', @render)
+		mediator.on 'display:hideAllOrganisms', @toggleOff, @
+		mediator.on 'display:showAllOrganisms', @toggleOn, @
+
+	toggleOff: ->
+
+
+		$(@el).html @templateOff {result: @options}
+		$(@el).addClass("off")
+		@enabled = false
+
+	toggleOn: ->
+
+		do @render
+		$(@el).removeClass("off")
+		@enabled = true
+
+
+
+		# @model.on('change:enabled', @render)
 		
 	render: =>
 
 		# We have models for species, so we need create lists for them.
-		console.log "rendering"
-		$(@el).html @template {result: @options}
+
+		$(@el).html @template {result: @options, count: @options.models.length}
 
 		ul = $('<ul>')
 		ul.addClass "content"
@@ -125,7 +140,7 @@ class FilterGenusView extends Backbone.View
 		d3.select("#" + @model.get("name")).style("fill", "white");
 
 	toggleMe: ->
-		console.log "clicked"
+
 
 
 module.exports = FilterGenusView

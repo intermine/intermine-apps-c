@@ -14,22 +14,16 @@ class FilterOrganismItemView extends Backbone.View
 	initialize: ->
 		@model.on('change:enabled', @render)
 
-	render2: ->
-		console.log "second step"
-		
+	
 	render: =>
 
-		console.log "RENDER HAS BEEN CALLED?", @model
-
-
-
 		if @model.get("enabled") is true
-			console.log "model is true"
+
 			$(@el).html @template {result: do @model.toJSON}
 			$(@el).removeClass("off")
 			mediator.trigger "filter:apply", [@model.get("taxonId"), "organism"]
 		else
-			console.log "model is false"
+
 			$(@el).html @templateOff {result: do @model.toJSON}
 			$(@el).addClass("off")
 			mediator.trigger "filter:remove", [@model.get("taxonId"), "organism"]
@@ -44,7 +38,7 @@ class FilterOrganismItemView extends Backbone.View
 		# alert(@model.get("taxonId"))
 		if @model.get("enabled") is true
 
-			console.log "Triggering filter:remove"
+
 
 			$(@el).html @templateOff {result: do @model.toJSON}
 			$(@el).addClass("off")
@@ -54,7 +48,7 @@ class FilterOrganismItemView extends Backbone.View
 
 		else
 
-			console.log "Triggering filter:apply"
+
 
 			$(@el).html @template {result: do @model.toJSON}
 			@model.set({enabled: true})

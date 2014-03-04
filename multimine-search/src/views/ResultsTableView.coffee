@@ -10,7 +10,6 @@ class ResultsTableView extends Backbone.View
 
 	initialize: ->
 		super
-		console.log "ResultTable Initialized with collection:", @collection
 
 	render: ->
 

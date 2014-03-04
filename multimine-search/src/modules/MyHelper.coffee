@@ -53,10 +53,10 @@ class MyHelper
 		  ModMine: "http://intermine.modencode.org/query"
 
 		friendlyMines = [
-			# {name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
+			{name: "MouseMine", queryUrl: "www.mousemine.org/mousemine", baseUrl: "http://www.mousemine.org/mousemine/"},
 			{name: "ModMine", queryUrl: "http://intermine.modencode.org/query", baseUrl: "http://intermine.modencode.org/release-32/"},
 			{name: "FlyMine", queryUrl: "http://www.flymine.org/query", baseUrl: "http://www.flymine.org/release-38.0/"},
-			# {name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
+			{name: "ZebraFishMine", queryUrl: "http://www.zebrafishmine.org", baseUrl: "http://www.zebrafishmine.org/"},
 			# {name: "YeastMine", queryUrl: "http://yeastmine.yeastgenome.org/yeastmine", baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"}
 			# {name: "WormMine", queryUrl: "http://www.wormbase.org/tools/wormmine", baseUrl: "http://www.wormbase.org/tools/wormmine/"}
 		]
@@ -66,12 +66,12 @@ class MyHelper
 		
 		.then (finished) =>
 
+
 			@calcStats finished
 			# @calcStats @testjson
 
 		.then (test) =>
-			console.log "Returning final results", @totalResults
-			console.log "Returning organism results", @organismMap
+
 
 			
 
@@ -83,7 +83,6 @@ class MyHelper
 				if fields["organism.name"] isnt undefined
 					# Search our map by organism.name
 					found = _.findWhere(@organismMap, {name: fields["organism.name"]})
-					console.log "found", found
 					obj.taxonId = found.taxonId
 					obj.genus = found.genus
 					obj.species = found.species
@@ -91,15 +90,12 @@ class MyHelper
 
 					obj.shortName = found.genus.charAt(0) + ". " + found.species
 
-
-					console.log "Saving new item", obj
 
 				else if fields["organism.shortName"] isnt undefined
 					# Parse the species from our shortname
 					res = fields["organism.shortName"].split(" ")
 					parsedSpecies = res[1]
 					found = _.findWhere(@organismMap, {species: parsedSpecies})
-					console.log "found", found
 					obj.taxonId = found.taxonId
 					obj.genus = found.genus
 					obj.species = found.species
@@ -107,10 +103,8 @@ class MyHelper
 					obj.shortName = found.genus.charAt(0) + ". " + found.species
 
 
-					console.log "Saving new item", obj
-
 				else
-					console.log "no match for obj", obj
+
 
 
 
@@ -126,7 +120,7 @@ class MyHelper
 		service = new intermine.Service root: mineUrl
 		service.search(term).then (results) ->
 
-			console.log "Raw results: ", results 
+
 
 			_.map results.results, (res) ->
 				res.mineUrl=mineUrl
@@ -147,7 +141,6 @@ class MyHelper
 
 			# Build a query to retrieve extended organism information
 
-			console.log "queryOrganismArray", queryOrganismArray
 
 			if queryOrganismArray.length > 0
 				organismQuery = {
@@ -165,17 +158,15 @@ class MyHelper
 
 		.then (results) =>
 
-			console.log "ORGRESULTS", results
+
 			# Loop through the organisms in our results
 			for organism in results
 				if organism.taxonId of @organismMap
 					# We already have this organism
-					console.log "SKIPPING!!!!!!!!!!!"
+
 				else
 					# Add the organism to our organism map if it does not exist
 					@organismMap[organism.taxonId] = organism
-
-			console.log "can continue"
 
 		.then () ->
 
@@ -208,7 +199,7 @@ class MyHelper
 		# console.log "facets", json.facets.Category
 
 		_.each json.facets.Category, (values, key, list) ->
-			console.log "key", key
+
 			aMap = {}
 			aMap.legendLabel = key
 			aMap.magnitude = values
@@ -303,15 +294,15 @@ class MyHelper
 
 	callThisFunction: (d, filter) ->
 		
-		console.log "CALL THIS FUNICTION", filter
+
 
 		if d.toggled == false || d.toggled == undefined
 			d.toggled = true
-			console.log "calling mediator for ON", mediator
+
 			mediator.trigger "filter:apply", [d.data[0], filter]
 		else if d.toggled == true
 			d.toggled = false
-			console.log "calling mediator for OFF", mediator
+
 			mediator.trigger "filter:remove", [d.data[0], filter]
 
 		console.log "d.toggled has been set to ", d.toggled
@@ -358,9 +349,9 @@ class MyHelper
 			.on "click", (d)->
 
 				# toggle the slice depending on its current state#
-				console.log "d.toggled is currently set to", d.toggled
+
 				if d.toggled == false || d.toggled == undefined
-					console.log "EXPANDING"
+
 					# console.log "value", d3.select(this).classed("SOMETHING")
 					d3.select(this).classed("SOMETHING", true)
 					# console.log "value2", d3.select(this).classed("SOMETHING")
@@ -419,7 +410,6 @@ class MyHelper
 
 	buildBarChartNew: (dataset) ->
 
-		console.log "buildBarchart called with ", dataset
 
 		w = 200
 		h = 25
@@ -454,7 +444,7 @@ class MyHelper
 
 
 		key = (d) ->
-		  console.log "D", d
+
 		  d[0]
 
 
@@ -469,10 +459,8 @@ class MyHelper
 
 		#Update Tooltip Position & value
 		svg.selectAll("rect").data(dataset2).enter().append("rect").attr("x", (d, i) ->
-		  console.log "xScale", xScale i
 		  xScale i
 		).attr("y", (d) ->
-		  console.log "xScale", h - yScale(d[1])
 		  h - yScale(d[1])
 		).attr("width", xScale.rangeBand()).attr("height", (d) ->
 		  yScale d[1]
@@ -516,7 +504,7 @@ class MyHelper
 
 
 		#Create SVG element
-		svg = d3.select(location).append("svg").attr("width", w).attr("height", h)
+		svg = d3.select(location).html('').append("svg").attr("width", w).attr("height", h)
 
 		#Create bars
 
@@ -587,7 +575,6 @@ class MyHelper
 
 		#Update Tooltip Position & value
 		svg.selectAll("rect").data(dataset, key).enter().append("rect").attr("x", (d, i) ->
-		  console.log "D STANDS FOR", d
 		  xScale i
 		).attr("y", (d) ->
 		  h - yScale(d.value)

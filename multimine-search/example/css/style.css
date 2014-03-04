@@ -1,4 +1,4 @@
-/*@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,600);*/
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,600);
 /*@import url(http://fonts.googleapis.com/css?family=Wire+One);*/
 
 
@@ -88,7 +88,7 @@ body {
 }
 
 #right {
-	margin-left: 250px;
+	margin-left: 231px;
 /*	margin-right: 250px;*/
 	vertical-align: top;
 	height: 100%;
@@ -112,10 +112,12 @@ body {
 /* Toolbar ************************************/
 .toolbarLeft {
 	
-	width: 200px;
+	width: 230px;
 	height: 100%;
 	/*float: left;*/
 	position: fixed;
+	overflow-y: auto;
+	overflow-x: hidden;
 	background-image: url('../images/toolbar_stripe.png');
 	background-repeat: both;
 	background: #242424;

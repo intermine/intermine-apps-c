@@ -356,22 +356,18 @@
       
         OrganismCollection.prototype.model = OrganismItem;
       
-        OrganismCollection.prototype.initialize = function() {
-          return console.log("OrganismItem has been created.");
-        };
+        OrganismCollection.prototype.initialize = function() {};
       
         OrganismCollection.prototype.comparator = function(item) {
           return item.get("genus");
         };
       
         OrganismCollection.prototype.toggleAll = function(value) {
-          _.each(this.models, function(model) {
-            console.log("stepping");
+          return _.each(this.models, function(model) {
             return model.set({
               enabled: value
             });
           });
-          return console.log("models now", this.models);
         };
       
         return OrganismCollection;
@@ -593,10 +589,12 @@
     // ResultsCollection.coffee
     root.require.register('MultiMine/src/models/ResultsCollection.js', function(exports, require, module) {
     
-      var ResultModel, ResultsCollection, _ref,
+      var ResultModel, ResultsCollection, mediator, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
         __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+      
+      mediator = require("../modules/mediator");
       
       ResultModel = require('./ResultModel');
       
@@ -612,14 +610,96 @@
       
         ResultsCollection.prototype.globalFilter = {};
       
-        ResultsCollection.prototype.initialize = function() {};
+        ResultsCollection.prototype.initialize = function() {
+          mediator.on("filter:removeGenus", this.filterRemoveGenus, this);
+          mediator.on("filter:removeAllGenus", this.filterRemoveAllGenus, this);
+          mediator.on("filter:addGenus", this.filterAddGenus, this);
+          mediator.on("filter:removeType", this.filterRemoveType, this);
+          mediator.on("filter:removeAllTypes", this.filterRemoveAllTypes, this);
+          mediator.on("filter:addType", this.filterAddType, this);
+          mediator.on("filter:addAllTypes", this.filterAddAllTypes, this);
+          return mediator.on("filter:addAllGenus", this.filterAddAllGenus, this);
+        };
       
         ResultsCollection.prototype.comparator = function(mod) {
           return -mod.get("relevance");
         };
       
+        ResultsCollection.prototype.filterRemoveGenus = function(keypair) {
+          delete this.globalFilter.genus[keypair.genus];
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterRemoveAllGenus = function() {
+          var prop;
+          for (prop in this.globalFilter.genus) {
+            delete this.globalFilter.genus[prop];
+          }
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterAddAllTypes = function(value) {
+          var key, typeModels;
+          typeModels = _.groupBy(this.models, function(item) {
+            return item.get("type");
+          });
+          for (key in typeModels) {
+            this.globalFilter.type.push(key);
+          }
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterRemoveAllTypes = function(value) {
+          this.globalFilter.type = [];
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterAddType = function(value) {
+          this.globalFilter.type.push(value);
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterRemoveType = function(value) {
+          this.globalFilter.type = _.without(this.globalFilter.type, value);
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterAddGenus = function(keypair) {
+          var genusModels, model, taxonids, _i, _len, _ref1;
+          console.log("filterAddGenus called", keypair.genus);
+          taxonids = [];
+          genusModels = _.groupBy(this.models, function(item) {
+            return item.get("genus");
+          });
+          _ref1 = genusModels[keypair.genus];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            model = _ref1[_i];
+            taxonids.push(model.get("taxonId"));
+          }
+          this.globalFilter.genus[keypair.genus] = _.uniq(taxonids);
+          return this.filterTest();
+        };
+      
+        ResultsCollection.prototype.filterAddAllGenus = function(keypair) {
+          var eachGenus, genusModels, model, taxonids, _i, _len, _ref1;
+          genusModels = _.groupBy(this.models, function(item) {
+            return item.get("genus");
+          });
+          console.log("genusModels", genusModels);
+          for (eachGenus in genusModels) {
+            taxonids = [];
+            _ref1 = genusModels[eachGenus];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              model = _ref1[_i];
+              taxonids.push(model.get("taxonId"));
+            }
+            this.globalFilter.genus[eachGenus] = _.uniq(taxonids);
+          }
+          return this.filterTest();
+        };
+      
         ResultsCollection.prototype.buildFilter = function(filterObj) {
-          var genus, genusGroups, genusObj, obj, prop, test, types;
+          var genusGroups, genusObj, nextgenus, obj, prop, taxonids, types;
           obj = {};
           types = _.countBy(this.models, function(model) {
             return model.get("type");
@@ -627,21 +707,18 @@
           genusGroups = _.groupBy(this.models, function(item) {
             return item.get("genus");
           });
-          console.log("genusGroup", genusGroups);
-          this.globalFilter.genus = [];
-          for (genus in genusGroups) {
-            if (genus !== "undefined") {
-              console.log("genus", genus);
-              test = _.map(genusGroups[genus], function(model) {
+          this.globalFilter.genus = {};
+          for (nextgenus in genusGroups) {
+            if (nextgenus !== "undefined") {
+              taxonids = _.map(genusGroups[nextgenus], function(model) {
                 return model.get("taxonId");
               });
               genusObj = {};
-              genusObj[genus] = test;
-              console.log("test", _.uniq(test));
-              this.globalFilter.genus.push(genusObj);
+              genusObj[nextgenus] = taxonids;
+              this.globalFilter.genus[nextgenus] = _.uniq(taxonids);
             }
           }
-          this.globalFilter.type = (function() {
+          return this.globalFilter.type = (function() {
             var _results;
             _results = [];
             for (prop in types) {
@@ -649,7 +726,40 @@
             }
             return _results;
           })();
-          return console.log("done with filter", this.globalFilter);
+        };
+      
+        ResultsCollection.prototype.filterTest = function() {
+          var filtered,
+            _this = this;
+          console.log("filterTest called with object: ", this.globalFilter);
+          filtered = this.models.filter(function(model) {
+            var _ref1;
+            if (_ref1 = model.get("type"), __indexOf.call(_this.globalFilter.type, _ref1) < 0) {
+              model.set({
+                enabled: false
+              });
+              return false;
+            }
+            if ((model.get("genus")) === void 0) {
+              model.set({
+                enabled: true
+              });
+              return true;
+            }
+            if ((model.get("genus")) in _this.globalFilter.genus) {
+              model.set({
+                enabled: true
+              });
+              return true;
+            } else {
+              model.set({
+                enabled: false
+              });
+              return false;
+            }
+          });
+          console.log("filtered", filtered);
+          return filtered;
         };
       
         ResultsCollection.prototype.filter = function(filterObj) {
@@ -661,7 +771,6 @@
             for (key in filterObj) {
               value = filterObj[key];
               if (_ref1 = model.get(key), __indexOf.call(value, _ref1) < 0) {
-                console.log("disposing model", model);
                 return false;
               }
             }
@@ -675,26 +784,21 @@
           filtered = this.filter(function(model) {
             return model.get("type") !== name;
           });
-          return _.each(filtered, function(model) {
-            return console.log("model type", model.get("type"));
-          });
+          return _.each(filtered, function(model) {});
         };
       
         ResultsCollection.prototype.filterType = function(typevalues, organismvalues) {
           var results, that;
-          console.log("filterType called with type values ", typevalues);
-          console.log("filterType called with organism values ", organismvalues);
           that = this;
           results = this.models.filter(function(model) {
             var fields, org, _ref1, _ref2, _ref3;
             fields = model.get("fields");
             org = model.get("taxonId");
             if (organismvalues.length > 0 && typevalues.length < 1) {
-              return console.log("case 1");
+      
             } else if (organismvalues.length < 1 && typevalues.length > 0) {
               return _ref1 = model.get("type"), __indexOf.call(typevalues, _ref1) >= 0;
             } else if (organismvalues.length > 0 && typevalues.length > 0) {
-              console.log("HELLO", org);
               if (org === void 0) {
                 return _ref2 = model.get("type"), __indexOf.call(typevalues, _ref2) >= 0;
               } else {
@@ -775,6 +879,10 @@
           };
           friendlyMines = [
             {
+              name: "MouseMine",
+              queryUrl: "www.mousemine.org/mousemine",
+              baseUrl: "http://www.mousemine.org/mousemine/"
+            }, {
               name: "ModMine",
               queryUrl: "http://intermine.modencode.org/query",
               baseUrl: "http://intermine.modencode.org/release-32/"
@@ -782,6 +890,10 @@
               name: "FlyMine",
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
+            }, {
+              name: "ZebraFishMine",
+              queryUrl: "http://www.zebrafishmine.org",
+              baseUrl: "http://www.zebrafishmine.org/"
             }
           ];
           return Q.all((function() {
@@ -796,8 +908,6 @@
             return _this.calcStats(finished);
           }).then(function(test) {
             var fields, found, obj, parsedSpecies, res, result, _i, _len, _ref;
-            console.log("Returning final results", _this.totalResults);
-            console.log("Returning organism results", _this.organismMap);
             _ref = _this.totalResults.results;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               obj = _ref[_i];
@@ -806,28 +916,24 @@
                 found = _.findWhere(_this.organismMap, {
                   name: fields["organism.name"]
                 });
-                console.log("found", found);
                 obj.taxonId = found.taxonId;
                 obj.genus = found.genus;
                 obj.species = found.species;
                 obj.organismName = found.name;
                 obj.shortName = found.genus.charAt(0) + ". " + found.species;
-                console.log("Saving new item", obj);
               } else if (fields["organism.shortName"] !== void 0) {
                 res = fields["organism.shortName"].split(" ");
                 parsedSpecies = res[1];
                 found = _.findWhere(_this.organismMap, {
                   species: parsedSpecies
                 });
-                console.log("found", found);
                 obj.taxonId = found.taxonId;
                 obj.genus = found.genus;
                 obj.species = found.species;
                 obj.organismName = found.name;
                 obj.shortName = found.genus.charAt(0) + ". " + found.species;
-                console.log("Saving new item", obj);
               } else {
-                console.log("no match for obj", obj);
+      
               }
             }
             return result = {
@@ -845,7 +951,6 @@
             root: mineUrl
           });
           service.search(term).then(function(results) {
-            console.log("Raw results: ", results);
             _.map(results.results, function(res) {
               res.mineUrl = mineUrl;
               res.mineName = mineName;
@@ -861,7 +966,6 @@
               value = _ref[key];
               queryOrganismArray.push(key);
             }
-            console.log("queryOrganismArray", queryOrganismArray);
             if (queryOrganismArray.length > 0) {
               organismQuery = {
                 select: ["Organism.name", "Organism.taxonId", "Organism.genus", "Organism.species"],
@@ -874,17 +978,17 @@
               return [];
             }
           }).then(function(results) {
-            var organism, _i, _len;
-            console.log("ORGRESULTS", results);
+            var organism, _i, _len, _results;
+            _results = [];
             for (_i = 0, _len = results.length; _i < _len; _i++) {
               organism = results[_i];
               if (organism.taxonId in _this.organismMap) {
-                console.log("SKIPPING!!!!!!!!!!!");
+      
               } else {
-                _this.organismMap[organism.taxonId] = organism;
+                _results.push(_this.organismMap[organism.taxonId] = organism);
               }
             }
-            return console.log("can continue");
+            return _results;
           }).then(function() {
             return def.promise;
           });
@@ -910,7 +1014,6 @@
           someData = [];
           _.each(json.facets.Category, function(values, key, list) {
             var aMap;
-            console.log("key", key);
             aMap = {};
             aMap.legendLabel = key;
             aMap.magnitude = values;
@@ -993,14 +1096,11 @@
         };
       
         MyHelper.prototype.callThisFunction = function(d, filter) {
-          console.log("CALL THIS FUNICTION", filter);
           if (d.toggled === false || d.toggled === void 0) {
             d.toggled = true;
-            console.log("calling mediator for ON", mediator);
             mediator.trigger("filter:apply", [d.data[0], filter]);
           } else if (d.toggled === true) {
             d.toggled = false;
-            console.log("calling mediator for OFF", mediator);
             mediator.trigger("filter:remove", [d.data[0], filter]);
           }
           return console.log("d.toggled has been set to ", d.toggled);
@@ -1037,9 +1137,7 @@
             return d[1];
           });
           arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice").on("click", function(d) {
-            console.log("d.toggled is currently set to", d.toggled);
             if (d.toggled === false || d.toggled === void 0) {
-              console.log("EXPANDING");
               d3.select(this).classed("SOMETHING", true);
               d3.select(this).select("path").transition().duration(200).attr("d", arcOver);
               return that.callThisFunction(d, filter);
@@ -1083,7 +1181,6 @@
       
         MyHelper.prototype.buildBarChartNew = function(dataset) {
           var dataset2, h, key, svg, w, xScale, yScale;
-          console.log("buildBarchart called with ", dataset);
           w = 200;
           h = 25;
           dataset2 = dataset;
@@ -1094,15 +1191,12 @@
             })
           ]).range([0, h]);
           key = function(d) {
-            console.log("D", d);
             return d[0];
           };
           svg = d3.select("#datatypechart").append("svg").attr("width", w).attr("height", h);
           return svg.selectAll("rect").data(dataset2).enter().append("rect").attr("x", function(d, i) {
-            console.log("xScale", xScale(i));
             return xScale(i);
           }).attr("y", function(d) {
-            console.log("xScale", h - yScale(d[1]));
             return h - yScale(d[1]);
           }).attr("width", xScale.rangeBand()).attr("height", function(d) {
             return yScale(d[1]);
@@ -1130,7 +1224,7 @@
           key = function(d) {
             return d.key;
           };
-          svg = d3.select(location).append("svg").attr("width", w).attr("height", h);
+          svg = d3.select(location).html('').append("svg").attr("width", w).attr("height", h);
           return svg.selectAll("rect").data(dataset, key).enter().append("rect").attr("x", function(d, i) {
             return xScale(i);
           }).attr("y", function(d) {
@@ -1167,7 +1261,6 @@
           };
           svg = d3.select("#datatypechart").append("svg").attr("width", w).attr("height", h);
           return svg.selectAll("rect").data(dataset, key).enter().append("rect").attr("x", function(d, i) {
-            console.log("D STANDS FOR", d);
             return xScale(i);
           }).attr("y", function(d) {
             return h - yScale(d.value);
@@ -2087,47 +2180,57 @@
       
         FilterGenusView.prototype.toggle = function() {
           if (this.enabled === true) {
-            console.log("Triggering filter:remove");
             $(this.el).html(this.templateOff({
               result: this.options
             }));
             $(this.el).addClass("off");
             this.enabled = false;
-            return mediator.trigger("filter:newremove", {
+            return mediator.trigger("filter:removeGenus", {
               genus: this.options.genus
             });
           } else {
-            console.log("Triggering filter:apply");
             this.render();
             $(this.el).removeClass("off");
-            return this.enabled = true;
+            this.enabled = true;
+            return mediator.trigger("filter:addGenus", {
+              genus: this.options.genus
+            });
           }
         };
       
         FilterGenusView.prototype.showChildren = function() {
           var content;
-          console.log(this.options.collection);
           content = $(this.el).find('ul');
-          console.log("content", content);
-          return content.slideToggle(100, function() {
-            return console.log("sliding");
-          });
+          return content.slideToggle(100, function() {});
         };
       
-        FilterGenusView.prototype.filterAll = function() {
-          return console.log("this is me", this);
-        };
+        FilterGenusView.prototype.filterAll = function() {};
       
         FilterGenusView.prototype.initialize = function(attr) {
           this.options = attr;
-          return console.log("FilterGenusView initialized", this);
+          mediator.on('display:hideAllOrganisms', this.toggleOff, this);
+          return mediator.on('display:showAllOrganisms', this.toggleOn, this);
+        };
+      
+        FilterGenusView.prototype.toggleOff = function() {
+          $(this.el).html(this.templateOff({
+            result: this.options
+          }));
+          $(this.el).addClass("off");
+          return this.enabled = false;
+        };
+      
+        FilterGenusView.prototype.toggleOn = function() {
+          this.render();
+          $(this.el).removeClass("off");
+          return this.enabled = true;
         };
       
         FilterGenusView.prototype.render = function() {
           var nextModel, speciesView, ul, _i, _len, _ref1;
-          console.log("rendering");
           $(this.el).html(this.template({
-            result: this.options
+            result: this.options,
+            count: this.options.models.length
           }));
           ul = $('<ul>');
           ul.addClass("content");
@@ -2148,9 +2251,7 @@
           return d3.select("#" + this.model.get("name")).style("fill", "white");
         };
       
-        FilterGenusView.prototype.toggleMe = function() {
-          return console.log("clicked");
-        };
+        FilterGenusView.prototype.toggleMe = function() {};
       
         return FilterGenusView;
       
@@ -2197,21 +2298,14 @@
           return this.model.on('change:enabled', this.render);
         };
       
-        FilterListItemView.prototype.render2 = function() {
-          return console.log("second step");
-        };
-      
         FilterListItemView.prototype.render = function() {
-          console.log("RENDER HAS BEEN CALLED?", this.model);
           if (this.model.get("enabled") === true) {
-            console.log("model is true");
             $(this.el).html(this.template({
               result: this.model.toJSON()
             }));
             $(this.el).removeClass("off");
             mediator.trigger("filter:apply", [this.model.get("name"), "type"]);
           } else {
-            console.log("model is false");
             $(this.el).html(this.templateOff({
               result: this.model.toJSON()
             }));
@@ -2228,7 +2322,6 @@
       
         FilterListItemView.prototype.toggleMe = function() {
           if (this.model.get("enabled") === true) {
-            console.log("Triggering filter:remove");
             $(this.el).html(this.templateOff({
               result: this.model.toJSON()
             }));
@@ -2236,9 +2329,8 @@
             this.model.set({
               enabled: false
             });
-            return mediator.trigger("filter:remove", [this.model.get("name"), "type"]);
+            return mediator.trigger("filter:removeType", this.model.get("name"));
           } else {
-            console.log("Triggering filter:apply");
             $(this.el).html(this.template({
               result: this.model.toJSON()
             }));
@@ -2246,7 +2338,7 @@
               enabled: true
             });
             $(this.el).removeClass("off");
-            return mediator.trigger("filter:apply", [this.model.get("name"), "type"]);
+            return mediator.trigger("filter:addType", this.model.get("name"));
           }
         };
       
@@ -2282,7 +2374,6 @@
       
         FilterListView.prototype.initialize = function() {
           return $(this.el).mouseleave(function() {
-            console.log("The mouse has left me.");
             return mediator.trigger("charts:clear", {});
           });
         };
@@ -2290,7 +2381,6 @@
         FilterListView.prototype.render = function() {
           var $el;
           $el = $(this.el);
-          console.log("Render has been called on FilterListView", this.collection);
           this.collection.each(function(nextModel) {
             var itemView;
             itemView = new FilterListItemView({
@@ -2346,21 +2436,14 @@
           return this.model.on('change:enabled', this.render);
         };
       
-        FilterOrganismItemView.prototype.render2 = function() {
-          return console.log("second step");
-        };
-      
         FilterOrganismItemView.prototype.render = function() {
-          console.log("RENDER HAS BEEN CALLED?", this.model);
           if (this.model.get("enabled") === true) {
-            console.log("model is true");
             $(this.el).html(this.template({
               result: this.model.toJSON()
             }));
             $(this.el).removeClass("off");
             mediator.trigger("filter:apply", [this.model.get("taxonId"), "organism"]);
           } else {
-            console.log("model is false");
             $(this.el).html(this.templateOff({
               result: this.model.toJSON()
             }));
@@ -2377,7 +2460,6 @@
       
         FilterOrganismItemView.prototype.toggleMe = function() {
           if (this.model.get("enabled") === true) {
-            console.log("Triggering filter:remove");
             $(this.el).html(this.templateOff({
               result: this.model.toJSON()
             }));
@@ -2387,7 +2469,6 @@
             });
             return mediator.trigger("filter:remove", [this.model.get("taxonId"), "organism"]);
           } else {
-            console.log("Triggering filter:apply");
             $(this.el).html(this.template({
               result: this.model.toJSON()
             }));
@@ -2433,6 +2514,8 @@
       
         FilterOrganismView.prototype.className = "expandable";
       
+        FilterOrganismView.prototype.childViews = [];
+      
         FilterOrganismView.prototype.templateOff = require('../templates/FilterListItemOffTemplate');
       
         FilterOrganismView.prototype.events = function() {
@@ -2443,12 +2526,8 @@
       
         FilterOrganismView.prototype.showChildren = function() {
           var content;
-          console.log(this.options.collection);
           content = $(this.el).find('ul');
-          console.log("content", content);
-          return content.slideToggle(100, function() {
-            return console.log("sliding");
-          });
+          return content.slideToggle(100, function() {});
         };
       
         FilterOrganismView.prototype.describe = function() {
@@ -2460,25 +2539,21 @@
         };
       
         FilterOrganismView.prototype.initialize = function(attr) {
-          this.options = attr;
-          return console.log("FilterOrganismView initialized", this);
+          return this.options = attr;
         };
       
         FilterOrganismView.prototype.render = function() {
           var group, groups, nextGenus;
-          console.log("FilterOrganismView render called.");
           groups = this.options.collection.groupBy(function(model) {
             return model.get("genus");
           });
           for (group in groups) {
-            console.log("next group", groups[group]);
             nextGenus = new FilterGenusView({
               models: groups[group],
               genus: group
             });
             $(this.el).append(nextGenus.render().$el);
           }
-          console.log("my el from org view", $(this.el));
           return this;
         };
       
@@ -2577,9 +2652,10 @@
       
         OrganismListView.prototype.tagName = "ul";
       
+        OrganismListView.prototype.childViews = [];
+      
         OrganismListView.prototype.initialize = function() {
           return $(this.el).mouseleave(function() {
-            console.log("The mouse has left me.");
             return mediator.trigger("charts:clear", {});
           });
         };
@@ -2587,12 +2663,12 @@
         OrganismListView.prototype.render = function() {
           var $el;
           $el = $(this.el);
-          console.log("Render has been called on OrganismListView", this.collection);
           this.collection.each(function(nextModel) {
             var itemView;
             itemView = new FilterOrganismItemView({
               model: nextModel
             });
+            this.childViews.push(itemView);
             return $el.append(itemView.render().$el);
           });
           return this;
@@ -2631,11 +2707,12 @@
         ResultView.prototype.template = require('../templates/resultsrow');
       
         ResultView.prototype.initialize = function() {
-          return this.model.on('change:show', this.toggleVisible, this);
+          return this.model.on('change:enabled', this.toggleVisible, this);
         };
       
         ResultView.prototype.toggleVisible = function() {
-          return $(this.el).toggleClass('hidden', !this.model.get("show"));
+          console.log("CHANGING VISIBILITY");
+          return $(this.el).toggleClass('hidden', !this.model.get("enabled"));
         };
       
         ResultView.prototype.render = function() {
@@ -2678,8 +2755,7 @@
         ResultsTableView.prototype.template = require('../templates/resultstable');
       
         ResultsTableView.prototype.initialize = function() {
-          ResultsTableView.__super__.initialize.apply(this, arguments);
-          return console.log("ResultTable Initialized with collection:", this.collection);
+          return ResultsTableView.__super__.initialize.apply(this, arguments);
         };
       
         ResultsTableView.prototype.render = function() {
@@ -2731,7 +2807,6 @@
         var FilterOrganismView = require("../views/FilterOrganismView");
       
       
-      
         var searchResultsCollection = {};
         var filterTypeArr = [];
         var filterOrganismArr = [];
@@ -2740,10 +2815,10 @@
       
         var myResultsCollection = new ResultsCollection();
       
-        var tview;
       
         var categoryFilterListCollection = new FilterListCollection();
         var organismFilterListCollection = new FilterListCollection();
+        var organismCollection = new OrganismCollection();
       
         var globalFilter = {};
       
@@ -2762,28 +2837,45 @@
             // Add the "ENTER" keypress to our search box:
       
             $('#' + params.input).on('keypress', function(e) {
-              console.log("triggered");
+      
+              if (e.keyCode == 13) {
+      
+                value = $('#' + params.input).val()
+                $("#minisearch").val(value);
+                
+                mediator.trigger('rand', {test: value});
+                return false;
+              }
+            });
+      
+            $('#minisearch').on('keypress', function(e) {
+      
+              
+              
+             
               if (e.keyCode == 13) {
                 
-                mediator.trigger('rand', {});
+                mediator.trigger('rand', {test: $("#minisearch").val()});
                 return false;
               }
             });
       
             $('#hideAllDataTypes').on('click', function(e) {
-              mediator.trigger('hideAllDataTypes', {});
+              mediator.trigger('filter:removeAllTypes', {});
+              mediator.trigger('display:hideAllTypes', {});
             });
       
             $('#showAllDataTypes').on('click', function(e) {
-              mediator.trigger('showAllDataTypes', {});
+              mediator.trigger('filter:addAllTypes', {});
+              mediator.trigger('display:showAllTypes')
             });
       
             $('#hideAllOrganisms').on('click', function(e) {
-              mediator.trigger('hideAllOrganisms', {});
+              mediator.trigger('display:hideAllOrganisms', {});
             });
       
              $('#showAllOrganisms').on('click', function(e) {
-              mediator.trigger('showAllOrganisms', {});
+              mediator.trigger('display:showAllOrganisms', {});
             });
       
       
@@ -2792,64 +2884,21 @@
             // Attach our listeners to the medaitor
       
             mediator.on('rand', this.rand, this);
-            mediator.on('column:add', this.addColumn, this);
+            // mediator.on('column:add', this.addColumn, this);
             mediator.on('filter:apply', this.applyFilter, this);
-            mediator.on('filter:remove', this.removeFilter, this);
+            // mediator.on('filter:remove', this.removeFilter, this);
             mediator.on('filter:hello', this.test2, this);
             mediator.on('medTest', this.test, this);
       
             mediator.on('charts:clear', this.clearCharts, this);
       
-            mediator.on('hideAllDataTypes', this.hideAllDataTypes, this);
-            mediator.on('showAllDataTypes', this.showAllDataTypes, this);
-            mediator.on('hideAllOrganisms', this.hideAllOrganisms, this);
-            mediator.on('showAllOrganisms', this.showAllOrganisms, this);
+            mediator.on('display:hideAllTypes', this.hideAllDataTypes, this);
+            mediator.on('display:showAllTypes', this.showAllDataTypes, this);
+            mediator.on('display:hideAllOrganisms', this.hideAllOrganisms, this);
+            mediator.on('display:showAllOrganisms', this.showAllOrganisms, this);
       
             mediator.on('filter:newremove', this.newremove, this);
-            //this.rand();
       
-      /*
-            $('#' + params.input).on('keyup change', function() {
-              console.log("changed");
-            });*/
-      
-            // Listen to our mediator for events
-      
-      
-            // tview = new ResultsTypeCategoryView({model: typecat});
-            // tview.render();
-      
-            // Set up our mock filters:
-      
-            // models...
-            // var mod1 = new FilterListItem();
-            // var mod2 = new FilterListItem();
-            // var mod3 = new FilterListItem();
-      
-            // // var view1 = new ResultsTypeCategoryView({model: mod1});
-            // // var view2 = new ResultsTypeCategoryView({model: mod2});
-            // // var view3 = new ResultsTypeCategoryView({model: mod3});
-      
-            // mod1.set({name: "Publications"});
-            // mod2.set({name: "Proteins"});
-            // mod3.set({name: "Authors"});
-      
-            // // $('#typecategories').append(view1.render().el);
-            // // $('#typecategories').append(view2.render().el);
-            // // $('#typecategories').append(view3.render().el);
-            // // //console.log("rendered: ", view1.render().el);
-      
-            // var newFilterListCollection = new FilterListCollection();
-      
-            // newFilterListCollection.add(mod1);
-            // newFilterListCollection.add(mod2);
-            // newFilterListCollection.add(mod3);
-      
-            // Now create our ListView
-            //var newFilterListView = new FilterListView({collection: newFilterListCollection});
-            //$('#FilterList').append(newFilterListView.render().$el);
-            //$('#FilterList').append(newFilterListView.render().$el);
-            //newFilterListecollection
         
       
       
@@ -2879,37 +2928,28 @@
       
           hideAllOrganisms: function() {
       
-            organismFilterListCollection.toggleAll(false);
+            mediator.trigger("filter:removeAllGenus", {});
+            organismCollection.toggleAll(false);
       
           },
       
           showAllOrganisms: function() {
       
             organismFilterListCollection.toggleAll(true);
+            mediator.trigger("filter:addAllGenus", {})
       
           },
       
       
       
-          test2: function() {
-            typecat.toggle();
-            tview.render();
-            console.log("TYPECAT2", typecat.get("enabled"));
-            
-          },
+      
       
           clearCharts: function() {
-            //alert('clearing charts');
             d3.selectAll(".mychart").style("fill", "#808080")
-            //d3.select("#" + @model.get("name")).style("fill", "white");
           },
       
           removeFilter: function(value) {
       
-      
-      
-      
-            console.log("REMOVE FILTER CALLED");
       
             _.each(myResultsCollection.models, function(aModel) {
               console.log("nextModel", aModel);
@@ -2917,49 +2957,32 @@
             });
       
       
-      
-      
-            console.log("removeFilter called with ", value);
-      
             if (value[1] === "type") {
               filterTypeArr = _.without(filterTypeArr, value[0]);
             } else if (value[1] === "organism") {
-              console.log("filterOrganismArr is", filterOrganismArr);
               filterOrganismArr = _.without(filterOrganismArr, value[0]);
             }
       
             var nResults = myResultsCollection.filterType(filterTypeArr, filterOrganismArr);
             console.log("filtered results", nResults);
             _.each(nResults, function(aModel) {
-                console.log("nextModel2", aModel);
                 aModel.set({show: true});
             });
       
-            console.log ("filterTypeArr is now ", filterTypeArr.length);
       
-      
-            // if (filterTypeArr.length < 1) {
-            //   console.log("SHOWING ALL ITEMS");
-            //   _.each(myResultsCollection.models, function(aModel) {
-            //     aModel.set({show: true});
-            //   });
-            // }
-      
-            
       
       
           },
       
           applyFilter: function(value) {
       
-            console.log("calling applyFilter with value", value);
+      
       
             // Hide all of our results:
             _.each(myResultsCollection.models, function(aModel) {
               aModel.set({show: false});
             });
       
-            console.log("applyFilter called with ", value[0]);
             if (value[1] === "type") {
               filterTypeArr.push(value[0]);
             } else if (value[1] === "organism") {
@@ -2968,46 +2991,55 @@
             
       
             var nResults = myResultsCollection.filterType(filterTypeArr, filterOrganismArr);
-            console.log("filtered results", nResults);
             _.each(nResults, function(aModel) {
-                console.log("nextModel2", aModel);
                 aModel.set({show: true});
             });
       
           },
       
           test: function(val) {
-            console.log("test called with ", val);
             filterTypeArr.push(val[0]);
             var nResults = myResultsCollection.filterType(filterTypeArr);
-            console.log("filtered results", nResults);
             _.each(nResults, function(aModel) {
-                console.log("nextModel2", aModel);
                 aModel.set({show: true});
             });
           },
       
       
-          rand: function() {
+          rand: function(searchValue) {
       
+      
+            // Reset our collections
+            myResultsCollection.reset();
+      
+      
+            categoryFilterListCollection.reset();
+            organismFilterListCollection.reset();
+            organismCollection.reset();
       
             $("#searchbox").css("display", "none");
+      
+      
       
             that = this;
       
             // Get results from the quick search
             var aHelper = new Helper();
-            value = $("#textsearch").val();
+      
+            value = searchValue.test;
+      
+      
+            // value = $("#textsearch").val();
+      
             var someResults = aHelper.quickSearchEverything(value);
       
             // Evaluate the results and render our items
             Q(someResults)
             .then(function(o) {
-              console.log("TOTALLED RESULTSs", o);
+      
               var myOrganisms = o.organisms
               var myResults = o.results
       
-              console.log("my results", myResults.results);
       
               var countedTypes = _.countBy(myResults.results, function(result) {
       
@@ -3023,11 +3055,7 @@
               for(var propt in countedTypes){
                   var anotherModel = new FilterListItem({name: propt, count: countedTypes[propt] });
       
-      
                   categoryFilterListCollection.add(anotherModel);
-      
-                  console.log("ANOTHER MODEL", anotherModel);
-                  console.log(propt + ': ' + countedTypes[propt]);
                   filterTypeArr.push(propt);
       
               }
@@ -3071,19 +3099,15 @@
               //     console.log(propt + ': ' + o.facets.Category[propt]);
               // }
               
-      
-              console.log("MY ORGANISMS", myOrganisms);
-              var organismCollection = new OrganismCollection();
+              
               // Create an ORGANISM COLLECTION
               for (var item in myOrganisms) {
                 if (myOrganisms.hasOwnProperty(item)) {
                   var newOrganism = new OrganismItem(myOrganisms[item]);
                   organismCollection.add(newOrganism);
-                  console.log("key ", myOrganisms[item]);
                 }
                //console.log("next item", item);
               }
-              console.log("PLEASE LOOK FOR ME3", organismCollection);
       
               var counted = _.countBy(organismCollection.models, function(model) {
       
@@ -3092,38 +3116,32 @@
       
               });
       
-              console.log("sorted", counted);
       
               // var organismFilterListView = new FilterListView({collection: organismFilterListCollection});
               var organismFilterListView = new OrganismListView({collection: organismCollection});
       
               
+              $('#CategoryFilterList').html(categoryFilterListView.render().$el);
+              // $('#CategoryFilterList').html("EMPTY");
       
-            
-              console.log("PLEASE LOOK FOR ME21");
       
-      
-              console.log("populated organismCollection", organismCollection);
-              $('#CategoryFilterList').append(categoryFilterListView.render().$el);
               // $('#OrganismFilterList').append(organismFilterListView.render().$el);
       
-              console.log("PRE MAP");
+      
       
               // Now map some data
-              console.log("category", categoryFilterListCollection);
               //var enabledCategories = _.where(categoryFilterListCollection, {enabled: false});
       
-              console.log("POST MAP");
               //console.log("ENABLED CATEGORIES", enabledCategories);
       
               categoryValues = categoryFilterListCollection.map(function(model) {
-                console.log("HERE");
+      
                 var test = {key: model.get("name"), value: model.get("count")};
                 return test;
               });
       
               organismValues = organismFilterListCollection.map(function(model) {
-                console.log("HERE");
+      
                 var test = {key: model.get("name"), value: model.get("count")};
                 return test;
               });
@@ -3134,13 +3152,13 @@
               //   return test;
               // });
       
-              // organismValues = organismFilterListCollection.map(function(model) {
-              //   console.log("HERE");
-              //   var test = {key: model.get("name"), value: model.get("count")};
-              //   return test;
-              // });
+              organismValues = organismFilterListCollection.map(function(model) {
       
-              console.log("next");
+                var test = {key: model.get("name"), value: model.get("count")};
+                return test;
+              });
+      
+      
       
               
       
@@ -3150,16 +3168,6 @@
               aHelper.buildBarChart(categoryValues, "#datatypechart");
               aHelper.buildBarChart(organismValues, "#organismchart");
       
-              organismFilterListCollection.toggleAll(true);
-              // aHelper.buildBarChart(values, "#organismchart");
-      
-              console.log("done building chart");
-      
-              //that.hideAllDataTypes();
-      
-              console.log("done again");
-      
-              
       
       //        d3.select("#Gene").style("fill", "red");
               _.each(o.results, function(x) {
@@ -3185,51 +3193,17 @@
               $('#resultscount').html(myResultsCollection.length + " results");
       
       
-      
-              console.log("myResultsCollection", myResultsCollection);
               var nextvalues = _.groupBy(myResultsCollection, function(item) {
                 console.log("next");
               })
       
-              console.log("next values: ", nextvalues);
       
-              // var filteredResults = myResultsCollection.byType("Gene");
-        
-      
-              // console.log("filtered results: ", filteredResults);
-      
-              // var testResults = _.filter(myResultsCollection, function(result) {
-              //     return result.get("type") == "Gene";
-              // });
-      
-      
-              //console.log("testResults", testResults);
-              // _.each(testResults, function(result) {
-              //   //console.log("HELP ME", result.get("type"));
-              // });
       
       
               var catPairs = _.pairs(o.facets.Category);
-              console.log("catPairs", catPairs);
               //aHelper.buildChartOrganisms(catPairs, "type");
       
-      
-           
               var pairs = _.pairs(o.facets.organisms);
-              console.log("pairs", pairs);
-              //aHelper.buildChartOrganisms(pairs, "organism");
-      
-              // Now get the stats for our bar charts:
-            
-      
-              //aHelper.buildBarChartNew([["one", 1], ["two", 2], ["three", 3]]);
-              //aHelper.buildBarChart2();
-      
-              console.log("bar chart built");
-      
-              console.log("collection", myResultsCollection);
-      
-              console.log("now doing some filtering");
       
       
               grouped = organismCollection.groupBy (function(model) {
@@ -3245,109 +3219,40 @@
               // }
       
               var orgView = new FilterOrganismView({collection: organismCollection});
-              console.log("Rendering orgView");
+      
               //console.log("renderedddddd", orgView.render().$el);
       
-              $('#OrganismFilterList').append(orgView.render().$el);
+              $('#OrganismFilterList').html(orgView.render().$el);
       
-              console.log("Done rendering orgView");
+      
       
               //var aGenus = new FilterGenusView({models: organismCollection.models, genus: "Drosophila"});
               //aGenus.render();
       
-              console.log("done");
-      
-              var customFilter = {type: ["Protein", "RNAiResult", "Gene"], taxonId: [7237]};
-              var filtered = myResultsCollection.filter(customFilter);
-              console.log("final filtered", filtered);
-      
-            myResultsCollection.buildFilter({});
       
       
-            console.log("That's all, folks.");
+              // var customFilter = {type: ["Protein", "RNAiResult", "Gene"], taxonId: [7237]};
+              // var filtered = myResultsCollection.filter(customFilter);
+              // console.log("final filtered", filtered);
       
-      
-      
-      
-      
-      
-      /*
-              var nResults = myResultsCollection.filterType("Something");
-              console.log("nResults", nResults);
-      
-              _.each(nResults, function(aModel) {
-                console.log("nextModel", aModel);
-                aModel.set({show: true});
-              });
-      
-              var thirdModel = myResultsCollection.at(3);
-              console.log("third model", thirdModel);
-      
+              myResultsCollection.buildFilter({});
+              //myResultsCollection.filterTest();
               
-      
-              var val = _.contains(myResultsCollection.models, thirdModel);
-              console.log("val", val);
-      */
+              $(".toolbarLeft").removeClass("hidden");
       
       
       
-      
-            
-      
-      
-      /*
-              myResultsCollection.each(function(model) {
-                model.set({show: true});
-              });*/
-              //$el.append(myResultsTableView.render().$el);
-              //myResultsTableView.render();   
-      
-      
-        
-              /*
-              console.log("SOME RESULTS FACETS", o);
-              var pairs = _.pairs(o.facets.organisms);
-              console.log("pairs", pairs);
-              aHelper.buildChartOrganisms(pairs);
-              */
             })
             .then(function() {
               console.log("I am finished");
       
+      
             });
       
-            // Now our data is collected.
-      
-            //aHelper.calcOrganisms(someResults);
-      
-      
-      
-      
       
           },
       
-          rand2: function() {
-          var aHelper = new Helper();
-          value = $("#textsearch").val();
-          someResults = aHelper.quickSearchSingle(value);
       
-          Q(someResults)
-          .then(function(o){
-            var categories = aHelper.calcCategories(o);
-            var organisms = aHelper.calcOrganisms(o);
-      
-            aHelper.buildChart(categories);
-            aHelper.buildChart(organisms);
-            return someData;
-             // console.log(JSON.stringify(o, null, 2));
-            })
-          .then(function() {
-            aHelper.buildChart(someData);
-          })
-          .then(function() {
-            someData = aHelper.calc
-          });
-          },
       
           render: function() {
             return this;

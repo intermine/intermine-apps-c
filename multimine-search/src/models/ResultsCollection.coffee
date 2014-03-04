@@ -1,3 +1,4 @@
+mediator = require("../modules/mediator");
 ResultModel = require './ResultModel'
 
 class ResultsCollection extends Backbone.Collection
@@ -8,11 +9,106 @@ class ResultsCollection extends Backbone.Collection
 
 	initialize: ->
 		# console.log "ResultsCollection has been initialized"
-
-
+		mediator.on "filter:removeGenus", @filterRemoveGenus, @
+		mediator.on "filter:removeAllGenus", @filterRemoveAllGenus, @
+		mediator.on "filter:addGenus", @filterAddGenus, @
+		mediator.on "filter:removeType", @filterRemoveType, @
+		mediator.on "filter:removeAllTypes", @filterRemoveAllTypes, @
+		mediator.on "filter:addType", @filterAddType, @
+		mediator.on "filter:addAllTypes", @filterAddAllTypes, @
+		mediator.on "filter:addAllGenus", @filterAddAllGenus, @
 
 	comparator: (mod) ->
 		return -mod.get "relevance"
+
+	filterRemoveGenus: (keypair) ->
+		delete @globalFilter.genus[keypair.genus]
+
+		do @filterTest
+
+	filterRemoveAllGenus: ->
+
+		for prop of @globalFilter.genus
+			delete @globalFilter.genus[prop]
+
+		do @filterTest
+
+
+	filterAddAllTypes: (value) ->
+
+		typeModels = _.groupBy @models, (item) ->
+		 	item.get "type"
+
+		for key of typeModels
+			@globalFilter.type.push key
+
+
+		do @filterTest
+
+	filterRemoveAllTypes: (value) ->
+
+		@globalFilter.type = []
+
+
+		do @filterTest
+
+	filterAddType: (value) ->
+
+		@globalFilter.type.push value
+
+		do @filterTest
+
+	filterRemoveType: (value) ->
+
+		@globalFilter.type =  _.without(@globalFilter.type, value)
+
+		do @filterTest
+		
+
+	filterAddGenus: (keypair) ->
+
+		console.log "filterAddGenus called", keypair.genus
+
+		# genusModels = _.where(@models, {genus: keypair.genus})
+
+		taxonids = []
+
+		genusModels = _.groupBy @models, (item) ->
+		 	item.get "genus"
+
+		for model in genusModels[keypair.genus]
+			taxonids.push model.get "taxonId"
+
+		@globalFilter.genus[keypair.genus] = _.uniq(taxonids)
+
+		do @filterTest
+
+	filterAddAllGenus: (keypair) ->
+
+		# alert "ADD ALL GENUS CALLED"
+		# genusModels = _.where(@models, {genus: keypair.genus})
+
+		
+
+		genusModels = _.groupBy @models, (item) ->
+		 	item.get "genus"
+
+		console.log "genusModels", genusModels
+
+		for eachGenus of genusModels
+
+			taxonids = []
+
+			for model in genusModels[eachGenus]
+				taxonids.push model.get "taxonId"
+
+			@globalFilter.genus[eachGenus] = _.uniq(taxonids)
+
+
+		do @filterTest
+
+		# Get the models that contain the genus being passed in:
+
 
 	buildFilter: (filterObj) ->
 
@@ -25,40 +121,66 @@ class ResultsCollection extends Backbone.Collection
 		genusGroups = _.groupBy @models, (item) ->
 			item.get "genus"
 
-		console.log "genusGroup", genusGroups
 
-		@globalFilter.genus = []
+		@globalFilter.genus = {}
 
-		for genus of genusGroups
+		for nextgenus of genusGroups
 			
 
-			if genus isnt "undefined"
-				console.log "genus", genus
+			if nextgenus isnt "undefined"
+
 
 
 
 				# @globalFilter.genus[genus] = _.map genusGroups[genus], (model) ->
 				#  	model.get "taxonId"
 
-				test = _.map genusGroups[genus], (model) ->
+				taxonids = _.map genusGroups[nextgenus], (model) ->
 				 	model.get "taxonId"
 
 				 genusObj = {}
-				 genusObj[genus] = test
+				 genusObj[nextgenus] = taxonids
 
-				console.log "test", _.uniq(test)
+				# @globalFilter.genus.push genusObj
+				@globalFilter.genus[nextgenus] = _.uniq(taxonids)
 
-				@globalFilter.genus.push genusObj
    
   		# Build our list of organisms (genus and species)
 		@globalFilter.type = (prop for prop of types)
 
 
 
-		console.log "done with filter", @globalFilter
+	# Accepts an object that is then used to filter this collection's models.
+	# Each value in the object's keys must be in an array, as each new key
+	# is treated as an "AND", and each array value is treated as an "OR"
+	filterTest: ->
+		# alert("filterTest has been called")
+		console.log "filterTest called with object: ", @globalFilter
+
+		filtered = this.models.filter (model) =>
+
+			# Loop through our types to see if the model matches the type
+			if (model.get("type")) not in @globalFilter.type
+				model.set({enabled: false})
+				return false
+
+			# Passed the type test, now filter by genus
+			if (model.get("genus")) is undefined
+				model.set({enabled: true})
+				return true
+
+			if (model.get("genus")) of @globalFilter.genus
+				model.set({enabled: true})
+				return true
+			else
+				model.set({enabled: false})
+				return false
 
 
-		
+
+		console.log "filtered", filtered
+
+		filtered
 
 
 	# Accepts an object that is then used to filter this collection's models.
@@ -76,7 +198,6 @@ class ResultsCollection extends Backbone.Collection
 				# console.log "key: #{key}, value: #{value}"
 				if (model.get(key)) not in value
 
-					console.log "disposing model", model
 					return false
 
 			true
@@ -94,7 +215,6 @@ class ResultsCollection extends Backbone.Collection
 
 		# console.log "filtered", filtered
 		_.each filtered, (model) ->
-			console.log "model type", model.get "type"
 			# model.set({show: false})
 			# console.log "model", model.set({show: false})
 
@@ -103,8 +223,6 @@ class ResultsCollection extends Backbone.Collection
 
 	filterType: (typevalues, organismvalues) ->
 
-		console.log "filterType called with type values ", typevalues
-		console.log "filterType called with organism values ", organismvalues
 		# values = ["Publication", "Gene"]
 		that = this
 
@@ -117,12 +235,10 @@ class ResultsCollection extends Backbone.Collection
 			org = model.get("taxonId")
 
 			if organismvalues.length > 0 and typevalues.length < 1
-				console.log "case 1"
 				# org in organismvalues
 			else if organismvalues.length < 1 and typevalues.length > 0
 				model.get("type") in typevalues
 			else if organismvalues.length > 0 and typevalues.length > 0
-				console.log "HELLO", org
 				if org is undefined
 					model.get("type") in typevalues
 				else

@@ -12,10 +12,9 @@
 </script>
 
         <!-- the mousewheel plugin - optional to provide mousewheel support -->
-    <script type="text/javascript" src="jquery.mousewheel.js"></script>
 
-    <!-- the jScrollPane script -->
-    <script type="text/javascript" src="jquery.jscrollpane.min.js"></script>
+
+
 
 
 
@@ -36,7 +35,7 @@
   <div class="totalheight">
 
 
-    <div class="toolbarLeft">
+    <div class="toolbarLeft hidden">
 
   <!--       <div class="menutitle"><h4>Menu</h4></div>
         
@@ -59,6 +58,10 @@
         <div id="filter"></div>
 
         <h4>Results</h4>
+
+
+
+
 
          <div class="centerwrapper">
             <div id="resultscount" class="largelabel"></div>
@@ -85,10 +88,12 @@
         </div>
 
         <div id="OrganismFilterList"></div>
+        <div class="centerwrapper">
+<input type="checkbox" name="checkboxG1" id="checkboxG1" class="css-checkbox" checked="checked"/><label for="checkboxG1" class="css-label">Include results with no organism.</label>
+        </div>
 
     </div>
-
-    <div id="right">
+        <div id="right">
 
 
         <div id="searchbox" class="wrapper">
@@ -103,16 +108,15 @@
 
         </div>
 
+
         <div id="search-results"></div>
 
     </div>
+
+
     <div class="clear"></div>
   </div>
-<script>
-$(function() {
-    $('.toolbarLeft').jScrollPane();
-});
-</script>
+
 <!-- 
 
 <div class="toolbarLeft">
