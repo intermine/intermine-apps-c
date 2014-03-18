@@ -727,3 +727,15 @@ FOOTER
 	position: relative;
 	bottom: -1px;
 }
+
+
+.loading3{
+	background-color:#338BC7;
+	width:270px;
+	height:150px;
+	position:relative;
+	
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+}

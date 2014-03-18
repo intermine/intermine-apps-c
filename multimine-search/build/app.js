@@ -225,6 +225,8 @@
       	view.setElement($(params.target));
       	view.render();
       
+      
+      
       }
     });
 
@@ -248,22 +250,18 @@
       
         FilterListCollection.prototype.model = FilterListItem;
       
-        FilterListCollection.prototype.initialize = function() {
-          return console.log("FilterListCollection has been created.");
-        };
+        FilterListCollection.prototype.initialize = function() {};
       
         FilterListCollection.prototype.comparator = function(item) {
           return -item.get("count");
         };
       
         FilterListCollection.prototype.toggleAll = function(value) {
-          console.log("FilterListemCollection.toggleAll called with", value);
-          _.each(this.models, function(model) {
+          return _.each(this.models, function(model) {
             return model.set({
               enabled: value
             });
           });
-          return console.log("models now", this.models);
         };
       
         return FilterListCollection;
@@ -891,9 +889,13 @@
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
             }, {
-              name: "ZebraFishMine",
-              queryUrl: "http://www.zebrafishmine.org",
-              baseUrl: "http://www.zebrafishmine.org/"
+              name: "YeastMine",
+              queryUrl: "http://yeastmine.yeastgenome.org/yeastmine",
+              baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"
+            }, {
+              name: "WormMine",
+              queryUrl: "http://www.wormbase.org/tools/wormmine",
+              baseUrl: "http://www.wormbase.org/tools/wormmine/"
             }
           ];
           return Q.all((function() {
@@ -2822,6 +2824,8 @@
       
         var globalFilter = {};
       
+        var spinner;
+      
       
         // The Application
         // --------------
@@ -2877,6 +2881,14 @@
              $('#showAllOrganisms').on('click', function(e) {
               mediator.trigger('display:showAllOrganisms', {});
             });
+      
+      
+      
+            
+      
+      
+      
+             
       
       
       
@@ -3005,8 +3017,43 @@
             });
           },
       
+          showLoading: function() {
+      
+            var opts = {
+              lines: 11, // The number of lines to draw
+              length: 11, // The length of each line
+              width: 10, // The line thickness
+              radius: 23, // The radius of the inner circle
+              corners: 1, // Corner roundness (0..1)
+              rotate: 0, // The rotation offset
+              direction: 1, // 1: clockwise, -1: counterclockwise
+              color: '#000', // #rgb or #rrggbb or array of colors
+              speed: 1, // Rounds per second
+              trail: 71, // Afterglow percentage
+              shadow: true, // Whether to render a shadow
+              hwaccel: false, // Whether to use hardware acceleration
+              className: 'spinner', // The CSS class to assign to the spinner
+              zIndex: 2e9, // The z-index (defaults to 2000000000)
+              top: '50%', // Top position relative to parent in px
+              left: '50%' // Left position relative to parent in px
+            };
+            var target = document.getElementById('loading2');
+            spinner = new Spinner(opts).spin(target);
+      
+            console.log("SHOWING LOADING ANIMATION");
+      
+          },
+      
+          hideLoading: function() {
+      
+            spinner.stop();
+      
+          },
+      
       
           rand: function(searchValue) {
+      
+            //this.showLoading();
       
       
             // Reset our collections
@@ -3018,6 +3065,7 @@
             organismCollection.reset();
       
             $("#searchbox").css("display", "none");
+            
       
       
       
@@ -3238,6 +3286,7 @@
               myResultsCollection.buildFilter({});
               //myResultsCollection.filterTest();
               
+              //that.hideLoading();
               $(".toolbarLeft").removeClass("hidden");
       
       

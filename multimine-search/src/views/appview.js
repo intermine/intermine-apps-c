@@ -37,6 +37,8 @@
 
   var globalFilter = {};
 
+  var spinner;
+
 
   // The Application
   // --------------
@@ -92,6 +94,14 @@
        $('#showAllOrganisms').on('click', function(e) {
         mediator.trigger('display:showAllOrganisms', {});
       });
+
+
+
+      
+
+
+
+       
 
 
 
@@ -220,8 +230,43 @@
       });
     },
 
+    showLoading: function() {
+
+      var opts = {
+        lines: 11, // The number of lines to draw
+        length: 11, // The length of each line
+        width: 10, // The line thickness
+        radius: 23, // The radius of the inner circle
+        corners: 1, // Corner roundness (0..1)
+        rotate: 0, // The rotation offset
+        direction: 1, // 1: clockwise, -1: counterclockwise
+        color: '#000', // #rgb or #rrggbb or array of colors
+        speed: 1, // Rounds per second
+        trail: 71, // Afterglow percentage
+        shadow: true, // Whether to render a shadow
+        hwaccel: false, // Whether to use hardware acceleration
+        className: 'spinner', // The CSS class to assign to the spinner
+        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        top: '50%', // Top position relative to parent in px
+        left: '50%' // Left position relative to parent in px
+      };
+      var target = document.getElementById('loading2');
+      spinner = new Spinner(opts).spin(target);
+
+      console.log("SHOWING LOADING ANIMATION");
+
+    },
+
+    hideLoading: function() {
+
+      spinner.stop();
+
+    },
+
 
     rand: function(searchValue) {
+
+      //this.showLoading();
 
 
       // Reset our collections
@@ -233,6 +278,7 @@
       organismCollection.reset();
 
       $("#searchbox").css("display", "none");
+      
 
 
 
@@ -453,6 +499,7 @@
         myResultsCollection.buildFilter({});
         //myResultsCollection.filterTest();
         
+        //that.hideLoading();
         $(".toolbarLeft").removeClass("hidden");
 
 

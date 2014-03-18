@@ -20,6 +20,7 @@ module.exports = (grunt) ->
                     'vendor/q/q.js'
                     'vendor/imjs/js/im.js'
                     'vendor/d3/d3.min.js'
+                    'vendor/spinjs/spin.js'
                     'build/app.js'
                 ]
                 dest: 'build/app.bundle.js'

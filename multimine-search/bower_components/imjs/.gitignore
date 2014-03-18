@@ -1,0 +1,13 @@
+test/results
+test/browser/acceptance.html
+components
+coverage.html
+test/browser/index.html
+build-cov
+node_modules
+lib/*.js
+lib/*.js-old
+build
+build/*.js
+js
+doc
