@@ -22234,6 +22234,7 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
         MyHelper.prototype.calcStats = function(responseArray) {
           var key, response, value,
             _this = this;
+          console.log("() -> calcStats called with ", responseArray);
           return Q((function() {
             var _base, _base1, _i, _len, _ref, _ref1, _results;
             _results = [];
@@ -22258,7 +22259,9 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               _results.push(this.totalResults.results = this.totalResults.results.concat(response.results));
             }
             return _results;
-          }).call(this)).then(function(test) {});
+          }).call(this)).then(function(test) {
+            return console.log("calcStats @totalResults", _this.totalResults);
+          });
         };
       
         MyHelper.prototype.quickSearchEverything = function(term) {
@@ -22282,6 +22285,10 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
               queryUrl: "http://www.flymine.org/query",
               baseUrl: "http://www.flymine.org/release-38.0/"
             }, {
+              name: "ZebraFishMine",
+              queryUrl: "http://www.zebrafishmine.org",
+              baseUrl: "http://www.zebrafishmine.org/"
+            }, {
               name: "YeastMine",
               queryUrl: "http://yeastmine.yeastgenome.org/yeastmine",
               baseUrl: "http://yeastmine.yeastgenome.org/yeastmine/"
@@ -22300,37 +22307,49 @@ return i?u+i*(n[r]-u):u},Bo.median=function(t,e){return arguments.length>1&&(t=t
             }
             return _results;
           }).call(this)).then(function(finished) {
+            console.log("next step", finished);
             return _this.calcStats(finished);
           }).then(function(test) {
             var fields, found, obj, parsedSpecies, res, result, _i, _len, _ref;
+            console.log("moving along with ", _this.totalResults);
+            console.log("organism map: ", _this.organismMap);
             _ref = _this.totalResults.results;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               obj = _ref[_i];
               fields = obj.fields;
               if (fields["organism.name"] !== void 0) {
+                console.log("splitting2");
                 found = _.findWhere(_this.organismMap, {
                   name: fields["organism.name"]
                 });
-                obj.taxonId = found.taxonId;
-                obj.genus = found.genus;
-                obj.species = found.species;
-                obj.organismName = found.name;
-                obj.shortName = found.genus.charAt(0) + ". " + found.species;
+                if (found) {
+                  obj.taxonId = found.taxonId;
+                  obj.genus = found.genus;
+                  obj.species = found.species;
+                  obj.organismName = found.name;
+                  obj.shortName = found.genus.charAt(0) + ". " + found.species;
+                }
               } else if (fields["organism.shortName"] !== void 0) {
+                console.log("splitting ");
                 res = fields["organism.shortName"].split(" ");
                 parsedSpecies = res[1];
                 found = _.findWhere(_this.organismMap, {
                   species: parsedSpecies
                 });
-                obj.taxonId = found.taxonId;
-                obj.genus = found.genus;
-                obj.species = found.species;
-                obj.organismName = found.name;
-                obj.shortName = found.genus.charAt(0) + ". " + found.species;
+                console.log("found", found);
+                if (found) {
+                  obj.taxonId = found.taxonId;
+                  obj.genus = found.genus;
+                  obj.species = found.species;
+                  obj.organismName = found.name;
+                  obj.shortName = found.genus.charAt(0) + ". " + found.species;
+                  console.log("rmoved");
+                }
               } else {
       
               }
             }
+            console.log("final results ", _this.totalResults);
             return result = {
               results: _this.totalResults,
               organisms: _this.organismMap
