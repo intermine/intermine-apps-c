@@ -20,7 +20,7 @@ class MyHelper
 
 
 	calcStats: (responseArray) ->
-		console.log "() -> calcStats called with ", responseArray
+		# console.log "() -> calcStats called with ", responseArray
 		Q(	
 			for response in responseArray
 
@@ -36,7 +36,7 @@ class MyHelper
 				@totalResults.results = @totalResults.results.concat response.results
 
 		).then( (test) =>
-			console.log "calcStats @totalResults", @totalResults
+			# console.log "calcStats @totalResults", @totalResults
 				# @totalResults.facets.organisms["D. rerio"] = 5
 		)
 
@@ -67,14 +67,14 @@ class MyHelper
 		
 		.then (finished) =>
 
-			console.log "next step", finished
+			# console.log "next step", finished
 			@calcStats finished
 			# @calcStats @testjson
 
 		.then (test) =>
 
-			console.log "moving along with ", @totalResults
-			console.log "organism map: ", @organismMap
+			# console.log "moving along with ", @totalResults
+			# console.log "organism map: ", @organismMap
 
 
 			# Save organisms information to our results for easy filtering
@@ -83,7 +83,7 @@ class MyHelper
 
 				if fields["organism.name"] isnt undefined
 					# Search our map by organism.name
-					console.log "splitting2"
+					# console.log "splitting2"
 					found = _.findWhere(@organismMap, {name: fields["organism.name"]})
 
 					if found
@@ -97,24 +97,23 @@ class MyHelper
 
 				else if fields["organism.shortName"] isnt undefined
 					# Parse the species from our shortname
-					console.log "splitting "
+					# console.log "splitting "
 					res = fields["organism.shortName"].split(" ")
 
 					parsedSpecies = res[1]
 					found = _.findWhere(@organismMap, {species: parsedSpecies})
-					console.log "found", found
+					# console.log "found", found
 					if found
 						obj.taxonId = found.taxonId
 						obj.genus = found.genus
 						obj.species = found.species
 						obj.organismName = found.name
 						obj.shortName = found.genus.charAt(0) + ". " + found.species
-						console.log "rmoved"
 
 
 				else
 
-			console.log "final results ", @totalResults
+			# console.log "final results ", @totalResults
 
 			result =
 				results: @totalResults

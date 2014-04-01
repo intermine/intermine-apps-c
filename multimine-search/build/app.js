@@ -841,7 +841,6 @@
         MyHelper.prototype.calcStats = function(responseArray) {
           var key, response, value,
             _this = this;
-          console.log("() -> calcStats called with ", responseArray);
           return Q((function() {
             var _base, _base1, _i, _len, _ref, _ref1, _results;
             _results = [];
@@ -866,9 +865,7 @@
               _results.push(this.totalResults.results = this.totalResults.results.concat(response.results));
             }
             return _results;
-          }).call(this)).then(function(test) {
-            return console.log("calcStats @totalResults", _this.totalResults);
-          });
+          }).call(this)).then(function(test) {});
         };
       
         MyHelper.prototype.quickSearchEverything = function(term) {
@@ -914,18 +911,14 @@
             }
             return _results;
           }).call(this)).then(function(finished) {
-            console.log("next step", finished);
             return _this.calcStats(finished);
           }).then(function(test) {
             var fields, found, obj, parsedSpecies, res, result, _i, _len, _ref;
-            console.log("moving along with ", _this.totalResults);
-            console.log("organism map: ", _this.organismMap);
             _ref = _this.totalResults.results;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               obj = _ref[_i];
               fields = obj.fields;
               if (fields["organism.name"] !== void 0) {
-                console.log("splitting2");
                 found = _.findWhere(_this.organismMap, {
                   name: fields["organism.name"]
                 });
@@ -937,26 +930,22 @@
                   obj.shortName = found.genus.charAt(0) + ". " + found.species;
                 }
               } else if (fields["organism.shortName"] !== void 0) {
-                console.log("splitting ");
                 res = fields["organism.shortName"].split(" ");
                 parsedSpecies = res[1];
                 found = _.findWhere(_this.organismMap, {
                   species: parsedSpecies
                 });
-                console.log("found", found);
                 if (found) {
                   obj.taxonId = found.taxonId;
                   obj.genus = found.genus;
                   obj.species = found.species;
                   obj.organismName = found.name;
                   obj.shortName = found.genus.charAt(0) + ". " + found.species;
-                  console.log("rmoved");
                 }
               } else {
       
               }
             }
-            console.log("final results ", _this.totalResults);
             return result = {
               results: _this.totalResults,
               organisms: _this.organismMap
@@ -2626,17 +2615,14 @@
         };
       
         FilterSpeciesView.prototype.filterAll = function() {
-          mediator.trigger("filter:remove", [this.model.get("taxonId"), "organism"]);
-          return console.log(this.model.get("species") + " has been clicked");
+          return mediator.trigger("filter:remove", [this.model.get("taxonId"), "organism"]);
         };
       
         FilterSpeciesView.prototype.initialize = function(attr) {
-          this.options = attr;
-          return console.log("FilterSpeciesView initialized", this);
+          return this.options = attr;
         };
       
         FilterSpeciesView.prototype.render = function() {
-          console.log("Rendering a FilterSpeciesView");
           $(this.el).html(this.template({
             result: this.model.toJSON()
           }));
@@ -3261,7 +3247,7 @@
       
       
               var nextvalues = _.groupBy(myResultsCollection, function(item) {
-                console.log("next");
+                // console.log("next");
               })
       
       

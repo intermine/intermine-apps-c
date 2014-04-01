@@ -455,7 +455,7 @@
 
 
         var nextvalues = _.groupBy(myResultsCollection, function(item) {
-          console.log("next");
+          // console.log("next");
         })
 
 
