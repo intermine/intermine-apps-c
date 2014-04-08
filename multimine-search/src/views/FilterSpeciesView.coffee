@@ -13,20 +13,20 @@ class FilterSpeciesView extends Backbone.View
 	# Filter our collection
 	filterAll: ->
 		mediator.trigger "filter:remove", [@model.get("taxonId"), "organism"]
-		console.log @model.get("species") + " has been clicked"
+		# console.log @model.get("species") + " has been clicked"
 
 
 
 	initialize: (attr) ->
 		# Assume that we're being passed all models of the same genus!
 		@options = attr
-		console.log "FilterSpeciesView initialized", @
+		# console.log "FilterSpeciesView initialized", @
 
-		#@model.on('change:enabled', @render)
+		# @model.on('change:enabled', @render)
 		
 	render: =>
 
-		console.log "Rendering a FilterSpeciesView"
+		# console.log "Rendering a FilterSpeciesView"
 
 		# First render our heading:
 		$(@el).html @template {result: do @model.toJSON}

@@ -739,3 +739,18 @@ FOOTER
 	-webkit-border-radius:6px;
 	border-radius:6px;
 }
+
+#loadingbox {
+	text-align: center;
+}
+
+#loading2 {
+
+	width: 0px;
+	height: 0px;
+	background-color: green;
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 50px;
+
+}

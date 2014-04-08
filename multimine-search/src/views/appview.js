@@ -38,6 +38,7 @@
   var globalFilter = {};
 
   var spinner;
+  var spinner2;
 
 
   // The Application
@@ -98,10 +99,19 @@
 
 
       
+      $.fn.center = function ()
+      {
+          this.css("position","fixed");
+          this.css("top", ($(window).height() / 2) - (this.outerHeight() / 2));
+          this.css("left", ($(window).width() / 2) - (this.outerWidth() / 2));
+          return this;
+      }
 
-
-
-       
+      $('#loading2').center();
+      $(window).resize(function(){
+         $('#loading2').center();
+      });
+             
 
 
 
@@ -246,12 +256,19 @@
         shadow: true, // Whether to render a shadow
         hwaccel: false, // Whether to use hardware acceleration
         className: 'spinner', // The CSS class to assign to the spinner
-        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        zIndex: 20000000, // The z-index (defaults to 2000000000)
         top: '50%', // Top position relative to parent in px
         left: '50%' // Left position relative to parent in px
       };
+
+
+
+
       var target = document.getElementById('loading2');
+      $('#loading2').css("display", "block");
       spinner = new Spinner(opts).spin(target);
+
+
 
       console.log("SHOWING LOADING ANIMATION");
 
@@ -266,7 +283,7 @@
 
     rand: function(searchValue) {
 
-      //this.showLoading();
+      this.showLoading();
 
 
       // Reset our collections
@@ -455,7 +472,7 @@
 
 
         var nextvalues = _.groupBy(myResultsCollection, function(item) {
-          console.log("next");
+          // console.log("next");
         })
 
 
@@ -499,7 +516,8 @@
         myResultsCollection.buildFilter({});
         //myResultsCollection.filterTest();
         
-        //that.hideLoading();
+        that.hideLoading();
+        $("#loading2").css("display", "none");
         $(".toolbarLeft").removeClass("hidden");
 
 
