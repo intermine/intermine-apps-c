@@ -1,0 +1,176 @@
+<!doctype html>
+<html ng-app="myApp">
+<head>
+    <meta charset="utf-8">
+    <title>GeneCompare</title>
+    <!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+
+
+    <link href="css/style.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" type="text/javascript"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" type="text/javascript"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="myApp.js" type="text/javascript"></script>
+    <script src="js/im.js" type="text/javascript"></script>
+
+</head>
+<body ng-controller="appController">
+    <!--<script src="../build/app.bundle.js"></script>-->
+
+    <script>
+        // require('GeneCompare')({});
+    </script>
+
+
+<div>
+
+    <div class="alert alert-info" ng-show="loading">Loading</div>
+
+    <!-- Search Box -->
+    <form class="navbar-form halfwidth" role="search" ng-submit="getSimilarGenes(searchterm)">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="abd-A, ade3, Anp" name="searchterm" id="searchterm" ng-model="searchterm" defaultValue="abd-A, ade3, Anp">
+            <div class="input-group-btn">
+                <button class="btn btn-default" type="submit">Search <span class="glyphicon glyphicon-search"></span></button>
+            </div>
+        </div>
+    </form>
+
+    <div class="wrapper">
+
+    <div class="row" ng-controller="controller">
+
+
+        <div class="col-xs-3">
+
+            <!-- Results Panel -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">Search Results</div>
+                <div class="panel-body" ng-show="!testData">(Enter a search term for results.)</div>
+                <div class="panel-body" ng-show="testData">
+
+                        <table class="table table-striped">
+                            <thead>
+                                <th>Search Term</th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in searchTerms">
+                                    <td>{{item}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <div class="col-xs-3">
+
+            <!-- Results Panel -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">Similar Genes</div>
+                <div class="panel-body" ng-show="!testData">(Enter a search term for results.)</div>
+                <div class="panel-body" ng-show="testData">
+                        <table class="table table-striped">
+                            <thead>
+                                <th>Name</th>
+                                <th>Symbol</th>
+                                <th>Score</th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="(key, item) in commonGenes | orderObjectBy:item.score">
+                                    <td><a href="#" ng-click="getCommonItems(item.objectId)">{{item.primaryIdentifier}}</a></td><td>{{item.symbol}}</td><td>{{item.score}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <div class="col-xs-6">
+
+
+            <!-- Results Panel -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">Common Items for <span class="stressed">{{selectedCommonGene.symbol}}</span> ({{selectedCommonGene.primaryIdentifier}})</div>
+                <div class="panel-body" ng-show="!commonItems">(Enter a search term for results.)</div>
+                <div class="panel-body" ng-show="commonItems">
+
+
+                    <ul class="nav nav-pills">
+                      <li class="active" ng-click="clearFilter()" ng-class="{active: $index == 0}"><a href="#tab{{$index + 1}}" data-toggle="tab">All ({{commonItems.length}})</a></li>
+                      <li ng-repeat="(key, value) in countBy" ng-click="talk(key)" ><a href="#tab{{$index + 1}}" data-toggle="tab">{{key}} ({{value}})</a></li>
+                    </ul>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <th>Type</th>
+                            <th>Name</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in commonItems | filter:{class: filterItem}" >
+                                <td><a href="#">{{item.class}}</a></td>
+                                <td><a href="#">{{item.name}}</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- tttttttttttttttt -->
+
+        <!-- <div class="col-xs-3"> -->
+
+
+            <!-- Results Panel -->
+<!--             <div class="panel panel-primary">
+                <div class="panel-heading" ng-click="convertObjs()">InterMine Objects</div>
+                <div class="panel-body" ng-show="!commonItems">(Enter a search term for results.)</div>
+                <div class="panel-body">
+
+
+                Any: <input ng-model="search.$"> <br>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <th>Class</th>
+                            <th>Name</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="test in imObjects | filter:search">
+                                <td>{{test.class}}</td>
+                                <td>{{test.name}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div> -->
+
+    </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+</body>
+</html>
