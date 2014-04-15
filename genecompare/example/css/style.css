@@ -1,0 +1,239 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,100,500,300);
+
+.halfwidth {
+	width: 50%;
+	margin: 0 auto;
+	padding: 15px;
+}
+
+body {
+    background: #333;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/honey_im_subtle.png');
+    background-repeat: repeat;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+}
+
+.alert {
+	position:absolute;
+    z-index:1000000000;
+    width: 50%;
+
+}
+
+
+.slideup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+}
+.slideup.ng-enter,
+.slideup.ng-leave {
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    transition: all 1s ease;
+}
+.slideup.ng-enter {
+    top: 100%;
+}
+.slideup.ng-enter-active {
+    top: 0;
+}
+.slideup.ng-leave {
+    top: 0;
+}
+.slideup.ng-leave-active {
+    top: -100%;
+}
+
+.wrapper {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.stressed {
+    font-weight: bold;
+}
+
+
+
+
+.chart {
+
+}
+
+.main text {
+    font: 10px sans-serif;  
+}
+
+.axis line, .axis path {
+    shape-rendering: crispEdges;
+    stroke: black;
+    fill: none;
+}
+
+circle {
+    fill: steelblue;
+}
+
+circle.parent {
+    fill: #1BA1E2;
+
+}
+
+circle.child {
+    fill: #60a917;
+}
+
+path {
+  stroke: green;
+
+}
+
+network-chart {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1px;
+}
+
+circle {
+  /*fill: #ccc;*/
+  fill: #428BCA;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+text {
+  fill: #000;
+  font: 14px sans-serif;
+  pointer-events: none;
+
+}
+
+
+
+
+.selectMe {
+    color: orange;
+}
+
+/*.geneTile {
+
+    width: 200px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #1BA1E2;
+    color: white;
+    font-size: 14px;
+    padding: 2px;
+    margin: 0px;
+    font-weight: 500;
+    position: relative;
+    float: left;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 3px dotted black;
+
+
+}*/
+
+.geneTile {
+    display: table-cell;
+    width: 75px;
+    height: 75px;
+    background-color: black;
+    color: white;
+    font-size: 14px;
+    float: left;
+    padding: 2px;
+    margin: 0px;
+    text-align: center;
+    font-weight: 500;
+
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 3px solid white;
+    vertical-align: middle;
+
+}
+
+
+
+/*.geneTileContents {
+    position:absolute;
+    top:50%;
+    height:2em;
+    margin-top:-1em
+}*/
+
+/*.geneTile {
+    display: table;
+    height: 400px;
+    #position: relative;
+    overflow: hidden;
+}*/
+
+.selectedtargets {
+    background-color: #60a917;
+}
+
+.unselectedtargets {
+    background-color: #A4A97B;
+}
+
+.selectedsources {
+    background-color: #1BA1E2;
+}
+
+.unselectedsources {
+    background-color: #A3D0E2;
+}
+
+.geneTile.source {
+    background-color: #1BA1E2;
+}
+
+.geneTile.selectedsources.clicked {
+    border: 3px solid #1691CC;
+
+}
+
+.geneTile.target:hover {
+    border: 3px solid #549415;
+}
+
+
+.geneTile.target {
+    background-color: #60a917;
+}
+
+.geneTileContents {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.subtext {
+    font-size: 11px;
+    font-weight: 300;
+}
+
+
+
+
+
+
+
+
