@@ -183,6 +183,7 @@ class EnrichmentView extends Backbone.View
 
         # Get the actual data.
         @widget.queryRows pq, (response) =>
+
             # Assume the first column is the table column, while second is the matches object identifier (Gene).
             # Form 'publication -> genes' object.
             dict = {}
@@ -193,7 +194,7 @@ class EnrichmentView extends Backbone.View
             # Create a tab delimited string.
             result = []
             for model in selected
-                result.push [ model.get('description'), model.get('p-value') ].join("\t") + "\t" + dict[model.get('identifier')].join(',')
+                result.push [ model.get('description'), model.get('p-value') ].join("\t") + "\t" + dict[model.get('identifier')].join(',') + "\t" + model.get('identifier')
 
             if result.length
                 try

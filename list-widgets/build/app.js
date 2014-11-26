@@ -2063,6 +2063,7 @@
             model = selected[_i];
             rowIdentifiers.push(model.get('identifier'));
           }
+          console.log("full response from web service", this.response);
           pq = JSON.parse(this.response['pathQueryForMatches']);
           pq.where.push({
             "path": this.response.pathConstraint,
@@ -2082,7 +2083,8 @@
             result = [];
             for (_k = 0, _len2 = selected.length; _k < _len2; _k++) {
               model = selected[_k];
-              result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + dict[model.get('identifier')].join(','));
+              console.log("downloaded model:", model);
+              result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + dict[model.get('identifier')].join(',') + "\t" + model.get('identifier'));
             }
             if (result.length) {
               try {
