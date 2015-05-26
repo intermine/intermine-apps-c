@@ -82,6 +82,8 @@ class InterMineWidget
         @log.push 'Querying for rows'
 
         # TODO: capture errors.
-        @imjs.rows(query).done(cb)
+        @imjs.rows(query).then (val) =>
+            do cb val
+
 
 module.exports = InterMineWidget

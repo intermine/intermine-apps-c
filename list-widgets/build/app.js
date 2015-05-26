@@ -643,8 +643,11 @@
         };
       
         InterMineWidget.prototype.queryRows = function(query, cb) {
+          var _this = this;
           this.log.push('Querying for rows');
-          return this.imjs.rows(query).done(cb);
+          return this.imjs.rows(query).then(function(val) {
+            return cb(val)();
+          });
         };
       
         return InterMineWidget;
