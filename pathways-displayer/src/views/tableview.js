@@ -15,7 +15,7 @@ var TableView = Backbone.View.extend({
 
 
   initialize: function() {
-   
+
 
     _.bindAll(this,'render','renderOne');
     //console.log('table view initialized');
@@ -23,8 +23,8 @@ var TableView = Backbone.View.extend({
 
   },
   render: function() {
-
-    var compiledTemplate = _.template(templateTableHeadersSansTable, {columns: Globals.columns});
+    var template = _.template(templateTableHeadersSansTable);
+    var compiledTemplate = template({columns: Globals.columns});
     //console.log("compiledTemplate: " + compiledTemplate);
 
     this.$el.append(compiledTemplate);
