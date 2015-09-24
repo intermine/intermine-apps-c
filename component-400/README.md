@@ -69,5 +69,11 @@ Fetch them using [Bower](http://bower.io/):
 ```bash
 $ bower install
 ```
+###Troubleshooting
 
-If you are having throuble with [mori](https://github.com/swannodette/mori) make sure you have `Java` installed.
+If you are having trouble with [mori](https://github.com/swannodette/mori) make sure you have `Java` installed.
+
+If you get an error saying `mori is not defined` in the browser console, try:
+ * go to component-400/vendor/mori
+ * run `./scripts/build.sh`
+ * run `grunt` again (from the root component 400 folder). This this should now work. 

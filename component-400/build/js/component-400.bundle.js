@@ -15482,12 +15482,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 })();
 ;/* Blob.js
  * A Blob implementation.
- * 2013-06-20
- * 
+ * 2014-07-24
+ *
  * By Eli Grey, http://eligrey.com
- * By Devin Samarin, https://github.com/eboyjr
+ * By Devin Samarin, https://github.com/dsamarin
  * License: X11/MIT
- *   See LICENSE.md
+ *   See https://github.com/eligrey/Blob.js/blob/master/LICENSE.md
  */
 
 /*global self, unescape */
@@ -15496,12 +15496,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 /*! @source http://purl.eligrey.com/github/Blob.js/blob/master/Blob.js */
 
-if (!(typeof Blob === "function" || typeof Blob === "object") || typeof URL === "undefined")
-if ((typeof Blob === "function" || typeof Blob === "object") && typeof webkitURL !== "undefined") self.URL = webkitURL;
-else var Blob = (function (view) {
+(function (view) {
 	"use strict";
 
-	var BlobBuilder = view.BlobBuilder || view.WebKitBlobBuilder || view.MozBlobBuilder || view.MSBlobBuilder || (function(view) {
+	view.URL = view.URL || view.webkitURL;
+
+	if (view.Blob && view.URL) {
+		try {
+			new Blob;
+			return;
+		} catch (e) {}
+	}
+
+	// Internally we use a BlobBuilder implementation to base Blob off of
+	// in order to support older browsers that only have BlobBuilder
+	var BlobBuilder = view.BlobBuilder || view.WebKitBlobBuilder || view.MozBlobBuilder || (function(view) {
 		var
 			  get_class = function(object) {
 				return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
@@ -15532,16 +15541,34 @@ else var Blob = (function (view) {
 			, URL = real_URL
 			, btoa = view.btoa
 			, atob = view.atob
-			
+
 			, ArrayBuffer = view.ArrayBuffer
 			, Uint8Array = view.Uint8Array
+
+			, origin = /^[\w-]+:\/*\[?[\w\.:-]+\]?(?::[0-9]+)?/
 		;
 		FakeBlob.fake = FB_proto.fake = true;
 		while (file_ex_code--) {
 			FileException.prototype[file_ex_codes[file_ex_code]] = file_ex_code + 1;
 		}
+		// Polyfill URL
 		if (!real_URL.createObjectURL) {
-			URL = view.URL = {};
+			URL = view.URL = function(uri) {
+				var
+					  uri_info = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+					, uri_origin
+				;
+				uri_info.href = uri;
+				if (!("origin" in uri_info)) {
+					if (uri_info.protocol.toLowerCase() === "data:") {
+						uri_info.origin = null;
+					} else {
+						uri_origin = uri.match(origin);
+						uri_info.origin = uri_origin && uri_origin[1];
+					}
+				}
+				return uri_info;
+			};
 		}
 		URL.createObjectURL = function(blob) {
 			var
@@ -15632,77 +15659,96 @@ else var Blob = (function (view) {
 		FB_proto.toString = function() {
 			return "[object Blob]";
 		};
+		FB_proto.close = function() {
+			this.size = 0;
+			delete this.data;
+		};
 		return FakeBlobBuilder;
 	}(view));
 
-	return function Blob(blobParts, options) {
+	view.Blob = function(blobParts, options) {
 		var type = options ? (options.type || "") : "";
 		var builder = new BlobBuilder();
 		if (blobParts) {
 			for (var i = 0, len = blobParts.length; i < len; i++) {
-				builder.append(blobParts[i]);
+				if (Uint8Array && blobParts[i] instanceof Uint8Array) {
+					builder.append(blobParts[i].buffer);
+				}
+				else {
+					builder.append(blobParts[i]);
+				}
 			}
 		}
-		return builder.getBlob(type);
+		var blob = builder.getBlob(type);
+		if (!blob.slice && blob.webkitSlice) {
+			blob.slice = blob.webkitSlice;
+		}
+		return blob;
 	};
-}(self));
+
+	var getPrototypeOf = Object.getPrototypeOf || function(object) {
+		return object.__proto__;
+	};
+	view.Blob.prototype = getPrototypeOf(new view.Blob());
+}(typeof self !== "undefined" && self || typeof window !== "undefined" && window || this.content || this));
 ;/* FileSaver.js
  * A saveAs() FileSaver implementation.
- * 2013-10-21
+ * 1.1.20150716
  *
  * By Eli Grey, http://eligrey.com
  * License: X11/MIT
- *   See LICENSE.md
+ *   See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
  */
 
 /*global self */
-/*jslint bitwise: true, regexp: true, confusion: true, es5: true, vars: true, white: true,
-  plusplus: true */
+/*jslint bitwise: true, indent: 4, laxbreak: true, laxcomma: true, smarttabs: true, plusplus: true */
 
 /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
 
-var saveAs = saveAs
-  || (typeof navigator !== 'undefined' && navigator.msSaveOrOpenBlob && navigator.msSaveOrOpenBlob.bind(navigator))
-  || (function(view) {
+var saveAs = saveAs || (function(view) {
 	"use strict";
+	// IE <10 is explicitly unsupported
+	if (typeof navigator !== "undefined" && /MSIE [1-9]\./.test(navigator.userAgent)) {
+		return;
+	}
 	var
 		  doc = view.document
-		  // only get URL when necessary in case BlobBuilder.js hasn't overridden it yet
+		  // only get URL when necessary in case Blob.js hasn't overridden it yet
 		, get_URL = function() {
 			return view.URL || view.webkitURL || view;
 		}
-		, URL = view.URL || view.webkitURL || view
 		, save_link = doc.createElementNS("http://www.w3.org/1999/xhtml", "a")
-		, can_use_save_link =  !view.externalHost && "download" in save_link
+		, can_use_save_link = "download" in save_link
 		, click = function(node) {
-			var event = doc.createEvent("MouseEvents");
-			event.initMouseEvent(
-				"click", true, false, view, 0, 0, 0, 0, 0
-				, false, false, false, false, 0, null
-			);
+			var event = new MouseEvent("click");
 			node.dispatchEvent(event);
 		}
 		, webkit_req_fs = view.webkitRequestFileSystem
 		, req_fs = view.requestFileSystem || webkit_req_fs || view.mozRequestFileSystem
-		, throw_outside = function (ex) {
+		, throw_outside = function(ex) {
 			(view.setImmediate || view.setTimeout)(function() {
 				throw ex;
 			}, 0);
 		}
 		, force_saveable_type = "application/octet-stream"
 		, fs_min_size = 0
-		, deletion_queue = []
-		, process_deletion_queue = function() {
-			var i = deletion_queue.length;
-			while (i--) {
-				var file = deletion_queue[i];
+		// See https://code.google.com/p/chromium/issues/detail?id=375297#c7 and
+		// https://github.com/eligrey/FileSaver.js/commit/485930a#commitcomment-8768047
+		// for the reasoning behind the timeout and revocation flow
+		, arbitrary_revoke_timeout = 500 // in ms
+		, revoke = function(file) {
+			var revoker = function() {
 				if (typeof file === "string") { // file is an object URL
-					URL.revokeObjectURL(file);
+					get_URL().revokeObjectURL(file);
 				} else { // file is a File
 					file.remove();
 				}
+			};
+			if (view.chrome) {
+				revoker();
+			} else {
+				setTimeout(revoker, arbitrary_revoke_timeout);
 			}
-			deletion_queue.length = 0; // clear queue
 		}
 		, dispatch = function(filesaver, event_types, event) {
 			event_types = [].concat(event_types);
@@ -15718,7 +15764,17 @@ var saveAs = saveAs
 				}
 			}
 		}
-		, FileSaver = function(blob, name) {
+		, auto_bom = function(blob) {
+			// prepend BOM for UTF-8 XML and text/* types (including HTML)
+			if (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
+				return new Blob(["\ufeff", blob], {type: blob.type});
+			}
+			return blob;
+		}
+		, FileSaver = function(blob, name, no_auto_bom) {
+			if (!no_auto_bom) {
+				blob = auto_bom(blob);
+			}
 			// First try a.download, then web filesystem, then object URLs
 			var
 				  filesaver = this
@@ -15726,11 +15782,6 @@ var saveAs = saveAs
 				, blob_changed = false
 				, object_url
 				, target_view
-				, get_object_url = function() {
-					var object_url = get_URL().createObjectURL(blob);
-					deletion_queue.push(object_url);
-					return object_url;
-				}
 				, dispatch_all = function() {
 					dispatch(filesaver, "writestart progress write writeend".split(" "));
 				}
@@ -15738,15 +15789,20 @@ var saveAs = saveAs
 				, fs_error = function() {
 					// don't create more object URLs than needed
 					if (blob_changed || !object_url) {
-						object_url = get_object_url(blob);
+						object_url = get_URL().createObjectURL(blob);
 					}
 					if (target_view) {
 						target_view.location.href = object_url;
 					} else {
-                        window.open(object_url, "_blank");
-                    }
+						var new_tab = view.open(object_url, "_blank");
+						if (new_tab == undefined && typeof safari !== "undefined") {
+							//Apple do not allow window.open, see http://bit.ly/1kZffRI
+							view.location.href = object_url
+						}
+					}
 					filesaver.readyState = filesaver.DONE;
 					dispatch_all();
+					revoke(object_url);
 				}
 				, abortable = function(func) {
 					return function() {
@@ -15763,28 +15819,22 @@ var saveAs = saveAs
 				name = "download";
 			}
 			if (can_use_save_link) {
-				object_url = get_object_url(blob);
-				// FF for Android has a nasty garbage collection mechanism
-				// that turns all objects that are not pure javascript into 'deadObject'
-				// this means `doc` and `save_link` are unusable and need to be recreated
-				// `view` is usable though:
-				doc = view.document;
-				save_link = doc.createElementNS("http://www.w3.org/1999/xhtml", "a");
+				object_url = get_URL().createObjectURL(blob);
 				save_link.href = object_url;
 				save_link.download = name;
-				var event = doc.createEvent("MouseEvents");
-				event.initMouseEvent(
-					"click", true, false, view, 0, 0, 0, 0, 0
-					, false, false, false, false, 0, null
-				);
-				save_link.dispatchEvent(event);
-				filesaver.readyState = filesaver.DONE;
-				dispatch_all();
+				setTimeout(function() {
+					click(save_link);
+					dispatch_all();
+					revoke(object_url);
+					filesaver.readyState = filesaver.DONE;
+				});
 				return;
 			}
 			// Object and web filesystem URLs have a problem saving in Google Chrome when
 			// viewed in a tab, so I force save with application/octet-stream
 			// http://code.google.com/p/chromium/issues/detail?id=91158
+			// Update: Google errantly closed 91158, I submitted it again:
+			// https://code.google.com/p/chromium/issues/detail?id=389642
 			if (view.chrome && type && type !== force_saveable_type) {
 				slice = blob.slice || blob.webkitSlice;
 				blob = slice.call(blob, 0, blob.size, force_saveable_type);
@@ -15811,9 +15861,9 @@ var saveAs = saveAs
 							file.createWriter(abortable(function(writer) {
 								writer.onwriteend = function(event) {
 									target_view.location.href = file.toURL();
-									deletion_queue.push(file);
 									filesaver.readyState = filesaver.DONE;
 									dispatch(filesaver, "writeend", event);
+									revoke(file);
 								};
 								writer.onerror = function() {
 									var error = writer.error;
@@ -15848,10 +15898,20 @@ var saveAs = saveAs
 			}), fs_error);
 		}
 		, FS_proto = FileSaver.prototype
-		, saveAs = function(blob, name) {
-			return new FileSaver(blob, name);
+		, saveAs = function(blob, name, no_auto_bom) {
+			return new FileSaver(blob, name, no_auto_bom);
 		}
 	;
+	// IE 10+ (native saveAs)
+	if (typeof navigator !== "undefined" && navigator.msSaveOrOpenBlob) {
+		return function(blob, name, no_auto_bom) {
+			if (!no_auto_bom) {
+				blob = auto_bom(blob);
+			}
+			return navigator.msSaveOrOpenBlob(blob, name || "download");
+		};
+	}
+
 	FS_proto.abort = function() {
 		var filesaver = this;
 		filesaver.readyState = filesaver.DONE;
@@ -15870,14 +15930,23 @@ var saveAs = saveAs
 	FS_proto.onwriteend =
 		null;
 
-	view.addEventListener("unload", process_deletion_queue, false);
 	return saveAs;
-}(this.self || this.window || this.content));
+}(
+	   typeof self !== "undefined" && self
+	|| typeof window !== "undefined" && window
+	|| this.content
+));
 // `self` is undefined in Firefox for Android content script context
 // while `this` is nsIContentFrameMessageManager
 // with an attribute `content` that corresponds to the window
 
-if (typeof module !== 'undefined') module.exports = saveAs;
+if (typeof module !== "undefined" && module.exports) {
+  module.exports.saveAs = saveAs;
+} else if ((typeof define !== "undefined" && define !== null) && (define.amd != null)) {
+  define([], function() {
+    return saveAs;
+  });
+}
 ;(function(definition){if(typeof exports==="object"){module.exports=definition();}else if(typeof define==="function"&&define.amd){define(definition);}else{mori=definition();}})(function(){return function(){
 function aa(){return function(a){return a}}function f(a){return function(){return this[a]}}function m(a){return function(){return a}}var n,ba=this;
 function p(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
@@ -16186,8 +16255,7 @@ r("mori.zip.leftmost",function(a){var b=Q.c(a,0,null),c=Q.c(a,1,null),c=xc(c)?T.
 r("mori.zip.insert_right",function(a,b){var c=Q.c(a,0,null),d=Q.c(a,1,null),d=xc(d)?T.a(cc,d):d,e=R.a(d,cg);if(null==d)throw"Insert at top";return N(X([c,S.e(d,cg,K(b,e),I([gg,!0],0))]),hc(a))});r("mori.zip.replace",Pg);r("mori.zip.edit",Qg);r("mori.zip.insert_child",function(a,b){return Pg(a,Jg(a,Gg(a),K(b,Ig(a))))});r("mori.zip.append_child",function(a,b){return Pg(a,Jg(a,Gg(a),fd.a(Ig(a),X([b]))))});
 r("mori.zip.next",function(a){if(Ob.a(hg,a.b?a.b(1):a.call(null,1)))return a;var b;b=Hg(a);b=t(b)?Kg(a):b;if(t(b))return b;b=Mg(a);if(t(b))return b;for(;;)if(t(Lg(a))){b=Mg(Lg(a));if(t(b))return b;a=Lg(a)}else return X([Gg(a),hg])});r("mori.zip.prev",function(a){var b=Og(a);if(t(b))for(a=b;;)if(b=Hg(a),b=t(b)?Kg(a):b,t(b))a=Ng(b);else return a;else return Lg(a)});r("mori.zip.is_end",function(a){return Ob.a(hg,a.b?a.b(1):a.call(null,1))});
 r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc,b):b,c=R.a(b,ig),d=R.a(b,eg),e=R.a(b,dg),g=R.a(b,cg);if(null==b)throw"Remove at top";if(0<O(c))for(a=N(X([Ra(c),S.e(b,ig,Sa(c),I([gg,!0],0))]),hc(a));;)if(b=Hg(a),b=t(b)?Kg(a):b,t(b))a=Ng(b);else return a;else return N(X([Jg(a,Ra(e),g),t(d)?S.c(d,gg,!0):d]),hc(a))});r("mori.mutable.thaw",function(a){return ub(a)});r("mori.mutable.freeze",hd);r("mori.mutable.conj",function(a,b){return vb(a,b)});r("mori.mutable.assoc",id);r("mori.mutable.dissoc",function(a,b){return yb(a,b)});r("mori.mutable.pop",function(a){return zb(a)});r("mori.mutable.disj",function(a,b){return Ab(a,b)});;return this.mori;}.call({});});
-;// A standalone CommonJS loader.
-(function(root) {
+;(function() {
   /**
    * Require the given path.
    *
@@ -16199,7 +16267,7 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     var resolved = require.resolve(path);
 
     // lookup failed
-    if (!resolved) {
+    if (null === resolved) {
       orig = orig || path;
       parent = parent || 'root';
       var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
@@ -16387,12 +16455,11 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
   // Do we already have require loader?
   root.require = (typeof root.require !== 'undefined') ? root.require : require;
-
-})(this);
-// Concat modules and export them as an app.
-(function(root) {
 
   // All our modules will use global require.
   (function() {
@@ -19024,5 +19091,4 @@ r("mori.zip.remove",function(a){Q.c(a,0,null);var b=Q.c(a,1,null),b=xc(b)?T.a(cc
   
   root.require.alias("component-400/src/app.js", "component-400/index.js");
   
-
-})(this);
+})();
