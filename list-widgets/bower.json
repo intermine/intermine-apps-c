@@ -9,6 +9,6 @@
 
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
         "google": "https://www.google.com/jsapi",
-        "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js"
+        "fileSaver": "git@github.com:Teleborder/FileSaver.js.git#v1.20150507.2"
     }
 }
