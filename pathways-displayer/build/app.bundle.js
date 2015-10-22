@@ -21258,7 +21258,6 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
       module.exports = function(params) {
       
-      
       	var view = new AppView(params);
       	if ($(params.target).length != 1) throw "Not found";
       	view.setElement($(params.target));
@@ -21270,7 +21269,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       		view.updateTableColors();
       
       	}, 5000);*/
-      	
+      
       
       
       
@@ -21279,9 +21278,10 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       	//console.log(view.re);
       
       	//$(params.target).html(view.render().el);
-      	
+      
       
       }
+      
     });
 
     
@@ -21471,14 +21471,14 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
        var launchAll = function(gene, url) {
       
       
-        ////console.log("launchAll has been called");
+        //console.log("launchAll has been called");
       
           /** Return a promise **/
           //return function (genes) {
       
             /// Array to store our pathway
             death = function(err) {
-              ////console.log("death: " + err);
+              //console.log("death: " + err);
             }
       
             var promiseArray = [];
@@ -21520,18 +21520,18 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             return getPathwaysByGene(location, returned, "collection")
           }).fail(error);
       */
-              
+      
         }
       
         // :: (string, string) -> (Array<Gene>) -> Promise<Array<Record>>
-        var getPathwaysByGene = function(url, genes, pathwayCollection) { 
+        var getPathwaysByGene = function(url, genes, pathwayCollection) {
       
             var query, printRecords, getService, getData, error, fin, luString;
       
             // Build a lookup string from our array of genes:
             luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
       
-            ////console.log("luString: ", luString);
+            //console.log("luString: ", luString);
       
             // Build our query using our lookup string.
             query = {"select":["Pathway.genes.primaryIdentifier","Pathway.genes.symbol","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
@@ -21547,7 +21547,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
             /** Return query results **/
             getData = function (aService) {
-                ////console.log("------------------------getData has also been called");
+                //console.log("------------------------getData has also been called");
                 return aService.records(query);
             };
       
@@ -21559,7 +21559,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
                 _.map(pways, function(pathway) {
                   pathway.url = url;
-                 
+      
                 })
       
                  pwayCollection.add(pways);
@@ -21573,7 +21573,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
             // Return our error
             error = function(err) {
-              //console.log("I have failed in getPathways, ", err);
+              console.warn("I have failed in getPathways, ", err);
               throw new Error(err);
             };
       
@@ -21613,9 +21613,9 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
           getData = function (aService) {
       
             var myModel = aService.fetchModel().then(function(model) {
-              console.log("MY MODEL: ", model);
+              //console.log("MY MODEL: ", model);
             });
-            
+      
               var aValue = aService.records(query);
       
               return aValue;
@@ -21624,7 +21624,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
           // Deal with our results.
           returnResults = function () {
       
-            
+      
             return function (orgs) {
       
               if (orgs.length < 1) {
@@ -21639,7 +21639,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
                 //return o.homologues.homologue
               });
       
-          
+      
       
       
               // Create a 'fake' gene that represents the primary identifier and add it to our results
@@ -21650,7 +21650,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
               luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
               /*_.each(values, function(gene) {
-                 console.log("primary identifier: " + gene.primaryIdentifier);
+                 //console.log("primary identifier: " + gene.primaryIdentifier);
               });*/
       
       
@@ -21658,10 +21658,9 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             }
           }
           function error (err) {
-                //console.log("I have failed in getHomologues.", err);
+                console.warn("I have failed in getHomologues.", err);
                 throw new Error(err);
           }
-      
           // Return our results when finished
           return Q(getService(url)).then(getData).then(returnResults()).fail(error);
           //return Q(getService(url)).fail(error);
@@ -21689,6 +21688,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       exports.getHomologues = getHomologues;
       exports.launchAll = launchAll;
       exports.dynamicSort = dynamicSort;
+      
     });
 
     
@@ -21877,7 +21877,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
           initialize: function(params) {
       
-           
+      
       
             $(window).on("resize",this.resizeContext)
       
@@ -21887,8 +21887,9 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
       
             var shellTemplate = require('../templates/shell');
-            var shellHTML = _.template(shellTemplate, {"myFriendlyMines": friendlyMines});
-            
+            var shellTemplater = _.template(shellTemplate);
+            var shellHTML = shellTemplater({"myFriendlyMines": friendlyMines});
+      
       
            this.$el.html(this.templateShell);
       
@@ -21899,7 +21900,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             mediator.on('stats:hide', this.hideStats, this);
             mediator.on('table:color', this.updateTableColors, this);
             mediator.on('notify:minefail', this.notifyFail, this);
-            
+      
             mediator.on('stats:clearselected', this.clearSelected, this);
             mediator.on('notify:loading', this.showLoading, this);
       
@@ -21923,20 +21924,21 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
                   $(".pwayHeaders th:eq(" + i + ")").width($(this).width());
               });
              this.$(".pwayHeaders").width($("#pwayResultsId").width());
-             
+      
              // Moves our table header over the copy:
              this.$("#pwayResultsId").css("margin-top", this.$("#pwayResultsId thead").height() * -1);
             this.$(".dataPane").css("top", $("#pwayHeadersContainer").height());
              this.$(".dataPane").css("height", $("#pwayResultsContainer").height());
       
-             
+      
       
           },
       
       
       
           render: function() {
-            var output = _.template(this.templateShell, {myFriendlyMines: this.myFriendlyMines});
+            var template = _.template(this.templateShell);
+            var output = template({myFriendlyMines: this.myFriendlyMines});
             this.$el.html(output);
             this.updateTableColors();
             return this;
@@ -21944,7 +21946,6 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
           // Show our data table:
           showTable: function(args) {
-      
             if (pwayCollection.length < 1) {
               var noResultsTemplate = require('../templates/noresults');
               this.$("#pwayResultsContainer").html(noResultsTemplate);
@@ -21958,24 +21959,27 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
              // Get the color of our previous parent container
              var parentColor = this.$el.prev('div').css('background-color');
-             
-             
       
       
-              this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
-              this.$("#pwayResultsContainer").append(atableView.render().el);
+      
+             try {
+               this.$("#pwayHeadersContainer").append(atableViewHeaders.render().el);
+               this.$("#pwayResultsContainer").append(atableView.render().el);
+              } catch (e) {
+                console.error('Render Error: ',e);
+              }
       
               this.$( ".circle" ).css( "background-color", args.backgroundColor );
       
       
             }
       
-       
+      
             // Build our table view.
-            
+      
             this.resizeContext();
       
-          
+      
             $(document).keyup(function(e) {
               if (e.keyCode == 27) {
                 mediator.trigger('stats:hide', null);
@@ -21992,7 +21996,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
               var failureTemplate = require('../templates/failurestatus');
               this.$el.find("#statusBar").removeClass("hidden");
               this.$el.find("#statusBar").addClass("warning");
-              output = _.template(failureTemplate, {failedMines: failures});
+              var template = _.template(failureTemplate);
+              output = template({failedMines: failures});
               this.$el.find("#statusBar").html(output);
             }
       
@@ -22000,10 +22005,10 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
           },
       
           updateTableColors:function() {
-           
+      
             var pColor = this.$('.pwayHeaders thead tr th').css("background-color");
             this.$("#pwayHeadersContainer").css("background-color", pColor);
-           
+      
           },
       
           // Show our stats pane with information
@@ -22020,42 +22025,42 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             }
       
             var detailsTemplate = require('../templates/details');
-            var detailsHtml = _.template(detailsTemplate, {pway: object});
-         
+            var template = _.template(detailsTemplate);
+            var detailsHtml = template({pway: object});
+      
             this.$el.find(".dataPane").addClass("active");
       
             var testModel = new Backbone.Model(object);
-           
+      
       
             var dataView = new DataPaneView({model: testModel});
-           
+      
           },
       
           addColumn: function(colName) {
-      
-      
             var index = _.where(Globals.columns, {taxonId: colName.taxonId});
             if (index.length < 1) {
               Globals.columns.push(colName);
               Globals.columns.sort(Helper.dynamicSort("sName"));
             }
+            //console.log(Globals.columns);
           },
       
           hideStats: function() {
-           
+      
             this.$(".dataPane").removeClass("active");
             $("tr.highlighted").removeClass("highlighted");
-            
+      
       
           },
       
           notifyFail: function(value) {
-         
+      
            failures.push(value.mine);
           },
       
           clearSelected: function() {
-       
+      
             this.$("tr.highlighted").removeClass("highlighted");
           }
       
@@ -22063,6 +22068,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
       
         module.exports = AppView;
+      
     });
 
     
@@ -22097,7 +22103,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
             render: function() {
       
-             var compiledTemplate = _.template(CellTitleTemplate, {name: this.model.get("name")});
+             var template = _.template(CellTitleTemplate);
+             var compiledTemplate = template( {name: this.model.get("name")});
              this.$el.append(compiledTemplate);
       
               return this.$el;
@@ -22107,6 +22114,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
         });
       
         module.exports = PathwayCellTitleView;
+      
     });
 
     
@@ -22127,10 +22135,10 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
             initialize: function(options) {
       
-              //console.log("Data Pane Created with model " + this.model);
+              console.log("Data Pane Created with model " + this.model);
       
               this.options = options || {};
-             // console.log("name: " + this.model.get("name"));
+              console.log("name: " + this.model.get("name"));
               this.render();
               //this.render();
       
@@ -22154,7 +22162,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             render: function() {
       
               var detailsTemplate = require('../templates/details');
-              var detailsHtml = _.template(detailsTemplate, {pway: this.model.toJSON()});
+              var template =_.template(detailsTemplate);
+              var detailsHtml = template( {pway: this.model.toJSON()});
       
              this.$el.html(detailsHtml);
             // console.log("final html: " + detailsHtml);
@@ -22165,6 +22174,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
         });
       
       module.exports = DataPaneView;
+      
     });
 
     
@@ -22202,8 +22212,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
             render: function() {
       
-      
-             var cellTemplate = _.template(CellTemplate, {})
+              var template=_.template(CellTemplate);
+              var cellTemplate = template({});
              //console.log("cellTemplate: ", cellTemplate);
       
              this.$el.html(cellTemplate);
@@ -22220,6 +22230,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
         });
       
       module.exports = PathwayCellView;
+      
     });
 
     
@@ -22324,8 +22335,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
             },
       
             render: function() {
-      
-             var compiledTemplate = _.template(mineStatusTemplate, {name: this.options.name});
+            var template = _.template(mineStatusTemplate);
+             var compiledTemplate = template( {name: this.options.name});
              this.$el.append(compiledTemplate);
              //console.log("compiledTemplate " + compiledTemplate);
               return this.$el;
@@ -22335,6 +22346,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
         });
       
         module.exports = MineStatusView;
+      
     });
 
     
@@ -22358,7 +22370,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
       
         initialize: function() {
-         
+      
       
           _.bindAll(this,'render','renderOne');
           //console.log('table view initialized');
@@ -22366,8 +22378,8 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       
         },
         render: function() {
-      
-          var compiledTemplate = _.template(templateTableHeadersSansTable, {columns: Globals.columns});
+          var template = _.template(templateTableHeadersSansTable);
+          var compiledTemplate = template({columns: Globals.columns});
           //console.log("compiledTemplate: " + compiledTemplate);
       
           this.$el.append(compiledTemplate);
@@ -22388,6 +22400,7 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
       });
       
       module.exports = TableView;
+      
     });
 
     
@@ -22409,25 +22422,25 @@ if (typeof setImmediate === 'function') { // IE >= 10 & node.js >= 0.10
         className: "pwayHeaders",
       
         initialize: function() {
-         
       
       
-          //console.log('table view initialized');     
+      
+          //console.log('table view initialized');
         },
         render: function() {
-      
-          var compiledTemplate = _.template(templateTableHeaders, {columns: Globals.columns});
+          Globals.test = Globals.test ? Globals.test++ : 1;
+          var template = _.template(templateTableHeaders);
+          var compiledTemplate = template({columns: Globals.columns});
           //console.log("compiledTemplate: " + compiledTemplate);
           this.$el.append(compiledTemplate);
-      
           //this.collection.each(this.renderOne);
-          //console.log("from table view: " + this.$el.html());
           return this;
         },
       
       });
       
       module.exports = TableView;
+      
     });
   })();
 

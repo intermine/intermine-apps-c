@@ -29,8 +29,8 @@ var PathwayCellView = Backbone.View.extend({
 
       render: function() {
 
-
-       var cellTemplate = _.template(CellTemplate, {})
+        var template=_.template(CellTemplate);
+        var cellTemplate = template({});
        //console.log("cellTemplate: ", cellTemplate);
 
        this.$el.html(cellTemplate);

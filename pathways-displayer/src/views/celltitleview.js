@@ -26,7 +26,8 @@ var mediator = require('../modules/mediator');
 
       render: function() {
 
-       var compiledTemplate = _.template(CellTitleTemplate, {name: this.model.get("name")});
+       var template = _.template(CellTitleTemplate);
+       var compiledTemplate = template( {name: this.model.get("name")});
        this.$el.append(compiledTemplate);
 
         return this.$el;

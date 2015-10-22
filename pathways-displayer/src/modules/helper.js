@@ -6,14 +6,14 @@ var mediator = require('./mediator');
  var launchAll = function(gene, url) {
 
 
-  ////console.log("launchAll has been called");
+  //console.log("launchAll has been called");
 
     /** Return a promise **/
     //return function (genes) {
 
       /// Array to store our pathway
       death = function(err) {
-        ////console.log("death: " + err);
+        //console.log("death: " + err);
       }
 
       var promiseArray = [];
@@ -55,18 +55,18 @@ var mediator = require('./mediator');
       return getPathwaysByGene(location, returned, "collection")
     }).fail(error);
 */
-        
+
   }
 
   // :: (string, string) -> (Array<Gene>) -> Promise<Array<Record>>
-  var getPathwaysByGene = function(url, genes, pathwayCollection) { 
+  var getPathwaysByGene = function(url, genes, pathwayCollection) {
 
       var query, printRecords, getService, getData, error, fin, luString;
 
       // Build a lookup string from our array of genes:
       luString = genes.map(function(gene) {return "\"" + gene.primaryIdentifier + "\""}).join(',');
 
-      ////console.log("luString: ", luString);
+      //console.log("luString: ", luString);
 
       // Build our query using our lookup string.
       query = {"select":["Pathway.genes.primaryIdentifier","Pathway.genes.symbol","Pathway.id","Pathway.dataSets.name","Pathway.name","Pathway.identifier","Pathway.genes.organism.shortName","Pathway.genes.organism.taxonId"],"orderBy":[{"Pathway.name":"ASC"}],"where":{"Pathway.genes": {LOOKUP: luString}}};
@@ -82,7 +82,7 @@ var mediator = require('./mediator');
 
       /** Return query results **/
       getData = function (aService) {
-          ////console.log("------------------------getData has also been called");
+          //console.log("------------------------getData has also been called");
           return aService.records(query);
       };
 
@@ -94,7 +94,7 @@ var mediator = require('./mediator');
 
           _.map(pways, function(pathway) {
             pathway.url = url;
-           
+
           })
 
            pwayCollection.add(pways);
@@ -108,7 +108,7 @@ var mediator = require('./mediator');
 
       // Return our error
       error = function(err) {
-        //console.log("I have failed in getPathways, ", err);
+        console.warn("I have failed in getPathways, ", err);
         throw new Error(err);
       };
 
@@ -148,9 +148,9 @@ var getHomologues = function(pIdentifier, url) {
     getData = function (aService) {
 
       var myModel = aService.fetchModel().then(function(model) {
-        console.log("MY MODEL: ", model);
+        //console.log("MY MODEL: ", model);
       });
-      
+
         var aValue = aService.records(query);
 
         return aValue;
@@ -159,7 +159,7 @@ var getHomologues = function(pIdentifier, url) {
     // Deal with our results.
     returnResults = function () {
 
-      
+
       return function (orgs) {
 
         if (orgs.length < 1) {
@@ -174,7 +174,7 @@ var getHomologues = function(pIdentifier, url) {
           //return o.homologues.homologue
         });
 
-    
+
 
 
         // Create a 'fake' gene that represents the primary identifier and add it to our results
@@ -185,7 +185,7 @@ var getHomologues = function(pIdentifier, url) {
 
         luString = values.map(function(gene) {return gene.primaryIdentifier}).join(',');
         /*_.each(values, function(gene) {
-           console.log("primary identifier: " + gene.primaryIdentifier);
+           //console.log("primary identifier: " + gene.primaryIdentifier);
         });*/
 
 
@@ -193,10 +193,9 @@ var getHomologues = function(pIdentifier, url) {
       }
     }
     function error (err) {
-          //console.log("I have failed in getHomologues.", err);
+          console.warn("I have failed in getHomologues.", err);
           throw new Error(err);
     }
-
     // Return our results when finished
     return Q(getService(url)).then(getData).then(returnResults()).fail(error);
     //return Q(getService(url)).fail(error);

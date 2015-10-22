@@ -13,19 +13,18 @@ var TableView = Backbone.View.extend({
   className: "pwayHeaders",
 
   initialize: function() {
-   
 
 
-    //console.log('table view initialized');     
+
+    //console.log('table view initialized');
   },
   render: function() {
-
-    var compiledTemplate = _.template(templateTableHeaders, {columns: Globals.columns});
+    Globals.test = Globals.test ? Globals.test++ : 1;
+    var template = _.template(templateTableHeaders);
+    var compiledTemplate = template({columns: Globals.columns});
     //console.log("compiledTemplate: " + compiledTemplate);
     this.$el.append(compiledTemplate);
-
     //this.collection.each(this.renderOne);
-    //console.log("from table view: " + this.$el.html());
     return this;
   },
 

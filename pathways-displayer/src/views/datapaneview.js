@@ -12,10 +12,10 @@ var DataPaneView = Backbone.View.extend({
 
       initialize: function(options) {
 
-        //console.log("Data Pane Created with model " + this.model);
+        console.log("Data Pane Created with model " + this.model);
 
         this.options = options || {};
-       // console.log("name: " + this.model.get("name"));
+        console.log("name: " + this.model.get("name"));
         this.render();
         //this.render();
 
@@ -39,7 +39,8 @@ var DataPaneView = Backbone.View.extend({
       render: function() {
 
         var detailsTemplate = require('../templates/details');
-        var detailsHtml = _.template(detailsTemplate, {pway: this.model.toJSON()});
+        var template =_.template(detailsTemplate);
+        var detailsHtml = template( {pway: this.model.toJSON()});
 
        this.$el.html(detailsHtml);
       // console.log("final html: " + detailsHtml);
