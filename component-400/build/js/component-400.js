@@ -1,5 +1,4 @@
-// A standalone CommonJS loader.
-(function(root) {
+(function() {
   /**
    * Require the given path.
    *
@@ -11,7 +10,7 @@
     var resolved = require.resolve(path);
 
     // lookup failed
-    if (!resolved) {
+    if (null === resolved) {
       orig = orig || path;
       parent = parent || 'root';
       var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
@@ -199,12 +198,11 @@
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
   // Do we already have require loader?
   root.require = (typeof root.require !== 'undefined') ? root.require : require;
-
-})(this);
-// Concat modules and export them as an app.
-(function(root) {
 
   // All our modules will use global require.
   (function() {
@@ -2836,5 +2834,4 @@
   
   root.require.alias("component-400/src/app.js", "component-400/index.js");
   
-
-})(this);
+})();

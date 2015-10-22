@@ -1,18 +1,25 @@
 {
-    "name": "list-widgets",
-    "version": "2.0.8",
-    "dependencies": {
-        "bower": "~1.2.7",
-        "grunt": "~0.4.1",
-        
-        "grunt-apps-c": "0.1.7",
-        "grunt-contrib-concat": "~0.3.0",
-        "grunt-rework": "~0.0.5",
-        "grunt-contrib-uglify": "~0.2.5",
-        "grunt-contrib-cssmin": "~0.6.2"
-    },
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/intermine/intermine-apps-c.git"
-    }
+  "name": "list-widgets",
+  "version": "2.0.8",
+  "dependencies": {
+    "bower": "~1.2.7",
+    "grunt": "~0.4.1",
+    "grunt-apps-c": "0.1.7",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-rework": "~0.0.5",
+    "grunt-contrib-uglify": "~0.2.5",
+    "grunt-contrib-cssmin": "~0.6.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/intermine/intermine-apps-c.git"
+  },
+  "bugs": {
+    "url": "https://github.com/intermine/intermine-apps-c/issues"
+  },
+  "homepage": "https://github.com/intermine/intermine-apps-c#readme",
+  "directories": {
+    "example": "example"
+  },
+  "license": "LGPL-3.0"
 }
