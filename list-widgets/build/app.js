@@ -2073,7 +2073,7 @@
             "values": rowIdentifiers
           });
           return this.widget.queryRows(pq, function(response) {
-            var TypeError, dict, object, result, _j, _k, _len1, _len2;
+            var TypeError, dict, object, result, theDict, theID, _j, _k, _len1, _len2;
             dict = {};
             for (_j = 0, _len1 = response.length; _j < _len1; _j++) {
               object = response[_j];
@@ -2085,7 +2085,12 @@
             result = [];
             for (_k = 0, _len2 = selected.length; _k < _len2; _k++) {
               model = selected[_k];
-              result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + dict[model.get('identifier')].join(',') + "\t" + model.get('identifier'));
+              theID = model.get('identifier') || "n/a";
+              theDict = dict[theID] || "N/A - null identifier";
+              if (Array.isArray(theDict)) {
+                theDict = theDict.join(',');
+              }
+              result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + theDict + "\t" + theID);
             }
             if (result.length) {
               try {
