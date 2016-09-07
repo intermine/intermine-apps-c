@@ -1,4 +1,4 @@
-{ $, Backbone } = require '../../deps'
+{ _, $, Backbone } = require '../../deps'
 
 ### Chart Widget bar onclick box.###
 
@@ -48,7 +48,7 @@ class ChartPopoverView extends Backbone.View
             'values':      values
             'type':        @type
             'valuesLimit': @valuesLimit
-            'size':        values.length # size will be what quick pq gives us
+            'size':        _.uniq(values).length # size will be what quick pq gives us
             'can':
                 'match': @matchCb
 

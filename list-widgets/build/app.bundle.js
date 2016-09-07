@@ -26008,12 +26008,12 @@ function through (write, end, opts) {
     // ChartPopoverView.coffee
     root.require.register('list-widgets/src/class/views/ChartPopoverView.js', function(exports, require, module) {
     
-      var $, Backbone, ChartPopoverView, _ref, _ref1,
+      var $, Backbone, ChartPopoverView, _, _ref, _ref1,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
-      _ref = require('../../deps'), $ = _ref.$, Backbone = _ref.Backbone;
+      _ref = require('../../deps'), _ = _ref._, $ = _ref.$, Backbone = _ref.Backbone;
       
       /* Chart Widget bar onclick box.*/
       
@@ -26085,7 +26085,7 @@ function through (write, end, opts) {
             'values': values,
             'type': this.type,
             'valuesLimit': this.valuesLimit,
-            'size': values.length,
+            'size': _.uniq(values).length,
             'can': {
               'match': this.matchCb
             }
