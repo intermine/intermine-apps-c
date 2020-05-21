@@ -42,7 +42,7 @@ class Widgets
     ###
     chart: (id, bagName, el, widgetOptions) ->
         # Load Google Visualization.
-        google.load 'visualization', '1.0',
+        google.charts.load 'current',
             packages: [ 'corechart' ]
             callback: =>
                 # Passed in an object?
@@ -53,9 +53,9 @@ class Widgets
 
                 # Passed in a list?
                 bagName = bag.name if bag and _.isObject bag
-                
+
                 new ChartWidget @imjs, @root, @token, id, bagName, el, widgetOptions
-    
+
     ###
     Enrichment Widget.
     @param {string} id Represents a widget identifier as represented in webconfig-model.xml
@@ -141,13 +141,13 @@ class Widgets
         $.ajax
             'url':      "#{@root}widgets"
             'dataType': 'jsonp'
-            
+
             success: (res) =>
                 return error 'No widgets have been configured' unless res.widgets
 
                 # Have type, move along.
                 return show res.widgets, type if type
-                
+
                 # Do we have a bag object?
                 return show res.widgets, bag.type if bag and _.isObject bag
 
@@ -155,7 +155,7 @@ class Widgets
                 unless type then @imjs.fetchList bagName, (err, bag) ->
                     return error err if err
                     show res.widgets, bag.type
-            
+
             error: (xhr, opts, err) -> error xhr.statusText
 
 module.exports = Widgets
