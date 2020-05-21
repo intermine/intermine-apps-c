@@ -8,7 +8,7 @@
         "imjs": "3.14.0",
 
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
-        "google": "https://www.google.com/jsapi",
-        "fileSaver": "git@github.com:Teleborder/FileSaver.js.git#v1.20150507.2"
+        "google": "https://www.gstatic.com/charts/loader.js",
+        "fileSaver": "git@github.com:eligrey/FileSaver.js.git"
     }
 }
