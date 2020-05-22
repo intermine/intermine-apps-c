@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
     grunt.initConfig
         pkg: grunt.file.readJSON("package.json")
-        
+
         apps_c:
             commonjs:
                 src: [ 'src/**/*.{coffee,js,eco}' ]
@@ -17,9 +17,9 @@ module.exports = (grunt) ->
                     'vendor/jquery/jquery.js'
                     'vendor/underscore/underscore.js'
                     'vendor/backbone/backbone.js'
-                    'vendor/google/index'
+                    'vendor/google/index.js'
                     'vendor/imjs/js/im.js'
-                    'vendor/fileSaver/index.js'
+                    'vendor/fileSaver/dist/FileSaver.js'
                     # Our app with requirerer.
                     'build/app.js'
                 ]

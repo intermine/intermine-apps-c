@@ -36,7 +36,9 @@ var mediator = require('./mediator');
 
     return Q.when(getHomologues([gene], location)).then(
       function(returned) {
-        return getPathwaysByGene(location, returned, "collection");
+        try {
+          return getPathwaysByGene(location, returned, "collection");
+        } catch(e) {console.error(e);}
       },
       function(e) {
 
@@ -108,7 +110,7 @@ var mediator = require('./mediator');
 
       // Return our error
       error = function(err) {
-        console.warn("I have failed in getPathways, ", err);
+        console.warn("I, " +url+ ", have failed in getPathways, ", err);
         throw new Error(err);
       };
 

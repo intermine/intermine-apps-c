@@ -970,12 +970,12 @@
     // ChartPopoverView.coffee
     root.require.register('list-widgets/src/class/views/ChartPopoverView.js', function(exports, require, module) {
     
-      var $, Backbone, ChartPopoverView, _ref, _ref1,
+      var $, Backbone, ChartPopoverView, _, _ref, _ref1,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
-      _ref = require('../../deps'), $ = _ref.$, Backbone = _ref.Backbone;
+      _ref = require('../../deps'), _ = _ref._, $ = _ref.$, Backbone = _ref.Backbone;
       
       /* Chart Widget bar onclick box.*/
       
@@ -1047,7 +1047,7 @@
             'values': values,
             'type': this.type,
             'valuesLimit': this.valuesLimit,
-            'size': values.length,
+            'size': _.uniq(values).length,
             'can': {
               'match': this.matchCb
             }
@@ -2073,7 +2073,7 @@
             "values": rowIdentifiers
           });
           return this.widget.queryRows(pq, function(response) {
-            var TypeError, dict, object, result, _j, _k, _len1, _len2;
+            var TypeError, dict, object, result, theDict, theID, _j, _k, _len1, _len2;
             dict = {};
             for (_j = 0, _len1 = response.length; _j < _len1; _j++) {
               object = response[_j];
@@ -2085,7 +2085,12 @@
             result = [];
             for (_k = 0, _len2 = selected.length; _k < _len2; _k++) {
               model = selected[_k];
-              result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + dict[model.get('identifier')].join(',') + "\t" + model.get('identifier'));
+              theID = model.get('identifier') || "n/a";
+              theDict = dict[theID] || "N/A - null identifier";
+              if (Array.isArray(theDict)) {
+                theDict = theDict.join(',');
+              }
+              result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + theDict + "\t" + theID);
             }
             if (result.length) {
               try {
@@ -2626,6 +2631,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<a class="btn btn-small view">View</a>\n<a class="btn btn-small export">Download</a>');
           
           }).call(this);
@@ -2679,6 +2685,7 @@
         }
         (function() {
           (function() {
+          
             if (this.can.results) {
               __out.push('\n<a class="btn btn-small view-all">View in table</a>\n');
             }
@@ -2734,6 +2741,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="header">\n    <h3>');
           
             if (this.title) {
@@ -2811,6 +2819,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="group correction" style="display:inline-block;margin-right:10px;float:left;height:60px">\n    <label>Normalise by length <em class="badge badge-info" style="font-size:11px;font-family:serif;padding:1px 3px;border-radius:2px">i</em><div class="hjalp" style="padding:0"></div></label>\n\n    ');
           
             if (this.gene_length_correction) {
@@ -2880,6 +2889,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="header">\n    <h3>');
           
             if (this.title) {
@@ -3044,6 +3054,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="group background" style="display:inline-block;margin-right:10px;float:left;height:60px">\n    <label>Background population</label>\n    ');
           
             __out.push(__sanitize(this.current));
@@ -3113,7 +3124,7 @@
           
             __out.push('<table class="table table-striped">\n    <tbody>\n        <tr><td>\n            ');
           
-            if (this.current == null) {
+            if (!(this.current != null)) {
               __out.push('\n                <strong><a href="#">Default</a></strong>\n            ');
             } else {
               __out.push('\n                <a href="#">Default</a>\n            ');
@@ -3214,6 +3225,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<td class="check"><input type="checkbox" ');
           
             if (this.row["selected"]) {
@@ -3295,6 +3307,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<!-- actual fixed head -->\n<div class="head" style="display:table">\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;"><input type="checkbox" class="check" /></div>\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;">');
           
             __out.push(__sanitize(this.label));
@@ -3356,6 +3369,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="alert alert-block">\n    <h4 class="alert-heading">');
           
             __out.push(__sanitize(this.title));
@@ -3506,6 +3520,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<li style="vertical-align:bottom">\n    <span style="display:inline-block" class="label label-important">');
           
             __out.push(__sanitize(this.key));
@@ -3571,6 +3586,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="loading" style="background:rgba(255,255,255,0.9);position:absolute;top:0;left:0;height:100%;width:100%;text-align:center;">\n    <p style="padding-top:50%;font-weight:bold;">Loading &hellip;</p>\n</div>');
           
           }).call(this);
@@ -3624,6 +3640,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="alert alert-info">\n    <p>');
           
             __out.push(__sanitize(this.text || 'The Widget has no results.'));
@@ -3681,13 +3698,14 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="popover" style="position:absolute;top:5px;right:0;z-index:1;display:block">\n    <div class="popover-inner" style="');
           
             __out.push(__sanitize(this.style));
           
             __out.push('">\n        <a style="cursor:pointer;margin:2px 5px 0 0" class="close">×</a>\n        <h3 class="popover-title">\n            ');
           
-            __out.push(__sanitize(this.description.slice(0, +(this.descriptionLimit - 1) + 1 || 9e9)));
+            __out.push(__sanitize(this.description.slice(0, (this.descriptionLimit - 1) + 1 || 9e9)));
           
             __out.push('\n            ');
           
@@ -3760,6 +3778,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="popover" style="position:absolute;top:5px;right:0;z-index:1;display: block;">\n    <div class="popover-inner">\n        <a style="cursor:pointer;margin:2px 5px 0 0" class="close">×</a>\n        <h3 class="popover-title">');
           
             __out.push(__sanitize(this.title));
@@ -3837,7 +3856,7 @@
           
             __out.push(':</h4>\n\n');
           
-            _ref = this.values.slice(0, +(this.valuesLimit - 1) + 1 || 9e9);
+            _ref = this.values.slice(0, (this.valuesLimit - 1) + 1 || 9e9);
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               object = _ref[_i];
               __out.push('\n    ');
@@ -3910,6 +3929,7 @@
         }
         (function() {
           (function() {
+          
             __out.push('<div class="header">\n    <h3>');
           
             if (this.title) {
@@ -4400,7 +4420,7 @@
       
         Widgets.prototype.chart = function(id, bagName, el, widgetOptions) {
           var _this = this;
-          return google.load('visualization', '1.0', {
+          return google.charts.load('current', {
             packages: ['corechart'],
             callback: function() {
               var bag, opts, _ref1;
