@@ -2,7 +2,7 @@
   "name": "list-widgets",
   "version": "2.0.8",
   "dependencies": {
-    "bower": "~1.2.7",
+    "bower": "~1.8.8",
     "grunt": "~0.4.1",
     "grunt-apps-c": "0.1.7",
     "grunt-contrib-concat": "~0.3.0",
