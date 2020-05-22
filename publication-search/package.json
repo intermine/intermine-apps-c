@@ -2,7 +2,7 @@
     "name": "publication-search",
     "version": "0.0.0",
     "devDependencies": {
-        "bower": "~1.2.7",
+        "bower": "~1.8.8",
         "grunt": "~0.4.1",
         
         "grunt-apps-c": "0.1.14",
