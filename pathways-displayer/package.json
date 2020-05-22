@@ -2,7 +2,7 @@
   "name": "PathwaysDisplayer",
   "version": "0.4.3",
   "devDependencies": {
-    "bower": "~1.2.7",
+    "bower": "~1.8.8",
     "coffee-script": "1.6.3",
     "grunt": "~0.4.1",
     "grunt-apps-c": "0.1.7",
